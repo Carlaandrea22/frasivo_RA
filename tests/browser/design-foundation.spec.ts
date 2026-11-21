@@ -43,11 +43,11 @@ test('las capas y la opacidad responden y el botón tiene presión, foco y movim
   await expect(page.locator('.anatomy-overlay')).toHaveClass(/layer-muscles/);
 
   await page.getByRole('button', { name: 'Órganos', exact: true }).click();
-  await expect(page.locator('[data-part=heart]')).toBeVisible();
+  await expect(page.locator('[data-rendered=organs] canvas')).toBeVisible();
   const opacity = page.getByRole('slider', { name: 'Opacidad' });
   await opacity.focus();
   await page.keyboard.press('Home');
-  await expect(page.locator('.anatomy-overlay')).toHaveAttribute('opacity', '0.2');
+  await expect(page.locator('.anatomy-overlay')).toHaveCSS('opacity', '0.2');
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await expect(muscles).toHaveCSS('transition-duration', '0s');
 });
@@ -111,7 +111,8 @@ test('Pose Lite detecta sin conexión tras la primera carga y libera la cámara 
   await page.getByRole('button', { name: 'Activar cámara' }).click();
   const status = page.getByRole('status');
   await expect(status).toHaveText('Persona detectada', { timeout: 45000 });
-  await expect(page.locator('[data-part=pectorals]')).toBeVisible();
+  await expect(page.locator('[data-rendered=muscles] canvas')).toBeVisible();
+  await expect(page.locator('[data-rendered=muscles]')).not.toHaveAttribute('data-visible-parts', '0');
   const frameRatio = await page.locator('.anatomy-frame').evaluate(element => {
     const bounds = element.getBoundingClientRect();
     return bounds.width / bounds.height;
@@ -119,7 +120,7 @@ test('Pose Lite detecta sin conexión tras la primera carga y libera la cámara 
   expect(frameRatio).toBeCloseTo(1000 / 667, 2);
   await page.evaluate(() => { (window as unknown as { poseTest: { blank: boolean } }).poseTest.blank = true; });
   await expect(status).toHaveText('Buscando una persona', { timeout: 15000 });
-  await expect(page.locator('[data-part]')).toHaveCount(0);
+  await expect(page.locator('[data-rendered=muscles]')).toHaveAttribute('data-visible-parts', '0');
   await page.getByRole('button', { name: 'Explorar 3D' }).click();
   await expect.poll(() => page.evaluate(() => {
     const { stops, workerStops } = (window as unknown as { poseTest: { stops: number; workerStops: number } }).poseTest;
@@ -187,4 +188,29 @@ test('el service worker reserva el WASM de compatibilidad para el primer uso', a
   for (const path of fallback) {
     expect(await page.evaluate(async url => (await fetch(url, { cache: 'reload' })).ok, path)).toBe(true);
   }
+});
+
+test('la comparación A/B se habilita por URL y ambas técnicas muestran el atlas real', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByRole('group', { name: 'Técnica de huesos' })).toHaveCount(0);
+  await expect(page.locator('image[data-part="humerus_left"]')).toBeVisible();
+  await expect(page.locator('.anatomy-silhouette')).toHaveCount(0);
+  await page.goto('/?tecnica=a');
+  const a = page.getByRole('button', { name: 'A · Imágenes' });
+  const b = page.getByRole('button', { name: 'B · 3D' });
+  await expect(a).toHaveAttribute('aria-pressed', 'true');
+  await b.click();
+  await expect(b).toHaveAttribute('aria-pressed', 'true');
+  await expect(page).toHaveURL(/tecnica=b/);
+  await expect(page.locator('[data-rendered=bones]')).toHaveAttribute('data-visible-parts', '24');
+  await a.click();
+  await expect(page.locator('image[data-part="humerus_right"]')).toBeVisible();
+  await page.getByText('Vocabulario de la capa', { exact: true }).click();
+  await page.getByRole('button', { name: 'Mandíbula', exact: true }).click();
+  await expect(page.locator('.anatomy-active-term')).toHaveText('Mandible');
+  await expect(page.locator('image[data-part="mandible"]')).toHaveClass('selected');
+  await page.getByRole('button', { name: 'Órganos', exact: true }).click();
+  await page.getByRole('button', { name: 'Riñones', exact: true }).click();
+  await expect(page.locator('.anatomy-active-term')).toHaveText('Kidneys');
+  await expect(page.locator('[data-rendered=organs]')).toHaveAttribute('data-focused-organ', 'kidneys');
 });

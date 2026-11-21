@@ -75,7 +75,14 @@ function Section({ screen }: { screen: Exclude<Screen, 'cuerpo'> }) {
     return (
       <section className="section-panel">
         <h1>Créditos</h1>
-        <p>Referencia de anatomía cardiovascular</p>
+        <h2>Modelos anatómicos</h2>
+        <p>BodyParts3D, © The Database Center for Life Science licensed under CC Attribution 4.0 International.</p>
+        <p>Mallas adaptadas para móvil y vistas frontales renderizadas en Blender.</p>
+        <ul>
+          <li><a href="https://dbarchive.biosciencedbc.jp/en/bodyparts3d/download.html">Descargas de BodyParts3D</a></li>
+          <li><a href="https://dbarchive.biosciencedbc.jp/en/bodyparts3d/lic.html">Licencia de BodyParts3D · CC BY 4.0</a></li>
+        </ul>
+        <h2>Referencia de anatomía cardiovascular</h2>
         <p>J. Gordon Betts y colaboradores, <cite>Anatomy and Physiology 2e</cite>, OpenStax.</p>
         <ul>
           <li><a href="https://openstax.org/books/anatomy-and-physiology-2e/pages/19-1-heart-anatomy">19.1 Heart Anatomy</a></li>

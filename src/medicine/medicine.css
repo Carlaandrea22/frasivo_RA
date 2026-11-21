@@ -68,7 +68,7 @@
 
 .anatomy-frame video,
 .anatomy-overlay,
-.anatomy-silhouette {
+.anatomy-reference {
   position: absolute;
   inset: 0;
   display: block;
@@ -78,15 +78,44 @@
 
 .anatomy-frame video { visibility: hidden; object-fit: contain; }
 .anatomy-frame video.visible { visibility: visible; }
-.anatomy-silhouette {
-  fill: color-mix(in srgb, var(--camera-line) 17%, transparent);
-  stroke: var(--camera-line);
-  stroke-width: 2;
+.anatomy-reference { opacity: .14; filter: brightness(0) invert(1); pointer-events: none; }
+.anatomy-overlay {
+  overflow: hidden;
+  filter: drop-shadow(0 0 1px rgb(248 250 247 / .72)) drop-shadow(0 2px 3px rgb(16 41 35 / .48));
 }
-.anatomy-overlay { overflow: hidden; pointer-events: none; }
-.anatomy-part { stroke: var(--camera-base); stroke-width: .7; }
-.anatomy-part.selected { stroke: var(--anatomy-highlight); stroke-width: 1.5; }
+.anatomy-sprites { pointer-events: none; }
+.anatomy-sprites image { pointer-events: visiblePainted; cursor: pointer; }
+.anatomy-sprites image.selected { filter: drop-shadow(0 0 3px var(--anatomy-highlight)); }
+.anatomy-webgl canvas { display: block; width: 100%; height: 100%; }
+.anatomy-render-message {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  right: 12px;
+  text-align: center;
+  color: var(--camera-text);
+}
 .anatomy-stage-hint { color: var(--camera-muted); font-size: .8rem; text-align: center; }
+.anatomy-active-term { color: var(--anatomy-highlight); font: 700 .9rem var(--font-title); }
+
+.anatomy-techniques {
+  position: absolute;
+  z-index: 2;
+  top: 59px;
+  left: max(var(--space-3), env(safe-area-inset-left, 0px));
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+.anatomy-techniques .button { font-size: .75rem; }
+.anatomy-fps {
+  padding: 6px 9px;
+  border-radius: var(--radius-soft);
+  background: var(--camera-base);
+  color: var(--camera-text);
+  font-size: .75rem;
+  font-variant-numeric: tabular-nums;
+}
 
 .anatomy-controls {
   min-width: 0;

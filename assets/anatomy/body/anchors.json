@@ -1,0 +1,1104 @@
+{
+  "units": "m",
+  "axes": "GLB: +X anatomical left, +Y superior, +Z anterior. Sprite bounds: x, negative y, width, height.",
+  "attribution": "BodyParts3D, © The Database Center for Life Science licensed under CC Attribution 4.0 International",
+  "bounds": [
+    -0.334502,
+    -1.647255,
+    0.667614,
+    1.719748
+  ],
+  "reference": [
+    -0.356378,
+    -1.685949,
+    0.711367,
+    1.797137
+  ],
+  "anchors": {
+    "shoulder_left": [
+      0.165889,
+      1.339456,
+      0.077133
+    ],
+    "elbow_left": [
+      0.202061,
+      1.039095,
+      0.071048
+    ],
+    "wrist_left": [
+      0.275565,
+      0.812817,
+      0.116799
+    ],
+    "hip_left": [
+      0.087329,
+      0.835826,
+      0.07841
+    ],
+    "knee_left": [
+      0.060916,
+      0.378072,
+      0.074962
+    ],
+    "ankle_left": [
+      0.053097,
+      0.003087,
+      0.082659
+    ],
+    "shoulder_right": [
+      -0.166829,
+      1.339265,
+      0.076596
+    ],
+    "elbow_right": [
+      -0.200609,
+      1.038925,
+      0.071116
+    ],
+    "wrist_right": [
+      -0.275827,
+      0.812554,
+      0.117633
+    ],
+    "hip_right": [
+      -0.086948,
+      0.835308,
+      0.079548
+    ],
+    "knee_right": [
+      -0.06347,
+      0.378508,
+      0.07584
+    ],
+    "ankle_right": [
+      -0.052537,
+      0.003302,
+      0.082033
+    ],
+    "ear_left": [
+      0.073,
+      1.521095,
+      0.119
+    ],
+    "ear_right": [
+      -0.073,
+      1.521095,
+      0.119
+    ],
+    "thorax_center": [
+      0,
+      1.231095,
+      0.12
+    ]
+  },
+  "parts": [
+    {
+      "id": "skull",
+      "term": "skull",
+      "layer": "bones",
+      "group": "head",
+      "source": [
+        "FJ1282",
+        "FJ1285",
+        "FJ1286",
+        "FJ1289",
+        "FJ1297",
+        "FJ1299",
+        "FJ1305",
+        "FJ1317",
+        "FJ1320",
+        "FJ1331",
+        "FJ1336",
+        "FJ1337",
+        "FJ1340",
+        "FJ1348",
+        "FJ1350",
+        "FJ1356",
+        "FJ1368",
+        "FJ1371",
+        "FJ1382",
+        "FJ2772",
+        "FJ3199",
+        "FJ3200",
+        "FJ3201",
+        "FJ3263",
+        "FJ3265",
+        "FJ3269",
+        "FJ3272",
+        "FJ3273",
+        "FJ3274",
+        "FJ3281",
+        "FJ3287",
+        "FJ3309",
+        "FJ3369",
+        "FJ3371",
+        "FJ3375",
+        "FJ3378",
+        "FJ3379",
+        "FJ3380",
+        "FJ3386",
+        "FJ3392",
+        "FJ3394",
+        "FJ3395"
+      ],
+      "sprite": [
+        -0.080163,
+        -1.647037,
+        0.159436,
+        0.223523
+      ]
+    },
+    {
+      "id": "mandible",
+      "term": "mandible",
+      "layer": "bones",
+      "group": "head",
+      "source": [
+        "FJ3289"
+      ],
+      "sprite": [
+        -0.05624,
+        -1.514367,
+        0.111207,
+        0.088849
+      ]
+    },
+    {
+      "id": "sternum",
+      "term": "sternum",
+      "layer": "bones",
+      "group": "trunk",
+      "source": [
+        "FJ3153",
+        "FJ3178",
+        "FJ3290"
+      ],
+      "sprite": [
+        -0.029745,
+        -1.335074,
+        0.059527,
+        0.168562
+      ]
+    },
+    {
+      "id": "spine",
+      "term": "spine",
+      "layer": "bones",
+      "group": "trunk",
+      "source": [
+        "FJ3154",
+        "FJ3155",
+        "FJ3156",
+        "FJ3157",
+        "FJ3158",
+        "FJ3159",
+        "FJ3160",
+        "FJ3161",
+        "FJ3162",
+        "FJ3163",
+        "FJ3164",
+        "FJ3165",
+        "FJ3166",
+        "FJ3167",
+        "FJ3168",
+        "FJ3169",
+        "FJ3170",
+        "FJ3171",
+        "FJ3172",
+        "FJ3173",
+        "FJ3174",
+        "FJ3175",
+        "FJ3203",
+        "FJ3204",
+        "FJ3205",
+        "FJ3206",
+        "FJ3207",
+        "FJ3208",
+        "FJ3209",
+        "FJ3210",
+        "FJ3212",
+        "FJ3213",
+        "FJ3214",
+        "FJ3215",
+        "FJ3216",
+        "FJ3217",
+        "FJ3218",
+        "FJ3219",
+        "FJ3220",
+        "FJ3221",
+        "FJ3222",
+        "FJ3223",
+        "FJ3224",
+        "FJ3393"
+      ],
+      "sprite": [
+        -0.068168,
+        -1.466622,
+        0.134396,
+        0.692562
+      ]
+    },
+    {
+      "id": "ribs_left",
+      "term": "ribs",
+      "layer": "bones",
+      "group": "trunk",
+      "source": [
+        "FJ3225",
+        "FJ3226",
+        "FJ3227",
+        "FJ3228",
+        "FJ3230",
+        "FJ3231",
+        "FJ3232",
+        "FJ3233",
+        "FJ3234",
+        "FJ3235",
+        "FJ3236",
+        "FJ3239"
+      ],
+      "sprite": [
+        0.006891,
+        -1.384779,
+        0.134433,
+        0.378796
+      ]
+    },
+    {
+      "id": "clavicle_left",
+      "term": "clavicle",
+      "layer": "bones",
+      "group": "trunk",
+      "source": [
+        "FJ3237"
+      ],
+      "sprite": [
+        0.005329,
+        -1.363336,
+        0.141664,
+        0.050771
+      ]
+    },
+    {
+      "id": "pelvis_left",
+      "term": "pelvis",
+      "layer": "bones",
+      "group": "pelvis",
+      "source": [
+        "FJ3288"
+      ],
+      "sprite": [
+        -0.001191,
+        -0.968823,
+        0.149887,
+        0.215415
+      ]
+    },
+    {
+      "id": "humerus_left",
+      "term": "humerus",
+      "layer": "bones",
+      "group": "upper_arm_left",
+      "source": [
+        "FJ3262"
+      ],
+      "sprite": [
+        0.135677,
+        -1.34953,
+        0.109479,
+        0.321139
+      ]
+    },
+    {
+      "id": "radius_left",
+      "term": "radius",
+      "layer": "bones",
+      "group": "forearm_left",
+      "source": [
+        "FJ3277"
+      ],
+      "sprite": [
+        0.21667,
+        -1.046254,
+        0.06564,
+        0.239145
+      ]
+    },
+    {
+      "id": "ulna_left",
+      "term": "ulna",
+      "layer": "bones",
+      "group": "forearm_left",
+      "source": [
+        "FJ3286"
+      ],
+      "sprite": [
+        0.193525,
+        -1.064133,
+        0.056962,
+        0.258589
+      ]
+    },
+    {
+      "id": "femur_left",
+      "term": "femur",
+      "layer": "bones",
+      "group": "thigh_left",
+      "source": [
+        "FJ3259"
+      ],
+      "sprite": [
+        0.025522,
+        -0.850823,
+        0.131159,
+        0.487161
+      ]
+    },
+    {
+      "id": "patella_left",
+      "term": "patella",
+      "layer": "bones",
+      "group": "shin_left",
+      "source": [
+        "FJ3275"
+      ],
+      "sprite": [
+        0.059656,
+        -0.407761,
+        0.043505,
+        0.041071
+      ]
+    },
+    {
+      "id": "tibia_left",
+      "term": "tibia",
+      "layer": "bones",
+      "group": "shin_left",
+      "source": [
+        "FJ3282"
+      ],
+      "sprite": [
+        0.029901,
+        -0.388506,
+        0.084687,
+        0.397055
+      ]
+    },
+    {
+      "id": "fibula_left",
+      "term": "fibula",
+      "layer": "bones",
+      "group": "shin_left",
+      "source": [
+        "FJ3260"
+      ],
+      "sprite": [
+        0.07985,
+        -0.373874,
+        0.044936,
+        0.401616
+      ]
+    },
+    {
+      "id": "ribs_right",
+      "term": "ribs",
+      "layer": "bones",
+      "group": "trunk",
+      "source": [
+        "FJ3330",
+        "FJ3331",
+        "FJ3332",
+        "FJ3334",
+        "FJ3336",
+        "FJ3338",
+        "FJ3340",
+        "FJ3342",
+        "FJ3344",
+        "FJ3346",
+        "FJ3347",
+        "FJ3348"
+      ],
+      "sprite": [
+        -0.142603,
+        -1.384792,
+        0.134399,
+        0.3787
+      ]
+    },
+    {
+      "id": "clavicle_right",
+      "term": "clavicle",
+      "layer": "bones",
+      "group": "trunk",
+      "source": [
+        "FJ3362"
+      ],
+      "sprite": [
+        -0.148328,
+        -1.363521,
+        0.141718,
+        0.050791
+      ]
+    },
+    {
+      "id": "pelvis_right",
+      "term": "pelvis",
+      "layer": "bones",
+      "group": "pelvis",
+      "source": [
+        "FJ3152"
+      ],
+      "sprite": [
+        -0.148809,
+        -0.968593,
+        0.149955,
+        0.214973
+      ]
+    },
+    {
+      "id": "humerus_right",
+      "term": "humerus",
+      "layer": "bones",
+      "group": "upper_arm_right",
+      "source": [
+        "FJ3368"
+      ],
+      "sprite": [
+        -0.245491,
+        -1.34955,
+        0.110051,
+        0.32117
+      ]
+    },
+    {
+      "id": "radius_right",
+      "term": "radius",
+      "layer": "bones",
+      "group": "forearm_right",
+      "source": [
+        "FJ3349"
+      ],
+      "sprite": [
+        -0.282766,
+        -1.046303,
+        0.066164,
+        0.23953
+      ]
+    },
+    {
+      "id": "ulna_right",
+      "term": "ulna",
+      "layer": "bones",
+      "group": "forearm_right",
+      "source": [
+        "FJ3391"
+      ],
+      "sprite": [
+        -0.250491,
+        -1.064109,
+        0.056921,
+        0.258404
+      ]
+    },
+    {
+      "id": "femur_right",
+      "term": "femur",
+      "layer": "bones",
+      "group": "thigh_right",
+      "source": [
+        "FJ3365"
+      ],
+      "sprite": [
+        -0.156582,
+        -0.850835,
+        0.131136,
+        0.487077
+      ]
+    },
+    {
+      "id": "patella_right",
+      "term": "patella",
+      "layer": "bones",
+      "group": "shin_right",
+      "source": [
+        "FJ3381"
+      ],
+      "sprite": [
+        -0.103226,
+        -0.407789,
+        0.043542,
+        0.041106
+      ]
+    },
+    {
+      "id": "tibia_right",
+      "term": "tibia",
+      "layer": "bones",
+      "group": "shin_right",
+      "source": [
+        "FJ3387"
+      ],
+      "sprite": [
+        -0.114281,
+        -0.388564,
+        0.083992,
+        0.397055
+      ]
+    },
+    {
+      "id": "fibula_right",
+      "term": "fibula",
+      "layer": "bones",
+      "group": "shin_right",
+      "source": [
+        "FJ3366"
+      ],
+      "sprite": [
+        -0.124729,
+        -0.373895,
+        0.044949,
+        0.401729
+      ]
+    },
+    {
+      "id": "pectoralis_major_left",
+      "term": "pectoralis_major",
+      "layer": "muscles",
+      "group": "trunk",
+      "source": [
+        "FJ1446M",
+        "FJ1447M",
+        "FJ1464M"
+      ]
+    },
+    {
+      "id": "pectoralis_major_right",
+      "term": "pectoralis_major",
+      "layer": "muscles",
+      "group": "trunk",
+      "source": [
+        "FJ1446",
+        "FJ1447",
+        "FJ1464"
+      ]
+    },
+    {
+      "id": "deltoid_left",
+      "term": "deltoid",
+      "layer": "muscles",
+      "group": "upper_arm_left",
+      "source": [
+        "FJ1467M",
+        "FJ1468M",
+        "FJ1513M"
+      ]
+    },
+    {
+      "id": "deltoid_right",
+      "term": "deltoid",
+      "layer": "muscles",
+      "group": "upper_arm_right",
+      "source": [
+        "FJ1467",
+        "FJ1468",
+        "FJ1513"
+      ]
+    },
+    {
+      "id": "biceps_brachii_left",
+      "term": "biceps_brachii",
+      "layer": "muscles",
+      "group": "upper_arm_left",
+      "source": [
+        "FJ1478M",
+        "FJ1512M"
+      ]
+    },
+    {
+      "id": "biceps_brachii_right",
+      "term": "biceps_brachii",
+      "layer": "muscles",
+      "group": "upper_arm_right",
+      "source": [
+        "FJ1478",
+        "FJ1512"
+      ]
+    },
+    {
+      "id": "triceps_brachii_left",
+      "term": "triceps_brachii",
+      "layer": "muscles",
+      "group": "upper_arm_left",
+      "source": [
+        "FJ1477M",
+        "FJ1479M",
+        "FJ1480M"
+      ]
+    },
+    {
+      "id": "triceps_brachii_right",
+      "term": "triceps_brachii",
+      "layer": "muscles",
+      "group": "upper_arm_right",
+      "source": [
+        "FJ1477",
+        "FJ1479",
+        "FJ1480"
+      ]
+    },
+    {
+      "id": "external_oblique_left",
+      "term": "external_oblique",
+      "layer": "muscles",
+      "group": "trunk",
+      "source": [
+        "FJ1452M"
+      ]
+    },
+    {
+      "id": "external_oblique_right",
+      "term": "external_oblique",
+      "layer": "muscles",
+      "group": "trunk",
+      "source": [
+        "FJ1452"
+      ]
+    },
+    {
+      "id": "quadriceps_femoris_left",
+      "term": "quadriceps_femoris",
+      "layer": "muscles",
+      "group": "thigh_left",
+      "source": [
+        "FJ1433M",
+        "FJ1441M",
+        "FJ1442M",
+        "FJ1443M"
+      ]
+    },
+    {
+      "id": "quadriceps_femoris_right",
+      "term": "quadriceps_femoris",
+      "layer": "muscles",
+      "group": "thigh_right",
+      "source": [
+        "FJ1433",
+        "FJ1441",
+        "FJ1442",
+        "FJ1443"
+      ]
+    },
+    {
+      "id": "sartorius_left",
+      "term": "sartorius",
+      "layer": "muscles",
+      "group": "thigh_left",
+      "source": [
+        "FJ1434M"
+      ]
+    },
+    {
+      "id": "sartorius_right",
+      "term": "sartorius",
+      "layer": "muscles",
+      "group": "thigh_right",
+      "source": [
+        "FJ1434"
+      ]
+    },
+    {
+      "id": "gastrocnemius_left",
+      "term": "gastrocnemius",
+      "layer": "muscles",
+      "group": "shin_left",
+      "source": [
+        "FJ1394M",
+        "FJ1397M"
+      ]
+    },
+    {
+      "id": "gastrocnemius_right",
+      "term": "gastrocnemius",
+      "layer": "muscles",
+      "group": "shin_right",
+      "source": [
+        "FJ1394",
+        "FJ1397"
+      ]
+    },
+    {
+      "id": "tibialis_anterior_left",
+      "term": "tibialis_anterior",
+      "layer": "muscles",
+      "group": "shin_left",
+      "source": [
+        "FJ1439M"
+      ]
+    },
+    {
+      "id": "tibialis_anterior_right",
+      "term": "tibialis_anterior",
+      "layer": "muscles",
+      "group": "shin_right",
+      "source": [
+        "FJ1439"
+      ]
+    },
+    {
+      "id": "rectus_abdominis_left",
+      "term": "rectus_abdominis",
+      "layer": "muscles",
+      "group": "trunk",
+      "source": [
+        "FMA13378"
+      ]
+    },
+    {
+      "id": "rectus_abdominis_right",
+      "term": "rectus_abdominis",
+      "layer": "muscles",
+      "group": "trunk",
+      "source": [
+        "FMA13377"
+      ]
+    },
+    {
+      "id": "lungs",
+      "term": "lungs",
+      "layer": "organs",
+      "group": "trunk",
+      "source": [
+        "FMA7333",
+        "FMA7383",
+        "FMA7337",
+        "FMA7370",
+        "FMA7371"
+      ]
+    },
+    {
+      "id": "brain",
+      "term": "brain",
+      "layer": "organs",
+      "group": "head",
+      "source": [
+        "FJ1730",
+        "FJ1731",
+        "FJ1732",
+        "FJ1733",
+        "FJ1738",
+        "FJ1739",
+        "FJ1740",
+        "FJ1743",
+        "FJ1744",
+        "FJ1745",
+        "FJ1746",
+        "FJ1747",
+        "FJ1748",
+        "FJ1749",
+        "FJ1750",
+        "FJ1751",
+        "FJ1758",
+        "FJ1759",
+        "FJ1760",
+        "FJ1762",
+        "FJ1767",
+        "FJ1769",
+        "FJ1770",
+        "FJ1775",
+        "FJ1779",
+        "FJ1780",
+        "FJ1781",
+        "FJ1783",
+        "FJ1784",
+        "FJ1785",
+        "FJ1786",
+        "FJ1787",
+        "FJ1788",
+        "FJ1789",
+        "FJ1790",
+        "FJ1791",
+        "FJ1792",
+        "FJ1795",
+        "FJ1797",
+        "FJ1798",
+        "FJ1800",
+        "FJ1801",
+        "FJ1806",
+        "FJ1807",
+        "FJ1808",
+        "FJ1810",
+        "FJ1814",
+        "FJ1817",
+        "FJ1822",
+        "FJ1826",
+        "FJ1828",
+        "FJ1830",
+        "FJ1831",
+        "FJ1833",
+        "FJ1834",
+        "FJ1835",
+        "FJ1836",
+        "FJ1841",
+        "FJ1842"
+      ]
+    },
+    {
+      "id": "heart",
+      "term": "heart",
+      "layer": "organs",
+      "group": "trunk",
+      "source": [
+        "FJ2417",
+        "FJ2418",
+        "FJ2419",
+        "FJ2420",
+        "FJ2421",
+        "FJ2422",
+        "FJ2423",
+        "FJ2424",
+        "FJ2425",
+        "FJ2426",
+        "FJ2427",
+        "FJ2429",
+        "FJ2430",
+        "FJ2431",
+        "FJ2432",
+        "FJ2433",
+        "FJ2434",
+        "FJ2435",
+        "FJ2436",
+        "FJ2437",
+        "FJ2438",
+        "FJ2439",
+        "FJ2631",
+        "FJ2632",
+        "FJ2633",
+        "FJ2634",
+        "FJ2635",
+        "FJ2636",
+        "FJ2637",
+        "FJ2638",
+        "FJ2639",
+        "FJ2640",
+        "FJ2641",
+        "FJ2642",
+        "FJ2643",
+        "FJ2644",
+        "FJ2645",
+        "FJ2646",
+        "FJ2647",
+        "FJ2648",
+        "FJ2649",
+        "FJ2650",
+        "FJ2651",
+        "FJ2652",
+        "FJ2653",
+        "FJ2654",
+        "FJ2655",
+        "FJ2656",
+        "FJ2667",
+        "FJ2668",
+        "FJ2670",
+        "FJ2671",
+        "FJ2672",
+        "FJ2673",
+        "FJ2674",
+        "FJ2675",
+        "FJ2676",
+        "FJ2677",
+        "FJ2692",
+        "FJ2693",
+        "FJ2694",
+        "FJ2695",
+        "FJ2696",
+        "FJ2697",
+        "FJ2698",
+        "FJ2699",
+        "FJ2700",
+        "FJ2714",
+        "FJ2715",
+        "FJ2716",
+        "FJ2717",
+        "FJ2718",
+        "FJ2719",
+        "FJ2720",
+        "FJ2721",
+        "FJ2722",
+        "FJ2723",
+        "FJ2724",
+        "FJ2727",
+        "FJ2728",
+        "FJ2729",
+        "FJ2731",
+        "FJ2737"
+      ]
+    },
+    {
+      "id": "liver",
+      "term": "liver",
+      "layer": "organs",
+      "group": "trunk",
+      "source": [
+        "FJ1883",
+        "FJ1893",
+        "FJ1913",
+        "FJ1914",
+        "FJ1916",
+        "FJ2386",
+        "FJ2404",
+        "FJ2405",
+        "FJ2409",
+        "FJ2415",
+        "FJ2416",
+        "FJ2816",
+        "FJ2818",
+        "FJ2819",
+        "FJ2820",
+        "FJ2821",
+        "FJ2822",
+        "FJ2823",
+        "FJ2824",
+        "FJ3071",
+        "FJ3072",
+        "FJ3073",
+        "FJ3074",
+        "FJ3075",
+        "FJ3076",
+        "FJ3077",
+        "FJ3081",
+        "FJ3083",
+        "FJ3086",
+        "FJ3088",
+        "FJ3089",
+        "FJ3090",
+        "FJ3091",
+        "FJ3092",
+        "FJ3093",
+        "FJ3095",
+        "FJ3096",
+        "FJ3102",
+        "FJ3103",
+        "FJ3104",
+        "FJ3105",
+        "FJ3106",
+        "FJ3107",
+        "FJ3108",
+        "FJ3109",
+        "FJ3110",
+        "FJ3111",
+        "FJ3112",
+        "FJ3113",
+        "FJ3114",
+        "FJ3115",
+        "FJ3116",
+        "FJ3117",
+        "FJ3122",
+        "FJ3123",
+        "FJ3124",
+        "FJ3125",
+        "FJ3126",
+        "FJ3127",
+        "FJ3128"
+      ]
+    },
+    {
+      "id": "stomach",
+      "term": "stomach",
+      "layer": "organs",
+      "group": "trunk",
+      "source": [
+        "FJ2564"
+      ]
+    },
+    {
+      "id": "small_intestine",
+      "term": "small_intestine",
+      "layer": "organs",
+      "group": "trunk",
+      "source": [
+        "FJ2573",
+        "FJ2574",
+        "FJ2575",
+        "FJ2576",
+        "FJ2577",
+        "FJ2578",
+        "FJ2579",
+        "FJ2580",
+        "FJ2581",
+        "FJ2582",
+        "FJ2583",
+        "FJ2584",
+        "FJ2585",
+        "FJ2586",
+        "FJ2587",
+        "FJ2588",
+        "FJ2589",
+        "FJ2590",
+        "FJ2591",
+        "FJ2592",
+        "FJ2593",
+        "FJ2594",
+        "FJ2595",
+        "FJ2596",
+        "FJ2597",
+        "FJ2598",
+        "FJ2599",
+        "FJ2600",
+        "FJ2601",
+        "FJ2602",
+        "FJ2603",
+        "FJ2604",
+        "FJ2605",
+        "FJ2606",
+        "FJ2607",
+        "FJ2608",
+        "FJ2609",
+        "FJ2610",
+        "FJ2611",
+        "FJ2612",
+        "FJ2613",
+        "FJ2614",
+        "FJ2615",
+        "FJ2616",
+        "FJ2617",
+        "FJ2618",
+        "FJ2619",
+        "FJ2620",
+        "FJ2621",
+        "FJ2622",
+        "FJ2623",
+        "FJ2624",
+        "FJ2625",
+        "FJ2626",
+        "FJ2627",
+        "FJ2628"
+      ]
+    },
+    {
+      "id": "large_intestine",
+      "term": "large_intestine",
+      "layer": "organs",
+      "group": "trunk",
+      "source": [
+        "FJ2566",
+        "FJ2567",
+        "FJ2568",
+        "FJ2569",
+        "FJ2570",
+        "FJ2571",
+        "FJ2572",
+        "FJ2599"
+      ]
+    },
+    {
+      "id": "kidneys",
+      "term": "kidneys",
+      "layer": "organs",
+      "group": "trunk",
+      "source": [
+        "FJ3145",
+        "FJ3147"
+      ]
+    }
+  ]
+}

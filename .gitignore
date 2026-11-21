@@ -15,3 +15,6 @@ playwright-report/
 !.env.example
 *.log
 docs/mobile-qr.png
+
+# Descargas originales de anatomía
+assets/_fuentes/

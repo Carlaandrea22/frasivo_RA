@@ -1,8 +1,9 @@
-import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from 'react';
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from 'react';
 import { Bone, BookOpen, Camera, ChevronUp, Dumbbell, Heart, ScanLine, Square, Volume2, X } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { AnatomyOverlay } from './AnatomyOverlay';
-import { anatomyParts, demoPose, type AnatomyLayer } from './anatomy';
+import { anatomyParts, type AnatomyLayer } from './anatomy';
+import { comparisonTechnique, type Technique } from './atlasAlignment';
 import { usePoseCamera } from './usePoseCamera';
 import './medicine.css';
 
@@ -29,11 +30,16 @@ export default function MedicineExplorer() {
   const [selected, setSelected] = useState('skull');
   const [opacity, setOpacity] = useState(85);
   const [audioError, setAudioError] = useState(false);
+  const [comparison] = useState(() => comparisonTechnique(window.location.search));
+  const [technique, setTechnique] = useState<Technique>(comparison ?? 'a');
+  const [fps, setFps] = useState<number | null>(null);
+  const frameSample = useRef({ started: 0, count: 0 });
   const compact = useSyncExternalStore(subscribeViewport, isCompactViewport);
   const vocabularySheet = useRef<HTMLDialogElement>(null);
   const camera = usePoseCamera();
   const live = camera.status === 'active';
   const waiting = camera.status === 'permission';
+  const aspect = live ? camera.aspect : .8;
   const parts = anatomyParts.filter(part => part.layer === layer);
   const term = parts.find(part => part.id === selected) ?? parts[0];
   const status = waiting ? 'Esperando permiso' : !live ? 'Demostración'
@@ -41,6 +47,34 @@ export default function MedicineExplorer() {
     : camera.tracking === 'tracking' ? 'Persona detectada' : 'Buscando una persona';
 
   useEffect(() => () => window.speechSynthesis?.cancel(), []);
+
+  useEffect(() => {
+    frameSample.current = { started: 0, count: 0 };
+    setFps(null);
+  }, [technique, layer, live]);
+
+  const recordFrame = useCallback(() => {
+    const now = performance.now();
+    const sample = frameSample.current;
+    if (!sample.started) sample.started = now;
+    const elapsed = now - sample.started;
+    if (elapsed >= 1000) {
+      setFps(Math.round(sample.count * 1000 / elapsed));
+      frameSample.current = { started: now, count: 1 };
+    } else sample.count++;
+  }, []);
+
+  function changeTechnique(next: Technique) {
+    const url = new URL(window.location.href);
+    url.searchParams.set('tecnica', next);
+    window.history.replaceState(null, '', url);
+    setTechnique(next);
+  }
+
+  function selectPart(id: string) {
+    setSelected(id);
+    setAudioError(false);
+  }
 
   function speak() {
     const synthesis = window.speechSynthesis;
@@ -60,10 +94,7 @@ export default function MedicineExplorer() {
     <>
       <div className="anatomy-part-list" role="group" aria-label="Estructuras ilustradas">
         {parts.map(part => (
-          <Button key={part.id} variant="text" aria-pressed={part.id === term.id} onClick={() => {
-            setSelected(part.id);
-            setAudioError(false);
-          }}>
+          <Button key={part.id} variant="text" aria-pressed={part.id === term.id} onClick={() => selectPart(part.id)}>
             {part.es}
           </Button>
         ))}
@@ -77,7 +108,7 @@ export default function MedicineExplorer() {
           <Volume2 size={20} aria-hidden="true"/>
         </Button>
       </div>
-      <p>{term.description}</p>
+          <p lang="en">{term.description}</p>
       {audioError && <p role="status">La voz inglesa no está disponible en este dispositivo.</p>}
     </>
   );
@@ -92,24 +123,33 @@ export default function MedicineExplorer() {
           <span className="anatomy-status" role="status"><i aria-hidden="true"/>{status}</span>
         </div>
         <div className="anatomy-window">
-          <div className="anatomy-frame" style={{ '--frame-ratio': live ? camera.aspect : .8 } as CSSProperties}>
+          <div className="anatomy-frame" style={{ '--frame-ratio': aspect } as CSSProperties}>
             <video ref={camera.videoRef} autoPlay playsInline muted aria-label="Vista de la cámara" className={live ? 'visible' : ''}/>
-            {!live && !waiting && (
-              <svg viewBox="0 0 1000 1000" preserveAspectRatio="none" className="anatomy-silhouette" aria-hidden="true">
-                <ellipse cx="500" cy="120" rx="62" ry="64"/>
-                <path d="M465 175V210Q390 210 365 244L275 402L220 562Q230 585 260 565L324 420L390 315L405 530L365 937Q380 963 407 943L475 642H525L593 943Q620 963 635 937L595 530L610 315L676 420L740 565Q770 585 780 562L725 402L635 244Q610 210 535 210V175Z"/>
-              </svg>
-            )}
-            <AnatomyOverlay
-              points={live ? camera.points : waiting ? [] : demoPose}
+            {!waiting && <AnatomyOverlay
+              key={layer}
+              points={live ? camera.points : null}
               layer={layer}
+              aspect={aspect}
               selected={term.id}
+              focusSelection={selected === term.id}
               opacity={opacity / 100}
-            />
+              technique={technique}
+              onSelect={selectPart}
+              onFrame={comparison && live && camera.tracking === 'tracking' ? recordFrame : undefined}
+            />}
           </div>
         </div>
+        {comparison && layer === 'bones' && (
+          <div className="anatomy-techniques" role="group" aria-label="Técnica de huesos">
+            <Button variant="secondary" aria-pressed={technique === 'a'} onClick={() => changeTechnique('a')}>A · Imágenes</Button>
+            <Button variant="secondary" aria-pressed={technique === 'b'} onClick={() => changeTechnique('b')}>B · 3D</Button>
+            {live && camera.tracking === 'tracking' && <span className="anatomy-fps" data-fps={fps ?? undefined}>{fps ?? '–'} fps</span>}
+          </div>
+        )}
         <p className="anatomy-stage-hint">
-          {live ? 'Encuadra a una persona de frente' : 'Vista ilustrada · frontal'}
+          {waiting || (live && camera.tracking !== 'tracking')
+            ? 'Encuadra a una persona de frente'
+            : <span className="anatomy-active-term" lang="en">{term.en}</span>}
         </p>
       </div>
 
