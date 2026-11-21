@@ -1,0 +1,40 @@
+.anatomy-android-space {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  background: transparent;
+  pointer-events: none;
+}
+
+.anatomy-android-space-controls {
+  position: absolute;
+  z-index: 4;
+  top: max(.75rem, env(safe-area-inset-top, 0px));
+  left: max(.75rem, env(safe-area-inset-left, 0px));
+  right: max(.75rem, env(safe-area-inset-right, 0px));
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: .5rem;
+}
+
+.anatomy-android-space-controls .button {
+  min-height: 44px;
+  pointer-events: auto;
+}
+
+.anatomy-android-space-hint {
+  position: absolute;
+  right: max(.75rem, env(safe-area-inset-right, 0px));
+  bottom: max(1rem, env(safe-area-inset-bottom, 0px));
+  left: max(.75rem, env(safe-area-inset-left, 0px));
+  width: fit-content;
+  max-width: 27rem;
+  margin: 0 auto;
+  padding: .65rem .85rem;
+  border-radius: 16px;
+  color: white;
+  background: rgb(12 28 24 / .88);
+  font: 700 .9rem/1.4 var(--font-title);
+  text-align: center;
+}

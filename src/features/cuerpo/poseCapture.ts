@@ -1,5 +1,5 @@
 import type { BodyPoint } from './anatomy';
-import { landmark, pointInFrame, visibleRegion } from './atlasAlignment';
+import { landmark, pointInFrame, sides, visibleRegion } from './atlasAlignment';
 
 export interface PoseSample {
   time: number;
@@ -8,23 +8,42 @@ export interface PoseSample {
 }
 
 export const captureWindow = 520;
+export const preciseCaptureDuration = 1000;
 
 const torso = [landmark.shoulder_left, landmark.shoulder_right, landmark.hip_left, landmark.hip_right];
-const legs = [landmark.knee_left, landmark.knee_right, landmark.ankle_left, landmark.ankle_right];
+const knees = [landmark.knee_left, landmark.knee_right];
+const head = [0, landmark.eye_left, landmark.eye_right, landmark.ear_left, landmark.ear_right];
 const arms = [landmark.elbow_left, landmark.elbow_right, landmark.wrist_left, landmark.wrist_right];
 
 function validWorld(point: BodyPoint | undefined) {
   return point && Number.isFinite(point.x) && Number.isFinite(point.y) && Number.isFinite(point.z);
 }
 
-export function captureIssue(sample: PoseSample | undefined, aspect: number, viewportAspect: number) {
-  if (!sample) return 'Encuadra a una persona de cuerpo completo';
+export function captureIssue(sample: PoseSample | undefined, aspect: number, viewportAspect: number, now?: number) {
+  if (!sample || (now !== undefined && now - sample.time > 300)) return 'Encuadra a una persona de cuerpo completo';
   const region = visibleRegion(aspect, viewportAspect);
-  const seen = (index: number, confidence = .65) =>
-    pointInFrame(sample.points[index], aspect, region, confidence) && validWorld(sample.world[index]);
-  if (!torso.every(index => seen(index))) return 'Aléjate para ver el cuerpo completo';
-  if (!legs.every(index => seen(index))) return 'Aléjate para ver los pies';
-  if (!arms.every(index => seen(index, .52))) return 'Muestra los brazos y las muñecas';
+  const locate = (index: number, confidence = .65) => validWorld(sample.world[index])
+    ? pointInFrame(sample.points[index], aspect, region, confidence) : null;
+  const [leftShoulder, rightShoulder, leftHip, rightHip] = torso.map(index => locate(index));
+  if (!leftShoulder || !rightShoulder || !leftHip || !rightHip) return 'Aléjate para ver el cuerpo completo';
+  if (!head.some(index => locate(index, .52))) return 'Encuadra también la cabeza';
+  if (!knees.every(index => locate(index, .52))) return 'Aléjate para ver las piernas completas';
+
+  const trunkLength = Math.hypot(
+    leftShoulder[0] + rightShoulder[0] - leftHip[0] - rightHip[0],
+    leftShoulder[1] + rightShoulder[1] - leftHip[1] - rightHip[1],
+  ) / 2;
+  const feetVisible = sides.every(side => {
+    const ankle = locate(landmark[`ankle_${side}`], .52), toe = locate(landmark[`toe_${side}`], .52);
+    const heel = locate(landmark[`heel_${side}`], .40);
+    if (!ankle || !heel || !toe) return false;
+    // A heel viewed from the front has lower confidence. Require it to agree with both ends of the foot.
+    const span = Math.hypot(heel[0] - toe[0], heel[1] - toe[1]);
+    const fromAnkle = Math.hypot(heel[0] - ankle[0], heel[1] - ankle[1]);
+    return span >= trunkLength*.025 && span <= trunkLength*.65 && fromAnkle <= trunkLength*.35;
+  });
+  if (!feetVisible) return 'Aléjate para ver los pies completos, incluidos talones y puntas';
+  if (!arms.every(index => locate(index, .52))) return 'Muestra los brazos y las muñecas';
   return '';
 }
 
@@ -38,6 +57,18 @@ export function averagePose(history: PoseSample[], now: number, aspect: number, 
     frames.push(sample);
   }
   if (frames.length < 3 || latest.time - frames[frames.length - 1].time < 310) return null;
+  return averageWorldLandmarks(frames, aspect, viewportAspect);
+}
+
+export function averagePrecisePose(history: PoseSample[], start: number, aspect: number, viewportAspect: number) {
+  const end = start + preciseCaptureDuration;
+  const frames = history.filter(frame => frame.time >= start && frame.time <= end);
+  if (frames.length < 3 || frames[0].time > start + 350 || frames.at(-1)!.time < end - 350) return null;
+  if (frames.some(frame => captureIssue(frame, aspect, viewportAspect))) return null;
+  return averageWorldLandmarks(frames, aspect, viewportAspect);
+}
+
+function averageWorldLandmarks(frames: PoseSample[], aspect: number, viewportAspect: number) {
   const region = visibleRegion(aspect, viewportAspect);
   return Array.from({ length: 33 }, (_, index) => {
     const sum = { x: 0, y: 0, z: 0, visibility: 0 };

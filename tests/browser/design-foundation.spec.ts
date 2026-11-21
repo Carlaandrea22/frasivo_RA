@@ -297,6 +297,8 @@ test('fija la pose de cuerpo completo, muestra el visor y vuelve a la cámara al
   await expect(page.locator('[data-fps-detection]')).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath('captura.png') });
   await pin.click();
+  await expect(page.getByText('Quédate quieto 1 segundo')).toBeVisible({ timeout: 15000 });
+  await page.screenshot({ path: testInfo.outputPath('quieto.png') });
   const space = page.getByRole('button', { name: 'Ver en mi espacio' });
   await expect(space).toBeEnabled();
   await expect(page.getByRole('button', { name: 'Ver en 3D' })).toBeEnabled();
@@ -307,7 +309,7 @@ test('fija la pose de cuerpo completo, muestra el visor y vuelve a la cámara al
   const viewer = page.getByRole('region', { name: 'Visor del esqueleto 3D' });
   await expect(viewer.locator('canvas')).toBeVisible();
   await expect(viewer).toHaveAttribute('data-bones', '36');
-  await expect(page.getByText('AR en Android: próximamente')).toBeVisible();
+  await expect(page.getByText(/La realidad aumentada requiere Chrome/)).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath('visor-3d.png') });
   const canvas = viewer.locator('canvas');
   await canvas.click({ position: { x: 194, y: 64 } });
@@ -340,7 +342,7 @@ test('iPhone recibe un enlace Quick Look con un USDZ de la pose y Soltar libera 
   await page.getByRole('button', { name: 'Activar cámara' }).click();
   await page.getByRole('button', { name: 'Fijar esqueleto' }).click();
   const ar = page.getByRole('link', { name: 'Ver en mi espacio' });
-  await expect(ar).toHaveAttribute('rel', 'ar');
+  await expect(ar).toHaveAttribute('rel', 'ar', { timeout: 20000 });
   await expect(ar.locator('img:only-child')).toHaveCount(1);
   const url = (await ar.getAttribute('href'))!;
   expect(url).toMatch(/^blob:.*#allowsContentScaling=0$/);

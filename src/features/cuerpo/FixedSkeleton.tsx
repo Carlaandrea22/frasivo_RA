@@ -4,6 +4,7 @@ import type { Group } from 'three';
 import { Button } from '../../shared/ui/Button';
 import type { BodyPoint } from './anatomy';
 
+const AndroidSpace = lazy(() => import('./AndroidSpace').then(module => ({ default: module.AndroidSpace })));
 const SkeletonViewer = lazy(() => import('./SkeletonViewer'));
 const arImage = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 
@@ -13,14 +14,17 @@ function supportsQuickLook() {
   return ios && document.createElement('a').relList.supports?.('ar') === true;
 }
 
-export default function FixedSkeleton({ pose, onRelease }: { pose: BodyPoint[]; onRelease: () => void }) {
+export default function FixedSkeleton({ pose, onRelease, stopCamera, startCamera }: {
+  pose: BodyPoint[]; onRelease: () => void; stopCamera: () => void; startCamera: () => Promise<void>;
+}) {
   const [quickLook] = useState(supportsQuickLook);
   const [model, setModel] = useState<Group>();
   const [arUrl, setArUrl] = useState('');
   const [error, setError] = useState('');
   const [arFailed, setArFailed] = useState(false);
   const [viewer, setViewer] = useState(false);
-  const [androidNotice, setAndroidNotice] = useState(false);
+  const [androidNotice, setAndroidNotice] = useState('');
+  const android = /Android/i.test(navigator.userAgent);
 
   useEffect(() => {
     let disposed = false;
@@ -71,14 +75,18 @@ export default function FixedSkeleton({ pose, onRelease }: { pose: BodyPoint[]; 
     )}
     <div className="anatomy-controls anatomy-fixed-controls">
       <div className="anatomy-fixed-actions">
-        {arUrl ? (
+        {android && model ? (
+          <Suspense fallback={<Button disabled>Preparando AR…</Button>}>
+            <AndroidSpace model={model} beforeEnter={stopCamera} onExit={() => { void startCamera(); }}
+              onFallback={message => { setAndroidNotice(message); setViewer(true); }}/>
+          </Suspense>
+        ) : arUrl ? (
           <a className="button button--primary" rel="ar" href={arUrl + '#allowsContentScaling=0'}
             download="esqueleto.usdz" aria-label="Ver en mi espacio">
             <img src={arImage} alt=""/>
           </a>
         ) : (
           <Button disabled={!model || preparingAR} onClick={() => {
-            setAndroidNotice(/Android/i.test(navigator.userAgent));
             setViewer(true);
           }}>
             <ScanLine size={17} aria-hidden="true"/> {model && preparingAR ? 'Preparando AR…' : 'Ver en mi espacio'}
@@ -89,7 +97,7 @@ export default function FixedSkeleton({ pose, onRelease }: { pose: BodyPoint[]; 
         </Button>
         <Button variant="text" onClick={onRelease}>Soltar</Button>
       </div>
-      {androidNotice && <p className="anatomy-note" role="status">AR en Android: próximamente</p>}
+      {androidNotice && <p className="anatomy-note" role="status">{androidNotice}</p>}
       {arFailed && <p className="anatomy-note" role="status">AR no está disponible para esta captura. Puedes verla en 3D.</p>}
       {error && <p className="anatomy-error" role="alert">{error}</p>}
       {!model && !error && <p className="anatomy-note">Preparando esqueleto…</p>}

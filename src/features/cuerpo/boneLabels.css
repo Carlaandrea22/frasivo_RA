@@ -16,3 +16,21 @@
 .anatomy-stage-header .anatomy-label-toggle { padding-inline: 7px; font-size: .71rem; }
 .anatomy-stage-header:has(.anatomy-label-toggle) .anatomy-fps { padding-inline: 4px; font-size: .67rem; }
 .skeleton-label-toggle { position: absolute; z-index: 4; top: 58px; right: 16px; }
+.anatomy-capture-ring {
+  position: absolute;
+  z-index: 5;
+  top: 22%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: grid;
+  justify-items: center;
+  gap: 5px;
+  width: max-content;
+  max-width: 88%;
+  padding: 10px 16px;
+  border-radius: 16px;
+  background: var(--camera-base);
+  color: var(--camera-text);
+  text-align: center;
+}
+.anatomy-capture-ring svg { width: 46px; height: 46px; color: var(--anatomy-highlight); }

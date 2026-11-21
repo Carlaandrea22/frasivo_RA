@@ -5,6 +5,7 @@ import { AnatomyOverlay } from './AnatomyOverlay';
 import { anatomyParts, type AnatomyLayer, type BodyPoint } from './anatomy';
 import { atlasPlacement } from './atlasAlignment';
 import FixedSkeleton from './FixedSkeleton';
+import { capturePrecisePose } from './precisePoseCapture';
 import { averagePose, captureIssue } from './poseCapture';
 import { usePoseCamera } from './usePoseCamera';
 import { useFrameRate } from './useFrameRate';
@@ -39,6 +40,9 @@ export default function MedicineExplorer() {
     try { return localStorage.getItem(controlsStorageKey) === 'true'; } catch { return false; }
   });
   const [fixedPose, setFixedPose] = useState<BodyPoint[] | null>(null);
+  const [captureProgress, setCaptureProgress] = useState<number | null>(null);
+  const [captureError, setCaptureError] = useState('');
+  const pendingCapture = useRef<AbortController>(null);
   const [audioError, setAudioError] = useState(false);
   const [debug] = useState(() => new URLSearchParams(window.location.search).get('debug') === '1');
   const [diagnostics] = useState(() => debug || new URLSearchParams(window.location.search).get('fps') === '1');
@@ -62,12 +66,16 @@ export default function MedicineExplorer() {
   const status = fixedPose ? 'Esqueleto fijado' : waiting ? 'Esperando permiso' : !live ? 'Demostración'
     : camera.tracking === 'loading' ? 'Preparando seguimiento'
     : camera.tracking === 'tracking' ? 'Persona detectada' : 'Buscando una persona';
-  const pose = live && !fixedPose && placement.facing === 'front'
-    ? averagePose(camera.samples, performance.now(), aspect, viewportAspect) : null;
+  const poseIssue = captureIssue(camera.samples.at(-1), aspect, viewportAspect, performance.now());
+  const canFix = live && !fixedPose && placement.facing === 'front' && !poseIssue;
+  useEffect(() => () => pendingCapture.current?.abort(), []);
+  useEffect(() => {
+    if (!live) pendingCapture.current?.abort();
+  }, [live]);
   const adjustment = placement.facing === 'front' ? 'Mantén la pose un momento' : 'Encuadra a la persona de frente';
-  const pinReason = live && !fixedPose && !pose
+  const pinReason = live && !fixedPose && !canFix && captureProgress === null
     ? (placement.facing === 'back' || placement.facing === 'side' ? 'Pídele a la persona que se gire de frente'
-      : captureIssue(camera.samples.at(-1), aspect, viewportAspect) || adjustment)
+      : poseIssue || adjustment)
     : '';
 
   useEffect(() => {
@@ -160,9 +168,27 @@ export default function MedicineExplorer() {
     );
   };
   const pinButton = (
-    <Button disabled={!pose} aria-describedby={pinReason ? 'anatomy-pin-reason' : undefined} onClick={() => {
-      const freshPose = averagePose(camera.samples, performance.now(), aspect, viewportAspect);
-      if (freshPose) setFixedPose(freshPose);
+    <Button disabled={!canFix || captureProgress !== null} aria-describedby={pinReason ? 'anatomy-pin-reason' : undefined} onClick={() => {
+      const video = camera.videoRef.current;
+      if (!video || pendingCapture.current || captureIssue(camera.samples.at(-1), aspect, viewportAspect, performance.now())) return;
+      if (layer !== 'bones') {
+        const pose = averagePose(camera.samples, performance.now(), aspect, viewportAspect);
+        if (pose) setFixedPose(pose);
+        return;
+      }
+      const controller = new AbortController();
+      pendingCapture.current = controller;
+      setCaptureError('');
+      setCaptureProgress(-1);
+      void capturePrecisePose(video, viewportAspect, setCaptureProgress, controller.signal).then(setFixedPose)
+        .catch(error => {
+          if (!controller.signal.aborted) setCaptureError(error instanceof Error ? error.message : 'No se pudo fijar el esqueleto.');
+        }).finally(() => {
+          if (pendingCapture.current === controller) {
+            pendingCapture.current = null;
+            setCaptureProgress(null);
+          }
+        });
     }}>
       <Pin size={16} aria-hidden="true"/> Fijar esqueleto
     </Button>
@@ -217,13 +243,22 @@ export default function MedicineExplorer() {
             </svg>}
           </div>
         </div>
+        {captureProgress !== null && <div className="anatomy-capture-ring" role="status">
+          {captureProgress >= 0 && <svg viewBox="0 0 48 48" aria-hidden="true">
+            <circle cx="24" cy="24" r="20" fill="none" stroke="#536d63" strokeWidth="4"/>
+            <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" strokeWidth="4" pathLength="1"
+              strokeDasharray={`${captureProgress} 1`} transform="rotate(-90 24 24)"/>
+          </svg>}
+          {captureProgress < 0 ? 'Preparando captura precisa…' : 'Quédate quieto 1 segundo'}
+        </div>}
+        {captureError && <p className="anatomy-capture-ring" role="alert">{captureError}</p>}
         {!fixedPose && (term || pinReason) && <p className="anatomy-stage-hint">
           {pinReason && <span id="anatomy-pin-reason">{pinReason}</span>}
           {term && <span className="anatomy-active-term" lang="en">{term.en}</span>}
         </p>}
       </div>
 
-      {fixedPose ? <FixedSkeleton pose={fixedPose} onRelease={() => setFixedPose(null)}/>
+      {fixedPose ? <FixedSkeleton pose={fixedPose} onRelease={() => setFixedPose(null)} stopCamera={camera.stop} startCamera={camera.start}/>
       : minimized ? (
         <div className="anatomy-controls anatomy-controls--minimized">
           <span className="anatomy-current-layer">{layers.find(item => item.id === layer)?.name}</span>
