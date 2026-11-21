@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './returningProfile';
 
 test('frozen video expires old labels and reports that capture stopped', async ({ page }) => {
   await page.addInitScript(() => {
@@ -143,7 +143,7 @@ test('PWA reloads offline and runs the real local detector in its worker', async
   });
   await context.setOffline(true);
   await page.reload();
-  await expect(page.getByRole('heading', { name: 'El inglés está a tu alrededor.' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Tu inglés, tu carrera.' })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth)).toBe(false);
   const result = await page.evaluate(async () => new Promise<{ type: string; message?: string; detections?: unknown[] }>((resolve, reject) => {
     const worker = new Worker('/detector.worker.js');

@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from './returningProfile';
 
 interface MissionTestState { starts: number; timer: number; stream: MediaStream; spoken: { text: string; lang: string; gesture: boolean }[] }
 async function missionCamera(page: Page) {
@@ -37,7 +37,7 @@ test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true
 
 test('navegación de misiones distingue exploración libre y reto guiado', async ({ page }) => {
   await page.goto('/');
-  await expect(mobileNav(page).getByRole('button')).toHaveCount(4);
+  await expect(mobileNav(page).getByRole('button')).toHaveCount(5);
   await expect(mobileNav(page).getByRole('button', { name: 'Misiones', exact: true })).toBeVisible();
   await page.getByRole('button', { name: /Un reto para tu próxima exploración/ }).click();
   await expect(page.locator('.mission-intro')).toBeVisible();

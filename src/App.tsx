@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
-import { ArrowDownToLine, ArrowRight, AudioLines, BookOpen, Camera, Check, Compass, Flag, GraduationCap, Leaf, LoaderCircle, ScanLine, ShieldCheck, Sparkles, Square, Volume2, X } from 'lucide-react';
+import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from 'react';
+import { ArrowDownToLine, ArrowRight, AudioLines, BookOpen, Box, Camera, Check, Compass, Flag, GraduationCap, Leaf, LoaderCircle, ScanLine, ShieldCheck, Sparkles, Square, Volume2, X } from 'lucide-react';
 import { vocabulary, wordById, type Word } from './vocabulary';
 import { recordAnswer, type Recognition } from './learning';
-import { browserStorage, loadProgress, saveProgress } from './storage';
+import { loadProgress, saveProgress, type ProgressStorage } from './storage';
 import { useCamera } from './useCamera';
 import { Practice } from './Practice';
 import { RoomScene } from './RoomScene';
@@ -12,7 +12,12 @@ import type { TrackedRecognition } from './objectTracking';
 import { MissionEntry, MissionIntro, MissionBanner, MissionSummary } from './missions/ClassroomMission';
 import { useClassroomMission } from './missions/useClassroomMission';
 import { applyMissionProgress, missionInstruction, type MissionEvent } from './missions/classroom';
-type Tab = 'explore' | 'missions' | 'practice' | 'words';
+import { AccountRoot } from './auth/AccountRoot';
+import { careers, levels, type LearnerProfile } from './profile/profile';
+import { CareerHome, CareerCollection, CareerPractice } from './careers/CareerLearning';
+import { loadCareerProgress, saveCareerProgress, recordCareerAnswer } from './careers/learning';
+const ExploreObjects = lazy(() => import('./objects/ExploreObjects'));
+type Tab = 'explore' | 'objects' | 'missions' | 'practice' | 'words';
 interface SessionWord { id: string; source: 'camera' | 'manual'; confidence?: number }
 interface InstallPrompt extends Event { prompt(): Promise<void>; userChoice: Promise<{ outcome: string }> }
 function WordCard({ word, source, onSpeak, liveConfidence, onPractice, trackingState, onReturnToCamera }: {
@@ -32,8 +37,20 @@ function WordCard({ word, source, onSpeak, liveConfidence, onPractice, trackingS
   </article>;
 }
 export default function App() {
+  return <AccountRoot>{({ user, storage, suspended, notice, onEditProfile }) => <LearningApp key={`${user.id}:${user.profile.career}:${user.profile.level}`} profile={user.profile} storage={storage} suspended={suspended} profileNotice={notice} onEditProfile={onEditProfile}/>}</AccountRoot>;
+}
+function LearningApp({ profile, storage, suspended, profileNotice, onEditProfile }: { profile: LearnerProfile; storage: ProgressStorage; suspended: boolean; profileNotice: ReactNode; onEditProfile: () => void }) {
+  const [environmentStorage] = useState(() => profile.career === 'systems' ? storage : {
+    getItem: (key: string) => storage.getItem(`${key}:${profile.career}`),
+    setItem: (key: string, value: string) => storage.setItem(`${key}:${profile.career}`, value),
+  });
+  const [careerProgress, setCareerProgress] = useState(() => loadCareerProgress(storage, profile.career));
+  const [careerStorageWarning, setCareerStorageWarning] = useState(false);
+  const [careerPractice, setCareerPractice] = useState(true);
+  const [careerTermId, setCareerTermId] = useState<string>();
+  useEffect(() => { setCareerStorageWarning(!saveCareerProgress(storage, profile.career, careerProgress)); }, [careerProgress, profile.career, storage]);
   const [tab, setTab] = useState<Tab>('explore');
-  const [progress, setProgress] = useState(() => loadProgress(browserStorage));
+  const [progress, setProgress] = useState(() => loadProgress(environmentStorage));
   const [storageWarning, setStorageWarning] = useState(false);
   const [session, setSession] = useState<SessionWord[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -62,6 +79,7 @@ export default function App() {
     setSelectedId(old => old ?? results[0].word.id);
   };
   const camera = useCamera(addRecognitions);
+  useEffect(() => { if (suspended) { camera.stop(); window.speechSynthesis?.cancel(); } }, [suspended, camera.stop]);
   const selectedTrack = camera.detections.find(d => d.trackId === selectedTrackId);
   const currentRecognition = selectedTrackId ? selectedTrack?.observed ? selectedTrack : undefined : camera.detections.find(d => d.word.id === selectedId && d.observed);
   useEffect(() => { if (camera.status !== 'scanning') setSelectedTrackId(null); }, [camera.status]);
@@ -73,7 +91,7 @@ export default function App() {
   const attempts = stats.reduce((n, w) => n + w.attempts, 0);
   const correct = stats.reduce((n, w) => n + w.correct, 0);
   const learned = stats.filter(w => w.correct >= 2 && w.correct / w.attempts >= .8).length;
-  useEffect(() => { setStorageWarning(!saveProgress(browserStorage, progress)); }, [progress]);
+  useEffect(() => { setStorageWarning(!saveProgress(environmentStorage, progress)); }, [progress, environmentStorage]);
   useEffect(() => {
     const prompt = (e: Event) => { e.preventDefault(); setInstall(e as InstallPrompt); };
     const online = () => setOffline(!navigator.onLine);
@@ -81,7 +99,7 @@ export default function App() {
     window.addEventListener('online', online); window.addEventListener('offline', online);
     return () => { window.removeEventListener('beforeinstallprompt', prompt); window.removeEventListener('online', online); window.removeEventListener('offline', online); window.speechSynthesis?.cancel(); };
   }, []);
-  const go = (next: Tab, ids?: string[]) => { camera.stop(); window.speechSynthesis?.cancel(); setTab(next); if (next === 'practice') { setPracticeIds(ids ?? null); setPracticeRound(r => r + 1); } };
+  const go = (next: Tab, ids?: string[]) => { camera.stop(); window.speechSynthesis?.cancel(); setTab(next); if (next === 'practice') { setPracticeIds(ids ?? null); setCareerPractice(!ids && session.length === 0); setPracticeRound(r => r + 1); } };
   const scrollTo = (element: HTMLElement | null) => element?.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'nearest' });
   const sendMission = (event: MissionEvent) => {
     const change = mission.dispatch(event);
@@ -130,11 +148,13 @@ export default function App() {
     if (tab === 'missions' && mission.state.phase === 'finding') speak(missionInstruction(mission.state));
     void camera.start();
   };
-  const nav = [{ id: 'explore' as const, label: 'Explorar', icon: Compass }, { id: 'missions' as const, label: 'Misiones', icon: Flag }, { id: 'practice' as const, label: 'Practicar', icon: GraduationCap }, { id: 'words' as const, label: 'Mis palabras', icon: BookOpen }];
-  return <div className="app-shell"><aside className="sidebar"><a className="brand" href="#" onClick={e => { e.preventDefault(); go('explore'); }} aria-label="Frasivo Explore, inicio"><span className="brand-mark"><Leaf size={22}/></span><span>frasivo<span className="brand-sub">explore</span></span></a><p className="sidebar-caption">Un mundo por aprender.</p><nav aria-label="Navegación principal">{nav.map(({ id, label, icon: Icon }) => <button key={id} className={`nav-item ${tab === id ? 'active' : ''}`} aria-current={tab === id ? 'page' : undefined} onClick={() => go(id)}><Icon size={21}/>{label}{id === 'words' && session.length > 0 ? <span className="nav-count">{session.length}</span> : null}</button>)}</nav><div className="sidebar-bottom"><div className="plant-icon">🌿</div><h3>Un poquito cada día.</h3><p>Las palabras que te rodean pueden ser tu próxima lección.</p><div className="prototype-label">Módulo independiente · v0.3</div></div></aside>
-    <main><header className="topbar"><span className="breadcrumb">Tu espacio de inglés <span>/</span> <strong>{tab === 'explore' ? 'Explore my world' : tab === 'missions' ? 'Misión del aula' : tab === 'practice' ? 'Práctica' : 'Mis palabras'}</strong></span><div className="topbar-right">{install ? <button className="install-button" onClick={async () => { try { await install.prompt(); await install.userChoice; setInstall(null); } catch { setInstall(null); } }}><ArrowDownToLine size={16}/> Instalar</button> : null}<span className="points"><Sparkles size={16}/>{progress.points} puntos</span><span className="avatar" aria-label="Estudiante">F</span></div></header>
-      <div className="main-content">{offline ? <div className="notice">Estás sin conexión. El escaneo funciona si el modelo ya está disponible; el audio depende de las voces instaladas.</div> : null}{storageWarning ? <div className="notice" role="status">El navegador no permite guardar tu progreso. Podrás practicar durante esta sesión.</div> : null}{audioMessage ? <div className="notice" role="status">{audioMessage}<button aria-label="Cerrar aviso de audio" onClick={() => setAudioMessage('')}><X size={16}/></button></div> : null}
-      <div className="page-heading"><div><div className="heading-kicker"><span className="tiny-leaf"><Leaf size={14}/></span> Inglés en la vida real</div><h1>{tab === 'explore' ? 'El inglés está a tu alrededor.' : tab === 'missions' ? 'Un reto de inglés en tu aula.' : tab === 'practice' ? 'Lo que descubres, lo aprendes.' : 'Tu mundo, palabra por palabra.'}</h1><p>{tab === 'explore' ? 'Apunta, descubre y aprende con los objetos de tu mundo.' : tab === 'missions' ? 'Busca objetos reales con un objetivo y practica sus palabras.' : tab === 'practice' ? 'Practica con las palabras que exploraste en esta sesión.' : 'Escucha, repasa y sigue sumando palabras a tu día.'}</p></div><span className="beginner-tag">Nivel A1–A2</span></div>
+  const nav = [{ id: 'explore' as const, label: 'Explorar', icon: Compass }, { id: 'objects' as const, label: 'Explora objetos', icon: Box }, { id: 'missions' as const, label: 'Misiones', icon: Flag }, { id: 'practice' as const, label: 'Practicar', icon: GraduationCap }, { id: 'words' as const, label: 'Mis palabras', icon: BookOpen }];
+  return <div className="app-shell"><aside className="sidebar"><a className="brand" href="#" onClick={e => { e.preventDefault(); go('explore'); }} aria-label="Frasivo Explore, inicio"><span className="brand-mark"><Leaf size={22}/></span><span>frasivo<span className="brand-sub">explore</span></span></a><p className="sidebar-caption">Inglés enfocado en tu carrera.</p><nav aria-label="Navegación principal">{nav.map(({ id, label, icon: Icon }) => <button key={id} className={`nav-item ${tab === id ? 'active' : ''}`} aria-current={tab === id ? 'page' : undefined} onClick={() => go(id)}><Icon size={21}/>{label}{id === 'words' && session.length > 0 ? <span className="nav-count">{session.length}</span> : null}</button>)}</nav><div className="sidebar-bottom"><div className="plant-icon">🌿</div><h3>Un poquito cada día.</h3><p>Las palabras que te rodean pueden ser tu próxima lección.</p><div className="prototype-label">Módulo independiente · v0.3</div></div></aside>
+    <main><header className="topbar"><span className="breadcrumb">Tu espacio de inglés <span>/</span> <strong>{tab === 'explore' ? 'Explore my world' : tab === 'objects' ? 'Explora objetos' : tab === 'missions' ? 'Misión del aula' : tab === 'practice' ? 'Práctica' : 'Mis palabras'}</strong></span><div className="topbar-right">{install ? <button className="install-button" onClick={async () => { try { await install.prompt(); await install.userChoice; setInstall(null); } catch { setInstall(null); } }}><ArrowDownToLine size={16}/> Instalar</button> : null}<span className="points"><Sparkles size={16}/>{progress.points + careerProgress.points} puntos</span><button className="avatar profile-avatar" aria-label="Editar perfil" onClick={onEditProfile}>{profile.name.charAt(0).toUpperCase()}</button></div></header>
+      <div className="main-content">{profileNotice ? <div className="notice" role="status">{profileNotice}</div> : null}{careerStorageWarning ? <div className="notice" role="status">No pudimos guardar tu práctica de carrera. El avance durará esta sesión.</div> : null}{offline ? <div className="notice">Estás sin conexión. El escaneo funciona si el modelo ya está disponible; el audio depende de las voces instaladas.</div> : null}{storageWarning ? <div className="notice" role="status">El navegador no permite guardar tu progreso. Podrás practicar durante esta sesión.</div> : null}{audioMessage ? <div className="notice" role="status">{audioMessage}<button aria-label="Cerrar aviso de audio" onClick={() => setAudioMessage('')}><X size={16}/></button></div> : null}
+      <div className="page-heading"><div><div className="heading-kicker"><span className="tiny-leaf"><Leaf size={14}/></span> Inglés en la vida real</div><h1>{tab === 'explore' ? 'Tu inglés, tu carrera.' : tab === 'objects' ? profile.career === 'systems' ? 'El software toma forma.' : profile.career === 'medicine' ? 'La medicina toma forma.' : 'La cocina toma forma.' : tab === 'missions' ? 'Un reto de inglés en tu aula.' : tab === 'practice' ? 'Lo que descubres, lo aprendes.' : 'Tu mundo, palabra por palabra.'}</h1><p>{tab === 'explore' ? `Aprende vocabulario de ${careers[profile.career].label} y practica a tu nivel.` : tab === 'objects' ? 'Elige una palabra, explora su forma y escucha cómo se dice.' : tab === 'missions' ? 'Busca objetos reales con un objetivo y practica sus palabras.' : tab === 'practice' ? 'Practica con las palabras que exploraste en esta sesión.' : 'Escucha, repasa y sigue sumando palabras a tu día.'}</p></div><span className="beginner-tag">{levels[profile.level].label} · {levels[profile.level].cefr}</span></div>
+      {tab === 'objects' ? <Suspense fallback={<p role="status">Preparando los objetos 3D…</p>}><ExploreObjects suspended={suspended} career={profile.career} initialTermId={careerTermId} onSpeak={speak}/></Suspense> : null}
+      {tab === 'explore' ? <CareerHome profile={profile} onExplore={() => go('objects')} onPractice={() => { go('practice'); setCareerPractice(true); }}/> : null}
       {tab === 'explore' ? <MissionEntry onOpen={() => go('missions')}/> : null}
       {tab === 'missions' && mission.state.phase === 'ready' ? <MissionIntro mission={mission.state} onStart={startMission}/> : null}
       {tab === 'missions' && missionSearch ? <div ref={missionStatusRef} className="mission-status"><MissionBanner mission={mission.state} onReplay={() => speak(mission.state.phase === 'found' ? wordById(mission.state.targets[mission.state.index])!.example : missionInstruction(mission.state))} onNext={nextMission} onReset={resetMission}/></div> : null}
@@ -149,8 +169,9 @@ export default function App() {
         {mission.state.phase === 'practice' ? <><p className="mission-practice-note">Encontraste los tres objetos. Ahora repasa una palabra en cada ejercicio.</p><Practice ids={mission.state.targets} questions={mission.state.questions} onAnswer={(wordId, correct, questionId) => { sendMission({ type: 'answer', wordId, correct, questionId }); }} onExplore={() => go('missions')} onFinish={() => { sendMission({ type: 'finish' }); }}/></> : null}
       </div>
       {tab === 'missions' && mission.state.phase === 'complete' ? <MissionSummary mission={mission.state} onReset={resetMission} onExplore={() => go('explore')}/> : null}
-      {tab === 'practice' ? <Practice key={practiceRound} ids={practiceIds ?? session.map(s => s.id)} onExplore={() => go('explore')} onAnswer={(id, right) => setProgress(p => recordAnswer(p, id, right))}/> : null}
-      {tab === 'words' ? <><div className="progress-overview"><div><strong>{learned}</strong><span>palabras reforzadas</span></div><div><strong>{attempts ? Math.round(correct / attempts * 100) : 0}%</strong><span>de aciertos</span></div><div><strong>{progress.points}</strong><span>puntos acumulados</span></div></div><p className="collection-note">Una palabra se considera reforzada con al menos dos aciertos y un 80% de precisión. Billetes, lapiceros, puertas y lámparas están disponibles solo para práctica manual.</p><div className="vocabulary-grid">{vocabulary.map(w => { const s = progress.words[w.id]; const reinforced = s && s.correct >= 2 && s.correct / s.attempts >= .8; return <article className="collection-word" key={w.id}><div className="collection-word-top"><span>{w.emoji}</span><button className="sound-button" onClick={() => speak(w.en)} aria-label={`Escuchar ${w.en}`}><Volume2 size={19}/></button></div><h2>{w.en}</h2><p>{w.es}</p><span className="recognition-type">{w.label ? "Con cámara" : "Solo manual"}</span><small className={reinforced ? 'reinforced' : ''}>{reinforced ? '✓ Reforzada' : s ? `${s.correct}/${s.attempts} aciertos · Sigue practicando` : 'Aún sin practicar'}</small><button className="text-button" onClick={() => { chooseManual(w); go('explore'); }}>Ver palabra <ArrowRight size={15}/></button></article>; })}</div></> : null}
+      {tab === 'practice' && careerPractice ? <CareerPractice key={practiceRound} profile={profile} onExplore={() => go('objects')} onAnswer={(id, right) => setCareerProgress(p => recordCareerAnswer(profile.career, p, id, right))}/> : null}
+      {tab === 'practice' && !careerPractice ? <Practice key={practiceRound} ids={practiceIds ?? session.map(s => s.id)} onExplore={() => go('explore')} onAnswer={(id, right) => setProgress(p => recordAnswer(p, id, right))}/> : null}
+      {tab === 'words' ? <><CareerCollection profile={profile} progress={careerProgress} onSpeak={speak} onOpen={id => { setCareerTermId(id); go('objects'); }}/><h2 className="environment-collection-heading">Vocabulario del entorno</h2><div className="progress-overview"><div><strong>{learned}</strong><span>palabras reforzadas</span></div><div><strong>{attempts ? Math.round(correct / attempts * 100) : 0}%</strong><span>de aciertos</span></div><div><strong>{progress.points}</strong><span>puntos acumulados</span></div></div><p className="collection-note">Una palabra se considera reforzada con al menos dos aciertos y un 80% de precisión. Billetes, lapiceros, puertas y lámparas están disponibles solo para práctica manual.</p><div className="vocabulary-grid">{vocabulary.map(w => { const s = progress.words[w.id]; const reinforced = s && s.correct >= 2 && s.correct / s.attempts >= .8; return <article className="collection-word" key={w.id}><div className="collection-word-top"><span>{w.emoji}</span><button className="sound-button" onClick={() => speak(w.en)} aria-label={`Escuchar ${w.en}`}><Volume2 size={19}/></button></div><h2>{w.en}</h2><p>{w.es}</p><span className="recognition-type">{w.label ? "Con cámara" : "Solo manual"}</span><small className={reinforced ? 'reinforced' : ''}>{reinforced ? '✓ Reforzada' : s ? `${s.correct}/${s.attempts} aciertos · Sigue practicando` : 'Aún sin practicar'}</small><button className="text-button" onClick={() => { chooseManual(w); go('explore'); }}>Ver palabra <ArrowRight size={15}/></button></article>; })}</div></> : null}
       <footer><span><Leaf size={14}/> Aprender empieza por mirar de otra manera.</span><span>Frasivo Explore · Progreso en este dispositivo</span></footer></div>
     </main><nav className="mobile-nav" aria-label="Navegación móvil">{nav.map(({ id, label, icon: Icon }) => <button key={id} className={tab === id ? 'active' : ''} aria-current={tab === id ? 'page' : undefined} onClick={() => go(id)}><Icon size={21}/><span>{label}</span></button>)}</nav>
   </div>;

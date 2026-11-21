@@ -1,6 +1,6 @@
 # Frasivo Explore
 
-Prototipo funcional e independiente para aprender inglés con objetos cotidianos. No está conectado a Frasivo ni a sus cuentas. React y TypeScript son elecciones provisionales mientras se conoce su tecnología.
+Aplicación independiente de inglés enfocado en tu carrera, con reconocimiento de objetos, escenas 3D y cuentas propias en PostgreSQL. Todavía no está conectada a los servicios de la aplicación Frasivo original.
 
 ## Clonar desde GitHub
 
@@ -8,22 +8,22 @@ Prototipo funcional e independiente para aprender inglés con objetos cotidianos
 git clone https://github.com/Carlaandrea22/frasivo_RA.git
 cd frasivo_RA
 npm install
-npm run dev
+npm run docker:up
 ```
 
 El contenido de `frasivo-explore` está en la raíz del repositorio. `npm install` prepara el modelo y WASM; `npm run dev` genera el worker antes de iniciar. No se versionan `node_modules`, `dist`, modelos descargados, bundles generados ni archivos `.env`. La primera instalación requiere conexión a internet.
 
 ## Ejecutar en Windows
 
-Requiere Node.js 22.12+ o 24+ y npm.
+Requiere Node.js 22.12+ o 24+, npm y Docker Desktop con el motor Linux iniciado. Docker usa Node 24 y PostgreSQL 17.
 
 ```powershell
 cd C:\Users\User\Documents\Tareas\frasivo-explore
 npm install
-npm run dev
+npm run docker:up
 ```
 
-Abre la dirección que muestra Vite, normalmente http://localhost:5173. Activa la cámara y acepta el permiso. Para probar sin cámara, pulsa **Probar sin cámara**, selecciona objetos y entra en **Practicar**. Las selecciones manuales se identifican como tales.
+Abre http://localhost:4173, crea tu cuenta con correo y contraseña y elige carrera y nivel. Para desarrollar la interfaz, mantén Docker encendido y ejecuta `npm run dev` (normalmente http://localhost:5173). Activa la cámara y acepta el permiso. Para probar sin cámara, pulsa **Probar sin cámara**, selecciona objetos y entra en **Practicar**. Las selecciones manuales se identifican como tales.
 
 La instalación descarga un modelo EfficientDet-Lite0 de Google (aprox. 7,3 MB) y copia WASM desde el paquete MediaPipe al directorio público. No necesita una API key. Si la descarga se interrumpe, ejecuta `npm run assets`. `package-lock.json` fija las dependencias; en una instalación reproducible puede usarse `npm ci`.
 
@@ -35,17 +35,20 @@ npm run build
 npm run preview
 ```
 
-Abre http://localhost:4173. El service worker solo se registra en producción. Espera a que termine de instalar y almacenar los recursos (aprox. 30 MB incluyendo alternativas WASM), antes de cerrar o desconectar. En Chromium se puede instalar con el botón de la aplicación cuando el navegador lo ofrece; en iPhone usa la opción Añadir a pantalla de inicio de Safari. La disponibilidad de instalación depende del navegador.
+La aplicación Docker está en http://localhost:4173; la vista previa adicional usa http://localhost:4174 y requiere el backend Docker activo. El service worker solo se registra en producción. Espera a que termine de instalar y almacenar los recursos (aprox. 30 MB incluyendo alternativas WASM), antes de cerrar o desconectar. En Chromium se puede instalar con el botón de la aplicación cuando el navegador lo ofrece; en iPhone usa la opción Añadir a pantalla de inicio de Safari. La disponibilidad de instalación depende del navegador.
 
-Pruebas de navegador reproducibles: después del build, ejecuta `npm run test:e2e`. Requieren Google Chrome instalado; Playwright abre una sesión temporal, inicia su propio servidor en el puerto 4175 y lo cierra al terminar. No usa tu cámara física: prueba denegación/cancelación con una captura controlada y ejecuta el detector real con una imagen vacía. No mide precisión sobre objetos reales.
+Para probar cuentas reales y base de datos aislada usa `npm run test:docker`; ver `docs/CUENTAS_DOCKER.md`. Pruebas de navegador de regresión de interfaz con API simulada: después del build, ejecuta `npm run test:e2e`. Requieren Google Chrome instalado; Playwright abre una sesión temporal, inicia su propio servidor en el puerto 4175 y lo cierra al terminar. No usa tu cámara física: prueba denegación/cancelación con una captura controlada y ejecuta el detector real con una imagen vacía. No mide precisión sobre objetos reales.
 
-Para usar la cámara desde un celular real, aloja `dist` en HTTPS. Una dirección HTTP de la red local como `http://192.168.x.x:5173` normalmente no habilita cámara. `localhost` en el celular apunta al propio celular, no al equipo de desarrollo. No hay despliegue público incluido.
+Para usar la cámara desde un celular real, expón el servidor completo (interfaz y API del puerto 4173) mediante HTTPS. Una dirección HTTP de la red local como `http://192.168.x.x:5173` normalmente no habilita cámara. `localhost` en el celular apunta al propio celular, no al equipo de desarrollo. El enlace temporal depende del túnel local; no hay alojamiento permanente incluido.
 
-El modo sin conexión depende de que la caché haya terminado y el navegador la conserve. Interfaz, modelo, WASM, fuentes y vocabulario están en el mismo origen. Las voces de pronunciación dependen del dispositivo y algunas necesitan conexión. No se garantiza audio offline.
+El modo sin conexión depende de que la caché haya terminado y el navegador la conserve. Interfaz, modelo, WASM, fuentes y vocabulario están en el mismo origen. Las voces de pronunciación dependen del dispositivo y algunas necesitan conexión. No se garantiza audio offline. Iniciar sesión requiere conexión al servidor; el progreso pendiente se mantiene en memoria hasta que pueda sincronizarse.
 
 ## Funcionalidades
 
-- Cuatro secciones: **Explorar** (libre), **Misiones** (retos guiados), **Practicar** y **Mis palabras**. Comparten la misma cámara y el mismo progreso.
+- Cuentas reales con correo y contraseña, sesiones en PostgreSQL y perfil de carrera/nivel editable desde el avatar. Usuarios y progreso persistentes por cuenta. Arranque con `npm run docker:up`; ver `docs/CUENTAS_DOCKER.md`.
+- Diez palabras iniciales por carrera y práctica adaptada: traducción, contexto o definición en inglés según el nivel. Progreso separado por carrera. Medicina y Gastronomía señalan sus modelos realistas como pendientes; Sistemas conserva sus diez escenas 3D. Ver `docs/PERFILES_CARRERAS.md`.
+- Cinco secciones: **Explorar** (libre), **Explora objetos** (vocabulario de software en 3D), **Misiones** (retos guiados), **Practicar** y **Mis palabras**. Explorar y Misiones comparten cámara y progreso; Explora objetos usa una cámara sin detector y un catálogo independiente.
+- **Explora objetos:** diez conceptos de software con representaciones 3D interactivas, significado, IPA, metáfora visual y ejemplo bilingüe. Selección desde una lista, giro, tamaño y pronunciación por botón con voces del dispositivo. Puede usarse sin cámara o superpuesto al video. No incluye anclaje espacial. Ver `docs/EXPLORA_OBJETOS.md`.
 - Misión del aula: elegir tres objetos, escuchar cada reto, seleccionarlos en la cámara y hacer tres ejercicios. Máximo 60 puntos: 10 por cada objeto encontrado y 10 por cada respuesta correcta. Ver `docs/MISION_AULA.md` para el diseño, pruebas y límites.
 
 - Cámara trasera preferida, vista previa, activar/detener, avisos de permisos y errores.
@@ -58,7 +61,7 @@ El modo sin conexión depende de que la caché haya terminado y el navegador la 
 - 32 fichas bilingües con IPA y pronunciación. Door, Lamp, Banknote y Pen son exclusivamente manuales y están indicados como «Solo manual». No hay detección ni identificación de denominaciones de billetes.
 - Tres ejercicios: identificar, escribir una palabra y relacionar inglés con español. Usa primero palabras de la sesión; si faltan distractores se toman del catálogo.
 - Diez puntos por acierto; resumen de sesión; aciertos, errores y palabras para repasar.
-- Progreso en localStorage versionado. Una palabra se considera reforzada con >= 2 aciertos y precisión >= 80%; descubrirla no la marca automáticamente como aprendida.
+- Progreso versionado por usuario en PostgreSQL, con cola de sincronización e incrementos idempotentes para conservar respuestas de distintos dispositivos. Una palabra se considera reforzada con >= 2 aciertos y precisión >= 80%; descubrirla no la marca automáticamente como aprendida.
 - Cambio de pestaña o aplicación detiene el escaneo. No se pide micrófono, no se guardan fotos ni se envían a un servidor.
 
 ## Estructura e integración futura
@@ -86,7 +89,7 @@ Cuando se conozca Frasivo: reutilizar su navegación, sustituir el adaptador de 
 
 ## Límites y pruebas en dispositivos
 
-Es reconocimiento 2D con etiquetas sobre video; no hay anclajes espaciales, 3D, avatares, cuentas ni sincronización entre dispositivos. Los objetos de la sesión permanecen en memoria; se conservan las estadísticas de respuestas tras recargar. El progreso se pierde al borrar los datos del sitio. La puntuación local no sirve para rankings competitivos.
+Explorar usa reconocimiento 2D con etiquetas sobre video. Explora objetos añade modelos 3D didácticos sobre la cámara; no hay anclajes espaciales ni avatares. Las cuentas sincronizan perfil y progreso entre dispositivos; los contadores de otra pestaña se actualizan al recargar. Los objetos de la sesión permanecen en memoria; se conservan las estadísticas de respuestas tras recargar. El progreso confirmado permanece en PostgreSQL al borrar los datos del navegador. La puntuación didáctica no sirve para rankings competitivos.
 
 Hay que validar cámara trasera, precisión, batería, rendimiento y voces en los Android/iPhone objetivo antes de publicar. Ver `docs/VERIFICACION.md` para distinguir comprobaciones realizadas y pendientes.
 

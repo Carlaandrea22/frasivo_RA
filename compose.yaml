@@ -1,0 +1,54 @@
+name: frasivo-explore
+services:
+  db:
+    image: postgres:17-bookworm
+    environment:
+      POSTGRES_DB: frasivo
+      POSTGRES_USER: frasivo_owner
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Run npm run docker:setup first}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U frasivo_owner -d frasivo']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+  migrate:
+    build: .
+    image: frasivo-explore-app:local
+    command: [node, server/migrate.mjs]
+    environment:
+      PGHOST: db
+      PGDATABASE: frasivo
+      PGUSER: frasivo_owner
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:?Run npm run docker:setup first}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: 'no'
+  app:
+    image: frasivo-explore-app:local
+    pull_policy: never
+    environment:
+      PORT: 3000
+      PGHOST: db
+      PGDATABASE: frasivo
+      PGUSER: frasivo_app
+      PGPASSWORD: ${APP_DB_PASSWORD}
+      SESSION_SECRET: ${SESSION_SECRET:?Run npm run docker:setup first}
+    ports:
+      - '127.0.0.1:${FRASIVO_PORT:-4173}:3000'
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    restart: unless-stopped
+volumes:
+  postgres-data:

@@ -1,4 +1,4 @@
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test, type Page } from './returningProfile';
 import type { RawRecognition } from '../../src/learning';
 
 interface ARState { scene: RawRecognition[]; timer: number; stream: MediaStream; delay?: number; results: number }

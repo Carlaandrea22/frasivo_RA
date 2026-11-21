@@ -26,7 +26,8 @@ self.addEventListener('activate', event => {
 });
 self.addEventListener('fetch', event => {
   const request = event.request;
-  if (request.method !== 'GET' || new URL(request.url).origin !== self.location.origin) return;
+  const url = new URL(request.url);
+  if (request.method !== 'GET' || url.origin !== self.location.origin || url.pathname === '/api' || url.pathname.startsWith('/api/')) return;
   event.respondWith(caches.open(NAME).then(async cache => {
     // Only this build's public static files are stored here. Ignore Vary:
     // Origin because module/style requests add Origin but precache does not.

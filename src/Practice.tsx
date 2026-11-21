@@ -2,8 +2,8 @@ import { useId, useRef, useState } from 'react';
 import { ArrowRight, Check, RotateCcw, Trophy, X } from 'lucide-react';
 import { checkAnswer, createQuestions, type Question } from './learning';
 import type { Word } from './vocabulary';
-interface Props { ids: string[]; onAnswer: (id: string, correct: boolean, questionId: string) => void; onExplore: () => void; questions?: Question[]; onFinish?: () => void }
-export function Practice({ ids, onAnswer, onExplore, questions: suppliedQuestions, onFinish }: Props) {
+interface Props { ids: string[]; onAnswer: (id: string, correct: boolean, questionId: string) => void; onExplore: () => void; questions?: Question[]; onFinish?: () => void; instructions?: string; showVisual?: boolean; activityLabel?: string }
+export function Practice({ ids, onAnswer, onExplore, questions: suppliedQuestions, onFinish, instructions, showVisual = true, activityLabel }: Props) {
   const [questions] = useState(() => suppliedQuestions ?? createQuestions(ids));
   const [index, setIndex] = useState(0);
   const [answer, setAnswer] = useState('');
@@ -23,11 +23,11 @@ export function Practice({ ids, onAnswer, onExplore, questions: suppliedQuestion
     if (right) setCorrect(c => c + 1); else setMissed(m => [...m, q.word]);
   };
   return <section className="practice-card">
-    <div className="practice-top"><span>{q.type === 'identify' ? 'Identifica el objeto' : q.type === 'complete' ? 'Completa la oración' : 'Relaciona las palabras'}</span><span>{index + 1} de {questions.length}</span></div>
+    <div className="practice-top"><span>{activityLabel ?? (q.type === 'identify' ? 'Identifica el objeto' : q.type === 'complete' ? 'Completa la oración' : 'Relaciona las palabras')}</span><span>{index + 1} de {questions.length}</span></div>
     <progress value={index} max={questions.length} aria-label="Avance de la práctica"/>
-    <div className="exercise-object" aria-label={q.word.es}>{q.word.emoji}</div>
+    {showVisual ? <div className="exercise-object" aria-label={q.type === 'match' ? undefined : q.word.es} aria-hidden={q.type === 'match' || undefined}>{q.word.emoji}</div> : null}
     <h2>{q.prompt}</h2>
-    <p>{q.type === 'identify' ? 'Elige el nombre en inglés.' : q.type === 'complete' ? `Escribe en inglés: ${q.word.es.toLowerCase()}.` : 'Relaciona la palabra en inglés con su traducción.'}</p>
+    <p>{instructions ?? (q.type === 'identify' ? 'Elige el nombre en inglés.' : q.type === 'complete' ? `Escribe en inglés: ${q.word.es.toLowerCase()}.` : 'Relaciona la palabra en inglés con su traducción.')}</p>
     {q.type === 'complete' ? <form onSubmit={e => { e.preventDefault(); submit(answer); }}><label className="sr-only" htmlFor={answerId}>Palabra en inglés</label><input id={answerId} autoComplete="off" autoCapitalize="none" value={answer} disabled={result !== null} onChange={e => setAnswer(e.target.value)} placeholder="Escribe la palabra…"/><button className="primary" disabled={!answer.trim() || result !== null}>Comprobar <Check size={18}/></button></form> : <div className="answer-options">{q.options.map((option, i) => <button key={option} disabled={result !== null} className={`answer-option ${result !== null && option === q.answer ? 'correct' : result === false && option === answer ? 'incorrect' : ''}`} onClick={() => submit(option)}><span className="option-letter">{String.fromCharCode(65 + i)}</span>{option}{result !== null && option === q.answer ? <Check size={18}/> : null}</button>)}</div>}
     {result !== null ? <div className={`feedback ${result ? 'success' : 'retry'}`} role="status"><div>{result ? <Check size={20}/> : <X size={20}/>}<span><strong>{result ? '¡Bien hecho! +10 puntos' : `La respuesta es: ${q.answer}`}</strong><small>{q.word.example} — {q.word.translation}</small></span></div><button className="primary" onClick={() => { if (index + 1 === questions.length && onFinish) { onFinish(); return; } locked.current = false; setIndex(i => i + 1); setAnswer(''); setResult(null); }}>{index + 1 === questions.length ? 'Ver resumen' : 'Siguiente'} <ArrowRight size={18}/></button></div> : <div className="practice-note"><RotateCcw size={15}/> Equivocarse también es parte de aprender.</div>}
   </section>;
