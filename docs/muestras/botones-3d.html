@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Botones 3D · Frasivo Explore</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --forest: #176454;
+      --mint: #E8F3EC;
+      --paper: #F8FAF7;
+      --ink: #183C34;
+      --yellow: #E9C871;
+      --white: #fff;
+      --line: #D7E4DA;
+      --muted: #4B655B;
+      --forest-top: #216F5D;
+      --forest-hover: #216F5D;
+      --forest-hover-top: #287462;
+      --forest-edge: #0E4539;
+      --light-edge: #A8BDB0;
+      --mint-hover: #DCEEE2;
+      --disabled-face: #ECF0EC;
+      --disabled-ink: #50665C;
+      --wrong-face: #FFF2D4;
+      --wrong-hover: #FAE9BC;
+      --wrong-edge: #C7A95E;
+      --transparent: transparent;
+
+      --radius-panel: 24px;
+      --radius-mark: 10px;
+      --radius-key: 4px;
+      --radius-soft: 16px;
+      --radius-game: 11px;
+      --radius-tactile: 13px;
+      --radius-round: 50%;
+      --depth-soft: 3px;
+      --depth-game: 7px;
+      --depth-tactile: 4px;
+      --shadow-soft: 0 2px 4px rgb(24 60 52 / .10);
+      --shadow-tactile: 0 7px 11px rgb(24 60 52 / .20);
+      --shadow-gloss: inset 0 1px 0 rgb(255 255 255 / .38);
+      --shadow-none: 0 0 var(--transparent);
+      --focus-outline: 2px solid var(--forest);
+      --focus-offset: 3px;
+      --press-time: 100ms;
+      --touch-size: 44px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font: 400 15px/1.5 "DM Sans", system-ui, sans-serif;
+    }
+    h1, h2, h3 { margin: 0; font-family: "Manrope", system-ui, sans-serif; }
+    p { margin: 0; }
+    .wrap { width: min(100% - 40px, 1248px); margin-inline: auto; }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-block: 21px;
+      border-bottom: 1px solid var(--line);
+      font-family: "Manrope", system-ui, sans-serif;
+      font-weight: 800;
+    }
+    .brand-mark {
+      display: grid;
+      width: 32px;
+      height: 32px;
+      place-items: center;
+      border-radius: var(--radius-mark);
+      background: var(--forest);
+      color: var(--yellow);
+      font-size: 19px;
+    }
+    .intro {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: end;
+      gap: 16px 28px;
+      padding-block: 36px 32px;
+    }
+    h1 {
+      font-size: clamp(2.7rem, 6vw, 4.5rem);
+      font-weight: 800;
+      line-height: 1.04;
+      letter-spacing: -.065em;
+    }
+    .intro p { margin-top: 12px; color: var(--muted); font-size: 1rem; }
+    .instructions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 12px;
+      border-radius: var(--radius-mark);
+      background: var(--mint);
+      font-size: .82rem;
+    }
+    kbd {
+      padding: 1px 6px;
+      border: 1px solid var(--light-edge);
+      border-radius: var(--radius-key);
+      background: var(--white);
+      font: inherit;
+      font-weight: 700;
+    }
+    .comparison {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+      padding-bottom: 40px;
+    }
+    .sample {
+      min-width: 0;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-panel);
+      background: var(--white);
+    }
+    .soft {
+      --button-radius: var(--radius-soft);
+      --depth: var(--depth-soft);
+      --ambient: var(--shadow-soft);
+    }
+    .game {
+      --button-radius: var(--radius-game);
+      --depth: var(--depth-game);
+    }
+    .tactile {
+      --button-radius: var(--radius-tactile);
+      --depth: var(--depth-tactile);
+      --ambient: var(--shadow-tactile);
+      --gloss: var(--shadow-gloss);
+    }
+    .sample-heading { display: flex; align-items: center; gap: 11px; }
+    .letter {
+      display: grid;
+      width: 29px;
+      height: 29px;
+      place-items: center;
+      border-radius: var(--radius-mark);
+      background: var(--mint);
+      font-weight: 800;
+    }
+    .game .letter { background: var(--yellow); }
+    .sample h2 { font-size: 1.65rem; letter-spacing: -.045em; }
+    .description { margin-top: 3px; color: var(--muted); font-size: .875rem; }
+    .section { margin-top: 22px; padding-top: 17px; border-top: 1px solid var(--line); }
+    .section h3 { margin-bottom: 12px; font-size: .875rem; font-weight: 800; }
+    .states {
+      display: grid;
+      grid-template-columns: 1fr .85fr 1.05fr .73fr 1.28fr;
+      gap: 6px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      text-align: center;
+    }
+    .states li { display: grid; justify-items: center; gap: 10px; min-width: 0; }
+    .states .control { width: var(--touch-size); padding: 0; }
+    .state-label { color: var(--muted); font-size: clamp(.605rem, 1vw, .72rem); }
+    .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+    .actions + .actions { margin-top: 11px; }
+    .answers { display: grid; gap: 10px; }
+    .navigation { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    .control {
+      --face: var(--white);
+      --face-top: var(--white);
+      --hover-face: var(--paper);
+      --hover-top: var(--white);
+      --edge: var(--light-edge);
+      --stroke: var(--line);
+      --label: var(--ink);
+      --rest-shadow: 0 var(--depth) 0 var(--edge);
+      display: inline-flex;
+      min-height: var(--touch-size);
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border: 1px solid var(--stroke);
+      border-radius: var(--button-radius);
+      background: var(--face);
+      color: var(--label);
+      box-shadow: var(--rest-shadow), var(--ambient, var(--shadow-none)), var(--gloss, var(--shadow-none));
+      font: 700 .875rem/1.2 "DM Sans", system-ui, sans-serif;
+      text-align: center;
+      text-decoration: none;
+      transition: transform var(--press-time) ease-out, box-shadow var(--press-time) ease-out;
+    }
+    button.control { cursor: pointer; touch-action: manipulation; }
+    .primary {
+      --face: var(--forest);
+      --face-top: var(--forest-top);
+      --hover-face: var(--forest-hover);
+      --hover-top: var(--forest-hover-top);
+      --edge: var(--forest-edge);
+      --stroke: var(--forest);
+      --label: var(--white);
+    }
+    .secondary, .sound-button, .nav-item.active, .answer-option.correct {
+      --face: var(--mint);
+      --face-top: var(--paper);
+      --hover-face: var(--mint-hover);
+      --hover-top: var(--mint);
+      --stroke: var(--light-edge);
+    }
+    .text-button { --label: var(--forest); }
+    .sound-button { width: var(--touch-size); padding: 0; border-radius: var(--radius-round); }
+    .answer-option, .nav-item { justify-content: flex-start; text-align: left; }
+    .answer-option.incorrect {
+      --face: var(--wrong-face);
+      --face-top: var(--white);
+      --hover-face: var(--wrong-hover);
+      --hover-top: var(--wrong-face);
+      --edge: var(--wrong-edge);
+      --stroke: var(--wrong-edge);
+    }
+    .answer-state {
+      display: inline-flex;
+      gap: 5px;
+      align-items: center;
+      margin-left: auto;
+      font-size: .73rem;
+      font-weight: 700;
+    }
+    .answer-state span { font-size: 1rem; line-height: 1; }
+    .nav-item:not(.active) { --label: var(--muted); }
+    .tactile .control { background-image: linear-gradient(var(--face-top), var(--face)); }
+    .control.fixed-hover, .control.fixed-press { background-color: var(--hover-face); }
+    .tactile .control.fixed-hover, .tactile .control.fixed-press {
+      background-image: linear-gradient(var(--hover-top), var(--hover-face));
+    }
+    @media (hover: hover) {
+      button.control:not(:disabled):hover { background-color: var(--hover-face); }
+      .tactile button.control:not(:disabled):hover {
+        background-image: linear-gradient(var(--hover-top), var(--hover-face));
+      }
+    }
+    .control.fixed-press, button.control:not(:disabled):active {
+      transform: translateY(var(--depth));
+      box-shadow: none;
+    }
+    .control.fixed-focus, button.control:focus-visible {
+      outline: var(--focus-outline);
+      outline-offset: var(--focus-offset);
+    }
+    button.control:disabled {
+      border-color: var(--line);
+      background: var(--disabled-face);
+      color: var(--disabled-ink);
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+    .tactile button.control:disabled { background-image: none; }
+    .icon-arrow { font-size: 1.18em; line-height: 1; }
+    .icon-sound { position: relative; width: 22px; height: 18px; }
+    .icon-sound::before {
+      position: absolute;
+      inset: 2px auto 2px 1px;
+      width: 10px;
+      background: currentColor;
+      clip-path: polygon(0 32%, 33% 32%, 100% 0, 100% 100%, 33% 68%, 0 68%);
+      content: "";
+    }
+    .icon-sound::after {
+      position: absolute;
+      inset: 2px 1px 2px auto;
+      width: 15px;
+      border-right: 2px solid;
+      border-radius: var(--radius-round);
+      background: radial-gradient(circle at 50% 50%, var(--transparent) 4px, currentColor 4.5px 5.5px, var(--transparent) 6px) right center / 7px 12px no-repeat;
+      content: "";
+    }
+    @media (max-width: 1020px) and (min-width: 901px) {
+      .sample { padding-inline: 15px; }
+      .states { gap: 3px; }
+    }
+    @media (max-width: 900px) {
+      .comparison { grid-template-columns: minmax(0, 1fr); }
+      .states { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+      .state-label { font-size: .7rem; }
+    }
+    @media (max-width: 540px) {
+      .wrap { width: calc(100% - 28px); }
+      .brand { padding-block: 15px; }
+      .intro { grid-template-columns: 1fr; justify-items: start; padding-block: 27px 22px; }
+      .intro p { font-size: .925rem; }
+      .comparison { gap: 16px; }
+      .sample { padding: 17px; }
+      .states { grid-template-columns: 1fr .85fr 1.05fr .73fr 1.28fr; gap: 4px; }
+      .state-label { font-size: .65rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .control { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="brand wrap">
+    <span class="brand-mark" aria-hidden="true">✦</span>
+    Frasivo Explore
+  </header>
+  <main class="wrap">
+    <div class="intro">
+      <div>
+        <h1>Botones 3D</h1>
+        <p>Mantén pulsado un botón para comparar su recorrido.</p>
+      </div>
+      <div class="instructions"><kbd>Tab</kbd> para ver el foco <span aria-hidden="true">·</span> <kbd>Espacio</kbd> para pulsar</div>
+    </div>
+    <div class="comparison">
+      <article class="sample soft" aria-labelledby="title-soft">
+        <div class="sample-heading">
+          <span class="letter" aria-hidden="true">A</span>
+          <h2 id="title-soft">Suave</h2>
+        </div>
+        <p class="description">Sombra corta y esquinas amplias.</p>
+
+        <section class="section">
+          <h3>Estados fijos</h3>
+          <ul class="states" role="list">
+            <li><span class="control primary" aria-hidden="true">Aa</span><span class="state-label">Normal</span></li>
+            <li><span class="control primary fixed-hover" aria-hidden="true">Aa</span><span class="state-label">Hover</span></li>
+            <li><span class="control primary fixed-press" aria-hidden="true">Aa</span><span class="state-label">Presionado</span></li>
+            <li><span class="control primary fixed-focus" aria-hidden="true">Aa</span><span class="state-label">Foco</span></li>
+            <li><button class="control primary" type="button" disabled aria-hidden="true">Aa</button><span class="state-label">Deshabilitado</span></li>
+          </ul>
+        </section>
+
+        <section class="section">
+          <h3>Acciones</h3>
+          <div class="actions">
+            <button class="control primary" type="button">Empezar <span class="icon-arrow" aria-hidden="true">→</span></button>
+            <button class="control secondary" type="button">Ver vocabulario</button>
+          </div>
+          <div class="actions">
+            <button class="control sound-button" type="button" aria-label="Escuchar pronunciación"><span class="icon-sound" aria-hidden="true"></span></button>
+            <button class="control text-button" type="button">Ver ejemplo</button>
+          </div>
+        </section>
+
+        <section class="section">
+          <h3>¿Cómo se dice «portátil»?</h3>
+          <div class="answers">
+            <button class="control answer-option" type="button" lang="en">Keyboard</button>
+            <button class="control answer-option correct" type="button"><span lang="en">Laptop</span><span class="answer-state"><span aria-hidden="true">✓</span> Correcta</span></button>
+            <button class="control answer-option incorrect" type="button"><span lang="en">Mouse</span><span class="answer-state"><span aria-hidden="true">×</span> Incorrecta</span></button>
+          </div>
+        </section>
+
+        <section class="section">
+          <h3>Navegación</h3>
+          <div class="navigation">
+            <button class="control nav-item active" type="button" aria-current="page"><span aria-hidden="true">◈</span> Explorar</button>
+            <button class="control nav-item" type="button"><span aria-hidden="true">▤</span> Practicar</button>
+          </div>
+        </section>
+      </article>
+      <article class="sample game" aria-labelledby="title-game">
+        <div class="sample-heading">
+          <span class="letter" aria-hidden="true">B</span>
+          <h2 id="title-game">Juego</h2>
+        </div>
+        <p class="description">Base oscura de 7 px y una pulsación marcada.</p>
+
+        <section class="section">
+          <h3>Estados fijos</h3>
+          <ul class="states" role="list">
+            <li><span class="control primary" aria-hidden="true">Aa</span><span class="state-label">Normal</span></li>
+            <li><span class="control primary fixed-hover" aria-hidden="true">Aa</span><span class="state-label">Hover</span></li>
+            <li><span class="control primary fixed-press" aria-hidden="true">Aa</span><span class="state-label">Presionado</span></li>
+            <li><span class="control primary fixed-focus" aria-hidden="true">Aa</span><span class="state-label">Foco</span></li>
+            <li><button class="control primary" type="button" disabled aria-hidden="true">Aa</button><span class="state-label">Deshabilitado</span></li>
+          </ul>
+        </section>
+
+        <section class="section">
+          <h3>Acciones</h3>
+          <div class="actions">
+            <button class="control primary" type="button">Empezar <span class="icon-arrow" aria-hidden="true">→</span></button>
+            <button class="control secondary" type="button">Ver vocabulario</button>
+          </div>
+          <div class="actions">
+            <button class="control sound-button" type="button" aria-label="Escuchar pronunciación"><span class="icon-sound" aria-hidden="true"></span></button>
+            <button class="control text-button" type="button">Ver ejemplo</button>
+          </div>
+        </section>
+
+        <section class="section">
+          <h3>¿Cómo se dice «portátil»?</h3>
+          <div class="answers">
+            <button class="control answer-option" type="button" lang="en">Keyboard</button>
+            <button class="control answer-option correct" type="button"><span lang="en">Laptop</span><span class="answer-state"><span aria-hidden="true">✓</span> Correcta</span></button>
+            <button class="control answer-option incorrect" type="button"><span lang="en">Mouse</span><span class="answer-state"><span aria-hidden="true">×</span> Incorrecta</span></button>
+          </div>
+        </section>
+
+        <section class="section">
+          <h3>Navegación</h3>
+          <div class="navigation">
+            <button class="control nav-item active" type="button" aria-current="page"><span aria-hidden="true">◈</span> Explorar</button>
+            <button class="control nav-item" type="button"><span aria-hidden="true">▤</span> Practicar</button>
+          </div>
+        </section>
+      </article>
+      <article class="sample tactile" aria-labelledby="title-tactile">
+        <div class="sample-heading">
+          <span class="letter" aria-hidden="true">C</span>
+          <h2 id="title-tactile">Táctil</h2>
+        </div>
+        <p class="description">Degradado sutil, brillo superior y sombra difusa.</p>
+
+        <section class="section">
+          <h3>Estados fijos</h3>
+          <ul class="states" role="list">
+            <li><span class="control primary" aria-hidden="true">Aa</span><span class="state-label">Normal</span></li>
+            <li><span class="control primary fixed-hover" aria-hidden="true">Aa</span><span class="state-label">Hover</span></li>
+            <li><span class="control primary fixed-press" aria-hidden="true">Aa</span><span class="state-label">Presionado</span></li>
+            <li><span class="control primary fixed-focus" aria-hidden="true">Aa</span><span class="state-label">Foco</span></li>
+            <li><button class="control primary" type="button" disabled aria-hidden="true">Aa</button><span class="state-label">Deshabilitado</span></li>
+          </ul>
+        </section>
+
+        <section class="section">
+          <h3>Acciones</h3>
+          <div class="actions">
+            <button class="control primary" type="button">Empezar <span class="icon-arrow" aria-hidden="true">→</span></button>
+            <button class="control secondary" type="button">Ver vocabulario</button>
+          </div>
+          <div class="actions">
+            <button class="control sound-button" type="button" aria-label="Escuchar pronunciación"><span class="icon-sound" aria-hidden="true"></span></button>
+            <button class="control text-button" type="button">Ver ejemplo</button>
+          </div>
+        </section>
+
+        <section class="section">
+          <h3>¿Cómo se dice «portátil»?</h3>
+          <div class="answers">
+            <button class="control answer-option" type="button" lang="en">Keyboard</button>
+            <button class="control answer-option correct" type="button"><span lang="en">Laptop</span><span class="answer-state"><span aria-hidden="true">✓</span> Correcta</span></button>
+            <button class="control answer-option incorrect" type="button"><span lang="en">Mouse</span><span class="answer-state"><span aria-hidden="true">×</span> Incorrecta</span></button>
+          </div>
+        </section>
+
+        <section class="section">
+          <h3>Navegación</h3>
+          <div class="navigation">
+            <button class="control nav-item active" type="button" aria-current="page"><span aria-hidden="true">◈</span> Explorar</button>
+            <button class="control nav-item" type="button"><span aria-hidden="true">▤</span> Practicar</button>
+          </div>
+        </section>
+      </article>
+    </div>
+  </main>
+</body>
+</html>
