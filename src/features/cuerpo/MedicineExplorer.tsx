@@ -32,26 +32,29 @@ function isCompactViewport() {
 export default function MedicineExplorer() {
   const [layer, setLayer] = useState<AnatomyLayer>('bones');
   const [selected, setSelected] = useState('skull');
+  const [boneSelection, setBoneSelection] = useState(false);
+  const [showLabels, setShowLabels] = useState(false);
   const [opacity, setOpacity] = useState(85);
   const [minimized, setMinimized] = useState(() => {
     try { return localStorage.getItem(controlsStorageKey) === 'true'; } catch { return false; }
   });
   const [fixedPose, setFixedPose] = useState<BodyPoint[] | null>(null);
   const [audioError, setAudioError] = useState(false);
-  const [diagnostics] = useState(() => new URLSearchParams(window.location.search).get('fps') === '1');
+  const [debug] = useState(() => new URLSearchParams(window.location.search).get('debug') === '1');
+  const [diagnostics] = useState(() => debug || new URLSearchParams(window.location.search).get('fps') === '1');
   const { fps: detectionFps, record: recordDetection, reset: resetDetection } = useFrameRate();
   const { fps: drawingFps, record: recordDrawing, reset: resetDrawing } = useFrameRate();
   const compact = useSyncExternalStore(subscribeViewport, isCompactViewport);
   const vocabularySheet = useRef<HTMLDialogElement>(null);
   const windowRef = useRef<HTMLDivElement>(null);
   const [viewportAspect, setViewportAspect] = useState(.8);
-  const camera = usePoseCamera(diagnostics ? recordDetection : undefined);
+  const camera = usePoseCamera(diagnostics ? recordDetection : undefined, layer === 'bones');
   const live = camera.status === 'active';
   const waiting = camera.status === 'permission';
   const aspect = live ? camera.aspect : .8;
   const points = live ? camera.points : null;
-  const placement = useMemo(() => atlasPlacement(points, aspect, live ? viewportAspect : aspect),
-    [points, aspect, live, viewportAspect]);
+  const placement = useMemo(() => atlasPlacement(points, aspect, live ? viewportAspect : aspect, layer === 'bones'),
+    [points, aspect, live, viewportAspect, layer]);
   const parts = anatomyParts.filter(part => part.layer === layer);
   const visibleTerms = new Set(placement.visible.filter(part => part.layer === layer).map(part => part.term));
   const term = parts.find(part => part.id === selected && visibleTerms.has(part.id))
@@ -95,6 +98,7 @@ export default function MedicineExplorer() {
 
   function selectPart(id: string) {
     setSelected(id);
+    if (layer === 'bones') setBoneSelection(true);
     setAudioError(false);
   }
 
@@ -184,6 +188,9 @@ export default function MedicineExplorer() {
               </span> fps
             </span>
           )}
+          {layer === 'bones' && !waiting && !fixedPose &&
+            <Button className="anatomy-label-toggle" variant="secondary" aria-pressed={showLabels}
+              onClick={() => setShowLabels(value => !value)}>Etiquetas</Button>}
         </div>
         <div className="anatomy-window" ref={windowRef}>
           <div className="anatomy-frame" style={{ '--frame-ratio': aspect } as CSSProperties}>
@@ -197,7 +204,17 @@ export default function MedicineExplorer() {
               opacity={opacity / 100}
               onSelect={selectPart}
               onFrame={diagnostics ? recordDrawing : undefined}
+              showLabels={showLabels}
+              showSelection={boneSelection}
             />}
+            {debug && layer === 'bones' && points && !fixedPose && <svg className="anatomy-landmarks" viewBox={`0 0 ${aspect} 1`}
+              preserveAspectRatio="xMidYMid slice" aria-label="Puntos de diagnóstico de Pose">
+              {points.map((point, i) => <g key={i} data-landmark={i} transform={`translate(${point.x*aspect} ${point.y})`}>
+                <circle r=".005" fill={(point.visibility ?? 0) >= .65 ? '#b3ff9c' : '#ffb56d'}/>
+                <text x=".008" y="-.006" fontSize=".014" fill="#fff" stroke="#102923" strokeWidth=".003"
+                  paintOrder="stroke">{i} {(point.visibility ?? 0).toFixed(2)}</text>
+              </g>)}
+            </svg>}
           </div>
         </div>
         {!fixedPose && (term || pinReason) && <p className="anatomy-stage-hint">
@@ -227,6 +244,7 @@ export default function MedicineExplorer() {
                 <Button key={id} variant="secondary" aria-pressed={layer === id} onClick={() => {
                   setLayer(id);
                   setSelected('');
+                    setBoneSelection(false);
                   setAudioError(false);
                 }}>
                   <Icon size={17} aria-hidden="true"/>

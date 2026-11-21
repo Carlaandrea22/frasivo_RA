@@ -104,7 +104,7 @@ function overlapsVisibleFrame(matrix: Matrix, bounds: readonly number[], region:
     && projectedY + halfHeight > top && projectedY - halfHeight < top + visibleHeight;
 }
 
-export function atlasPlacement(points: BodyPoint[] | null, aspect: number, viewportAspect = aspect) {
+export function atlasPlacement(points: BodyPoint[] | null, aspect: number, viewportAspect = aspect, bones = false) {
   const region = visibleRegion(aspect, viewportAspect);
   const [minX, minY, width, height] = anchors.bounds;
   const demoScale = Math.min(aspect * .88 / width, .94 / height);
@@ -185,14 +185,20 @@ export function atlasPlacement(points: BodyPoint[] | null, aspect: number, viewp
 
   for (const side of sides) {
     const heel = `heel_${side}` as const, toe = `toe_${side}` as const, ankle = `ankle_${side}` as const;
-    const h = locate(heel, .40), f = locate(toe);
+    const h = locate(heel, .40), f = locate(toe, bones ? .53 : .65);
     const supportedAnkle = locate(ankle, .52);
+    const hip = locate(`hip_${side}`), knee = locate(`knee_${side}`, .52);
+    const legLength = hip && supportedAnkle ? distance(hip, supportedAnkle) : 0;
+    const kneeProgress = hip && knee && supportedAnkle && legLength > .01
+      ? ((knee[0]-hip[0])*(supportedAnkle[0]-hip[0])+(knee[1]-hip[1])*(supportedAnkle[1]-hip[1]))/legLength**2
+      : null;
     const legSupported = Boolean(leftHip && rightHip && h && f && supportedAnkle
       && distance(h, f) < Math.max(.04, scale*.34) && distance(h, supportedAnkle) < Math.max(.016, scale*.12));
     const armSupported = Boolean(locate(`shoulder_${side}`) && locate(`wrist_${side}`));
     for (const limb of Object.keys(limbJoints) as (keyof typeof limbJoints)[]) {
       const leg = limb === 'thigh' || limb === 'shin';
       if (leg && (!leftHip || !rightHip)) continue;
+      if (bones && leg && kneeProgress !== null && (kneeProgress < .07 || kneeProgress > .96)) continue;
       const [from, to] = limbJoints[limb];
       const a = `${from}_${side}` as Joint, b = `${to}_${side}` as Joint;
       const confidence = leg ? (legSupported ? .52 : .65) : (armSupported ? .52 : .65);
@@ -224,11 +230,13 @@ export function atlasPlacement(points: BodyPoint[] | null, aspect: number, viewp
       if (distance(k, h) < Math.max(.013, reach*.7) && reach < Math.max(.035, scale*.27)) {
         const group = `foot_${side}` as const;
         if (!foreshortened(heel, toe, span, Math.max(.015, scale*.065))) {
-          const [ankleX, ankleY] = anchors.spriteAnchors[ankle];
+          const [ankleX, ankleY] = anchors.spriteAnchors[bones ? heel : ankle];
           const [toeX, toeY] = anchors.spriteAnchors[toe];
-          matrices[group] = fitSegment([ankleX, ankleY], [toeX, toeY], k, f);
+          matrices[group] = fitSegment([ankleX, ankleY], [toeX, toeY], bones ? h : k, f);
         } else if (f[1] > k[1] + reach*.45 && reach >= Math.max(.012, scale*.035)) {
-          matrices[group] = fitSegment(rest(ankle), rest(toe), k, f);
+          matrices[group] = bones && span >= .01
+            ? fitSegment(rest(heel), rest(toe), h, f)
+            : !bones ? fitSegment(rest(ankle), rest(toe), k, f) : null;
           frontFeet.add(group);
         }
       }

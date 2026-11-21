@@ -30,6 +30,8 @@ test('las capas y la opacidad responden y el botón tiene presión, foco y movim
   await page.goto('/');
   const bone = page.getByRole('button', { name: 'Huesos', exact: true });
   await page.keyboard.press('Tab');
+  await expect(page.getByRole('button', { name: 'Etiquetas' })).toBeFocused();
+  await page.keyboard.press('Tab');
   await expect(bone).toBeFocused();
   await expect(bone).toHaveCSS('outline-style', 'solid');
 
@@ -396,4 +398,38 @@ test('la cámara dibuja piezas distales y mantiene el cerebro por encima de los 
   await expect(brain).toBeVisible();
   expect(await brain.evaluate(node => Number(node.getAttribute('y')) + Number(node.getAttribute('height')))).toBeLessThan(-1.551095);
   await photograph('organos');
+});
+
+test('una flecha sigue el hueso y muestra la ficha con enlace solo si existe en el catálogo', async ({ page }, testInfo) => {
+  await useBodyFixture(page);
+  await page.goto('/?debug=1');
+  await page.getByRole('button', { name: 'Activar cámara' }).click();
+  await expect(page.locator('[data-landmark]')).toHaveCount(33);
+  const femur = page.locator('image[data-part=femur_left]');
+  await expect(femur).toBeVisible();
+  await femur.dispatchEvent('click');
+  await expect(page.locator('[data-bone-arrow=femur]')).toHaveAttribute('marker-end', /^url/);
+  await expect(page.getByRole('button', { name: 'Escuchar Femur' })).toBeVisible();
+  await page.getByRole('button', { name: 'Ver ficha de Fémur' }).click();
+  const sheet = page.getByRole('dialog', { name: 'Fémur' });
+  await expect(sheet.getByRole('link', { name: 'Ver en Explorar 3D' })).toHaveAttribute('href', '#explorar/estructura/femur');
+  expect(await page.evaluate(() => Object.keys(localStorage).some(key => key.startsWith('lumar.progress:v1:event:')))).toBe(true);
+  await sheet.getByRole('button', { name: 'Cerrar ficha' }).click();
+  await page.goto('/?fps=1');
+  await page.getByRole('button', { name: 'Activar cámara' }).click();
+  await expect(page.locator('[data-fps-detection]')).toBeVisible();
+  await expect(page.locator('[data-fps-drawing]')).toBeVisible();
+  await testInfo.attach('fps', { body: await page.locator('.anatomy-fps').innerText(), contentType: 'text/plain' });
+  await page.getByRole('button', { name: 'Minimizar controles' }).click();
+  await page.locator('image[data-part=femur_left]').dispatchEvent('click');
+  await expect(page.locator('[data-bone-arrow=femur]')).toHaveAttribute('marker-end', /^url/);
+  await page.screenshot({ path: testInfo.outputPath('flecha-femur.png') });
+  await page.getByRole('button', { name: 'Etiquetas', exact: true }).click();
+  await expect(page.locator('[data-bone-arrow]')).toHaveCount(6);
+  await page.screenshot({ path: testInfo.outputPath('etiquetas.png') });
+  await page.locator('image[data-part=skull]').dispatchEvent('click');
+  await page.getByRole('button', { name: 'Ver ficha de Cráneo' }).click();
+  const skull = page.getByRole('dialog', { name: 'Cráneo' });
+  await expect(skull).toBeVisible();
+  await expect(skull.getByRole('link', { name: 'Ver en Explorar 3D' })).toHaveCount(0);
 });

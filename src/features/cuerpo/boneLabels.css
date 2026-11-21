@@ -1,0 +1,18 @@
+.bone-labels { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+.bone-label-lines { position: absolute; inset: 0; overflow: hidden; filter: drop-shadow(0 1px 2px #102923); }
+.bone-label-card { position: absolute; display: grid; align-content: center; min-height: 62px; padding: 7px 7px 7px 9px; border: 1px solid var(--line); border-radius: 16px; background: white; color: var(--ink); box-shadow: var(--shadow-soft); pointer-events: auto; }
+.bone-label-open { border: 0; background: transparent; color: var(--ink); padding: 0 30px 0 0; text-align: start; font: 800 .82rem/1.1 var(--font-title); cursor: pointer; }
+.bone-label-open::after { position: absolute; inset: 0; content: ''; }
+.bone-label-card .lumar-english { display: block; padding-right: 27px; font-size: .68rem; }
+.bone-label-card .lumar-english .button { position: absolute; z-index: 1; right: 0; top: 50%; transform: translateY(-50%); width: 44px; min-width: 44px; border: 0; background: transparent; box-shadow: none; }
+.bone-label-card .lumar-english .button svg { width: 15px; }
+.bone-detail[open] { pointer-events: auto; }
+.bone-detail-content { display: grid; gap: 12px; }
+.bone-detail-content header { margin-bottom: 0; }
+.bone-detail-content p { color: var(--muted); line-height: 1.5; }
+.bone-detail-content a { justify-self: start; }
+.anatomy-sprites.layer-bones { pointer-events: auto; }
+.anatomy-landmarks { position: absolute; inset: 0; z-index: 1; width: 100%; height: 100%; pointer-events: none; }
+.anatomy-stage-header .anatomy-label-toggle { padding-inline: 7px; font-size: .71rem; }
+.anatomy-stage-header:has(.anatomy-label-toggle) .anatomy-fps { padding-inline: 4px; font-size: .67rem; }
+.skeleton-label-toggle { position: absolute; z-index: 4; top: 58px; right: 16px; }

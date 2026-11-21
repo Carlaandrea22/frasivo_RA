@@ -1,14 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
 import {
-  Box3, DirectionalLight, GridHelper, Group, HemisphereLight, PerspectiveCamera,
+  Box3, DirectionalLight, GridHelper, Group, HemisphereLight, Mesh, MeshStandardMaterial, PerspectiveCamera,
   Raycaster, Scene, Sphere, Vector2, Vector3, WebGLRenderer,
 } from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { anatomyParts } from './anatomy';
+import { BoneLabels, type BoneTarget } from './BoneLabels';
+import { projectBones } from './boneProjection';
 
-export default function SkeletonViewer({ model }: { model: Group }) {
+export default function SkeletonViewer({ model, onPicked }: { model: Group; onPicked?: (id: string, nodeName?: string) => void }) {
   const host = useRef<HTMLDivElement>(null);
   const [term, setTerm] = useState('');
+  const [showAll, setShowAll] = useState(false);
+  const [targets, setTargets] = useState<BoneTarget[]>([]);
+  const callback = useRef(onPicked);
+  callback.current = onPicked;
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
@@ -44,7 +49,20 @@ export default function SkeletonViewer({ model }: { model: Group }) {
       camera.updateProjectionMatrix();
       draw();
     };
-    const draw = () => renderer.render(scene, camera);
+    let highlighted: Mesh | undefined;
+    let original: MeshStandardMaterial | undefined;
+    function resetHighlight() {
+      if (highlighted && original) {
+        (highlighted.material as MeshStandardMaterial).dispose();
+        highlighted.material = original;
+      }
+      highlighted = undefined;
+      original = undefined;
+    }
+    const draw = () => {
+      renderer.render(scene, camera);
+      setTargets(projectBones(model, camera, highlighted));
+    };
     const vertical = Math.tan(camera.fov * Math.PI / 360);
     const horizontal = vertical * element.clientWidth / Math.max(1, element.clientHeight);
     const distance = Math.max(size.y / vertical, size.x / Math.max(.1, horizontal)) * .57 + size.z * .5;
@@ -75,8 +93,24 @@ export default function SkeletonViewer({ model }: { model: Group }) {
       tap = undefined;
       const box = renderer.domElement.getBoundingClientRect();
       ray.setFromCamera(new Vector2((event.clientX-box.left)/box.width*2-1, 1-(event.clientY-box.top)/box.height*2), camera);
-      const hit = ray.intersectObject(model, true)[0];
-      setTerm(anatomyParts.find(part => part.id === hit?.object.userData.term)?.en ?? '');
+      resetHighlight();
+      const point = ray.intersectObject(model, true)[0]?.object;
+      if (point instanceof Mesh && point.material instanceof MeshStandardMaterial && point.userData.term) {
+        highlighted = point;
+        original = point.material;
+        point.material = original.clone();
+        point.material.emissive.set('#fff3b0');
+        point.material.emissiveIntensity = .45;
+        setTerm(point.userData.term);
+        callback.current?.(point.userData.term, point.name);
+      } else {
+        const nearest = projectBones(model, camera).map(target => ({
+          target, distance: Math.hypot(box.left+target.x*box.width-event.clientX, box.top+target.y*box.height-event.clientY),
+        })).filter(candidate => candidate.distance <= 22).sort((a, b) => a.distance-b.distance)[0]?.target;
+        if (nearest) callback.current?.(nearest.id);
+        setTerm(nearest?.id ?? '');
+      }
+      draw();
     };
     const lost = (event: Event) => { event.preventDefault(); setFailed(true); };
     const canvas = renderer.domElement;
@@ -94,6 +128,7 @@ export default function SkeletonViewer({ model }: { model: Group }) {
       canvas.removeEventListener('pointercancel', finish);
       canvas.removeEventListener('webglcontextlost', lost);
       controls.dispose();
+      resetHighlight();
       floor.geometry.dispose();
       floor.material.dispose();
       scene.remove(model);
@@ -104,8 +139,11 @@ export default function SkeletonViewer({ model }: { model: Group }) {
   }, [model]);
 
   return <>
-    <div className="anatomy-skeleton-canvas" ref={host}/>
+    <div className="anatomy-skeleton-canvas" ref={host}>
+      <button className="button button--secondary skeleton-label-toggle" type="button" aria-pressed={showAll}
+        onClick={() => setShowAll(value => !value)}>Etiquetas</button>
+      <BoneLabels targets={targets} selected={term} showAll={showAll}/>
+    </div>
     {failed && <p className="anatomy-viewer-note" role="alert">El visor 3D necesita WebGL en este dispositivo.</p>}
-    {term && <p className="anatomy-viewer-note" role="status" lang="en">{term}</p>}
   </>;
 }

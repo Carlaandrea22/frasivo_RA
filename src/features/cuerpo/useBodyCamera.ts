@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-export function useBodyCamera() {
+export function useBodyCamera(detailed = false) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const resources = useRef<{ stream?: MediaStream; timer?: number; generation: number }>({ generation: 0 });
   const [status, setStatus] = useState<'idle' | 'permission' | 'active' | 'error'>('idle');
@@ -25,7 +25,8 @@ export function useBodyCamera() {
     setStatus('permission');
     resources.current.timer = window.setTimeout(() => fail('La cámara tardó demasiado. Puedes volver a intentarlo o estudiar sin cámara.'), 30000);
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false });
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' },
+        width: { ideal: detailed ? 1920 : 1280 }, height: { ideal: detailed ? 1080 : 720 } }, audio: false });
       if (token !== resources.current.generation) { stream.getTracks().forEach(track => track.stop()); return; }
       resources.current.stream = stream;
       stream.getVideoTracks().forEach(track => { track.onended = () => fail('La cámara se desconectó. Puedes activarla de nuevo.'); });
@@ -40,7 +41,7 @@ export function useBodyCamera() {
         : name === 'NotFoundError' ? 'No encontramos una cámara. Puedes seguir explorando el atlas sin cámara.'
         : 'No pudimos abrir la cámara. Comprueba si otra aplicación la está usando o sigue sin cámara.');
     }
-  }, [release, stop]);
+  }, [release, stop, detailed]);
   useEffect(() => {
     const hidden = () => { if (document.hidden) stop(); };
     const pageHide = () => stop();

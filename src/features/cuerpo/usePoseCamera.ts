@@ -1,10 +1,12 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useBodyCamera } from './useBodyCamera';
 import { captureWindow, type PoseSample } from './poseCapture';
 import workerUrl from '../../generated/pose.worker.js?url';
 
-export function usePoseCamera(onDetection?: (time: number) => void) {
-  const camera = useBodyCamera();
+export function usePoseCamera(onDetection?: (time: number) => void, detailed = false) {
+  const camera = useBodyCamera(detailed);
+  const highDetail = useRef(detailed);
+  highDetail.current = detailed;
   const { status, stop, videoRef } = camera;
   const [history, setHistory] = useState<PoseSample[]>([]);
   const [tracking, setTracking] = useState<'loading' | 'searching' | 'tracking'>('loading');
@@ -49,7 +51,8 @@ export function usePoseCamera(onDetection?: (time: number) => void) {
       if (!lastResult) lastResult = now;
       setAspect(video.videoWidth / video.videoHeight);
       try {
-        const frame = await createImageBitmap(video, { resizeWidth: 640, resizeHeight: Math.max(1, Math.round(640 * video.videoHeight / video.videoWidth)) });
+        const width = highDetail.current ? Math.min(video.videoWidth, 960, Math.round(1280*video.videoWidth/video.videoHeight)) : 640;
+        const frame = await createImageBitmap(video, { resizeWidth: width, resizeHeight: Math.max(1, Math.round(width * video.videoHeight / video.videoWidth)) });
         if (disposed) { frame.close(); return; }
         worker!.postMessage({ type: 'frame', frame, timestamp: performance.now() }, [frame]);
       } catch { fail('No se pudo analizar la cámara. Prueba un navegador actualizado o vuelve a intentarlo.'); }
