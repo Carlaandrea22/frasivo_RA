@@ -1,0 +1,70 @@
+{
+  "source": "Local crop of the supplied screenshot; repeated still frames, not live-camera accuracy.",
+  "cropMode": "focus",
+  "warmupFrames": 2,
+  "measuredFrames": 10,
+  "medianRoundTripMs": 146.40000000596046,
+  "p90RoundTripMs": 171.7000000178814,
+  "samples": [
+    [
+      {
+        "label": "person",
+        "score": 0.69580078125
+      }
+    ],
+    [
+      {
+        "label": "person",
+        "score": 0.69580078125
+      }
+    ],
+    [
+      {
+        "label": "person",
+        "score": 0.69580078125
+      }
+    ],
+    [
+      {
+        "label": "person",
+        "score": 0.69580078125
+      }
+    ],
+    [
+      {
+        "label": "person",
+        "score": 0.69580078125
+      }
+    ],
+    [
+      {
+        "label": "person",
+        "score": 0.69580078125
+      }
+    ],
+    [
+      {
+        "label": "person",
+        "score": 0.69580078125
+      }
+    ],
+    [
+      {
+        "label": "person",
+        "score": 0.69580078125
+      }
+    ],
+    [
+      {
+        "label": "person",
+        "score": 0.69580078125
+      }
+    ],
+    [
+      {
+        "label": "person",
+        "score": 0.69580078125
+      }
+    ]
+  ]
+}

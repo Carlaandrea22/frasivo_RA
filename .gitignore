@@ -1,0 +1,15 @@
+node_modules/
+dist/
+*.tsbuildinfo
+public/vision/
+public/models/
+public/detector.worker.js
+src/generated/
+.superpowers/
+test-results/
+playwright-report/
+.env
+.env.*
+!.env.example
+*.log
+docs/mobile-qr.png

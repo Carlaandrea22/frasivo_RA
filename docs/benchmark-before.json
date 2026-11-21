@@ -1,0 +1,109 @@
+{
+  "source": "Local crop of the supplied screenshot; repeated still frames, not live-camera accuracy.",
+  "warmupFrames": 2,
+  "measuredFrames": 10,
+  "medianRoundTripMs": 156.40000000596046,
+  "p90RoundTripMs": 178.40000000596046,
+  "samples": [
+    [
+      {
+        "label": "cell phone",
+        "score": 0.7587890625
+      },
+      {
+        "label": "person",
+        "score": 0.66064453125
+      }
+    ],
+    [
+      {
+        "label": "cell phone",
+        "score": 0.7587890625
+      },
+      {
+        "label": "person",
+        "score": 0.66064453125
+      }
+    ],
+    [
+      {
+        "label": "cell phone",
+        "score": 0.7587890625
+      },
+      {
+        "label": "person",
+        "score": 0.66064453125
+      }
+    ],
+    [
+      {
+        "label": "cell phone",
+        "score": 0.7587890625
+      },
+      {
+        "label": "person",
+        "score": 0.66064453125
+      }
+    ],
+    [
+      {
+        "label": "cell phone",
+        "score": 0.7587890625
+      },
+      {
+        "label": "person",
+        "score": 0.66064453125
+      }
+    ],
+    [
+      {
+        "label": "cell phone",
+        "score": 0.7587890625
+      },
+      {
+        "label": "person",
+        "score": 0.66064453125
+      }
+    ],
+    [
+      {
+        "label": "cell phone",
+        "score": 0.7587890625
+      },
+      {
+        "label": "person",
+        "score": 0.66064453125
+      }
+    ],
+    [
+      {
+        "label": "cell phone",
+        "score": 0.7587890625
+      },
+      {
+        "label": "person",
+        "score": 0.66064453125
+      }
+    ],
+    [
+      {
+        "label": "cell phone",
+        "score": 0.7587890625
+      },
+      {
+        "label": "person",
+        "score": 0.66064453125
+      }
+    ],
+    [
+      {
+        "label": "cell phone",
+        "score": 0.7587890625
+      },
+      {
+        "label": "person",
+        "score": 0.66064453125
+      }
+    ]
+  ]
+}

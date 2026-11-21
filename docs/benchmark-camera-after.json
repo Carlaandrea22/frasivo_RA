@@ -1,0 +1,8 @@
+{
+  "source": "Real app pipeline and detector, synthetic video from the supplied screenshot. Not a live-camera accuracy benchmark.",
+  "medianIntervalMs": 132.69999998807907,
+  "medianAnalysesPerSecond": 7.5357950270522505,
+  "phoneFrames": 11,
+  "frames": 11,
+  "uiMetrics": "7.4 análisis por segundo · 110 ms por análisis"
+}
