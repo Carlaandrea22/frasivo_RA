@@ -178,28 +178,94 @@
 
 @media (max-width: 760px) {
   .body-explorer {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
+    --controls-clearance: 196px;
+    grid-template: minmax(0, 1fr) / minmax(0, 1fr);
+    min-height: 0;
     gap: 0;
   }
 
+  .anatomy-stage, .anatomy-controls { grid-area: 1 / 1; }
   .anatomy-stage {
-    flex: 1;
-    min-height: clamp(16rem, 46dvh, 32rem);
-    padding-inline: max(var(--space-3), env(safe-area-inset-left, 0px));
+    align-self: stretch;
+    min-height: 0;
+    padding-right: max(var(--space-3), env(safe-area-inset-right, 0px));
+    padding-bottom: var(--controls-clearance);
+    padding-left: max(var(--space-3), env(safe-area-inset-left, 0px));
     border-radius: 0;
+  }
+
+  .anatomy-stage--live .anatomy-window { position: absolute; inset: 0; }
+  .anatomy-stage--live .anatomy-stage-header,
+  .anatomy-stage--live .anatomy-stage-hint {
+    position: relative;
+    background: var(--camera-base);
+    border-radius: var(--radius-soft);
+  }
+  .anatomy-stage--live .anatomy-stage-header { padding-left: var(--space-2); }
+  .anatomy-stage--live .anatomy-stage-hint {
+    grid-row: 3;
+    justify-self: center;
+    padding: 3px var(--space-2);
   }
 
   .anatomy-controls {
-    padding: var(--space-3) max(var(--space-3), env(safe-area-inset-right, 0px))
-      var(--space-2) max(var(--space-3), env(safe-area-inset-left, 0px));
-    border: 0;
-    border-radius: 0;
+    position: relative;
+    align-self: end;
+    margin-right: max(var(--space-2), env(safe-area-inset-right, 0px));
+    margin-bottom: var(--space-2);
+    margin-left: max(var(--space-2), env(safe-area-inset-left, 0px));
+    padding: var(--space-2);
+    border-radius: var(--radius-soft);
+    background: var(--paper);
   }
 
-  .anatomy-intro p { font-size: .78rem; }
-  .anatomy-layers, .anatomy-actions { margin-top: var(--space-2); }
-  .anatomy-vocabulary { margin-top: var(--space-2); }
-  .anatomy-note { margin-top: 0; }
+  .anatomy-intro {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  .anatomy-layers { margin-top: 0; }
+  .anatomy-actions { margin-top: var(--space-2); }
+
+  .anatomy-vocabulary-trigger {
+    width: 100%;
+    justify-content: flex-start;
+    margin-top: var(--space-2);
+  }
+  .anatomy-vocabulary-trigger span { flex: 1; text-align: left; }
+
+  .anatomy-sheet {
+    position: fixed;
+    inset: auto 0 0;
+    width: 100%;
+    max-width: none;
+    max-height: min(80dvh, 34rem);
+    margin: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+    padding: var(--space-3) max(var(--space-3), env(safe-area-inset-right, 0px))
+      calc(var(--space-4) + env(safe-area-inset-bottom, 0px))
+      max(var(--space-3), env(safe-area-inset-left, 0px));
+    border: 0;
+    border-radius: var(--radius-panel) var(--radius-panel) 0 0;
+    background: var(--paper);
+    color: var(--ink);
+  }
+
+  .anatomy-sheet::backdrop { background: rgb(16 41 35 / .55); }
+  body:has(.anatomy-sheet[open]) { overflow: hidden; }
+
+  .anatomy-sheet-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+  }
+  .anatomy-sheet-header h2 { font-size: 1.25rem; }
+  .anatomy-sheet-header .button { flex: none; padding: 0; }
+  .anatomy-sheet .anatomy-vocabulary { margin-top: var(--space-3); padding-top: var(--space-3); }
+  .anatomy-sheet .anatomy-note { margin-top: var(--space-3); }
 }

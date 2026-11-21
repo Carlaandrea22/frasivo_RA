@@ -63,7 +63,7 @@ test('el permiso denegado mantiene el atlas de demostración y permite reintenta
   await expect(page.locator('[data-part=skull]')).toBeVisible();
 });
 
-test('Pose Lite reconoce y pierde una persona en un flujo controlado y libera la cámara al salir', async ({ page }) => {
+test('Pose Lite detecta sin conexión tras la primera carga y libera la cámara al salir', async ({ page, context }) => {
   const fixtureUrl = `data:image/jpeg;base64,${(await readFile('tests/fixtures/pose.jpg')).toString('base64')}`;
   await page.setViewportSize({ width: 375, height: 812 });
   await page.addInitScript(imageUrl => {
@@ -104,6 +104,9 @@ test('Pose Lite reconoce y pierde una persona en un flujo controlado y libera la
   }, fixtureUrl);
 
   await page.goto('/');
+  await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller));
+  await context.setOffline(true);
+  await page.reload();
   await page.getByRole('button', { name: 'Músculos', exact: true }).click();
   await page.getByRole('button', { name: 'Activar cámara' }).click();
   const status = page.getByRole('status');
@@ -132,4 +135,56 @@ test('la pronunciación se muestra deshabilitada cuando falta la voz del disposi
   await expect(sound).toBeDisabled();
   await expect(sound).toHaveCSS('box-shadow', 'none');
   await expect(page.getByRole('heading', { name: 'Skull' })).toBeVisible();
+});
+
+test('el atlas y los controles superpuestos siguen fijos al abrir la hoja móvil', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto('/');
+  const stage = page.locator('.anatomy-stage');
+  const before = (await stage.boundingBox())!;
+  const controls = (await page.locator('.anatomy-controls').boundingBox())!;
+  expect(before.height).toBeGreaterThan(812 * .78);
+  expect(controls.y).toBeGreaterThan(before.y);
+  expect(controls.y + controls.height).toBeLessThan(before.y + before.height);
+  expect(await page.evaluate(() => document.documentElement.scrollHeight)).toBe(812);
+
+  const current = page.getByRole('button', { name: 'Cuerpo' });
+  const inactive = page.getByRole('button', { name: 'Explorar 3D' });
+  await expect(current).toHaveAttribute('aria-current', 'page');
+  await expect(current).toHaveCSS('background-color', 'rgb(23, 100, 84)');
+  await expect(current).toHaveCSS('color', 'rgb(255, 255, 255)');
+  await expect(inactive).not.toHaveAttribute('aria-current');
+
+  const trigger = page.getByRole('button', { name: 'Vocabulario de la capa' });
+  await trigger.click();
+  const sheet = page.getByRole('dialog', { name: 'Vocabulario de la capa' });
+  await expect(sheet).toBeVisible();
+  await expect(sheet.getByRole('heading', { name: 'Skull' })).toBeVisible();
+  expect(await stage.boundingBox()).toEqual(before);
+  expect((await sheet.boundingBox())!.y + (await sheet.boundingBox())!.height).toBe(812);
+
+  await page.keyboard.press('Escape');
+  await expect(sheet).toBeHidden();
+  await expect(trigger).toBeFocused();
+  expect(await stage.boundingBox()).toEqual(before);
+});
+
+test('el service worker reserva el WASM de compatibilidad para el primer uso', async ({ page, context }) => {
+  const wasm = '/body-tracking/wasm/vision_wasm_internal.wasm';
+  const fallback = ['/body-tracking/wasm/vision_wasm_nosimd_internal.js', '/body-tracking/wasm/vision_wasm_nosimd_internal.wasm'];
+  await page.goto('/');
+  await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller));
+  const cached = async (path: string) => page.evaluate(async url => Boolean(await caches.match(url)), path);
+
+  expect(await cached(wasm)).toBe(true);
+  for (const path of fallback) {
+    expect(await cached(path)).toBe(false);
+    expect(await page.evaluate(async url => (await fetch(url)).ok, path)).toBe(true);
+    expect(await cached(path)).toBe(true);
+  }
+
+  await context.setOffline(true);
+  for (const path of fallback) {
+    expect(await page.evaluate(async url => (await fetch(url, { cache: 'reload' })).ok, path)).toBe(true);
+  }
 });

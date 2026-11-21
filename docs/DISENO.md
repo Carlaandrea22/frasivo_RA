@@ -2,7 +2,7 @@
 
 La experiencia principal usa una cámara en vertical para superponer capas SVG de huesos, músculos u órganos. La ilustración estima ubicaciones a partir de la postura. También hay una demostración sin cámara.
 
-En móvil a 375 px el atlas ocupa el ancho de pantalla. Los controles quedan debajo del atlas, cerca de la navegación inferior, y se respetan las zonas seguras. En escritorio, los controles aparecen al lado del atlas. La navegación es Cuerpo, Explorar 3D, Practicar y Mi progreso. Créditos se abre dentro de Mi progreso.
+En móvil a 375 px el atlas ocupa el área entre el encabezado y la navegación. Los controles se superponen abajo y respetan las zonas seguras. El vocabulario se abre en una hoja inferior que conserva el encuadre. En escritorio, los controles y términos aparecen al lado del atlas. La navegación es Cuerpo, Explorar 3D, Practicar y Mi progreso. La sección activa tiene fondo verde bosque y texto blanco. Créditos se abre dentro de Mi progreso.
 
 ## Paleta y controles
 

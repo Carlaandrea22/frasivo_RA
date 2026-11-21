@@ -2,7 +2,7 @@
 
 **Objetivo.** Enfocar con el teléfono a una persona y aprender vocabulario técnico en inglés a partir de las capas de huesos, músculos u órganos que siguen su postura. El atlas 3D complementa la cámara y empieza por el sistema cardiovascular. El contrato común permite sumar Química con su propio catálogo y modelos.
 
-**Rama.** `renovacion-anatomia` parte de `Luis` en `28d5d2b`. El respaldo local de la preparación está en `d58edfc`. Este encargo autoriza la corrección del corazón y la Etapa 1. Las etapas siguientes esperan revisión.
+**Rama.** `renovacion-anatomia` parte de `Luis` en `28d5d2b`. El respaldo local de la preparación está en `d58edfc` y la Etapa 1 en `8fe9ce1`. Los ajustes previos a la Etapa 2 quedan para revisión. La Etapa 2 y la preparación de una prueba física esperan aprobación.
 
 ## Decisiones aprobadas
 
@@ -56,7 +56,24 @@ Después de cada etapa de código ejecutar `npm run build`, `npm test` y `npm ru
 - [ ] **4 · Cámara corporal: capas, Congelar y zoom.** Ampliar las capas SVG y activar **Congelar** solo con una persona detectada y puntos vigentes. Capturar en la resolución intrínseca del flujo (`videoWidth` × `videoHeight`), pedir una resolución alta razonable y asociar los puntos al mismo fotograma. Detener tracks y worker. Conservar la imagen solo en memoria. Aplicar una transformación común a imagen y SVG nítido para pellizco, arrastre de un dedo y doble toque que alterna zoom y encuadre inicial. Abrir ficha al tocar estructura y **Ver en 3D** al tocar el corazón. **Reanudar** y salir descartan imagen y puntos. Probar persona detectada, sin persona, pérdida de puntos, permiso denegado, congelar y reanudar, zoom, arrastre y liberación de cámara y worker al salir. Verificar que no se escribe ni se envía la captura.
 - [ ] **5 · Ejercicios y progreso.** Preguntas a partir de términos activos, puntuación y persistencia local por área. Probar recarga offline, datos corruptos o almacenamiento bloqueado y separación entre áreas.
 - [ ] **6 · AR nativa.** Probar enlaces HTTPS para Scene Viewer y Quick Look, salida al visor 3D, permiso y retorno con selección. Probar colocación y escala en teléfonos físicos.
-- [ ] **7 · PWA offline.** Precargar interfaz, fuentes, Pose y paquete inicial según el presupuesto de caché. Verificar primera preparación, instalación, recarga sin red, actualización desde caché anterior y que la fuente Blender queda fuera del sitio publicado. Actualizar documentación de uso final.
+- [ ] **7 · PWA offline.** Mantener la precarga de interfaz, fuentes, Pose Lite y su WASM SIMD. Añadir el paquete inicial según el presupuesto de caché. Verificar primera preparación, instalación, recarga sin red, actualización desde caché anterior y que la fuente Blender queda fuera del sitio publicado. Actualizar documentación de uso final.
+
+## Ajustes verificados antes de la Etapa 2
+
+- **Precaché.** El build sirve ambas variantes desde el mismo origen. La PWA precarga solo el par SIMD. MediaPipe pide el par sin SIMD si la comprobación de capacidad lo requiere y el service worker lo guarda tras una descarga satisfactoria. Un navegador sin SIMD debe abrir la cámara con conexión una vez, con la PWA ya preparada. Se retiró la excepción de `/api`.
+- **Peso medido.** El despliegue completo ocupa 28 885 976 bytes (28,89 MB) con ambas variantes disponibles. La precaché pasó de 28 881 083 a 18 031 588 bytes (−10,85 MB, −37,6 %). Son tamaños de archivos sin compresión de transporte.
+- **Cuerpo en móvil.** A 375 × 812 px, cámara o atlas de 675 px de alto con controles superpuestos abajo. El vocabulario abre en un diálogo inferior sin alterar el encuadre y devuelve el foco al cerrar. En escritorio conserva el panel lateral. El botón activo usa fondo verde bosque, texto blanco, estilo «A · Suave» y `aria-current="page"`.
+- **Comprobaciones.** Build, 4 pruebas unitarias y 7 de Chrome. Pose Lite detectó con un flujo de cámara controlado al recargar sin conexión tras la primera carga. Los recursos sin SIMD quedaron fuera de la precaché y se comprobaron disponibles offline después de solicitarlos. [Cuerpo a 375 px](renovacion/ajustes-movil.png) · [Hoja inferior](renovacion/ajustes-hoja-movil.png) · [Escritorio](renovacion/ajustes-escritorio.png)
+
+## Prueba física por Wi-Fi pendiente de aprobación
+
+**Recomendación.** Servir únicamente `dist/` por HTTPS en la IP Wi-Fi del Mac con Node y OpenSSL ya disponibles. La app queda accesible en la red local y se necesita confiar temporalmente en la CA de prueba en cada teléfono.
+
+1. Preparar el build, obtener la IP local del Mac y emitir un certificado HTTPS de corta duración con esa IP en el SAN, firmado por una CA exclusiva de la prueba. Mantener las claves privadas en el Mac.
+2. Entregar solo el certificado público de la CA. En Android, instalarlo como CA de usuario desde los ajustes de seguridad. En iPhone, instalar el perfil y habilitar confianza TLS en **Ajustes → General → Información → Ajustes de confianza de certificados**. [Guía de mkcert para móviles](https://github.com/FiloSottile/mkcert#mobile-devices) · [Apple Support](https://support.apple.com/en-ie/102390)
+3. Servir el build únicamente en la IP local, abrir `https://<IP-del-Mac>:8443` en Chrome Android y Safari iPhone y conceder permiso de cámara. Probar las tres capas, cambiar de sección para observar la liberación y recargar tras preparar la PWA con los datos y el Wi-Fi apagados. Al terminar, detener el servidor y retirar la confianza de la CA de prueba.
+
+**Alternativas.** Chrome por USB requiere cable, depuración USB y redirección desde DevTools. Chrome Android puede abrir `http://localhost`, que cuenta como contexto seguro. No cubre Safari en iPhone. Un túnel temporal funciona con ambos teléfonos sin instalar certificados, pero necesita un cliente como `cloudflared` y una URL alcanzable desde internet. Si se autoriza, usar acceso por correo y publicar solo la compilación. [Redirección USB de Chrome](https://developer.chrome.com/docs/devtools/remote-debugging/local-server) · [Quick Tunnels](https://developers.cloudflare.com/tunnel/get-started/quick-tunnels/)
 
 ## Riesgos y validación en teléfonos físicos
 

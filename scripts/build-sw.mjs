@@ -19,10 +19,16 @@ const hash = createHash('sha256');
 hash.update(await readFile(new URL(import.meta.url)));
 for (const file of files.sort()) hash.update(await readFile(file));
 const cacheName = `frasivo-explore-${hash.digest('hex').slice(0, 12)}`;
-const urls = ['/', ...files.map(file => file.slice(4))];
-await writeFile('dist/sw.js', `// Generated from the exact build, including model, WASM and fonts.
+// MediaPipe selects this pair only when its SIMD capability check fails.
+const runtimeOnly = new Set([
+  '/body-tracking/wasm/vision_wasm_nosimd_internal.js',
+  '/body-tracking/wasm/vision_wasm_nosimd_internal.wasm',
+]);
+const urls = ['/', ...files.map(file => file.slice(4)).filter(url => !runtimeOnly.has(url))];
+await writeFile('dist/sw.js', `// Generated from the exact build.
 const NAME = ${JSON.stringify(cacheName)};
 const FILES = ${JSON.stringify(urls)};
+const RUNTIME_ONLY = new Set(${JSON.stringify([...runtimeOnly])});
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(NAME).then(cache => cache.addAll(FILES)));
 });
@@ -32,13 +38,20 @@ self.addEventListener('activate', event => {
 self.addEventListener('fetch', event => {
   const request = event.request;
   const url = new URL(request.url);
-  if (request.method !== 'GET' || url.origin !== self.location.origin || url.pathname === '/api' || url.pathname.startsWith('/api/')) return;
+  if (request.method !== 'GET' || url.origin !== self.location.origin) return;
   event.respondWith(caches.open(NAME).then(async cache => {
     // Only this build's public static files are stored here. Ignore Vary:
     // Origin because module/style requests add Origin but precache does not.
     const cached = await cache.match(request, { ignoreVary: true });
     if (cached) return cached;
-    try { return await fetch(request); }
+    try {
+      const response = await fetch(request);
+      if (RUNTIME_ONLY.has(url.pathname) && response.ok && response.status !== 206) {
+        try { await cache.put(request, response.clone()); }
+        catch { /* If storage is full, the online response still works. */ }
+      }
+      return response;
+    }
     catch (error) {
       if (request.mode === 'navigate') return (await cache.match('/index.html')) || Response.error();
       throw error;
@@ -46,4 +59,4 @@ self.addEventListener('fetch', event => {
   }));
 });
 `);
-console.log(`PWA: ${urls.length} recursos preparados, incluyendo Pose Lite y WASM. Caché: ${cacheName}`);
+console.log(`PWA: ${urls.length} recursos precargados, con Pose Lite y WASM SIMD. Variante sin SIMD bajo demanda. Caché: ${cacheName}`);

@@ -1,5 +1,5 @@
-import { useEffect, useState, type CSSProperties } from 'react';
-import { Bone, Camera, Dumbbell, Heart, ScanLine, Square, Volume2 } from 'lucide-react';
+import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from 'react';
+import { Bone, BookOpen, Camera, ChevronUp, Dumbbell, Heart, ScanLine, Square, Volume2, X } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { AnatomyOverlay } from './AnatomyOverlay';
 import { anatomyParts, demoPose, type AnatomyLayer } from './anatomy';
@@ -12,11 +12,25 @@ const layers = [
   { id: 'organs', name: 'Órganos', icon: Heart },
 ] satisfies { id: AnatomyLayer; name: string; icon: typeof Bone }[];
 
+const compactViewport = '(max-width: 760px)';
+
+function subscribeViewport(notify: () => void) {
+  const media = window.matchMedia(compactViewport);
+  media.addEventListener('change', notify);
+  return () => media.removeEventListener('change', notify);
+}
+
+function isCompactViewport() {
+  return window.matchMedia(compactViewport).matches;
+}
+
 export default function MedicineExplorer() {
   const [layer, setLayer] = useState<AnatomyLayer>('bones');
   const [selected, setSelected] = useState('skull');
   const [opacity, setOpacity] = useState(85);
   const [audioError, setAudioError] = useState(false);
+  const compact = useSyncExternalStore(subscribeViewport, isCompactViewport);
+  const vocabularySheet = useRef<HTMLDialogElement>(null);
   const camera = usePoseCamera();
   const live = camera.status === 'active';
   const waiting = camera.status === 'permission';
@@ -42,9 +56,37 @@ export default function MedicineExplorer() {
     synthesis.speak(utterance);
   }
 
+  const vocabulary = (
+    <>
+      <div className="anatomy-part-list" role="group" aria-label="Estructuras ilustradas">
+        {parts.map(part => (
+          <Button key={part.id} variant="text" aria-pressed={part.id === term.id} onClick={() => {
+            setSelected(part.id);
+            setAudioError(false);
+          }}>
+            {part.es}
+          </Button>
+        ))}
+      </div>
+      <div className="anatomy-definition">
+        <div>
+          <h2 lang="en">{term.en}</h2>
+          <p>{term.es}</p>
+        </div>
+        <Button variant="sound" aria-label={`Escuchar ${term.en}`} disabled={!window.speechSynthesis} onClick={speak}>
+          <Volume2 size={20} aria-hidden="true"/>
+        </Button>
+      </div>
+      <p>{term.description}</p>
+      {audioError && <p role="status">La voz inglesa no está disponible en este dispositivo.</p>}
+    </>
+  );
+
+  const privacyNote = <p className="anatomy-note">Las ilustraciones muestran ubicaciones aproximadas. La cámara se procesa en tu dispositivo.</p>;
+
   return (
     <section className="body-explorer" aria-label="Cámara corporal">
-      <div className="anatomy-stage">
+      <div className={live ? 'anatomy-stage anatomy-stage--live' : 'anatomy-stage'}>
         <div className="anatomy-stage-header">
           <span className="anatomy-mode"><ScanLine size={17} aria-hidden="true"/> Atlas corporal</span>
           <span className="anatomy-status" role="status"><i aria-hidden="true"/>{status}</span>
@@ -106,32 +148,41 @@ export default function MedicineExplorer() {
 
         {(camera.error || camera.modelError) && <p className="anatomy-error" role="alert">{camera.error || camera.modelError}</p>}
 
-        <details className="anatomy-vocabulary">
-          <summary>Vocabulario de la capa</summary>
-          <div className="anatomy-part-list" role="group" aria-label="Estructuras ilustradas">
-            {parts.map(part => (
-              <Button key={part.id} variant="text" aria-pressed={part.id === term.id} onClick={() => {
-                setSelected(part.id);
-                setAudioError(false);
-              }}>
-                {part.es}
-              </Button>
-            ))}
-          </div>
-          <div className="anatomy-definition">
-            <div>
-              <h2 lang="en">{term.en}</h2>
-              <p>{term.es}</p>
-            </div>
-            <Button variant="sound" aria-label={`Escuchar ${term.en}`} disabled={!window.speechSynthesis} onClick={speak}>
-              <Volume2 size={20} aria-hidden="true"/>
+        {compact ? (
+          <>
+            <Button
+              className="anatomy-vocabulary-trigger"
+              variant="text"
+              aria-haspopup="dialog"
+              onClick={event => {
+                event.currentTarget.focus();
+                vocabularySheet.current?.showModal();
+              }}
+            >
+              <BookOpen size={18} aria-hidden="true"/>
+              <span>Vocabulario de la capa</span>
+              <ChevronUp size={18} aria-hidden="true"/>
             </Button>
-          </div>
-          <p>{term.description}</p>
-          {audioError && <p role="status">La voz inglesa no está disponible en este dispositivo.</p>}
-        </details>
-
-        <p className="anatomy-note">Las ilustraciones muestran ubicaciones aproximadas. La cámara se procesa en tu dispositivo.</p>
+            <dialog ref={vocabularySheet} className="anatomy-sheet" aria-labelledby="anatomy-sheet-title">
+              <div className="anatomy-sheet-header">
+                <h2 id="anatomy-sheet-title">Vocabulario de la capa</h2>
+                <Button variant="text" aria-label="Cerrar vocabulario" onClick={() => vocabularySheet.current?.close()}>
+                  <X size={20} aria-hidden="true"/>
+                </Button>
+              </div>
+              <div className="anatomy-vocabulary">{vocabulary}</div>
+              {privacyNote}
+            </dialog>
+          </>
+        ) : (
+          <>
+            <details className="anatomy-vocabulary">
+              <summary>Vocabulario de la capa</summary>
+              {vocabulary}
+            </details>
+            {privacyNote}
+          </>
+        )}
       </div>
     </section>
   );

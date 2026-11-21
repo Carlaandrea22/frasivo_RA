@@ -80,6 +80,7 @@ a { color: var(--forest); }
   font: 700 .875rem/1.2 var(--font-text);
   cursor: pointer;
   touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
   transition: transform var(--press-time) ease-out, box-shadow var(--press-time) ease-out;
 }
 
@@ -95,7 +96,6 @@ a { color: var(--forest); }
 
 .button--secondary,
 .button--sound,
-.button--nav[aria-current],
 .button--text[aria-pressed="true"],
 .button--answer[data-result="correct"] {
   --button-face: var(--mint);
@@ -103,7 +103,8 @@ a { color: var(--forest); }
   --button-stroke: var(--light-edge);
 }
 
-.button--secondary[aria-pressed="true"] {
+.button--secondary[aria-pressed="true"],
+.button--nav[aria-current="page"] {
   --button-face: var(--forest);
   --button-hover: var(--forest-hover);
   --button-ink: var(--white);

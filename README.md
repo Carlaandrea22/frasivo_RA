@@ -24,4 +24,4 @@ npm run test:e2e
 npm run preview
 ```
 
-Las pruebas de navegador requieren Chrome. El service worker se registra en el build de producción y prepara los archivos públicos de esta etapa, incluidos Pose Lite, WASM y fuentes. El catálogo ampliado, Congelar/Reanudar, el visor 3D y la AR nativa se incorporan en las siguientes etapas.
+Las pruebas de navegador requieren Chrome. En producción, el service worker precarga Pose Lite, WASM con SIMD y fuentes. Los navegadores sin SIMD descargan su variante al activar la cámara con conexión y la guardan para usos posteriores. El catálogo ampliado, Congelar/Reanudar, el visor 3D y la AR nativa se incorporan en las siguientes etapas.
