@@ -43,7 +43,7 @@ test('las capas y la opacidad responden y el botón tiene presión, foco y movim
   await expect(page.locator('.anatomy-overlay')).toHaveClass(/layer-muscles/);
 
   await page.getByRole('button', { name: 'Órganos', exact: true }).click();
-  await expect(page.locator('[data-rendered=organs] canvas')).toBeVisible();
+  await expect(page.locator('[data-rendered=organs] image[data-part=heart]')).toBeVisible();
   const opacity = page.getByRole('slider', { name: 'Opacidad' });
   await opacity.focus();
   await page.keyboard.press('Home');
@@ -111,13 +111,12 @@ test('Pose Lite detecta sin conexión tras la primera carga y libera la cámara 
   await page.getByRole('button', { name: 'Activar cámara' }).click();
   const status = page.getByRole('status');
   await expect(status).toHaveText('Persona detectada', { timeout: 45000 });
-  await expect(page.locator('[data-rendered=muscles] canvas')).toBeVisible();
+  await expect(page.locator('[data-rendered=muscles] image[data-part=pectoralis_major_left]')).toBeVisible();
   await expect(page.locator('[data-rendered=muscles]')).not.toHaveAttribute('data-visible-parts', '0');
-  const frameRatio = await page.locator('.anatomy-frame').evaluate(element => {
-    const bounds = element.getBoundingClientRect();
-    return bounds.width / bounds.height;
-  });
-  expect(frameRatio).toBeCloseTo(1000 / 667, 2);
+  const video = page.locator('video.visible');
+  expect(await video.boundingBox()).toEqual(await page.locator('.anatomy-stage').boundingBox());
+  await expect(video).toHaveCSS('object-fit', 'cover');
+  await expect(page.locator('.anatomy-sprites')).toHaveAttribute('preserveAspectRatio', 'xMidYMid slice');
   await page.evaluate(() => { (window as unknown as { poseTest: { blank: boolean } }).poseTest.blank = true; });
   await expect(status).toHaveText('Buscando una persona', { timeout: 15000 });
   await expect(page.locator('[data-rendered=muscles]')).toHaveAttribute('data-visible-parts', '0');
@@ -190,27 +189,88 @@ test('el service worker reserva el WASM de compatibilidad para el primer uso', a
   }
 });
 
-test('la comparación A/B se habilita por URL y ambas técnicas muestran el atlas real', async ({ page }) => {
-  await page.goto('/');
+test('las tres capas muestran WebP y el vocabulario en inglés y español', async ({ page }) => {
+  await page.goto('/?tecnica=b');
   await expect(page.getByRole('group', { name: 'Técnica de huesos' })).toHaveCount(0);
-  await expect(page.locator('image[data-part="humerus_left"]')).toBeVisible();
-  await expect(page.locator('.anatomy-silhouette')).toHaveCount(0);
-  await page.goto('/?tecnica=a');
-  const a = page.getByRole('button', { name: 'A · Imágenes' });
-  const b = page.getByRole('button', { name: 'B · 3D' });
-  await expect(a).toHaveAttribute('aria-pressed', 'true');
-  await b.click();
-  await expect(b).toHaveAttribute('aria-pressed', 'true');
-  await expect(page).toHaveURL(/tecnica=b/);
-  await expect(page.locator('[data-rendered=bones]')).toHaveAttribute('data-visible-parts', '24');
-  await a.click();
-  await expect(page.locator('image[data-part="humerus_right"]')).toBeVisible();
+  await expect(page.locator('image[data-part="hand_phalanges_left"]')).toBeVisible();
+  await expect(page.locator('image[data-part="foot_phalanges_right"]')).toBeVisible();
+  await expect(page.locator('canvas')).toHaveCount(0);
   await page.getByText('Vocabulario de la capa', { exact: true }).click();
-  await page.getByRole('button', { name: 'Mandíbula', exact: true }).click();
+  await page.getByRole('button', { name: 'Mandible Mandíbula', exact: true }).click();
   await expect(page.locator('.anatomy-active-term')).toHaveText('Mandible');
   await expect(page.locator('image[data-part="mandible"]')).toHaveClass('selected');
   await page.getByRole('button', { name: 'Órganos', exact: true }).click();
-  await page.getByRole('button', { name: 'Riñones', exact: true }).click();
+  await page.getByRole('button', { name: 'Kidneys Riñones', exact: true }).click();
   await expect(page.locator('.anatomy-active-term')).toHaveText('Kidneys');
   await expect(page.locator('[data-rendered=organs]')).toHaveAttribute('data-focused-organ', 'kidneys');
+  await expect(page.locator('[data-rendered=organs] image[data-part=lungs]')).toHaveAttribute('opacity', '0.19');
+});
+
+test('Pose dibuja tórax frontal sin caderas, retira selección y pide girar de espaldas', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  const [front, back] = await Promise.all(['pose-front.jpg', 'pose-back.jpg'].map(async name =>
+    `data:image/jpeg;base64,${(await readFile(`tests/fixtures/${name}`)).toString('base64')}`));
+  await page.addInitScript(({ front, back }) => {
+    const state = { shot: 'front' };
+    Object.assign(window, { bodyCameraTest: state });
+    Object.defineProperty(navigator.mediaDevices, 'getUserMedia', {
+      value: async () => {
+        const photos = await Promise.all([front, back].map(async url => {
+          const image = new Image();
+          image.src = url;
+          await image.decode();
+          return image;
+        }));
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d')!;
+        let tick = 0;
+        const draw = () => {
+          const framing = state.shot === 'front' ? [155, 82, 520, 820, 560, 1040]
+            : state.shot === 'torso' ? [257, 48, 315, 440, 610, 910] : [0, 0, 500, 753, 550, 980];
+          const [x, y, width, height, targetWidth, targetHeight] = framing;
+          if (canvas.width !== targetWidth || canvas.height !== targetHeight) {
+            canvas.width = targetWidth;
+            canvas.height = targetHeight;
+          }
+          const zoom = Math.max(canvas.width/width, canvas.height/height);
+          const motion = (Math.sin(tick++ * .28) + 1) * 1.5;
+          context.drawImage(photos[state.shot === 'back' ? 1 : 0], x + motion, y, width, height,
+            (canvas.width - width*zoom)/2, 0, width*zoom, height*zoom);
+        };
+        draw();
+        const timer = setInterval(draw, 55);
+        const stream = canvas.captureStream(18);
+        const track = stream.getVideoTracks()[0];
+        const stop = track.stop.bind(track);
+        track.stop = () => { clearInterval(timer); stop(); };
+        return stream;
+      },
+    });
+  }, { front, back });
+
+  await page.goto('/?fps=1');
+  await page.getByRole('button', { name: 'Activar cámara' }).click();
+  await expect(page.getByRole('status')).toHaveText('Persona detectada');
+  await expect(page.locator('image[data-part=fibula_right]')).toBeVisible();
+  await expect(page.locator('[data-fps-detection]')).toBeVisible();
+  await expect(page.locator('[data-fps-drawing]')).toBeVisible();
+  await page.getByRole('button', { name: 'Vocabulario de la capa' }).click();
+  const fibula = page.getByRole('button', { name: 'Fibula Peroné' });
+  await fibula.click();
+  await page.getByRole('button', { name: 'Cerrar vocabulario' }).click();
+  await expect(page.locator('.anatomy-active-term')).toHaveText('Fibula');
+  await page.evaluate(() => { (window as unknown as { bodyCameraTest: { shot: string } }).bodyCameraTest.shot = 'torso'; });
+  await expect(page.getByText('Aléjate para ver el cuerpo completo')).toBeVisible();
+  await expect(page.getByRole('status')).toHaveText('Persona detectada');
+  await expect(page.locator('image[data-part=fibula_right]')).toHaveCount(0);
+  await expect(page.locator('image[data-part=pelvis_left]')).toHaveCount(0);
+  await expect(page.locator('image[data-part=sternum]')).toBeVisible();
+  await expect(page.locator('.anatomy-active-term')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Vocabulario de la capa' }).click();
+  await expect(fibula).toBeDisabled();
+  await page.getByRole('button', { name: 'Cerrar vocabulario' }).click();
+  await page.evaluate(() => { (window as unknown as { bodyCameraTest: { shot: string } }).bodyCameraTest.shot = 'back'; });
+  await expect(page.getByText('Pídele a la persona que se gire de frente')).toBeVisible();
+  await expect(page.getByRole('status')).toHaveText('Persona detectada');
+  await expect(page.locator('.anatomy-sprites')).toHaveAttribute('data-visible-parts', '0');
 });

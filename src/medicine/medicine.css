@@ -28,17 +28,12 @@
   gap: var(--space-1);
 }
 
-.anatomy-mode,
 .anatomy-status {
   display: flex;
   align-items: center;
   gap: 7px;
   font-size: .8125rem;
   font-weight: 700;
-}
-
-.anatomy-mode svg { flex: none; }
-.anatomy-status {
   padding: 6px 9px;
   border: 1px solid var(--camera-line);
   border-radius: var(--radius-soft);
@@ -77,7 +72,11 @@
 }
 
 .anatomy-frame video { visibility: hidden; object-fit: contain; }
-.anatomy-frame video.visible { visibility: visible; }
+.anatomy-stage--live .anatomy-window { position: absolute; inset: 0; }
+.anatomy-stage--live .anatomy-frame { width: 100%; height: 100%; }
+.anatomy-stage--live .anatomy-frame video.visible { visibility: visible; object-fit: cover; }
+.anatomy-stage--live .anatomy-status,
+.anatomy-stage--live .anatomy-stage-hint { background: var(--camera-base); }
 .anatomy-reference { opacity: .14; filter: brightness(0) invert(1); pointer-events: none; }
 .anatomy-overlay {
   overflow: hidden;
@@ -87,27 +86,22 @@
 .anatomy-sprites image { pointer-events: visiblePainted; cursor: pointer; }
 .anatomy-sprites image.selected { filter: drop-shadow(0 0 3px var(--anatomy-highlight)); }
 .anatomy-webgl canvas { display: block; width: 100%; height: 100%; }
-.anatomy-render-message {
-  position: absolute;
-  top: 50%;
-  left: 12px;
-  right: 12px;
-  text-align: center;
+
+.anatomy-stage-hint {
+  z-index: 1;
+  grid-row: 3;
+  justify-self: center;
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  padding: 3px var(--space-2);
+  border-radius: var(--radius-soft);
   color: var(--camera-text);
+  font-size: .8rem;
+  text-align: center;
 }
-.anatomy-stage-hint { color: var(--camera-muted); font-size: .8rem; text-align: center; }
 .anatomy-active-term { color: var(--anatomy-highlight); font: 700 .9rem var(--font-title); }
 
-.anatomy-techniques {
-  position: absolute;
-  z-index: 2;
-  top: 59px;
-  left: max(var(--space-3), env(safe-area-inset-left, 0px));
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-}
-.anatomy-techniques .button { font-size: .75rem; }
 .anatomy-fps {
   padding: 6px 9px;
   border-radius: var(--radius-soft);
@@ -186,6 +180,15 @@
 }
 
 .anatomy-part-list { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.anatomy-part-list .button {
+  flex-direction: column;
+  align-items: start;
+  gap: 1px;
+  padding-block: 4px;
+  line-height: 1.2;
+  text-align: left;
+}
+.anatomy-part-list small { font-size: .7rem; font-weight: 500; }
 .anatomy-definition {
   display: flex;
   align-items: center;
@@ -223,19 +226,6 @@
     border-radius: 0;
   }
 
-  .anatomy-stage--live .anatomy-window { position: absolute; inset: 0; }
-  .anatomy-stage--live .anatomy-stage-header,
-  .anatomy-stage--live .anatomy-stage-hint {
-    position: relative;
-    background: var(--camera-base);
-    border-radius: var(--radius-soft);
-  }
-  .anatomy-stage--live .anatomy-stage-header { padding-left: var(--space-2); }
-  .anatomy-stage--live .anatomy-stage-hint {
-    grid-row: 3;
-    justify-self: center;
-    padding: 3px var(--space-2);
-  }
 
   .anatomy-controls {
     position: relative;

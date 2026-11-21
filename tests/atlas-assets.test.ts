@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { anatomyParts, demoPose } from '../src/medicine/anatomy';
-import { atlasMatrices, atlasParts, comparisonTechnique } from '../src/medicine/atlasAlignment';
+import { atlasMatrices, atlasParts, atlasPlacement } from '../src/medicine/atlasAlignment';
 import anchors from '../assets/anatomy/body/anchors.json';
 
 const assets = new URL('../assets/anatomy/body/', import.meta.url);
@@ -20,27 +20,65 @@ describe('atlas anatómico de BodyParts3D', () => {
     });
   }
 
-  it('conserva un WebP frontal por hueso y un anclaje torácico en metros', () => {
+  it('conserva imágenes WebP en cada capa y un anclaje torácico en metros', () => {
     expect(anchors.units).toBe('m');
     expect(anchors.anchors.thorax_center).toHaveLength(3);
-    for (const part of atlasParts.filter(part => part.layer === 'bones')) {
+    for (const part of atlasParts) {
       expect(part.sprite).toHaveLength(4);
       expect(readFileSync(new URL(`sprites/${part.id}.webp`, assets)).toString('ascii', 8, 12)).toBe('WEBP');
+      if (part.group.startsWith('foot')) {
+        expect(part.demoSprite).toHaveLength(4);
+        expect(readFileSync(new URL(`sprites/${part.id}_front.webp`, assets)).toString('ascii', 8, 12)).toBe('WEBP');
+      }
     }
   });
 
-  it('coloca el atlas de demostración y oculta un segmento al perder su punto', () => {
-    expect(atlasMatrices(null, .8).head).toHaveLength(6);
-    expect(atlasMatrices(demoPose, .8).upper_arm_left).toHaveLength(6);
-    const missing = demoPose.map((point, index) => index === 11 ? { ...point, visibility: .1 } : point);
-    expect(atlasMatrices(missing, .8).trunk).toBeNull();
-    expect(atlasMatrices(missing, .8).upper_arm_left).toBeNull();
+  const front = demoPose.map(point => ({ ...point, z: 0 }));
+  front[2] = { x: .525, y: .105, z: -.03, visibility: 1 };
+  front[5] = { x: .475, y: .105, z: -.03, visibility: 1 };
+
+  it('mantiene el tórax vertical y la escala de la cabeza al perder ambas caderas', () => {
+    const full = atlasPlacement(front, .8);
+    expect(full.complete).toBe(true);
+    expect(full.matrices.head).toHaveLength(6);
+    expect(full.matrices.thigh_left).toHaveLength(6);
+    const partial = front.map((point, index) => index === 23 || index === 24 ? { ...point, visibility: .1 } : point);
+    const torso = atlasPlacement(partial, .8);
+    expect(torso.complete).toBe(false);
+    expect(torso.matrices.trunk).toEqual(full.matrices.trunk);
+    expect(torso.matrices.trunk?.slice(1, 3)).toEqual([0, 0]);
+    expect(torso.matrices.head).toEqual(full.matrices.head);
+    expect(torso.matrices.pelvis).toBeNull();
+    expect(torso.matrices.thigh_left).toBeNull();
+    expect(torso.visible.map(part => part.term)).not.toContain('fibula');
+    const widerShoulders = partial.map((point, i) => i === 11 ? { ...point, x: point.x + .10, y: point.y - .07 } : point);
+    expect(atlasPlacement(widerShoulders, .8).matrices.head).toEqual(torso.matrices.head);
   });
 
-  it('activa el selector solo con las dos técnicas válidas', () => {
-    expect(comparisonTechnique('?tecnica=a')).toBe('a');
-    expect(comparisonTechnique('?tecnica=b')).toBe('b');
-    expect(comparisonTechnique('?tecnica=experimental')).toBeNull();
-    expect(comparisonTechnique('')).toBeNull();
+  it('oculta los segmentos escorzados, fuera del recorte y en una vista de espaldas', () => {
+    const compressed = front.map((point, i) => i === 25 ? { ...front[23], x: .59, y: .56, z: -.3 } : point);
+    expect(atlasMatrices(compressed, .8).thigh_left).toBeNull();
+    expect(atlasMatrices(compressed, .8).thigh_right).toHaveLength(6);
+    expect(atlasPlacement(front, 1, .32).matrices.forearm_right).toBeNull();
+    const back = front.map((point, i) => ({ ...point, x: 1 - point.x, visibility: i <= 6 ? 0 : point.visibility }));
+    expect(atlasPlacement(back, .8).facing).toBe('back');
+    expect(atlasPlacement(back, .8).visible).toEqual([]);
+  });
+
+  it('coloca la mano y el pie solo con sus referencias visibles', () => {
+    const pose = front.map(point => ({ ...point }));
+    pose[17] = { x: .77, y: .65, z: 0, visibility: 1 };
+    pose[19] = { x: .82, y: .62, z: 0, visibility: 1 };
+    pose[21] = { x: .84, y: .58, z: 0, visibility: 1 };
+    pose[29] = { x: .60, y: .955, z: 0, visibility: 1 };
+    pose[31] = { x: .69, y: .97, z: 0, visibility: 1 };
+    expect(atlasPlacement(pose, .8).visible.map(part => part.id)).toEqual(expect.arrayContaining([
+      'carpals_left', 'metacarpals_left', 'hand_phalanges_left', 'tarsals_left', 'metatarsals_left', 'foot_phalanges_left',
+    ]));
+    pose[21].visibility = .2;
+    pose[31].visibility = .2;
+    const lost = atlasMatrices(pose, .8);
+    expect(lost.hand_left).toBeNull();
+    expect(lost.foot_left).toBeNull();
   });
 });

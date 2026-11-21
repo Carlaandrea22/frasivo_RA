@@ -161,7 +161,7 @@ for row in (SOURCE / "partof_parts_list_e.txt").read_text().splitlines()[1:]:
     if (label.endswith(" vertebra") or label in {"sacrum", "coccyx"}) and not label.startswith(("anterior", "posterior")):
         vertebrae[int(fma.removeprefix("FMA"))] = label
 spine = sorted(set(elements(list(vertebrae), partof)) & set(elements([13478], partof)))
-make_part("spine", "bones", "trunk", ivory, spine, 11500)
+make_part("spine", "bones", "abdomen", ivory, spine, 11500)
 
 bones = [
     ("clavicle", "trunk", 13323, 13322),
@@ -178,18 +178,43 @@ ribs = (
     [7987, 8005, 8039, 8148, 8093, 8202, 8256, 8310, 8391, 8472, 8532, 8534],
     [7857, 7882, 7909, 7957, 8066, 8175, 8229, 8283, 8364, 8445, 8531, 8533],
 )
+# Keep the hand and foot bones as separate vocabulary groups within each rigid end segment.
+hands_feet = {
+    "left": {
+        "carpals": [24436, 24438, 24440, 24442, 24444, 24445, 24447, 24449],
+        "metacarpals": list(range(24465, 24474, 2)),
+        "hand_phalanges": [65470, 71915, 71908, 71916, 66791, 23938, 23940, 23942, 23944, 23951, 23953, 23955, 23957, 23959],
+        "tarsals": [24483, 24498, 24501, 24522, 24524, 24526, 24529],
+        "metatarsals": list(range(24508, 24517, 2)),
+        "foot_phalanges": [43254, *range(32635, 32648, 2), 230988, *range(32651, 32660, 2)],
+        "tips": [23953, 23959, 23951, 24498, 32651, 32653],
+    },
+    "right": {
+        "carpals": [24435, 24437, 24439, 24441, 24443, 23725, 24446, 24448],
+        "metacarpals": list(range(24464, 24473, 2)),
+        "hand_phalanges": list(range(24450, 24464)),
+        "tarsals": [24482, 24497, 24500, 24521, 24523, 24525, 24528],
+        "metatarsals": list(range(24507, 24516, 2)),
+        "foot_phalanges": [43253, *range(32634, 32647, 2), 230986, *range(32650, 32659, 2)],
+        "tips": [24460, 24463, 24459, 24497, 32650, 32652],
+    },
+}
 for number, side in enumerate(("left", "right")):
     make_part("ribs", "bones", "trunk", ivory, elements(ribs[number], partof), 10000, side)
     for term, group, left, right in bones:
         make_part(term, "bones", "pelvis" if term == "pelvis" else group if group == "trunk" else f"{group}_{side}",
                   ivory, elements([left if number == 0 else right]), 3700, side)
 
+    for term in ("carpals", "metacarpals", "hand_phalanges", "tarsals", "metatarsals", "foot_phalanges"):
+        segment = "hand" if term in ("carpals", "metacarpals", "hand_phalanges") else "foot"
+        make_part(term, "bones", f"{segment}_{side}", ivory, elements(hands_feet[side][term]), 3500, side)
+
 muscles = [
     ("pectoralis_major", "trunk", [34691, 79980, 45875], [34690, 79979, 45874]),
     ("deltoid", "upper_arm", [34681, 34683, 34685], [34680, 34682, 34684]),
     ("biceps_brachii", "upper_arm", [37685, 37687], [37684, 37686]),
     ("triceps_brachii", "upper_arm", [37696, 37698, 37700], [37695, 37697, 37699]),
-    ("external_oblique", "trunk", [13337], [13336]),
+    ("external_oblique", "abdomen", [13337], [13336]),
     ("quadriceps_femoris", "thigh", [38929, 38931, 38933, 38935], [38928, 38930, 38932, 38934]),
     ("sartorius", "thigh", [22355], [22354]),
     ("gastrocnemius", "shin", [45958, 45961], [45957, 45960]),
@@ -203,16 +228,16 @@ for ix, (term, group, left, right) in enumerate(muscles):
 for side, id in (("left", "FMA13378"), ("right", "FMA13377")):
     if not (LEGACY / f"{id}.obj").is_file():
         raise FileNotFoundError(f"Missing BodyParts3D 3.0 mesh {id}")
-    make_part("rectus_abdominis", "muscles", "trunk", muscle, [id], 4200, side)
+    make_part("rectus_abdominis", "muscles", "abdomen", muscle, [id], 4200, side)
 
 organ_types = [
     ("brain", "head", [50801], 17000),
     ("heart", "trunk", [7088], 12500),
-    ("liver", "trunk", [7197], 10500),
-    ("stomach", "trunk", [7148], 4000),
-    ("small_intestine", "trunk", [7200], 13000),
-    ("large_intestine", "trunk", [7201], 10000),
-    ("kidneys", "trunk", [7204, 7205], 6500),
+    ("liver", "abdomen", [7197], 10500),
+    ("stomach", "abdomen", [7148], 4000),
+    ("small_intestine", "abdomen", [7200], 13000),
+    ("large_intestine", "abdomen", [7201], 10000),
+    ("kidneys", "abdomen", [7204, 7205], 6500),
 ]
 # 4.0's archive contains the pulmonary trees but lacks the solid lobe surfaces.
 make_part("lungs", "organs", "trunk", organs["lungs"],
@@ -241,6 +266,32 @@ for side, definitions in {
 
 anchors["ear_left"] = [.073, 1.515 + offset, .119]
 anchors["ear_right"] = [-.073, 1.515 + offset, .119]
+anchors["eye_left"] = [.034, 1.545 + offset, .165]
+anchors["eye_right"] = [-.034, 1.545 + offset, .165]
+
+FRONT = Vector((0, 1, 0))
+FOOT = Vector((0, 1, -.86)).normalized()
+
+def center(concept):
+    vertices = [v for element in elements([concept]) for v in geometry(element)[0]]
+    x, y, z = map(mean, zip(*vertices))
+    return Vector((x, y, z + offset))
+
+def from_atlas(point):
+    x, y, z = point
+    return Vector((x, -z, y))
+
+sprite_anchors = {}
+for side, definition in hands_feet.items():
+    index, pinky, thumb, heel, big_toe, second_toe = map(center, definition["tips"])
+    toe = (big_toe + second_toe) / 2
+    for label, point in (("index", index), ("pinky", pinky), ("thumb", thumb), ("heel", heel), ("toe", toe)):
+        anchors[f"{label}_{side}"] = [point.x, point.z, -point.y]
+    # Keep 3D positions intact and store separate projections for the oblique view.
+    up = Vector((0, -FOOT.z, FOOT.y))
+    for label, point in (("ankle", from_atlas(anchors[f"ankle_{side}"])), ("heel", heel), ("toe", toe)):
+        sprite_anchors[f"{label}_{side}"] = [point.x, -point.dot(up)]
+
 anchors["thorax_center"] = [0, 1.225 + offset, .12]
 
 size_limit = 4_000_000
@@ -290,17 +341,19 @@ for name, position, energy, size in (
     scene.collection.objects.link(obj)
     lights.append((obj, Vector(position)))
 
-def render_front(part, destination, resolution):
+def render_sprite(part, destination, resolution, direction=FRONT):
     for collection in collections.values():
         for obj in collection.objects:
             obj.hide_render = (obj != part)
     coords = part.bound_box
     min_x = min(v[0] for v in coords)
     max_x = max(v[0] for v in coords)
-    min_z = min(v[2] for v in coords)
-    max_z = max(v[2] for v in coords)
-    center = Vector(((min_x+max_x)/2, -.06, (min_z+max_z)/2))
-    camera.location = center + Vector((0, -2, 0))
+    up = Vector((0, -direction.z, direction.y))
+    projected_y = [Vector(v).dot(up) for v in coords]
+    min_z, max_z = min(projected_y), max(projected_y)
+    center = Vector(((min_x+max_x)/2, 0, 0)) + up * ((min_z+max_z)/2)
+    camera.rotation_euler = direction.to_track_quat("-Z", "Y").to_euler()
+    camera.location = center - 2 * direction
     for lamp, position in lights:
         lamp.location = center + position
         lamp.rotation_euler = (-position).to_track_quat("-Z", "Y").to_euler()
@@ -321,13 +374,16 @@ def render_front(part, destination, resolution):
     bpy.ops.render.render(write_still=True)
     subprocess.run([shutil.which("cwebp") or "cwebp", "-quiet", "-q", "88", "-alpha_q", "95",
                     str(png), "-o", str(destination)], check=True)
-    return [center.x-width/2, -center.z-height/2, width, height]
+    return [center.x-width/2, -center.dot(up)-height/2, width, height]
 
 
-for bone in collections["bones"].objects:
-    record = next(row for row in records if row["id"] == bone.name)
-    record["sprite"] = render_front(bone, SPRITES / f"{bone.name}.webp", 560)
-context = render_front(skin, OUTPUT / "body-reference.webp", 900)
+for record in records:
+    part = collections[record["layer"]].objects[record["id"]]
+    direction = FOOT if record["group"].startswith("foot_") else FRONT
+    record["sprite"] = render_sprite(part, SPRITES / f"{part.name}.webp", 560, direction)
+    if direction == FOOT:
+        record["demoSprite"] = render_sprite(part, SPRITES / f"{part.name}_front.webp", 560)
+context = render_sprite(skin, OUTPUT / "body-reference.webp", 900)
 
 for collection in collections.values():
     for part in collection.objects:
@@ -341,8 +397,9 @@ def rounded(values):
     return [round(value, 6) for value in values]
 
 for row in records:
-    if "sprite" in row:
-        row["sprite"] = rounded(row["sprite"])
+    for field in ("sprite", "demoSprite"):
+        if field in row:
+            row[field] = rounded(row[field])
 
 (OUTPUT / "anchors.json").write_text(json.dumps({
     "units": "m",
@@ -351,6 +408,7 @@ for row in records:
     "bounds": rounded(bounds),
     "reference": rounded(context),
     "anchors": {key: rounded(value) for key, value in anchors.items()},
+    "spriteAnchors": {key: rounded(value) for key, value in sprite_anchors.items()},
     "parts": records,
 }, ensure_ascii=False, indent=2) + "\n")
 print("Atlas listo", len(records), "nodos", flush=True)

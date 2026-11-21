@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useBodyCamera } from './useBodyCamera';
-import { torsoTransform, type BodyPoint } from './anatomy';
+import type { BodyPoint } from './anatomy';
 import workerUrl from '../generated/pose.worker.js?url';
 
-export function usePoseCamera() {
+export function usePoseCamera(onDetection?: (time: number) => void) {
   const camera = useBodyCamera();
   const { status, stop, videoRef } = camera;
   const [points, setPoints] = useState<BodyPoint[]>([]);
@@ -14,7 +14,6 @@ export function usePoseCamera() {
     if (status !== 'active') return;
     let disposed = false, ready = false, busy = false, lastVideoTime = -1, lastResult = 0;
     let worker: Worker | undefined;
-    let previous: BodyPoint[] = [];
     setModelError(''); setPoints([]); setTracking('loading');
     const fail = (message: string) => {
       if (disposed) return;
@@ -28,15 +27,10 @@ export function usePoseCamera() {
         if (data.type === 'ready') { clearTimeout(startup); ready = true; setTracking('searching'); }
         if (data.type === 'pose') {
           busy = false; lastResult = performance.now();
-          // Smooth only confident landmarks. A lost landmark is never filled from an old frame.
-          const next: BodyPoint[] = data.points.map((p: BodyPoint, i: number) => {
-            const old = previous[i];
-            return old && (old.visibility ?? 0) >= .6 && (p.visibility ?? 0) >= .6
-              ? { ...p, x: old.x * .3 + p.x * .7, y: old.y * .3 + p.y * .7 } : p;
-          });
-          previous = next;
-          const visible = !!torsoTransform(next);
-          setPoints(visible ? next : []); setTracking(visible ? 'tracking' : 'searching');
+          onDetection?.(lastResult);
+          const next: BodyPoint[] = data.points;
+          setPoints(next);
+          setTracking(next.length ? 'tracking' : 'searching');
         }
         if (data.type === 'error') fail('No se pudo iniciar el seguimiento corporal. Vuelve a activar la cámara; si persiste, prueba un navegador actualizado.');
       };
@@ -46,7 +40,7 @@ export function usePoseCamera() {
     const timer = window.setInterval(async () => {
       if (disposed) return;
       const now = performance.now();
-      if (lastResult && now - lastResult > 700) { previous = []; setPoints([]); setTracking('searching'); }
+      if (lastResult && now - lastResult > 700) { setPoints([]); setTracking('searching'); }
       if (busy && lastResult && now - lastResult > 15000) { fail('El seguimiento dejó de responder. Vuelve a activar la cámara.'); return; }
       const video = videoRef.current;
       if (!ready || busy || !video || video.readyState < 2 || video.currentTime === lastVideoTime) return;
@@ -60,7 +54,7 @@ export function usePoseCamera() {
       } catch { fail('No se pudo analizar la cámara. Prueba un navegador actualizado o vuelve a intentarlo.'); }
     }, 100);
     return () => { disposed = true; clearInterval(timer); clearTimeout(startup); worker?.terminate(); };
-  }, [status, stop, videoRef]);
+  }, [status, stop, videoRef, onDetection]);
   const startCamera = camera.start;
   const start = useCallback(() => {
     setPoints([]); setTracking('loading'); setModelError('');

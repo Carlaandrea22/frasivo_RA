@@ -1,4 +1,4 @@
-export interface BodyPoint { x: number; y: number; visibility?: number }
+export interface BodyPoint { x: number; y: number; z?: number; visibility?: number }
 export type Matrix = [number, number, number, number, number, number];
 export type AnatomyLayer = 'muscles' | 'bones' | 'organs';
 export interface AnatomyPart { id: string; layer: AnatomyLayer; en: string; es: string; description: string }
@@ -17,6 +17,12 @@ export const anatomyParts: AnatomyPart[] = [
   { id: 'patella', layer: 'bones', en: 'Patella', es: 'Rótula', description: 'The kneecap protects the front of the knee joint.' },
   { id: 'tibia', layer: 'bones', en: 'Tibia', es: 'Tibia', description: 'The shinbone carries most of the lower leg’s weight.' },
   { id: 'fibula', layer: 'bones', en: 'Fibula', es: 'Peroné', description: 'This thin lower leg bone helps stabilize the ankle.' },
+  { id: 'carpals', layer: 'bones', en: 'Carpals', es: 'Huesos del carpo', description: 'These small bones form the wrist.' },
+  { id: 'metacarpals', layer: 'bones', en: 'Metacarpals', es: 'Metacarpianos', description: 'These five bones form the framework of the palm.' },
+  { id: 'hand_phalanges', layer: 'bones', en: 'Hand phalanges', es: 'Falanges de la mano', description: 'These bones form the fingers and thumb.' },
+  { id: 'tarsals', layer: 'bones', en: 'Tarsals', es: 'Huesos del tarso', description: 'These bones form the heel and the back of the foot.' },
+  { id: 'metatarsals', layer: 'bones', en: 'Metatarsals', es: 'Metatarsianos', description: 'These long bones connect the midfoot to the toes.' },
+  { id: 'foot_phalanges', layer: 'bones', en: 'Foot phalanges', es: 'Falanges del pie', description: 'These small bones form the toes.' },
   { id: 'pectoralis_major', layer: 'muscles', en: 'Pectoralis major', es: 'Pectoral mayor', description: 'This chest muscle moves the upper arm toward and across the body.' },
   { id: 'deltoid', layer: 'muscles', en: 'Deltoid', es: 'Deltoides', description: 'The shoulder muscle helps lift the arm out to the side.' },
   { id: 'biceps_brachii', layer: 'muscles', en: 'Biceps brachii', es: 'Bíceps braquial', description: 'The front upper arm muscle bends the elbow and turns the palm upward.' },

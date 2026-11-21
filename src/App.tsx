@@ -33,7 +33,7 @@ export default function App() {
 
   return (
     <div className="app-shell" data-area={anatomyArea.id}>
-      <header className="app-header">
+      <header className={screen === 'cuerpo' ? 'app-header app-header--body' : 'app-header'}>
         <div className="app-brand">
           <span className="app-mark" aria-hidden="true"><Activity size={21}/></span>
           <span>Frasivo Explore</span>

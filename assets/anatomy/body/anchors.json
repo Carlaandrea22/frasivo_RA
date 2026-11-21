@@ -85,10 +85,96 @@
       1.521095,
       0.119
     ],
+    "eye_left": [
+      0.034,
+      1.551095,
+      0.165
+    ],
+    "eye_right": [
+      -0.034,
+      1.551095,
+      0.165
+    ],
+    "index_left": [
+      0.306775,
+      0.675233,
+      0.177847
+    ],
+    "pinky_left": [
+      0.22254,
+      0.688962,
+      0.176046
+    ],
+    "thumb_left": [
+      0.317971,
+      0.735976,
+      0.166798
+    ],
+    "heel_left": [
+      0.075725,
+      -0.031434,
+      0.065537
+    ],
+    "toe_left": [
+      0.126618,
+      -0.06059,
+      0.225679
+    ],
+    "index_right": [
+      -0.306862,
+      0.67527,
+      0.177912
+    ],
+    "pinky_right": [
+      -0.2229,
+      0.689976,
+      0.174695
+    ],
+    "thumb_right": [
+      -0.317048,
+      0.73728,
+      0.166075
+    ],
+    "heel_right": [
+      -0.075792,
+      -0.030888,
+      0.06653
+    ],
+    "toe_right": [
+      -0.126661,
+      -0.060581,
+      0.225664
+    ],
     "thorax_center": [
       0,
       1.231095,
       0.12
+    ]
+  },
+  "spriteAnchors": {
+    "ankle_left": [
+      0.053097,
+      0.051556
+    ],
+    "heel_left": [
+      0.075725,
+      0.066565
+    ],
+    "toe_left": [
+      0.126618,
+      0.19309
+    ],
+    "ankle_right": [
+      -0.052537,
+      0.050985
+    ],
+    "heel_right": [
+      -0.075792,
+      0.066799
+    ],
+    "toe_right": [
+      -0.126661,
+      0.193073
     ]
   },
   "parts": [
@@ -184,7 +270,7 @@
       "id": "spine",
       "term": "spine",
       "layer": "bones",
-      "group": "trunk",
+      "group": "abdomen",
       "source": [
         "FJ3154",
         "FJ3155",
@@ -400,6 +486,161 @@
       ]
     },
     {
+      "id": "carpals_left",
+      "term": "carpals",
+      "layer": "bones",
+      "group": "hand_left",
+      "source": [
+        "FJ3257",
+        "FJ3261",
+        "FJ3268",
+        "FJ3276",
+        "FJ3278",
+        "FJ3283",
+        "FJ3284",
+        "FJ3285"
+      ],
+      "sprite": [
+        0.230697,
+        -0.818679,
+        0.052223,
+        0.032228
+      ]
+    },
+    {
+      "id": "metacarpals_left",
+      "term": "metacarpals",
+      "layer": "bones",
+      "group": "hand_left",
+      "source": [
+        "FJ3240",
+        "FJ3243",
+        "FJ3246",
+        "FJ3249",
+        "FJ3252"
+      ],
+      "sprite": [
+        0.223372,
+        -0.805313,
+        0.088151,
+        0.081987
+      ]
+    },
+    {
+      "id": "hand_phalanges_left",
+      "term": "hand_phalanges",
+      "layer": "bones",
+      "group": "hand_left",
+      "source": [
+        "FJ3183",
+        "FJ3184",
+        "FJ3186",
+        "FJ3187",
+        "FJ3188",
+        "FJ3291",
+        "FJ3296",
+        "FJ3297",
+        "FJ3299",
+        "FJ3313",
+        "FJ3314",
+        "FJ3316",
+        "FJ3317",
+        "FJ3318"
+      ],
+      "sprite": [
+        0.216428,
+        -0.775824,
+        0.109982,
+        0.118922
+      ]
+    },
+    {
+      "id": "tarsals_left",
+      "term": "tarsals",
+      "layer": "bones",
+      "group": "foot_left",
+      "source": [
+        "FJ3256",
+        "FJ3258",
+        "FJ3264",
+        "FJ3267",
+        "FJ3271",
+        "FJ3280",
+        "FJ3307"
+      ],
+      "sprite": [
+        0.04277,
+        0.005908,
+        0.074604,
+        0.135902
+      ],
+      "demoSprite": [
+        0.043424,
+        -0.010803,
+        0.073296,
+        0.074734
+      ]
+    },
+    {
+      "id": "metatarsals_left",
+      "term": "metatarsals",
+      "layer": "bones",
+      "group": "foot_left",
+      "source": [
+        "FJ3241",
+        "FJ3244",
+        "FJ3247",
+        "FJ3250",
+        "FJ3253"
+      ],
+      "sprite": [
+        0.07276,
+        0.065088,
+        0.081691,
+        0.110992
+      ],
+      "demoSprite": [
+        0.073092,
+        0.010767,
+        0.081027,
+        0.054396
+      ]
+    },
+    {
+      "id": "foot_phalanges_left",
+      "term": "foot_phalanges",
+      "layer": "bones",
+      "group": "foot_left",
+      "source": [
+        "FJ3179",
+        "FJ3180",
+        "FJ3181",
+        "FJ3182",
+        "FJ3185",
+        "FJ3293",
+        "FJ3294",
+        "FJ3295",
+        "FJ3298",
+        "FJ3311",
+        "FJ3312",
+        "FJ3315",
+        "FJ3328",
+        "FJ3329"
+      ],
+      "sprite": [
+        0.084844,
+        0.12976,
+        0.086374,
+        0.074596
+      ],
+      "demoSprite": [
+        0.084844,
+        0.04435,
+        0.086374,
+        0.021141
+      ]
+    },
+    {
       "id": "ribs_right",
       "term": "ribs",
       "layer": "bones",
@@ -561,6 +802,161 @@
       ]
     },
     {
+      "id": "carpals_right",
+      "term": "carpals",
+      "layer": "bones",
+      "group": "hand_right",
+      "source": [
+        "FJ3361",
+        "FJ3367",
+        "FJ3374",
+        "FJ3382",
+        "FJ3383",
+        "FJ3388",
+        "FJ3389",
+        "FJ3390"
+      ],
+      "sprite": [
+        -0.282842,
+        -0.818775,
+        0.052005,
+        0.032276
+      ]
+    },
+    {
+      "id": "metacarpals_right",
+      "term": "metacarpals",
+      "layer": "bones",
+      "group": "hand_right",
+      "source": [
+        "FJ3350",
+        "FJ3352",
+        "FJ3354",
+        "FJ3356",
+        "FJ3358"
+      ],
+      "sprite": [
+        -0.311475,
+        -0.805153,
+        0.088172,
+        0.082006
+      ]
+    },
+    {
+      "id": "hand_phalanges_right",
+      "term": "hand_phalanges",
+      "layer": "bones",
+      "group": "hand_right",
+      "source": [
+        "FJ3193",
+        "FJ3194",
+        "FJ3196",
+        "FJ3197",
+        "FJ3198",
+        "FJ3292",
+        "FJ3303",
+        "FJ3304",
+        "FJ3306",
+        "FJ3322",
+        "FJ3323",
+        "FJ3325",
+        "FJ3326",
+        "FJ3327"
+      ],
+      "sprite": [
+        -0.326346,
+        -0.775861,
+        0.109884,
+        0.119267
+      ]
+    },
+    {
+      "id": "tarsals_right",
+      "term": "tarsals",
+      "layer": "bones",
+      "group": "foot_right",
+      "source": [
+        "FJ3308",
+        "FJ3360",
+        "FJ3364",
+        "FJ3370",
+        "FJ3373",
+        "FJ3377",
+        "FJ3385"
+      ],
+      "sprite": [
+        -0.11734,
+        0.005742,
+        0.074719,
+        0.136112
+      ],
+      "demoSprite": [
+        -0.116673,
+        -0.010817,
+        0.073385,
+        0.074824
+      ]
+    },
+    {
+      "id": "metatarsals_right",
+      "term": "metatarsals",
+      "layer": "bones",
+      "group": "foot_right",
+      "source": [
+        "FJ3351",
+        "FJ3353",
+        "FJ3355",
+        "FJ3357",
+        "FJ3359"
+      ],
+      "sprite": [
+        -0.154364,
+        0.065166,
+        0.081584,
+        0.110846
+      ],
+      "demoSprite": [
+        -0.154075,
+        0.010786,
+        0.081006,
+        0.054381
+      ]
+    },
+    {
+      "id": "foot_phalanges_right",
+      "term": "foot_phalanges",
+      "layer": "bones",
+      "group": "foot_right",
+      "source": [
+        "FJ3189",
+        "FJ3190",
+        "FJ3191",
+        "FJ3192",
+        "FJ3195",
+        "FJ3300",
+        "FJ3301",
+        "FJ3302",
+        "FJ3305",
+        "FJ3310",
+        "FJ3319",
+        "FJ3320",
+        "FJ3321",
+        "FJ3324"
+      ],
+      "sprite": [
+        -0.171187,
+        0.129611,
+        0.086387,
+        0.074758
+      ],
+      "demoSprite": [
+        -0.171187,
+        0.044158,
+        0.086387,
+        0.021295
+      ]
+    },
+    {
       "id": "pectoralis_major_left",
       "term": "pectoralis_major",
       "layer": "muscles",
@@ -569,6 +965,12 @@
         "FJ1446M",
         "FJ1447M",
         "FJ1464M"
+      ],
+      "sprite": [
+        5.1e-05,
+        -1.347084,
+        0.199093,
+        0.241273
       ]
     },
     {
@@ -580,6 +982,12 @@
         "FJ1446",
         "FJ1447",
         "FJ1464"
+      ],
+      "sprite": [
+        -0.199143,
+        -1.347084,
+        0.199093,
+        0.241273
       ]
     },
     {
@@ -591,6 +999,12 @@
         "FJ1467M",
         "FJ1468M",
         "FJ1513M"
+      ],
+      "sprite": [
+        0.079383,
+        -1.365257,
+        0.151295,
+        0.175184
       ]
     },
     {
@@ -602,6 +1016,12 @@
         "FJ1467",
         "FJ1468",
         "FJ1513"
+      ],
+      "sprite": [
+        -0.230679,
+        -1.365257,
+        0.151295,
+        0.175184
       ]
     },
     {
@@ -612,6 +1032,12 @@
       "source": [
         "FJ1478M",
         "FJ1512M"
+      ],
+      "sprite": [
+        0.130497,
+        -1.353286,
+        0.104102,
+        0.360889
       ]
     },
     {
@@ -622,6 +1048,12 @@
       "source": [
         "FJ1478",
         "FJ1512"
+      ],
+      "sprite": [
+        -0.2346,
+        -1.353286,
+        0.104102,
+        0.360889
       ]
     },
     {
@@ -633,6 +1065,12 @@
         "FJ1477M",
         "FJ1479M",
         "FJ1480M"
+      ],
+      "sprite": [
+        0.130526,
+        -1.312952,
+        0.101645,
+        0.283613
       ]
     },
     {
@@ -644,24 +1082,42 @@
         "FJ1477",
         "FJ1479",
         "FJ1480"
+      ],
+      "sprite": [
+        -0.23217,
+        -1.312952,
+        0.101645,
+        0.283613
       ]
     },
     {
       "id": "external_oblique_left",
       "term": "external_oblique",
       "layer": "muscles",
-      "group": "trunk",
+      "group": "abdomen_left",
       "source": [
         "FJ1452M"
+      ],
+      "sprite": [
+        -0.002596,
+        -1.226373,
+        0.149375,
+        0.435931
       ]
     },
     {
       "id": "external_oblique_right",
       "term": "external_oblique",
       "layer": "muscles",
-      "group": "trunk",
+      "group": "abdomen_right",
       "source": [
         "FJ1452"
+      ],
+      "sprite": [
+        -0.146779,
+        -1.226374,
+        0.149375,
+        0.435932
       ]
     },
     {
@@ -674,6 +1130,12 @@
         "FJ1441M",
         "FJ1442M",
         "FJ1443M"
+      ],
+      "sprite": [
+        0.026955,
+        -0.889813,
+        0.140388,
+        0.581897
       ]
     },
     {
@@ -686,6 +1148,12 @@
         "FJ1441",
         "FJ1442",
         "FJ1443"
+      ],
+      "sprite": [
+        -0.167343,
+        -0.889813,
+        0.140388,
+        0.581897
       ]
     },
     {
@@ -695,6 +1163,12 @@
       "group": "thigh_left",
       "source": [
         "FJ1434M"
+      ],
+      "sprite": [
+        0.012288,
+        -0.922008,
+        0.12727,
+        0.655844
       ]
     },
     {
@@ -704,6 +1178,12 @@
       "group": "thigh_right",
       "source": [
         "FJ1434"
+      ],
+      "sprite": [
+        -0.139558,
+        -0.922008,
+        0.12727,
+        0.655844
       ]
     },
     {
@@ -714,6 +1194,12 @@
       "source": [
         "FJ1394M",
         "FJ1397M"
+      ],
+      "sprite": [
+        0.017377,
+        -0.445193,
+        0.103998,
+        0.323298
       ]
     },
     {
@@ -724,6 +1210,12 @@
       "source": [
         "FJ1394",
         "FJ1397"
+      ],
+      "sprite": [
+        -0.121375,
+        -0.445193,
+        0.103998,
+        0.323298
       ]
     },
     {
@@ -733,6 +1225,12 @@
       "group": "shin_left",
       "source": [
         "FJ1439M"
+      ],
+      "sprite": [
+        0.061995,
+        -0.370231,
+        0.059755,
+        0.411807
       ]
     },
     {
@@ -742,24 +1240,42 @@
       "group": "shin_right",
       "source": [
         "FJ1439"
+      ],
+      "sprite": [
+        -0.121751,
+        -0.370231,
+        0.059755,
+        0.411809
       ]
     },
     {
       "id": "rectus_abdominis_left",
       "term": "rectus_abdominis",
       "layer": "muscles",
-      "group": "trunk",
+      "group": "abdomen",
       "source": [
         "FMA13378"
+      ],
+      "sprite": [
+        -0.012058,
+        -1.203647,
+        0.096068,
+        0.413167
       ]
     },
     {
       "id": "rectus_abdominis_right",
       "term": "rectus_abdominis",
       "layer": "muscles",
-      "group": "trunk",
+      "group": "abdomen",
       "source": [
         "FMA13377"
+      ],
+      "sprite": [
+        -0.085052,
+        -1.203618,
+        0.086687,
+        0.413207
       ]
     },
     {
@@ -773,6 +1289,12 @@
         "FMA7337",
         "FMA7370",
         "FMA7371"
+      ],
+      "sprite": [
+        -0.133964,
+        -1.385381,
+        0.265133,
+        0.270332
       ]
     },
     {
@@ -840,6 +1362,12 @@
         "FJ1836",
         "FJ1841",
         "FJ1842"
+      ],
+      "sprite": [
+        -0.073747,
+        -1.640829,
+        0.146241,
+        0.173909
       ]
     },
     {
@@ -931,13 +1459,19 @@
         "FJ2729",
         "FJ2731",
         "FJ2737"
+      ],
+      "sprite": [
+        -0.038898,
+        -1.288117,
+        0.120902,
+        0.109488
       ]
     },
     {
       "id": "liver",
       "term": "liver",
       "layer": "organs",
-      "group": "trunk",
+      "group": "abdomen",
       "source": [
         "FJ1883",
         "FJ1893",
@@ -999,22 +1533,34 @@
         "FJ3126",
         "FJ3127",
         "FJ3128"
+      ],
+      "sprite": [
+        -0.119699,
+        -1.193194,
+        0.21882,
+        0.16335
       ]
     },
     {
       "id": "stomach",
       "term": "stomach",
       "layer": "organs",
-      "group": "trunk",
+      "group": "abdomen",
       "source": [
         "FJ2564"
+      ],
+      "sprite": [
+        -0.031977,
+        -1.165777,
+        0.140527,
+        0.122593
       ]
     },
     {
       "id": "small_intestine",
       "term": "small_intestine",
       "layer": "organs",
-      "group": "trunk",
+      "group": "abdomen",
       "source": [
         "FJ2573",
         "FJ2574",
@@ -1072,13 +1618,19 @@
         "FJ2626",
         "FJ2627",
         "FJ2628"
+      ],
+      "sprite": [
+        -0.092178,
+        -1.089144,
+        0.20397,
+        0.283871
       ]
     },
     {
       "id": "large_intestine",
       "term": "large_intestine",
       "layer": "organs",
-      "group": "trunk",
+      "group": "abdomen",
       "source": [
         "FJ2566",
         "FJ2567",
@@ -1088,16 +1640,28 @@
         "FJ2571",
         "FJ2572",
         "FJ2599"
+      ],
+      "sprite": [
+        -0.132944,
+        -1.07773,
+        0.256718,
+        0.321319
       ]
     },
     {
       "id": "kidneys",
       "term": "kidneys",
       "layer": "organs",
-      "group": "trunk",
+      "group": "abdomen",
       "source": [
         "FJ3145",
         "FJ3147"
+      ],
+      "sprite": [
+        -0.091579,
+        -1.099907,
+        0.185967,
+        0.130372
       ]
     }
   ]
