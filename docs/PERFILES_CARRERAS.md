@@ -50,6 +50,8 @@ imágenes ni por geometrías inventadas. Se incorporarán los archivos después.
 El visor Three.js ahora se carga de forma diferida solo cuando se muestra
 un modelo disponible. La PWA incluye los nuevos recursos en su caché.
 
+El perfil Medicina incorpora además una entrada independiente **Medicina** con ilustraciones anatómicas sobre cámara, seguimiento corporal local y capas de músculos, huesos y órganos. Esta función no depende de los modelos 3D pendientes del catálogo. Ver [MEDICINA_AR.md](MEDICINA_AR.md).
+
 ## Archivos
 
 - `src/profile/profile.ts`: contratos, validación y guardado de perfil.

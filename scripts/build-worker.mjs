@@ -6,3 +6,5 @@ await build({ entryPoints: ['src/detector.worker.ts'], outfile: 'public/detector
 // Vite fingerprints this asset so an older PWA cannot serve a stale worker.
 await mkdir('src/generated', { recursive: true });
 await copyFile('public/detector.worker.js', 'src/generated/detector.worker.js');
+
+await build({ entryPoints: ['src/medicine/pose.worker.ts'], outfile: 'src/generated/pose.worker.js', bundle: true, format: 'iife', platform: 'browser', target: 'es2022', minify: true });

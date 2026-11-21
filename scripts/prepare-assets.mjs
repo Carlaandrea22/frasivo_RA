@@ -21,3 +21,19 @@ catch {
     throw new Error('No se pudo descargar el modelo. Reintenta con npm run assets.', { cause: error });
   }
 }
+
+const poseTarget = 'public/models/pose_landmarker_lite.task';
+try { await access(poseTarget); console.log('Modelo corporal local disponible.'); }
+catch {
+  console.log('Descargando Pose Landmarker Lite para anatomía local…');
+  try {
+    const response = await fetch('https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task', { signal: AbortSignal.timeout(120000) });
+    if (!response.ok || !response.body) throw new Error(`HTTP ${response.status}`);
+    await pipeline(Readable.fromWeb(response.body), createWriteStream(`${poseTarget}.part`));
+    await rename(`${poseTarget}.part`, poseTarget);
+    console.log('Modelo corporal descargado.');
+  } catch (error) {
+    await rm(`${poseTarget}.part`, { force: true });
+    throw new Error('No se pudo descargar el modelo corporal. Reintenta con npm run assets.', { cause: error });
+  }
+}

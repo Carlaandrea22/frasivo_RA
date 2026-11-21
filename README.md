@@ -46,8 +46,9 @@ El modo sin conexión depende de que la caché haya terminado y el navegador la 
 ## Funcionalidades
 
 - Cuentas reales con correo y contraseña, sesiones en PostgreSQL y perfil de carrera/nivel editable desde el avatar. Usuarios y progreso persistentes por cuenta. Arranque con `npm run docker:up`; ver `docs/CUENTAS_DOCKER.md`.
-- Diez palabras iniciales por carrera y práctica adaptada: traducción, contexto o definición en inglés según el nivel. Progreso separado por carrera. Medicina y Gastronomía señalan sus modelos realistas como pendientes; Sistemas conserva sus diez escenas 3D. Ver `docs/PERFILES_CARRERAS.md`.
-- Cinco secciones: **Explorar** (libre), **Explora objetos** (vocabulario de software en 3D), **Misiones** (retos guiados), **Practicar** y **Mis palabras**. Explorar y Misiones comparten cámara y progreso; Explora objetos usa una cámara sin detector y un catálogo independiente.
+- Diez palabras iniciales por carrera y práctica adaptada: traducción, contexto o definición en inglés según el nivel. Progreso separado por carrera. Medicina incorpora un atlas con ilustraciones que siguen el cuerpo (ver `docs/MEDICINA_AR.md`); sus modelos 3D realistas y los de Gastronomía siguen pendientes; Sistemas conserva sus diez escenas 3D. Ver `docs/PERFILES_CARRERAS.md`.
+- Medicina añade una sección **Medicina** con cámara corporal, capas de músculos, huesos y órganos, opacidad y pronunciación bilingüe. Las ilustraciones se ajustan a la postura y representan anatomía aproximada; no muestran el interior real del cuerpo.
+- Cinco secciones generales: **Explorar** (libre), **Explora objetos** (vocabulario de software en 3D), **Misiones** (retos guiados), **Practicar** y **Mis palabras**. Explorar y Misiones comparten cámara y progreso; Explora objetos usa una cámara sin detector y un catálogo independiente.
 - **Explora objetos:** diez conceptos de software con representaciones 3D interactivas, significado, IPA, metáfora visual y ejemplo bilingüe. Selección desde una lista, giro, tamaño y pronunciación por botón con voces del dispositivo. Puede usarse sin cámara o superpuesto al video. No incluye anclaje espacial. Ver `docs/EXPLORA_OBJETOS.md`.
 - Misión del aula: elegir tres objetos, escuchar cada reto, seleccionarlos en la cámara y hacer tres ejercicios. Máximo 60 puntos: 10 por cada objeto encontrado y 10 por cada respuesta correcta. Ver `docs/MISION_AULA.md` para el diseño, pruebas y límites.
 
@@ -75,6 +76,7 @@ El modo sin conexión depende de que la caché haya terminado y el navegador la 
 | `src/SupportedObjects.tsx` | Categorías automáticas y límites del modelo visibles |
 | `src/learning.ts` | Filtrado, preguntas y puntuación |
 | `src/storage.ts` | Contrato de almacenamiento y adaptador local |
+| `src/medicine/` | Atlas ilustrado, seguimiento corporal local y capas anatómicas |
 | `src/useCamera.ts` | Permisos y ciclo de vida de cámara/worker |
 | `src/scanning.ts` | Cadencia de análisis y categorías admitidas |
 | `src/objectTracking.ts` | Identidad temporal, asociación de detecciones y caducidad individual |
