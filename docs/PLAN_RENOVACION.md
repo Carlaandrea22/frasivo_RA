@@ -2,7 +2,7 @@
 
 **Objetivo.** Enfocar con el teléfono a una persona y aprender vocabulario técnico en inglés a partir de las capas de huesos, músculos u órganos que siguen su postura. El atlas 3D complementa la cámara y empieza por el sistema cardiovascular. El contrato común permite sumar Química con su propio catálogo y modelos.
 
-**Rama.** `renovacion-anatomia` parte de `Luis` en `28d5d2b`. El respaldo local de la preparación está en `d58edfc` y la Etapa 1 en `8fe9ce1`. Los ajustes de cámara y precaché están en `16a8cc0`. El respaldo de la comparación de capas anatómicas reales está en `f088195`. La revisión del modo en vivo se hizo antes de la Etapa 2, que queda pendiente.
+**Rama.** `Luis` contiene la base de LumAR. Las ramas de trabajo parten de `Luis` y sus PR se abren hacia `Luis`. `main` conserva la app anterior hasta que el equipo decida integrar LumAR. La renovación comenzó en `28d5d2b`. El respaldo local de la preparación está en `d58edfc` y la Etapa 1 en `8fe9ce1`. Los ajustes de cámara y precaché están en `16a8cc0`. El respaldo de la comparación de capas anatómicas reales está en `f088195`. La revisión del modo en vivo se hizo antes de la Etapa 2, que queda pendiente.
 
 ## Decisiones aprobadas
 
@@ -118,7 +118,7 @@ Esta propuesta deja **Congelar** como acción separada. **Fijar** conserva una p
 
 ## Cuerpo · vivo-v3 y Fijar, pasos 1 y 2
 
-- **Respaldo.** La Parte 1 quedó en el commit local `8251b61` de `renovacion-anatomia`. Esta revisión se mantiene en el árbol de trabajo.
+- **Respaldo.** `Luis` incluye la Parte 1 en `8251b61`, vivo-v3 y «Fijar» en `e59ffcb` y la base de LumAR en `f597a82`.
 - **Vivo-v3.** En el reprocesamiento local de las capturas 6 y 9 de Safari, Pose Lite estimó visibilidad de rodillas y tobillos superior a 0,93. La profundidad ruidosa descartaba las tibias y los pies aun con buena confianza. El atlas ahora admite segmentos de largo plausible cuando otros puntos visibles los respaldan. Usa muñeca y dedos para las manos, tobillo y punta para los pies y una vista frontal del pie cuando su profundidad lo escorza. Mantiene ocultos los segmentos con puntos fuera del encuadre o proporciones insuficientes. El bíceps se dibuja delante del tríceps. Al seleccionar uno de los músculos se atenúan los que lo tapan. El cerebro se ajusta a la bóveda craneal con el mismo anclaje facial del cráneo. El panel puede reducirse a la capa activa y la acción principal y conserva esa preferencia.
 - **Fijar.** El botón indica cómo mejorar el encuadre cuando faltan articulaciones. Con una pose frontal válida, promedia aproximadamente 0,5 s de `worldLandmarks` en memoria y mantiene activa la cámara. Usa las 36 piezas de `bones.glb` en metros estimados por Pose Lite. El punto más bajo de los pies queda a nivel de piso y el centro horizontal parte de los tobillos. Manos y pies se conservan como grupos rígidos. Si faltan los puntos distales, el modelo 3D usa la orientación del antebrazo o del torso como respaldo.
 - **Visor y Quick Look.** El visor permite girar, ampliar con dos dedos y tocar una pieza para ver su nombre en inglés. En iPhone compatible, «Ver en mi espacio» abre un enlace Quick Look con un USDZ del modelo capturado. El visor queda disponible en el botón «Ver en 3D». En Android, «Ver en mi espacio» abre el visor con el aviso «AR en Android: próximamente». «Soltar» descarta la captura y devuelve la superposición en vivo.

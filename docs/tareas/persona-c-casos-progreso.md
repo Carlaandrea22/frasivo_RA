@@ -2,7 +2,7 @@
 
 Implementa la entrevista simulada, la revisión del razonamiento y el historial de aprendizaje. Trabaja en `src/features/casos/`, `src/features/progreso/`, `src/content/casos/` y las pruebas de los módulos. La base incluye un caso provisional de dolor anterior de rodilla con borradores para las 27 rutas de entrevista. Las pantallas completas, los recursos y la revisión del caso forman parte de esta tarea.
 
-Empieza desde `renovacion-anatomia` y sigue [Contribuir a LumAR](../../CONTRIBUTING.md). Consulta los tipos, rutas y métodos de persistencia en la [arquitectura](../ARQUITECTURA.md). Coordina con A cambios en `src/shared/` o `src/content/types.ts`, y con B los identificadores y enlaces que permitan repasar anatomía desde un caso o desde el progreso.
+Crea tu rama desde `Luis` y abre el PR hacia `Luis`. Sigue [Contribuir a LumAR](../../CONTRIBUTING.md). Consulta los tipos, rutas y métodos de persistencia en la [arquitectura](../ARQUITECTURA.md). Coordina con A cambios en `src/shared/` o `src/content/types.ts`, y con B los identificadores y enlaces que permitan repasar anatomía desde un caso o desde el progreso.
 
 ## Caso clínico
 

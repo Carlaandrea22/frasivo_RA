@@ -2,7 +2,7 @@
 
 Implementa el recorrido desde el catálogo hasta la inspección de una estructura y la práctica de lo observado. Trabaja en `src/features/explorar/`, `src/features/retos/`, sus pruebas y el contenido de anatomía, anotaciones y ejercicios. La base incluye el fémur (*femur*) y un reto para relacionar estructura con función como referencias de integración. Los recorridos y el resto del contenido se completan en esta tarea.
 
-Empieza desde `renovacion-anatomia` y sigue [Contribuir a LumAR](../../CONTRIBUTING.md). Consulta los tipos, componentes y rutas en la [arquitectura](../ARQUITECTURA.md). Coordina con A cualquier cambio en `src/shared/` o `src/content/types.ts` y usa el registro compartido para que C pueda mostrar los resultados en Mi progreso.
+Crea tu rama desde `Luis` y abre el PR hacia `Luis`. Sigue [Contribuir a LumAR](../../CONTRIBUTING.md). Consulta los tipos, componentes y rutas en la [arquitectura](../ARQUITECTURA.md). Coordina con A cualquier cambio en `src/shared/` o `src/content/types.ts` y usa el registro compartido para que C pueda mostrar los resultados en Mi progreso.
 
 ## Explorar 3D
 
