@@ -18,7 +18,12 @@ scope.onmessage = async ({ data }) => {
       try {
         if (!detector) throw new Error('El seguimiento no está listo.');
         const result = detector.detectForVideo(frame, data.timestamp);
-        scope.postMessage({ type: 'pose', points: result.landmarks[0] ?? [] });
+        scope.postMessage({
+          type: 'pose',
+          time: data.timestamp,
+          points: result.landmarks[0] ?? [],
+          world: result.worldLandmarks[0] ?? [],
+        });
         result.close();
       } finally { frame.close(); }
     }

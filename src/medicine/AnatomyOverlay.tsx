@@ -1,15 +1,17 @@
 import { useLayoutEffect, useRef } from 'react';
 import type { AnatomyLayer, Matrix } from './anatomy';
-import { atlasParts, referenceFrame, type atlasPlacement, type AtlasPart } from './atlasAlignment';
+import { atlasParts, atlasSprite, referenceFrame, type atlasPlacement, type AtlasPart } from './atlasAlignment';
 import reference from '../../assets/anatomy/body/body-reference.webp?url';
 
 const sprites = import.meta.glob<string>('../../assets/anatomy/body/sprites/*.webp', {
   query: '?url', import: 'default', eager: true,
 });
 const organOrder = ['kidneys', 'lungs', 'small_intestine', 'large_intestine', 'stomach', 'liver', 'heart', 'brain'];
+const muscleOrder = ['triceps_brachii', 'biceps_brachii', 'deltoid'];
 const layers = {
   bones: atlasParts.filter(part => part.layer === 'bones'),
-  muscles: atlasParts.filter(part => part.layer === 'muscles'),
+  muscles: atlasParts.filter(part => part.layer === 'muscles')
+    .sort((a, b) => muscleOrder.indexOf(a.term) - muscleOrder.indexOf(b.term)),
   organs: atlasParts.filter(part => part.layer === 'organs')
     .sort((a, b) => organOrder.indexOf(a.term) - organOrder.indexOf(b.term)),
 };
@@ -33,12 +35,13 @@ function mirrored([a, b, c, d]: Matrix) {
 }
 
 export function AnatomyOverlay({ placement, live, layer, aspect, opacity, selected, onSelect, onFrame }: Props) {
-  const { matrices, visible } = placement;
+  const { matrices, visible, frontFeet } = placement;
   const groups = useRef(new Map<Group, SVGGElement>());
   const current = useRef(new Map<Group, Matrix>());
   const parts = layers[layer].filter(part => visible.includes(part));
   const visibleGroups = new Set(parts.map(part => part.group));
   const focusedOrgan = layer === 'organs' ? selected : undefined;
+  const focusedMuscle = layer === 'muscles' ? selected : undefined;
   const [x, y, width, height] = referenceFrame;
   const viewBox = `0 0 ${aspect} 1`;
 
@@ -98,15 +101,17 @@ export function AnatomyOverlay({ placement, live, layer, aspect, opacity, select
           else groups.current.delete(group);
         }}>
           {parts.filter(part => part.group === group).map(part => {
-            const [x, y, width, height] = !live && part.demoSprite ? part.demoSprite : part.sprite;
-            const spriteId = !live && part.demoSprite ? `${part.id}_front` : part.id;
+            const [x, y, width, height] = atlasSprite(part, live, frontFeet);
+            const spriteId = part.demoSprite && (!live || frontFeet.has(part.group)) ? `${part.id}_front` : part.id;
+            const recedes = (focusedOrgan && focusedOrgan !== part.term)
+              || (focusedMuscle && focusedMuscle !== part.term && parts.some(p => p.group === group && p.term === focusedMuscle));
             return <image
               key={part.id}
               data-part={part.id}
               className={part.term === selected ? 'selected' : undefined}
               href={sprites[`../../assets/anatomy/body/sprites/${spriteId}.webp`]}
               x={x} y={y} width={width} height={height}
-              opacity={focusedOrgan && focusedOrgan !== part.term ? .19 : 1}
+              opacity={recedes ? .19 : 1}
               onClick={() => onSelect(part.term)}
             />;
           })}

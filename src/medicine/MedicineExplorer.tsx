@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties } from 'react';
-import { Bone, BookOpen, Camera, ChevronUp, Dumbbell, Heart, Square, Volume2, X } from 'lucide-react';
+import { Bone, BookOpen, Camera, ChevronDown, ChevronUp, Dumbbell, Heart, Pin, Square, Volume2, X } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { AnatomyOverlay } from './AnatomyOverlay';
-import { anatomyParts, type AnatomyLayer } from './anatomy';
+import { anatomyParts, type AnatomyLayer, type BodyPoint } from './anatomy';
 import { atlasPlacement } from './atlasAlignment';
+import FixedSkeleton from './FixedSkeleton';
+import { averagePose, captureIssue } from './poseCapture';
 import { usePoseCamera } from './usePoseCamera';
 import { useFrameRate } from './useFrameRate';
 import './medicine.css';
@@ -15,6 +17,7 @@ const layers = [
 ] satisfies { id: AnatomyLayer; name: string; icon: typeof Bone }[];
 
 const compactViewport = '(max-width: 760px)';
+const controlsStorageKey = 'frasivo.body.controls-minimized';
 
 function subscribeViewport(notify: () => void) {
   const media = window.matchMedia(compactViewport);
@@ -30,6 +33,10 @@ export default function MedicineExplorer() {
   const [layer, setLayer] = useState<AnatomyLayer>('bones');
   const [selected, setSelected] = useState('skull');
   const [opacity, setOpacity] = useState(85);
+  const [minimized, setMinimized] = useState(() => {
+    try { return localStorage.getItem(controlsStorageKey) === 'true'; } catch { return false; }
+  });
+  const [fixedPose, setFixedPose] = useState<BodyPoint[] | null>(null);
   const [audioError, setAudioError] = useState(false);
   const [diagnostics] = useState(() => new URLSearchParams(window.location.search).get('fps') === '1');
   const { fps: detectionFps, record: recordDetection, reset: resetDetection } = useFrameRate();
@@ -49,15 +56,20 @@ export default function MedicineExplorer() {
   const visibleTerms = new Set(placement.visible.filter(part => part.layer === layer).map(part => part.term));
   const term = parts.find(part => part.id === selected && visibleTerms.has(part.id))
     ?? (live ? undefined : parts[0]);
-  const status = waiting ? 'Esperando permiso' : !live ? 'Demostración'
+  const status = fixedPose ? 'Esqueleto fijado' : waiting ? 'Esperando permiso' : !live ? 'Demostración'
     : camera.tracking === 'loading' ? 'Preparando seguimiento'
     : camera.tracking === 'tracking' ? 'Persona detectada' : 'Buscando una persona';
-  let hint = '';
-  if (live && camera.tracking === 'searching') hint = 'Encuadra a una persona de frente';
-  if (live && camera.tracking === 'tracking') {
-    if (placement.facing === 'back' || placement.facing === 'side') hint = 'Pídele a la persona que se gire de frente';
-    else if (!placement.complete) hint = 'Aléjate para ver el cuerpo completo';
-  }
+  const pose = live && !fixedPose && placement.facing === 'front'
+    ? averagePose(camera.samples, performance.now(), aspect, viewportAspect) : null;
+  const adjustment = placement.facing === 'front' ? 'Mantén la pose un momento' : 'Encuadra a la persona de frente';
+  const pinReason = live && !fixedPose && !pose
+    ? (placement.facing === 'back' || placement.facing === 'side' ? 'Pídele a la persona que se gire de frente'
+      : captureIssue(camera.samples.at(-1), aspect, viewportAspect) || adjustment)
+    : '';
+
+  useEffect(() => {
+    try { localStorage.setItem(controlsStorageKey, String(minimized)); } catch { /* Storage can be unavailable. */ }
+  }, [minimized]);
 
   useEffect(() => () => window.speechSynthesis?.cancel(), []);
 
@@ -130,13 +142,40 @@ export default function MedicineExplorer() {
   );
 
   const privacyNote = <p className="anatomy-note">Las ilustraciones muestran ubicaciones aproximadas. La cámara se procesa en tu dispositivo.</p>;
+  const cameraButton = (iconOnly = false) => {
+    const label = waiting ? 'Cancelar cámara' : live ? 'Detener cámara' : 'Activar cámara';
+    return (
+      <Button variant={live || waiting ? 'secondary' : 'primary'}
+        className={iconOnly ? 'anatomy-icon-button' : undefined} aria-label={label} onClick={() => {
+          if (live || waiting) camera.stop();
+          else void camera.start();
+        }}>
+        {live || waiting ? <Square size={15} aria-hidden="true"/> : <Camera size={18} aria-hidden="true"/>}
+        {!iconOnly && label}
+      </Button>
+    );
+  };
+  const pinButton = (
+    <Button disabled={!pose} aria-describedby={pinReason ? 'anatomy-pin-reason' : undefined} onClick={() => {
+      const freshPose = averagePose(camera.samples, performance.now(), aspect, viewportAspect);
+      if (freshPose) setFixedPose(freshPose);
+    }}>
+      <Pin size={16} aria-hidden="true"/> Fijar esqueleto
+    </Button>
+  );
+  const toggleControls = (
+    <Button variant="text" className="anatomy-icon-button" aria-expanded={!minimized}
+      aria-label={minimized ? 'Expandir controles' : 'Minimizar controles'} onClick={() => setMinimized(value => !value)}>
+      {minimized ? <ChevronUp size={18} aria-hidden="true"/> : <ChevronDown size={18} aria-hidden="true"/>}
+    </Button>
+  );
 
   return (
-    <section className="body-explorer" aria-label="Cámara corporal">
+    <section className={`body-explorer${minimized ? ' body-explorer--minimized' : ''}${fixedPose ? ' body-explorer--fixed' : ''}`} aria-label="Cámara corporal">
       <div className={live ? 'anatomy-stage anatomy-stage--live' : 'anatomy-stage'}>
         <div className="anatomy-stage-header">
           <span className="anatomy-status" role="status"><i aria-hidden="true"/>{status}</span>
-          {diagnostics && live && (
+          {diagnostics && live && !fixedPose && (
             <span className="anatomy-fps">
               <span data-fps-detection={detectionFps ?? undefined}>Pose {detectionFps ?? '–'}</span>
               {' · '}
@@ -149,7 +188,7 @@ export default function MedicineExplorer() {
         <div className="anatomy-window" ref={windowRef}>
           <div className="anatomy-frame" style={{ '--frame-ratio': aspect } as CSSProperties}>
             <video ref={camera.videoRef} autoPlay playsInline muted aria-label="Vista de la cámara" className={live ? 'visible' : ''}/>
-            {!waiting && <AnatomyOverlay
+            {!waiting && !fixedPose && <AnatomyOverlay
               placement={placement}
               live={live}
               layer={layer}
@@ -161,84 +200,92 @@ export default function MedicineExplorer() {
             />}
           </div>
         </div>
-        {(hint || term) && <p className="anatomy-stage-hint">
-          {hint && <span>{hint}</span>}
+        {!fixedPose && (term || pinReason) && <p className="anatomy-stage-hint">
+          {pinReason && <span id="anatomy-pin-reason">{pinReason}</span>}
           {term && <span className="anatomy-active-term" lang="en">{term.en}</span>}
         </p>}
       </div>
 
-      <div className="anatomy-controls">
-        <div className="anatomy-intro">
-          <h1>Explora el cuerpo</h1>
-          <p>Elige una capa y apunta la cámara a una persona de frente.</p>
+      {fixedPose ? <FixedSkeleton pose={fixedPose} onRelease={() => setFixedPose(null)}/>
+      : minimized ? (
+        <div className="anatomy-controls anatomy-controls--minimized">
+          <span className="anatomy-current-layer">{layers.find(item => item.id === layer)?.name}</span>
+          {live ? pinButton : cameraButton()}
+          {toggleControls}
+          {(camera.error || camera.modelError) && <p className="anatomy-error" role="alert">{camera.error || camera.modelError}</p>}
         </div>
-
-        <div className="anatomy-layers" role="group" aria-label="Capa anatómica">
-          {layers.map(({ id, name, icon: Icon }) => (
-            <Button key={id} variant="secondary" aria-pressed={layer === id} onClick={() => {
-              setLayer(id);
-              setSelected('');
-              setAudioError(false);
-            }}>
-              <Icon size={17} aria-hidden="true"/>
-              {name}
-            </Button>
-          ))}
-        </div>
-
-        <div className="anatomy-actions">
-          <Button variant={live || waiting ? 'secondary' : 'primary'} onClick={() => {
-            if (live || waiting) camera.stop();
-            else void camera.start();
-          }}>
-            {live || waiting ? <Square size={15} aria-hidden="true"/> : <Camera size={18} aria-hidden="true"/>}
-            {waiting ? 'Cancelar cámara' : live ? 'Detener cámara' : 'Activar cámara'}
-          </Button>
-          <div className="anatomy-opacity">
-            <label htmlFor="body-opacity">Opacidad</label>
-            <output htmlFor="body-opacity" aria-hidden="true">{opacity}%</output>
-            <input id="body-opacity" type="range" min="20" max="100" step="5" value={opacity} onChange={event => setOpacity(Number(event.target.value))}/>
+      ) : (
+        <div className="anatomy-controls">
+          <div className="anatomy-intro">
+            <h1>Explora el cuerpo</h1>
+            <p>Elige una capa y apunta la cámara a una persona de frente.</p>
           </div>
-        </div>
 
-        {(camera.error || camera.modelError) && <p className="anatomy-error" role="alert">{camera.error || camera.modelError}</p>}
-
-        {compact ? (
-          <>
-            <Button
-              className="anatomy-vocabulary-trigger"
-              variant="text"
-              aria-haspopup="dialog"
-              onClick={event => {
-                event.currentTarget.focus();
-                vocabularySheet.current?.showModal();
-              }}
-            >
-              <BookOpen size={18} aria-hidden="true"/>
-              <span>Vocabulario de la capa</span>
-              <ChevronUp size={18} aria-hidden="true"/>
-            </Button>
-            <dialog ref={vocabularySheet} className="anatomy-sheet" aria-labelledby="anatomy-sheet-title">
-              <div className="anatomy-sheet-header">
-                <h2 id="anatomy-sheet-title">Vocabulario de la capa</h2>
-                <Button variant="text" aria-label="Cerrar vocabulario" onClick={() => vocabularySheet.current?.close()}>
-                  <X size={20} aria-hidden="true"/>
+          <div className="anatomy-layer-row">
+            <div className="anatomy-layers" role="group" aria-label="Capa anatómica">
+              {layers.map(({ id, name, icon: Icon }) => (
+                <Button key={id} variant="secondary" aria-pressed={layer === id} onClick={() => {
+                  setLayer(id);
+                  setSelected('');
+                  setAudioError(false);
+                }}>
+                  <Icon size={17} aria-hidden="true"/>
+                  {name}
                 </Button>
-              </div>
-              <div className="anatomy-vocabulary">{vocabulary}</div>
+              ))}
+            </div>
+            {toggleControls}
+          </div>
+
+          <div className={live ? 'anatomy-actions anatomy-actions--live' : 'anatomy-actions'}>
+            {live && pinButton}
+            {cameraButton(live)}
+            <div className="anatomy-opacity">
+              <label htmlFor="body-opacity">Opacidad</label>
+              <output htmlFor="body-opacity" aria-hidden="true">{opacity}%</output>
+              <input id="body-opacity" type="range" min="20" max="100" step="5" value={opacity} onChange={event => setOpacity(Number(event.target.value))}/>
+            </div>
+          </div>
+
+          {(camera.error || camera.modelError) && <p className="anatomy-error" role="alert">{camera.error || camera.modelError}</p>}
+
+          {compact ? (
+            <>
+              <Button
+                className="anatomy-vocabulary-trigger"
+                variant="text"
+                aria-haspopup="dialog"
+                onClick={event => {
+                  event.currentTarget.focus();
+                  vocabularySheet.current?.showModal();
+                }}
+              >
+                <BookOpen size={18} aria-hidden="true"/>
+                <span>Vocabulario de la capa</span>
+                <ChevronUp size={18} aria-hidden="true"/>
+              </Button>
+              <dialog ref={vocabularySheet} className="anatomy-sheet" aria-labelledby="anatomy-sheet-title">
+                <div className="anatomy-sheet-header">
+                  <h2 id="anatomy-sheet-title">Vocabulario de la capa</h2>
+                  <Button variant="text" aria-label="Cerrar vocabulario" onClick={() => vocabularySheet.current?.close()}>
+                    <X size={20} aria-hidden="true"/>
+                  </Button>
+                </div>
+                <div className="anatomy-vocabulary">{vocabulary}</div>
+                {privacyNote}
+              </dialog>
+            </>
+          ) : (
+            <>
+              <details className="anatomy-vocabulary">
+                <summary>Vocabulario de la capa</summary>
+                {vocabulary}
+              </details>
               {privacyNote}
-            </dialog>
-          </>
-        ) : (
-          <>
-            <details className="anatomy-vocabulary">
-              <summary>Vocabulario de la capa</summary>
-              {vocabulary}
-            </details>
-            {privacyNote}
-          </>
-        )}
-      </div>
+            </>
+          )}
+        </div>
+      )}
     </section>
   );
 }

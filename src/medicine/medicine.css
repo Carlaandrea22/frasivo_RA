@@ -131,14 +131,22 @@
   line-height: 1.45;
 }
 
-.anatomy-layers {
+.anatomy-layer-row {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
   gap: var(--space-1);
   margin-top: var(--space-4);
 }
 
+.anatomy-layers {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-1);
+}
+
 .anatomy-layers .button { padding-inline: 3px; font-size: .78rem; }
+.anatomy-icon-button { width: var(--target); padding-inline: 0; }
 
 .anatomy-actions {
   display: grid;
@@ -148,7 +156,58 @@
   margin-top: var(--space-3);
 }
 
+.anatomy-actions--live { grid-template-columns: auto auto minmax(0, 1fr); }
 .anatomy-actions .button { font-size: .8rem; }
+.anatomy-actions--live .button--primary { padding-inline: 9px; }
+.anatomy-controls--minimized {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: var(--space-1);
+  align-items: center;
+}
+.anatomy-controls--minimized .anatomy-error { grid-column: 1 / -1; }
+.anatomy-current-layer { padding-inline-start: 4px; font-weight: 700; }
+
+.anatomy-fixed-controls { grid-column: 2; grid-row: 1; }
+.anatomy-fixed-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1); }
+.anatomy-fixed-actions .button { padding-inline: 9px; font-size: .8rem; text-decoration: none; }
+.anatomy-fixed-actions a img { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.anatomy-fixed-actions a::after { content: attr(aria-label); }
+.anatomy-fixed-stage {
+  position: relative;
+  z-index: 1;
+  grid-area: 1 / 1;
+  align-self: stretch;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: var(--radius-panel);
+  background: radial-gradient(ellipse at 50% 40%, var(--paper), var(--mint));
+}
+.anatomy-viewer-header {
+  position: absolute;
+  z-index: 1;
+  inset: var(--space-2) var(--space-3) auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  pointer-events: none;
+}
+.anatomy-viewer-header h2 { font: 800 1.05rem var(--font-title); }
+.anatomy-viewer-header .button { pointer-events: auto; }
+.anatomy-skeleton-canvas { position: absolute; inset: 0; }
+.anatomy-skeleton-canvas canvas { display: block; }
+.anatomy-viewer-note {
+  position: absolute;
+  inset: auto var(--space-3) var(--space-3);
+  width: fit-content;
+  max-width: calc(100% - 2 * var(--space-3));
+  margin-inline: auto;
+  padding: 6px 12px;
+  border-radius: var(--radius-soft);
+  background: var(--camera-base);
+  color: var(--camera-text);
+}
+
 .anatomy-opacity {
   display: grid;
   grid-template-columns: 1fr auto;
@@ -215,6 +274,8 @@
     min-height: 0;
     gap: 0;
   }
+  .body-explorer--minimized { --controls-clearance: 78px; }
+  .body-explorer--fixed { --controls-clearance: 110px; }
 
   .anatomy-stage, .anatomy-controls { grid-area: 1 / 1; }
   .anatomy-stage {
@@ -237,6 +298,10 @@
     border-radius: var(--radius-soft);
     background: var(--paper);
   }
+  .anatomy-fixed-controls { z-index: 2; }
+  .anatomy-fixed-stage { border-radius: 0; }
+  .anatomy-fixed-stage .anatomy-skeleton-canvas { bottom: var(--controls-clearance); }
+  .anatomy-fixed-stage .anatomy-viewer-note { bottom: var(--controls-clearance); }
 
   .anatomy-intro {
     position: absolute;
@@ -246,7 +311,7 @@
     clip-path: inset(50%);
   }
 
-  .anatomy-layers { margin-top: 0; }
+  .anatomy-layer-row { margin-top: 0; }
   .anatomy-actions { margin-top: var(--space-2); }
 
   .anatomy-vocabulary-trigger {

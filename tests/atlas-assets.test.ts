@@ -81,4 +81,26 @@ describe('atlas anatómico de BodyParts3D', () => {
     expect(lost.hand_left).toBeNull();
     expect(lost.foot_left).toBeNull();
   });
+
+  it('dibuja piernas con profundidad ruidosa, manos de canto y pies de frente', () => {
+    const pose = front.map(point => ({ ...point }));
+    const landmarks = [
+      [25, .59, .73, .07, .6], [27, .60, .90, .37, .58],
+      [29, .603, .92, .39, .48], [31, .61, .955, .16, .92],
+      [17, .765, .604, -.07, .82], [19, .752, .606, -.15, .91], [21, .738, .585, -.03, .91],
+    ];
+    for (const [i, x, y, z, visibility] of landmarks) pose[i] = { x, y, z, visibility };
+    const placement = atlasPlacement(pose, .8);
+    expect(placement.visible.map(part => part.id)).toEqual(expect.arrayContaining([
+      'tibia_left', 'fibula_left', 'patella_left', 'gastrocnemius_left', 'tibialis_anterior_left',
+      'carpals_left', 'metacarpals_left', 'hand_phalanges_left', 'tarsals_left', 'metatarsals_left', 'foot_phalanges_left',
+    ]));
+    expect(placement.frontFeet.has('foot_left')).toBe(true);
+    expect(placement.complete).toBe(false);
+    pose[31].visibility = .1;
+    expect(atlasMatrices(pose, .8).shin_left).toBeNull();
+    pose[31].visibility = .92;
+    pose[27].y = 1.03;
+    expect(atlasMatrices(pose, .8).shin_left).toBeNull();
+  });
 });

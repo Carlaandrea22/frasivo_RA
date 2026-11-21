@@ -8,7 +8,7 @@ type Limb = 'upper_arm' | 'forearm' | 'thigh' | 'shin' | 'hand' | 'foot';
 type Group = 'trunk' | 'abdomen' | 'head' | 'pelvis' | `${Limb}_${Side}`;
 export type Facing = 'front' | 'back' | 'side' | 'unknown';
 
-const landmark = {
+export const landmark = {
   eye_left: 2, eye_right: 5, ear_left: 7, ear_right: 8,
   shoulder_left: 11, shoulder_right: 12, elbow_left: 13, elbow_right: 14,
   wrist_left: 15, wrist_right: 16, pinky_left: 17, pinky_right: 18,
@@ -17,7 +17,7 @@ const landmark = {
   ankle_left: 27, ankle_right: 28, heel_left: 29, heel_right: 30, toe_left: 31, toe_right: 32,
 } as const;
 
-type Joint = keyof typeof landmark;
+export type Joint = keyof typeof landmark;
 type Matrices = Record<Group, Matrix | null>;
 
 export interface AtlasPart {
@@ -32,11 +32,32 @@ export interface AtlasPart {
 export const atlasParts = anchors.parts as AtlasPart[];
 export const referenceFrame = anchors.reference;
 
-const joints = {
+export const limbJoints = {
   upper_arm: ['shoulder', 'elbow'], forearm: ['elbow', 'wrist'],
   thigh: ['hip', 'knee'], shin: ['knee', 'ankle'],
 } as const;
-const sides = ['left', 'right'] as const;
+export const sides = ['left', 'right'] as const;
+
+export function visibleRegion(aspect: number, viewportAspect: number): SpriteBounds {
+  // The SVG and video share the same centered cover crop.
+  const width = Math.min(aspect, viewportAspect), height = Math.min(1, aspect / viewportAspect);
+  return [(aspect - width)/2, (1 - height)/2, width, height];
+}
+
+export function pointInFrame(point: BodyPoint | undefined, aspect: number, region: SpriteBounds, confidence = .65): Vec2 | null {
+  if (!point || !((point.visibility ?? 0) >= confidence)) return null;
+  const [left, top, width, height] = region;
+  const x = point.x * aspect, y = point.y;
+  return x >= left && x <= left + width && y >= top && y <= top + height ? [x, y] : null;
+}
+
+export function atlasSprite(part: AtlasPart, live: boolean, frontFeet: ReadonlySet<Group>): readonly number[] {
+  if (live && part.id === 'brain') {
+    // Fit the frontal illustration into the cranial vault above the atlas eye line.
+    return [-.054, -1.64, .108, .086];
+  }
+  return (!live || frontFeet.has(part.group)) && part.demoSprite ? part.demoSprite : part.sprite;
+}
 
 function rest(joint: Joint): Vec2 {
   const [x, y] = (anchors.anchors as Record<string, number[]>)[joint];
@@ -84,29 +105,24 @@ function overlapsVisibleFrame(matrix: Matrix, bounds: readonly number[], region:
 }
 
 export function atlasPlacement(points: BodyPoint[] | null, aspect: number, viewportAspect = aspect) {
-  // The SVG uses xMidYMid slice, the same center crop as object-fit: cover.
-  const visibleWidth = Math.min(aspect, viewportAspect), visibleHeight = Math.min(1, aspect / viewportAspect);
-  const region: SpriteBounds = [(aspect - visibleWidth)/2, (1 - visibleHeight)/2, visibleWidth, visibleHeight];
+  const region = visibleRegion(aspect, viewportAspect);
   const [minX, minY, width, height] = anchors.bounds;
   const demoScale = Math.min(aspect * .88 / width, .94 / height);
   const demo = verticalFit([minX + width/2, minY + height/2], [aspect/2, .5], demoScale);
   const matrices = {} as Matrices;
+  const frontFeet = new Set<Group>();
   for (const part of atlasParts) matrices[part.group] = points ? null : demo;
   const inFrame = (sorted: AtlasPart[]) => sorted.filter(part => {
     const matrix = matrices[part.group];
-    return matrix && overlapsVisibleFrame(matrix, points ? part.sprite : part.demoSprite ?? part.sprite, region);
+    return matrix && overlapsVisibleFrame(matrix, atlasSprite(part, Boolean(points), frontFeet), region);
   });
-  if (!points) return { matrices, facing: 'front' as Facing, complete: true, visible: inFrame(atlasParts) };
+  if (!points) return { matrices, frontFeet, facing: 'front' as Facing, complete: true, visible: inFrame(atlasParts) };
 
-  function observed(index: number): Vec2 | null {
-    const point = points?.[index];
-    if (!point || (point.visibility ?? 0) < .65 || !Number.isFinite(point.x) || !Number.isFinite(point.y)) return null;
-    const [left, top, width, height] = region;
-    const x = point.x * aspect, y = point.y;
-    return x >= left && x <= left + width && y >= top && y <= top + height ? [x, y] : null;
+  function observed(index: number, confidence = .65): Vec2 | null {
+    return pointInFrame(points?.[index], aspect, region, confidence);
   }
 
-  const locate = (joint: Joint) => observed(landmark[joint]);
+  const locate = (joint: Joint, confidence?: number) => observed(landmark[joint], confidence);
   const left = locate('shoulder_left'), right = locate('shoulder_right');
   const leftHip = locate('hip_left'), rightHip = locate('hip_right');
   const eyeLeft = locate('eye_left'), eyeRight = locate('eye_right');
@@ -126,7 +142,7 @@ export function atlasPlacement(points: BodyPoint[] | null, aspect: number, viewp
   } else if (faceFront) {
     facing = 'front';
   }
-  if (facing !== 'front') return { matrices, facing, complete: false, visible: [] as AtlasPart[] };
+  if (facing !== 'front') return { matrices, frontFeet, facing, complete: false, visible: [] as AtlasPart[] };
 
   if (left && right && scale > 0) {
     const at = midpoint(left, right);
@@ -154,7 +170,11 @@ export function atlasPlacement(points: BodyPoint[] | null, aspect: number, viewp
     const earFit = earLeft && earRight && earLeft[0] > earRight[0]
       ? fitSegment(rest('ear_right'), rest('ear_left'), earRight, earLeft) : null;
     if (eyeFit && earFit && Math.hypot(earFit[0], earFit[1]) > .6 * Math.hypot(eyeFit[0], eyeFit[1])) {
-      matrices.head = eyeFit.map((value, i) => value * .45 + earFit[i] * .55) as Matrix;
+      const a = eyeFit[0] * .45 + earFit[0] * .55;
+      const b = eyeFit[1] * .45 + earFit[1] * .55;
+      const [x, y] = midpoint(rest('eye_left'), rest('eye_right'));
+      const [u, v] = midpoint(eyeLeft, eyeRight);
+      matrices.head = [a, b, -b, a, u - a*x + b*y, v - b*x - a*y];
     } else matrices.head = eyeFit;
   }
 
@@ -164,39 +184,60 @@ export function atlasPlacement(points: BodyPoint[] | null, aspect: number, viewp
   }
 
   for (const side of sides) {
-    for (const limb of Object.keys(joints) as (keyof typeof joints)[]) {
-      if ((limb === 'thigh' || limb === 'shin') && (!leftHip || !rightHip)) continue;
-      const [from, to] = joints[limb];
+    const heel = `heel_${side}` as const, toe = `toe_${side}` as const, ankle = `ankle_${side}` as const;
+    const h = locate(heel, .40), f = locate(toe);
+    const supportedAnkle = locate(ankle, .52);
+    const legSupported = Boolean(leftHip && rightHip && h && f && supportedAnkle
+      && distance(h, f) < Math.max(.04, scale*.34) && distance(h, supportedAnkle) < Math.max(.016, scale*.12));
+    const armSupported = Boolean(locate(`shoulder_${side}`) && locate(`wrist_${side}`));
+    for (const limb of Object.keys(limbJoints) as (keyof typeof limbJoints)[]) {
+      const leg = limb === 'thigh' || limb === 'shin';
+      if (leg && (!leftHip || !rightHip)) continue;
+      const [from, to] = limbJoints[limb];
       const a = `${from}_${side}` as Joint, b = `${to}_${side}` as Joint;
-      const actualA = locate(a), actualB = locate(b);
-      if (actualA && actualB && !foreshortened(a, b, distance(actualA, actualB), Math.max(.018, distance(rest(a), rest(b)) * scale * .44))) {
+      const confidence = leg ? (legSupported ? .52 : .65) : (armSupported ? .52 : .65);
+      const actualA = locate(a, confidence), actualB = locate(b, confidence);
+      if (!actualA || !actualB) continue;
+      const projected = distance(actualA, actualB);
+      const expected = distance(rest(a), rest(b)) * scale;
+      const plausibleLength = projected >= Math.max(.018, expected*.44) && (!scale || projected <= expected*1.9);
+      // Depth can be noisy under loose clothing. Trust a well-sized 2D segment when both ends are supported.
+      const supported = leg ? limb === 'shin' && legSupported : armSupported;
+      if (plausibleLength && (!foreshortened(a, b, projected, .018) || (supported && scale > 0 && projected >= expected*.72))) {
         matrices[`${limb}_${side}`] = fitSegment(rest(a), rest(b), actualA, actualB);
       }
     }
     const wrist = `wrist_${side}` as const, index = `index_${side}` as const;
     const pinky = `pinky_${side}` as const, thumb = `thumb_${side}` as const;
-    const w = locate(wrist), i = locate(index), p = locate(pinky), t = locate(thumb);
+    const w = locate(wrist), i = locate(index, .52), p = locate(pinky, .52), t = locate(thumb, .52);
     if (w && i && p && t) {
       const end = midpoint(i, p), restEnd = midpoint(rest(index), rest(pinky)), span = distance(w, end);
-      if (span > Math.max(.012, scale*.052) && distance(i, p) > .15*span && !foreshortened(wrist, index, distance(w, i), .012)) {
+      if (span > Math.max(.013, scale*.065) && (!scale || span < scale*.25)
+        && distance(i, p) > .08*span && distance(i, p) < 1.65*span && distance(w, t) < 1.5*span) {
         const reflect = cross(w, end, t) * cross(rest(wrist), restEnd, rest(thumb)) < 0;
         matrices[`hand_${side}`] = fitSegment(rest(wrist), restEnd, w, end, reflect);
       }
     }
-    const heel = `heel_${side}` as const, toe = `toe_${side}` as const;
-    const ankle = `ankle_${side}` as const;
-    const h = locate(heel), f = locate(toe), k = locate(ankle);
-    if (leftHip && rightHip && h && f && k && distance(k, h) < distance(h, f)*1.3
-      && !foreshortened(heel, toe, distance(h, f), Math.max(.015, scale*.065))) {
-      const [hx, hy] = anchors.spriteAnchors[heel];
-      const [tx, ty] = anchors.spriteAnchors[toe];
-      matrices[`foot_${side}`] = fitSegment([hx, hy], [tx, ty], h, f);
+    const k = locate(ankle, legSupported ? .52 : .65);
+    if (legSupported && h && f && k) {
+      const span = distance(h, f), reach = distance(k, f);
+      if (distance(k, h) < Math.max(.013, reach*.7) && reach < Math.max(.035, scale*.27)) {
+        const group = `foot_${side}` as const;
+        if (!foreshortened(heel, toe, span, Math.max(.015, scale*.065))) {
+          const [ankleX, ankleY] = anchors.spriteAnchors[ankle];
+          const [toeX, toeY] = anchors.spriteAnchors[toe];
+          matrices[group] = fitSegment([ankleX, ankleY], [toeX, toeY], k, f);
+        } else if (f[1] > k[1] + reach*.45 && reach >= Math.max(.012, scale*.035)) {
+          matrices[group] = fitSegment(rest(ankle), rest(toe), k, f);
+          frontFeet.add(group);
+        }
+      }
     }
   }
 
   const complete = Boolean((nose || earLeft || earRight) && left && right && leftHip && rightHip
     && sides.every(side => locate(`knee_${side}`) && locate(`ankle_${side}`)));
-  return { matrices, facing, complete, visible: inFrame(atlasParts) };
+  return { matrices, frontFeet, facing, complete, visible: inFrame(atlasParts) };
 }
 
 export function atlasMatrices(points: BodyPoint[] | null, aspect: number): Matrices {

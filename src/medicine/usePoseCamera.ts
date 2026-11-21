@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useBodyCamera } from './useBodyCamera';
-import type { BodyPoint } from './anatomy';
+import { captureWindow, type PoseSample } from './poseCapture';
 import workerUrl from '../generated/pose.worker.js?url';
 
 export function usePoseCamera(onDetection?: (time: number) => void) {
   const camera = useBodyCamera();
   const { status, stop, videoRef } = camera;
-  const [points, setPoints] = useState<BodyPoint[]>([]);
+  const [history, setHistory] = useState<PoseSample[]>([]);
   const [tracking, setTracking] = useState<'loading' | 'searching' | 'tracking'>('loading');
   const [modelError, setModelError] = useState('');
   const [aspect, setAspect] = useState(4 / 5);
@@ -14,10 +14,10 @@ export function usePoseCamera(onDetection?: (time: number) => void) {
     if (status !== 'active') return;
     let disposed = false, ready = false, busy = false, lastVideoTime = -1, lastResult = 0;
     let worker: Worker | undefined;
-    setModelError(''); setPoints([]); setTracking('loading');
+    setModelError(''); setHistory([]); setTracking('loading');
     const fail = (message: string) => {
       if (disposed) return;
-      setModelError(message); setPoints([]); stop();
+      setModelError(message); setHistory([]); stop();
     };
     const startup = window.setTimeout(() => fail('El modelo tardó demasiado en cargar. Comprueba la conexión y vuelve a activar la cámara.'), 45000);
     try {
@@ -28,9 +28,10 @@ export function usePoseCamera(onDetection?: (time: number) => void) {
         if (data.type === 'pose') {
           busy = false; lastResult = performance.now();
           onDetection?.(lastResult);
-          const next: BodyPoint[] = data.points;
-          setPoints(next);
-          setTracking(next.length ? 'tracking' : 'searching');
+          const sample: PoseSample = { time: data.time, points: data.points, world: data.world };
+          setHistory(previous => sample.points.length
+            ? [...previous.filter(frame => sample.time - frame.time <= captureWindow), sample] : []);
+          setTracking(sample.points.length ? 'tracking' : 'searching');
         }
         if (data.type === 'error') fail('No se pudo iniciar el seguimiento corporal. Vuelve a activar la cámara; si persiste, prueba un navegador actualizado.');
       };
@@ -40,7 +41,7 @@ export function usePoseCamera(onDetection?: (time: number) => void) {
     const timer = window.setInterval(async () => {
       if (disposed) return;
       const now = performance.now();
-      if (lastResult && now - lastResult > 700) { setPoints([]); setTracking('searching'); }
+      if (lastResult && now - lastResult > 700) { setHistory(previous => previous.length ? [] : previous); setTracking('searching'); }
       if (busy && lastResult && now - lastResult > 15000) { fail('El seguimiento dejó de responder. Vuelve a activar la cámara.'); return; }
       const video = videoRef.current;
       if (!ready || busy || !video || video.readyState < 2 || video.currentTime === lastVideoTime) return;
@@ -57,8 +58,9 @@ export function usePoseCamera(onDetection?: (time: number) => void) {
   }, [status, stop, videoRef, onDetection]);
   const startCamera = camera.start;
   const start = useCallback(() => {
-    setPoints([]); setTracking('loading'); setModelError('');
+    setHistory([]); setTracking('loading'); setModelError('');
     return startCamera();
   }, [startCamera]);
-  return { ...camera, start, points: status === 'active' ? points : [], tracking, modelError, aspect };
+  const samples = status === 'active' ? history : [];
+  return { ...camera, start, samples, points: samples.at(-1)?.points ?? [], tracking, modelError, aspect };
 }
