@@ -34,8 +34,8 @@ const details: Record<string, readonly [string, string]> = {
   foot_phalanges: ['En los dedos del pie.', 'Ayudan al equilibrio y al impulso al caminar.'],
 };
 
-export function BoneLabels({ targets, selected, showAll = false }: {
-  targets: readonly BoneTarget[]; selected?: string; showAll?: boolean;
+export function BoneLabels({ targets, selected, showAll = false, reservedBottom }: {
+  targets: readonly BoneTarget[]; selected?: string; showAll?: boolean; reservedBottom?: number;
 }) {
   const host = useRef<HTMLDivElement>(null);
   const sheet = useRef<HTMLDialogElement>(null);
@@ -62,40 +62,44 @@ export function BoneLabels({ targets, selected, showAll = false }: {
     const x = target.x*size.width, y = target.y*size.height;
     return [{ ...bone, x, y, left: x >= size.width*.5 }];
   }).sort((a, b) => a.y - b.y);
-  const bottom = Math.max(8, size.height - cardHeight - (size.height > 440 ? 76 : 10));
+  const bottom = Math.max(8, size.height - cardHeight - (reservedBottom ?? (size.height > 440 ? 76 : 10)));
+  const capacity = Math.max(1, 1+Math.floor((bottom-8)/(cardHeight+5)));
+  const columns: [typeof labels, typeof labels] = [[], []];
+  for (const label of labels) {
+    const column = label.left ? 0 : 1;
+    if (columns[column].length < capacity) columns[column].push(label);
+    else if (columns[1-column].length < capacity) columns[1-column].push(label);
+  }
+  const positioned = columns.flatMap((column, side) => {
+    let next = 8;
+    const x = side === 0 ? 8 : size.width-cardWidth-8;
+    return column.map((label, i) => {
+      const top = Math.max(next, Math.min(bottom - (column.length-1-i)*(cardHeight+5), label.y-cardHeight/2));
+      next = top + cardHeight + 5;
+      return { ...label, top, edge: side === 0 ? x+cardWidth : x, columnX: x };
+    });
+  });
+
   return <div className="bone-labels" ref={host}>
     <svg className="bone-label-lines" width={size.width} height={size.height} aria-hidden="true">
       <defs><marker id={marker} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
         <path d="M 0 0 L 10 5 L 0 10 z" fill="#ffe9a2"/>
       </marker></defs>
-      {([true, false] as const).flatMap(left => {
-        const column = labels.filter(label => label.left === left);
-        let next = 8;
-        return column.map((label, i) => {
-          const top = Math.max(next, Math.min(Math.max(8, bottom - (column.length-1-i)*(cardHeight+5)), label.y-cardHeight/2));
-          next = top + cardHeight + 5;
-          const x = left ? 8 : size.width-cardWidth-8;
-          return <line key={label.id} x1={left ? x+cardWidth : x} y1={top+cardHeight/2} x2={label.x} y2={label.y}
-            stroke="#ffe9a2" strokeWidth="2" markerEnd={`url(#${marker})`} data-bone-arrow={label.id}/>;
-        });
-      })}
+      {positioned.map(label => (
+        <line key={label.id} x1={label.edge} y1={label.top+cardHeight/2} x2={label.x} y2={label.y}
+          stroke="#ffe9a2" strokeWidth="2" markerEnd={`url(#${marker})`} data-bone-arrow={label.id}/>
+      ))}
     </svg>
-    {([true, false] as const).flatMap(left => {
-      const column = labels.filter(label => label.left === left);
-      let next = 8;
-      return column.map((label, i) => {
-        const top = Math.max(next, Math.min(Math.max(8, bottom - (column.length-1-i)*(cardHeight+5)), label.y-cardHeight/2));
-        next = top + cardHeight + 5;
-        return <div key={label.id} className="bone-label-card" style={{ top, width: cardWidth, [left ? 'left' : 'right']: 8 }}>
-          <button type="button" className="bone-label-open" aria-label={`Ver ficha de ${label.es}`} onClick={() => {
-            setDetail(label.id);
-            recordConsultation({ areaId: 'anatomy', groupId: 'huesos', itemId: label.id });
-            sheet.current?.showModal();
-          }}>{label.es}</button>
-          <EnglishTerm term={label.en}/>
-        </div>;
-      });
-    })}
+    {positioned.map(label => (
+      <div key={label.id} className="bone-label-card" style={{ top: label.top, width: cardWidth, left: label.columnX }}>
+        <button type="button" className="bone-label-open" aria-label={`Ver ficha de ${label.es}`} onClick={() => {
+          setDetail(label.id);
+          recordConsultation({ areaId: 'anatomy', groupId: 'huesos', itemId: label.id });
+          sheet.current?.showModal();
+        }}>{label.es}</button>
+        <EnglishTerm term={label.en}/>
+      </div>
+    ))}
     <dialog ref={sheet} className="lumar-sheet bone-detail" aria-label={opened?.es ?? 'Ficha del hueso'}
       onClick={event => { if (event.target === event.currentTarget) event.currentTarget.close(); }}>
       {opened && <div className="bone-detail-content">

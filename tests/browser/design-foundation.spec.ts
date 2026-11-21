@@ -283,7 +283,10 @@ test('Pose dibuja tórax frontal sin caderas, retira selección y pide girar de 
 
 test('fija la pose de cuerpo completo, muestra el visor y vuelve a la cámara al soltar', async ({ page }, testInfo) => {
   await useBodyFixture(page);
-  await page.addInitScript(() => Object.defineProperty(navigator, 'userAgent', { value: 'Android' }));
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'userAgent', { value: 'Android' });
+    Object.defineProperty(navigator, 'xr', { value: undefined });
+  });
   await page.goto('/?fps=1');
   await page.getByRole('button', { name: 'Activar cámara' }).click();
   const pin = page.getByRole('button', { name: 'Fijar esqueleto' });
@@ -341,8 +344,16 @@ test('iPhone recibe un enlace Quick Look con un USDZ de la pose y Soltar libera 
   await page.goto('/');
   await page.getByRole('button', { name: 'Activar cámara' }).click();
   await page.getByRole('button', { name: 'Fijar esqueleto' }).click();
+  const canvas = page.locator('canvas[aria-label="Esqueleto 3D sobre la cámara"]');
+  await expect(canvas).toBeVisible({ timeout: 20000 });
+  expect(await page.locator('video').evaluate((video: HTMLVideoElement) => (video.srcObject as MediaStream).active)).toBe(true);
+  const picker = page.getByLabel('Etiquetas para el visor de Apple');
+  await picker.selectOption('main');
+  await page.getByRole('button', { name: 'Etiquetas', exact: true }).click();
+  await expect(page.locator('[data-bone-arrow=femur]')).toHaveCount(1);
   const ar = page.getByRole('link', { name: 'Ver en mi espacio' });
   await expect(ar).toHaveAttribute('rel', 'ar', { timeout: 20000 });
+  await page.screenshot({ path: testInfo.outputPath('modo-sobre-camara.png') });
   await expect(ar.locator('img:only-child')).toHaveCount(1);
   const url = (await ar.getAttribute('href'))!;
   expect(url).toMatch(/^blob:.*#allowsContentScaling=0$/);
@@ -364,6 +375,9 @@ test('iPhone recibe un enlace Quick Look con un USDZ de la pose y Soltar libera 
     expect(file.includes(Buffer.from(`"${piece}"`)), piece).toBe(true);
   }
   expect(file.includes(Buffer.from('metersPerUnit = 1'))).toBe(true);
+  for (const label of ['"Label_femur"', '"Arrow_tip"', 'textures/Texture_']) {
+    expect(file.includes(Buffer.from(label)), label).toBe(true);
+  }
   await writeFile(testInfo.outputPath('esqueleto.usdz'), file);
   await page.screenshot({ path: testInfo.outputPath('enlace-quick-look.png') });
   await page.getByRole('button', { name: 'Soltar' }).click();

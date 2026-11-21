@@ -3,8 +3,9 @@ import { Bone, BookOpen, Camera, ChevronDown, ChevronUp, Dumbbell, Heart, Pin, S
 import { Button } from '../../shared/ui/Button';
 import { AnatomyOverlay } from './AnatomyOverlay';
 import { anatomyParts, type AnatomyLayer, type BodyPoint } from './anatomy';
-import { atlasPlacement } from './atlasAlignment';
+import { atlasPlacement, visibleRegion } from './atlasAlignment';
 import FixedSkeleton from './FixedSkeleton';
+import type { CameraFraming } from './cameraFraming';
 import { capturePrecisePose } from './precisePoseCapture';
 import { averagePose, captureIssue } from './poseCapture';
 import { usePoseCamera } from './usePoseCamera';
@@ -40,6 +41,8 @@ export default function MedicineExplorer() {
     try { return localStorage.getItem(controlsStorageKey) === 'true'; } catch { return false; }
   });
   const [fixedPose, setFixedPose] = useState<BodyPoint[] | null>(null);
+  const [framing, setFraming] = useState<CameraFraming>({ x: .5, y: .5, height: .75 });
+  const [touched, setTouched] = useState<string[]>([]);
   const [captureProgress, setCaptureProgress] = useState<number | null>(null);
   const [captureError, setCaptureError] = useState('');
   const pendingCapture = useRef<AbortController>(null);
@@ -106,7 +109,10 @@ export default function MedicineExplorer() {
 
   function selectPart(id: string) {
     setSelected(id);
-    if (layer === 'bones') setBoneSelection(true);
+    if (layer === 'bones') {
+      setBoneSelection(true);
+      setTouched(previous => previous.includes(id) ? previous : [...previous, id]);
+    }
     setAudioError(false);
   }
 
@@ -176,6 +182,14 @@ export default function MedicineExplorer() {
         if (pose) setFixedPose(pose);
         return;
       }
+      const sample = camera.samples.at(-1)!.points;
+      const [left, top, width, height] = visibleRegion(aspect, viewportAspect);
+      const hips = (sample[23].x + sample[24].x)*aspect/2;
+      const bottomY = Math.max(...[27, 28, 29, 30, 31, 32].map(index => sample[index].y));
+      const eyes = [0, 2, 5, 7, 8].map(index => sample[index]).filter(point => (point.visibility ?? 0) >= .52);
+      const headY = Math.min(...eyes.map(point => point.y));
+      const startY = headY-(bottomY-headY)*.08;
+      setFraming({ x: (hips-left)/width, y: ((startY+bottomY)/2-top)/height, height: (bottomY-startY)/height });
       const controller = new AbortController();
       pendingCapture.current = controller;
       setCaptureError('');
@@ -258,7 +272,8 @@ export default function MedicineExplorer() {
         </p>}
       </div>
 
-      {fixedPose ? <FixedSkeleton pose={fixedPose} onRelease={() => setFixedPose(null)} stopCamera={camera.stop} startCamera={camera.start}/>
+      {fixedPose ? <FixedSkeleton pose={fixedPose} framing={framing} cameraHost={live ? windowRef.current : null}
+        touched={touched} onRelease={() => setFixedPose(null)} stopCamera={camera.stop} startCamera={camera.start}/>
       : minimized ? (
         <div className="anatomy-controls anatomy-controls--minimized">
           <span className="anatomy-current-layer">{layers.find(item => item.id === layer)?.name}</span>

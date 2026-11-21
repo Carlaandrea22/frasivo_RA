@@ -34,3 +34,6 @@
   text-align: center;
 }
 .anatomy-capture-ring svg { width: 46px; height: 46px; color: var(--anatomy-highlight); }
+.anatomy-ios-options { display: flex; flex-wrap: wrap; gap: 5px 8px; align-items: end; margin-bottom: 8px; }
+.anatomy-ios-options label { display: grid; font-size: .76rem; font-weight: 700; gap: 3px; }
+.anatomy-ios-options select { min-height: 44px; padding-inline: 8px; border: 1px solid var(--line); border-radius: 12px; background: var(--white); color: var(--ink); font: inherit; }

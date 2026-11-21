@@ -215,13 +215,21 @@ export async function loadPosedSkeleton(points: BodyPoint[]) {
   }
 }
 
-export async function exportSkeleton(skeleton: Group) {
+export async function exportSkeleton(skeleton: Group, labelIds: readonly string[] = []) {
   const { USDZExporter } = await import('three/addons/exporters/USDZExporter.js');
   const scene = new Scene();
   scene.add(skeleton.clone());
-  const data = await new USDZExporter().parseAsync(scene, {
-    quickLookCompatible: true,
-    ar: { anchoring: { type: 'plane' }, planeAnchoring: { alignment: 'horizontal' } },
-  });
-  return new Blob([data], { type: 'model/vnd.usdz+zip' });
+  const labelTools = labelIds.length ? await import('./usdLabels') : null;
+  const labels = labelTools?.buildUsdLabels(skeleton, labelIds);
+  if (labels) scene.add(labels);
+  scene.updateMatrixWorld(true);
+  try {
+    const data = await new USDZExporter().parseAsync(scene, {
+      quickLookCompatible: true,
+      ar: { anchoring: { type: 'plane' }, planeAnchoring: { alignment: 'horizontal' } },
+    });
+    return new Blob([data], { type: 'model/vnd.usdz+zip' });
+  } finally {
+    if (labels) labelTools?.disposeUsdLabels(labels);
+  }
 }
