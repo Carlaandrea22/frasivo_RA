@@ -1,7 +1,7 @@
 {
   "id": "/",
-  "name": "Frasivo Explore",
-  "short_name": "Explore",
+  "name": "LumAR",
+  "short_name": "LumAR",
   "description": "Explora la anatomía humana y aprende vocabulario técnico en inglés.",
   "lang": "es",
   "start_url": "/",

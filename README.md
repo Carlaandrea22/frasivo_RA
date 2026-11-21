@@ -1,8 +1,9 @@
-# Frasivo Explore · Anatomía humana
+# LumAR · Anatomía humana
 
-Atlas móvil de anatomía para aprender vocabulario técnico en inglés. La primera pantalla conserva la cámara corporal local con MediaPipe Pose Lite y superposición SVG de huesos, músculos y órganos. Las capas son ilustraciones aproximadas. La cámara se solicita al pulsar **Activar cámara** y las imágenes se procesan en el dispositivo.
+LumAR combina la exploración de anatomía con la práctica inicial de entrevistas y razonamiento clínico. La interfaz está en español y las estructuras incluyen su término en inglés y pronunciación con la voz del dispositivo.
 
-El estado y las etapas pendientes se registran en [el plan de renovación](docs/PLAN_RENOVACION.md). El [corazón en corte](assets/anatomy/cardiovascular/README.md) está preparado como recurso didáctico esquemático para el visor 3D.
+- **Cuerpo** muestra huesos, músculos y órganos sobre la cámara con MediaPipe Pose Lite. «Fijar esqueleto» conserva una pose para abrirla en el visor 3D o en AR Quick Look en iPhone compatible. El procesamiento ocurre en el dispositivo.
+- **Explorar 3D**, **Retos de anatomía**, **Casos clínicos** y **Mi progreso** tienen pantallas base. Incluyen ejemplos provisionales para que el equipo complete cada módulo en paralelo.
 
 ## Desarrollo
 
@@ -18,10 +19,12 @@ La cámara requiere HTTPS o localhost. Para probar desde un teléfono, sirve la 
 ## Producción y pruebas
 
 ```sh
-npm run build
 npm test
+npm run build
 npm run test:e2e
 npm run preview
 ```
 
-Las pruebas de navegador requieren Chrome. En producción, el service worker precarga Pose Lite, WASM con SIMD y fuentes. Los navegadores sin SIMD descargan su variante al activar la cámara con conexión y la guardan para usos posteriores. El catálogo ampliado, Congelar/Reanudar, el visor 3D y la AR nativa se incorporan en las siguientes etapas.
+Las pruebas de navegador requieren Chrome. En producción, el service worker de LumAR precarga recursos de la app, Pose Lite y WASM con SIMD. Los navegadores sin SIMD descargan su variante al activar la cámara con conexión y la guardan para usos posteriores.
+
+Consulta la [visión del equipo](docs/LUMAR.md), la [arquitectura](docs/ARQUITECTURA.md) y la [guía de contribución](CONTRIBUTING.md). El [plan de renovación](docs/PLAN_RENOVACION.md) conserva el historial de Cuerpo y «Fijar».

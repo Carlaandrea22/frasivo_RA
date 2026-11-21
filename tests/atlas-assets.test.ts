@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { anatomyParts, demoPose } from '../src/medicine/anatomy';
-import { atlasMatrices, atlasParts, atlasPlacement } from '../src/medicine/atlasAlignment';
+import { anatomyParts, demoPose } from '../src/features/cuerpo/anatomy';
+import { atlasMatrices, atlasParts, atlasPlacement } from '../src/features/cuerpo/atlasAlignment';
 import anchors from '../assets/anatomy/body/anchors.json';
 
 const assets = new URL('../assets/anatomy/body/', import.meta.url);

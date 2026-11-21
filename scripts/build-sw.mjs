@@ -18,7 +18,7 @@ const files = await walk('dist');
 const hash = createHash('sha256');
 hash.update(await readFile(new URL(import.meta.url)));
 for (const file of files.sort()) hash.update(await readFile(file));
-const cacheName = `frasivo-explore-${hash.digest('hex').slice(0, 12)}`;
+const cacheName = `lumar-${hash.digest('hex').slice(0, 12)}`;
 // MediaPipe selects this pair only when its SIMD capability check fails.
 const runtimeOnly = new Set([
   '/body-tracking/wasm/vision_wasm_nosimd_internal.js',
@@ -33,7 +33,7 @@ self.addEventListener('install', event => {
   event.waitUntil(caches.open(NAME).then(cache => cache.addAll(FILES)).then(() => self.skipWaiting()));
 });
 self.addEventListener('activate', event => {
-  event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => k.startsWith('frasivo-explore-') && k !== NAME).map(k => caches.delete(k)))).then(() => self.clients.claim()));
+  event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => (k.startsWith('lumar-') || k.startsWith('frasivo-explore-')) && k !== NAME).map(k => caches.delete(k)))).then(() => self.clients.claim()));
 });
 self.addEventListener('fetch', event => {
   const request = event.request;

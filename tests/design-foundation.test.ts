@@ -1,8 +1,8 @@
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
-import { Button } from '../src/ui/Button';
-import { torsoTransform, demoPose, segmentTransform } from '../src/medicine/anatomy';
+import { Button } from '../src/shared/ui/Button';
+import { torsoTransform, demoPose, segmentTransform } from '../src/features/cuerpo/anatomy';
 
 describe('Button', () => {
   it('conserva el elemento nativo y su estado deshabilitado', () => {

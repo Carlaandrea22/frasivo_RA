@@ -4,9 +4,9 @@ import {
   Raycaster, Scene, Vector2, WebGLRenderer,
 } from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import bones from '../../assets/anatomy/body/bones.glb?url';
-import muscles from '../../assets/anatomy/body/muscles.glb?url';
-import organs from '../../assets/anatomy/body/organs.glb?url';
+import bones from '../../../assets/anatomy/body/bones.glb?url';
+import muscles from '../../../assets/anatomy/body/muscles.glb?url';
+import organs from '../../../assets/anatomy/body/organs.glb?url';
 import type { AnatomyLayer } from './anatomy';
 import { atlasParts, type atlasMatrices } from './atlasAlignment';
 

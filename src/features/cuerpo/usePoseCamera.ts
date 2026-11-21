@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useBodyCamera } from './useBodyCamera';
 import { captureWindow, type PoseSample } from './poseCapture';
-import workerUrl from '../generated/pose.worker.js?url';
+import workerUrl from '../../generated/pose.worker.js?url';
 
 export function usePoseCamera(onDetection?: (time: number) => void) {
   const camera = useBodyCamera();

@@ -1,0 +1,26 @@
+.explorar-preview { grid-template-columns: 82px 1fr; align-items: center; }
+.explorar-preview .lumar-link { margin-top: 6px; }
+.explorar-thumb { width: 100%; height: 148px; padding: 12px; border-radius: var(--radius-soft); object-fit: contain; background: var(--camera-base); }
+.explorar-back { display: inline-flex; align-items: center; gap: var(--space-1); width: fit-content; font-weight: 700; }
+.explorar-label-toggle { display: flex; align-items: center; min-height: var(--target); gap: var(--space-1); font-weight: 700; }
+.explorar-label-toggle input { width: 18px; height: 18px; accent-color: var(--forest); }
+.explorar-label {
+  position: absolute;
+  max-width: 110px;
+  transform: translate(13px, -50%);
+  padding: 3px 6px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--white);
+  color: var(--ink);
+  font-size: .72rem;
+  line-height: 1.25;
+}
+.explorar-label::before {
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  width: 14px;
+  border-top: 1px solid var(--forest);
+  content: '';
+}

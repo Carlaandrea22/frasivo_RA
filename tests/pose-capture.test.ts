@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { demoPose } from '../src/medicine/anatomy';
-import { averagePose, type PoseSample } from '../src/medicine/poseCapture';
+import { demoPose } from '../src/features/cuerpo/anatomy';
+import { averagePose, type PoseSample } from '../src/features/cuerpo/poseCapture';
 
 const points = demoPose.map(point => ({ ...point, z: 0 }));
 points[2] = { x: .525, y: .105, z: 0, visibility: 1 };

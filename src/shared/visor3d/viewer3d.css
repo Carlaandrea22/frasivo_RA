@@ -1,0 +1,52 @@
+.viewer3d {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-panel);
+  background: var(--paper);
+}
+
+.viewer3d__stage {
+  position: relative;
+  display: grid;
+  height: var(--viewer3d-height, clamp(17rem, 55vw, 29rem));
+  overflow: hidden;
+  place-items: center;
+  border-radius: var(--radius-panel) var(--radius-panel) 0 0;
+  background: var(--mint);
+}
+
+.viewer3d__canvas,
+.viewer3d__overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.viewer3d__canvas:focus-visible { outline-offset: -4px; }
+.viewer3d__overlay { pointer-events: none; }
+
+.viewer3d__description {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.viewer3d__message {
+  position: relative;
+  padding: var(--space-3);
+  color: var(--muted);
+  text-align: center;
+}
+
+.viewer3d__controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3) calc(var(--space-2) + var(--press-depth));
+  border-top: 1px solid var(--line);
+}

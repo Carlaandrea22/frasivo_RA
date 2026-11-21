@@ -1,5 +1,5 @@
 import type { AnatomyLayer, BodyPoint, Matrix } from './anatomy';
-import anchors from '../../assets/anatomy/body/anchors.json';
+import anchors from '../../../assets/anatomy/body/anchors.json';
 
 type Vec2 = readonly [number, number];
 type SpriteBounds = [number, number, number, number];

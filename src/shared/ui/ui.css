@@ -1,0 +1,94 @@
+.lumar-page {
+  display: grid;
+  align-content: start;
+  gap: var(--space-3);
+  width: min(100%, 49rem);
+  margin-inline: auto;
+}
+
+.lumar-page h1 {
+  font-size: clamp(1.8rem, 6vw, 3rem);
+  letter-spacing: -.045em;
+}
+
+.lumar-page h2 { font-size: 1.2rem; }
+.lumar-page p { line-height: 1.5; }
+.lumar-page p + p { margin-top: var(--space-1); }
+.lumar-page .lumar-subtitle { margin-top: var(--space-1); color: var(--muted); }
+.lumar-page ul, .lumar-page ol { padding-inline-start: var(--space-4); }
+.lumar-page li + li { margin-top: var(--space-1); }
+
+.lumar-card {
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-soft);
+  background: var(--white);
+  box-shadow: var(--shadow-soft);
+}
+
+.lumar-card .lumar-link { justify-self: start; }
+.lumar-card .lumar-card-meta { color: var(--muted); font-size: .825rem; }
+.lumar-actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); }
+.lumar-link { text-decoration: none; }
+.lumar-link[aria-current="page"] {
+  --button-face: var(--forest);
+  --button-hover: var(--forest-hover);
+  --button-ink: var(--white);
+  --button-edge: var(--forest-edge);
+  --button-stroke: var(--forest);
+}
+.lumar-link:active { transform: translateY(var(--press-depth)); box-shadow: none; }
+@media (hover: hover) { .lumar-link:hover { background: var(--button-hover); } }
+
+.lumar-segmented { display: flex; flex-wrap: wrap; gap: var(--space-1); }
+.lumar-segmented > * { flex: 1; }
+
+.lumar-search {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-soft);
+  background: var(--white);
+}
+.lumar-search:focus-within { outline: var(--focus-ring); outline-offset: var(--focus-offset); }
+.lumar-search input {
+  width: 100%;
+  min-height: var(--target);
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+}
+
+.lumar-content-state {
+  padding: var(--space-3);
+  border-radius: var(--radius-soft);
+  background: var(--mint);
+  color: var(--ink);
+}
+.lumar-content-state[data-state="error"] { background: var(--wrong-face); }
+
+.lumar-sheet {
+  position: fixed;
+  inset: auto 0 0;
+  width: min(100%, 40rem);
+  max-width: none;
+  max-height: 78dvh;
+  margin: 0 auto;
+  padding: var(--space-3) max(var(--space-3), env(safe-area-inset-right)) calc(var(--space-4) + env(safe-area-inset-bottom)) max(var(--space-3), env(safe-area-inset-left));
+  border: 0;
+  border-radius: var(--radius-panel) var(--radius-panel) 0 0;
+  background: var(--paper);
+  color: var(--ink);
+}
+.lumar-sheet::backdrop { background: rgb(16 41 35 / .55); }
+.lumar-sheet header { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); margin-bottom: var(--space-3); }
+.lumar-english { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-2); color: var(--muted); }

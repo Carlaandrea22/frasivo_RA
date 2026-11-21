@@ -1,7 +1,7 @@
 import { Box3, Group, Matrix4, Mesh, MeshStandardMaterial, Scene, Vector3 } from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import anchors from '../../assets/anatomy/body/anchors.json';
-import bonesUrl from '../../assets/anatomy/body/bones.glb?url';
+import anchors from '../../../assets/anatomy/body/anchors.json';
+import bonesUrl from '../../../assets/anatomy/body/bones.glb?url';
 import type { BodyPoint } from './anatomy';
 import { atlasParts, landmark, limbJoints, sides, type Joint } from './atlasAlignment';
 

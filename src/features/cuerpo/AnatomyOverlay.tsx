@@ -1,9 +1,9 @@
 import { useLayoutEffect, useRef } from 'react';
 import type { AnatomyLayer, Matrix } from './anatomy';
 import { atlasParts, atlasSprite, referenceFrame, type atlasPlacement, type AtlasPart } from './atlasAlignment';
-import reference from '../../assets/anatomy/body/body-reference.webp?url';
+import reference from '../../../assets/anatomy/body/body-reference.webp?url';
 
-const sprites = import.meta.glob<string>('../../assets/anatomy/body/sprites/*.webp', {
+const sprites = import.meta.glob<string>('../../../assets/anatomy/body/sprites/*.webp', {
   query: '?url', import: 'default', eager: true,
 });
 const organOrder = ['kidneys', 'lungs', 'small_intestine', 'large_intestine', 'stomach', 'liver', 'heart', 'brain'];
@@ -109,7 +109,7 @@ export function AnatomyOverlay({ placement, live, layer, aspect, opacity, select
               key={part.id}
               data-part={part.id}
               className={part.term === selected ? 'selected' : undefined}
-              href={sprites[`../../assets/anatomy/body/sprites/${spriteId}.webp`]}
+              href={sprites[`../../../assets/anatomy/body/sprites/${spriteId}.webp`]}
               x={x} y={y} width={width} height={height}
               opacity={recedes ? .19 : 1}
               onClick={() => onSelect(part.term)}

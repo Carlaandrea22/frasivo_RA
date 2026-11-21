@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useState } from 'react';
 import { Box, ScanLine, X } from 'lucide-react';
 import type { Group } from 'three';
-import { Button } from '../ui/Button';
+import { Button } from '../../shared/ui/Button';
 import type { BodyPoint } from './anatomy';
 
 const SkeletonViewer = lazy(() => import('./SkeletonViewer'));

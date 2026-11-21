@@ -8,6 +8,7 @@ import '@fontsource/dm-sans/latin-700.css';
 import '@fontsource/manrope/latin-700.css';
 import '@fontsource/manrope/latin-800.css';
 import './styles.css';
+import './shared/ui/ui.css';
 ReactDOM.createRoot(document.getElementById('root')!).render(<React.StrictMode><App/></React.StrictMode>);
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {
   // The first claim prepares offline mode. Later claims replace the running build.
