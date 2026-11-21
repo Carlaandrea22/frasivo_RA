@@ -1,18 +1,17 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useObjectCamera } from '../objects/useObjectCamera';
+import { useBodyCamera } from './useBodyCamera';
 import { torsoTransform, type BodyPoint } from './anatomy';
 import workerUrl from '../generated/pose.worker.js?url';
 
-export function usePoseCamera(suspended: boolean) {
-  const camera = useObjectCamera();
+export function usePoseCamera() {
+  const camera = useBodyCamera();
   const { status, stop, videoRef } = camera;
   const [points, setPoints] = useState<BodyPoint[]>([]);
   const [tracking, setTracking] = useState<'loading' | 'searching' | 'tracking'>('loading');
   const [modelError, setModelError] = useState('');
   const [aspect, setAspect] = useState(4 / 5);
-  useEffect(() => { if (suspended) stop(); }, [suspended, stop]);
   useEffect(() => {
-    if (status !== 'active' || suspended) return;
+    if (status !== 'active') return;
     let disposed = false, ready = false, busy = false, lastVideoTime = -1, lastResult = 0;
     let worker: Worker | undefined;
     let previous: BodyPoint[] = [];
@@ -61,10 +60,11 @@ export function usePoseCamera(suspended: boolean) {
       } catch { fail('No se pudo analizar la cámara. Prueba un navegador actualizado o vuelve a intentarlo.'); }
     }, 100);
     return () => { disposed = true; clearInterval(timer); clearTimeout(startup); worker?.terminate(); };
-  }, [status, suspended, stop, videoRef]);
+  }, [status, stop, videoRef]);
+  const startCamera = camera.start;
   const start = useCallback(() => {
     setPoints([]); setTracking('loading'); setModelError('');
-    return camera.start();
-  }, [camera.start]);
+    return startCamera();
+  }, [startCamera]);
   return { ...camera, start, points: status === 'active' ? points : [], tracking, modelError, aspect };
 }

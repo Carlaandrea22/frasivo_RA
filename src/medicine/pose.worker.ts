@@ -5,9 +5,9 @@ scope.onmessage = async ({ data }) => {
   try {
     if (data.type === 'init') {
       if (typeof OffscreenCanvas === 'undefined') throw new Error('Este navegador necesita una versión compatible con OffscreenCanvas.');
-      const vision = await FilesetResolver.forVisionTasks(new URL('/vision', scope.location.origin).href);
+      const vision = await FilesetResolver.forVisionTasks(new URL('/body-tracking/wasm', scope.location.origin).href);
       detector = await PoseLandmarker.createFromOptions(vision, {
-        baseOptions: { modelAssetPath: new URL('/models/pose_landmarker_lite.task', scope.location.origin).href, delegate: 'CPU' },
+        baseOptions: { modelAssetPath: new URL('/body-tracking/pose_landmarker_lite.task', scope.location.origin).href, delegate: 'CPU' },
         canvas: new OffscreenCanvas(1, 1), runningMode: 'VIDEO', numPoses: 1,
         minPoseDetectionConfidence: .6, minPosePresenceConfidence: .6, minTrackingConfidence: .6,
         outputSegmentationMasks: false,

@@ -1,3 +1,8 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-export default defineConfig({ plugins: [react()], worker: { format: 'es' }, server: { proxy: { '/api': 'http://127.0.0.1:4173' } }, preview: { port: 4174, proxy: { '/api': 'http://127.0.0.1:4173' } } });
+
+export default defineConfig({
+  plugins: [react()],
+  build: { copyPublicDir: false },
+  preview: { port: 4174 },
+});

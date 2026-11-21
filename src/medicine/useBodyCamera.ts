@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-export function useObjectCamera() {
+export function useBodyCamera() {
   const videoRef = useRef<HTMLVideoElement>(null);
   const resources = useRef<{ stream?: MediaStream; timer?: number; generation: number }>({ generation: 0 });
   const [status, setStatus] = useState<'idle' | 'permission' | 'active' | 'error'>('idle');
@@ -37,7 +37,7 @@ export function useObjectCamera() {
       const name = cause instanceof Error ? cause.name : '';
       fail(name === 'NotAllowedError' || name === 'SecurityError'
         ? 'El permiso de cámara está bloqueado. Actívalo en los permisos del sitio o sigue sin cámara.'
-        : name === 'NotFoundError' ? 'No encontramos una cámara. Puedes seguir explorando los objetos en 3D.'
+        : name === 'NotFoundError' ? 'No encontramos una cámara. Puedes seguir explorando el atlas sin cámara.'
         : 'No pudimos abrir la cámara. Comprueba si otra aplicación la está usando o sigue sin cámara.');
     }
   }, [release, stop]);

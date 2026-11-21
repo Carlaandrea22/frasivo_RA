@@ -13,26 +13,13 @@
     "predev": "node scripts/build-worker.mjs",
     "prebuild": "node scripts/build-worker.mjs",
     "pretest": "node scripts/build-worker.mjs",
-    "test:e2e": "playwright test",
-    "start": "node server/index.mjs",
-    "test:server": "node --test tests/server/auth.test.mjs",
-    "test:api": "node --test tests/server/api.integration.mjs",
-    "docker:setup": "node scripts/setup-docker.mjs",
-    "docker:up": "node scripts/setup-docker.mjs && docker compose up --build -d",
-    "docker:stop": "docker compose stop",
-    "test:docker": "node scripts/test-docker.mjs"
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@fontsource/dm-sans": "^5.3.0",
     "@fontsource/manrope": "^5.3.0",
     "@mediapipe/tasks-vision": "0.10.32",
-    "connect-pg-simple": "^10.0.0",
-    "express": "^5.3.0",
-    "express-rate-limit": "^8.7.5",
-    "express-session": "^1.19.0",
-    "helmet": "^8.3.0",
     "lucide-react": "^0.577.0",
-    "pg": "^8.23.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "three": "^0.187.0"

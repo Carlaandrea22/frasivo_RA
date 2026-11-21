@@ -1,4 +1,4 @@
-import { readdir, readFile, writeFile } from 'node:fs/promises';
+import { cp, readdir, readFile, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 async function walk(dir) {
   const result = [];
@@ -8,6 +8,11 @@ async function walk(dir) {
     else if (entry.name !== 'sw.js') result.push(path);
   }
   return result;
+}
+// Vite does not copy public/ wholesale, so stale detector assets stay out.
+const publicFiles = ['manifest.webmanifest', 'icon.svg', 'icon-192.png', 'icon-512.png', 'icon-maskable.png', 'body-tracking'];
+for (const file of publicFiles) {
+  await cp(`public/${file}`, `dist/${file}`, { recursive: true });
 }
 const files = await walk('dist');
 const hash = createHash('sha256');
@@ -41,4 +46,4 @@ self.addEventListener('fetch', event => {
   }));
 });
 `);
-console.log(`PWA: ${urls.length} recursos preparados, incluyendo modelo y voces no incluidas (dependen del sistema). Caché: ${cacheName}`);
+console.log(`PWA: ${urls.length} recursos preparados, incluyendo Pose Lite y WASM. Caché: ${cacheName}`);

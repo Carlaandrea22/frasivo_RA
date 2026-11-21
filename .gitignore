@@ -1,6 +1,8 @@
 node_modules/
 dist/
 *.tsbuildinfo
+public/body-tracking/
+# Recursos generados en instalaciones del producto anterior
 public/vision/
 public/models/
 public/detector.worker.js

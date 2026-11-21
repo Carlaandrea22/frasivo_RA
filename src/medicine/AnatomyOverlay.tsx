@@ -1,13 +1,12 @@
 import { type ReactNode } from 'react';
-import { anatomyParts, segmentTransform, torsoTransform, type AnatomyLayer, type BodyPoint, type Matrix } from './anatomy';
+import { segmentTransform, torsoTransform, type AnatomyLayer, type BodyPoint, type Matrix } from './anatomy';
 
-export function AnatomyOverlay({ points, layer, opacity, selected, onSelect }: { points: BodyPoint[]; layer: AnatomyLayer; opacity: number; selected: string; onSelect: (id: string) => void }) {
+export function AnatomyOverlay({ points, layer, opacity, selected }: { points: BodyPoint[]; layer: AnatomyLayer; opacity: number; selected: string }) {
   const trunk = torsoTransform(points);
   const shapes: ReactNode[] = [];
   const part = (id: string, transform: Matrix | null, children: ReactNode, key = id) => {
     if (!transform) return;
-    const info = anatomyParts.find(p => p.id === id)!;
-    shapes.push(<g key={key} transform={`matrix(${transform.join(' ')})`} data-part={id} className={`anatomy-part ${id === selected ? 'selected' : ''}`} role="button" tabIndex={0} aria-label={`${info.en} · ${info.es}`} onClick={() => onSelect(id)} onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onSelect(id); } }}><title>{info.es} / {info.en}</title>{children}</g>);
+    shapes.push(<g key={key} transform={`matrix(${transform.join(' ')})`} data-part={id} className={`anatomy-part${id === selected ? ' selected' : ''}`}>{children}</g>);
   };
   if (layer === 'organs') {
     part('lungs', trunk, <g fill="#e995a9"><path d="M43 7 Q23 4 17 27 Q9 53 17 58 Q34 64 44 49Z"/><path d="M57 7 Q77 4 83 27 Q91 53 83 58 Q66 64 56 49Z"/><path d="M50 -3V20 M50 16L34 29 M50 16L66 29" fill="none" stroke="#f8d6d8" strokeWidth="4"/></g>);
@@ -38,5 +37,5 @@ export function AnatomyOverlay({ points, layer, opacity, selected, onSelect }: {
       part('tibia', segmentTransform(points, knee, ankle), bone, `tibia-${side}`);
     }
   }
-  return <svg className={`anatomy-overlay layer-${layer}`} viewBox="0 0 1000 1000" preserveAspectRatio="none" opacity={opacity} aria-label={`Ilustraciones de ${layer === 'bones' ? 'huesos' : layer === 'organs' ? 'órganos' : 'músculos'}`}>{shapes}</svg>;
+  return <svg className={`anatomy-overlay layer-${layer}`} viewBox="0 0 1000 1000" preserveAspectRatio="none" opacity={opacity} aria-hidden="true">{shapes}</svg>;
 }
