@@ -1,5 +1,16 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
-import { AlertCircle, ArrowLeft, Check, Lightbulb, RotateCcw, UserRound } from 'lucide-react';
+import {
+  AlertCircle,
+  ArrowLeft,
+  Check,
+  ChevronDown,
+  ChevronUp,
+  GripVertical,
+  Lightbulb,
+  LockKeyhole,
+  RotateCcw,
+  UserRound,
+} from 'lucide-react';
 import { clinicalCases } from '../../content/casos/session';
 import type {
   ClinicalCase,
@@ -11,9 +22,11 @@ import { recordPractice } from '../../shared/progreso';
 import { Button } from '../../shared/ui/Button';
 import { Card } from '../../shared/ui/Card';
 import {
+  applyOrderingHint,
   buildCaseSession,
   createInterviewExchange,
   getInterviewChoices,
+  moveItem,
   performanceLevel,
   scoreMultipleChoice,
   scoreOrderedActions,
@@ -162,12 +175,69 @@ function InterviewCaseView({ item, onComplete }: CaseViewProps<InterviewCase>) {
 
 function OrderingCaseView({ item, onComplete }: CaseViewProps<OrderingCase>) {
   const actionMap = useMemo(() => new Map(item.actions.map(action => [action.id, action])), [item]);
-  const availableIds = useMemo(() => buildCaseSession(item.actions.map(action => action.id)), [item]);
-  const [selected, setSelected] = useState<string[]>([]);
+  const expectedIds = useMemo(() => item.actions.map(action => action.id), [item]);
+  const initialOrder = useMemo(() => {
+    const ids = [...expectedIds];
+    for (let index = ids.length - 1; index > 0; index -= 1) {
+      const swap = Math.floor(Math.random() * (index + 1));
+      [ids[index], ids[swap]] = [ids[swap], ids[index]];
+    }
+    return ids;
+  }, [expectedIds]);
+  const [order, setOrder] = useState<string[]>(initialOrder);
+  const [lockedIds, setLockedIds] = useState<string[]>([]);
+  const [draggedId, setDraggedId] = useState<string>();
   const [score, setScore] = useState<ReturnType<typeof scoreOrderedActions> | null>(null);
+  const hintLimit = Math.min(3, item.actions.length - 1);
 
-  if (score) return <ResultCard title={`${score.correct} de ${item.actions.length} acciones en su posición`}>
+  const reorder = (fromIndex: number, toIndex: number) => {
+    const locked = new Set(lockedIds);
+    if (fromIndex === toIndex || locked.has(order[fromIndex]) || locked.has(order[toIndex])) return;
+    setOrder(current => {
+      const movableIndexes = current.map((_, index) => index).filter(index => !locked.has(current[index]));
+      const fromMovable = movableIndexes.indexOf(fromIndex);
+      const toMovable = movableIndexes.indexOf(toIndex);
+      if (fromMovable < 0 || toMovable < 0) return current;
+      const moved = moveItem(movableIndexes.map(index => current[index]), fromMovable, toMovable);
+      let cursor = 0;
+      return current.map(id => locked.has(id) ? id : moved[cursor++]);
+    });
+  };
+
+  const moveBy = (id: string, direction: -1 | 1) => {
+    const unlocked = order.filter(actionId => !lockedIds.includes(actionId));
+    const movableIndex = unlocked.indexOf(id);
+    const targetId = unlocked[movableIndex + direction];
+    if (!targetId) return;
+    reorder(order.indexOf(id), order.indexOf(targetId));
+  };
+
+  const useHint = () => {
+    const result = applyOrderingHint(order, expectedIds, lockedIds);
+    setOrder(result.order);
+    setLockedIds(result.lockedIds);
+  };
+
+  const reset = () => {
+    const locked = new Set(lockedIds);
+    const remaining = initialOrder.filter(id => !locked.has(id));
+    let cursor = 0;
+    setOrder(expectedIds.map(id => locked.has(id) ? id : remaining[cursor++]));
+  };
+
+  const pointerMove = (event: React.PointerEvent<HTMLButtonElement>) => {
+    if (!draggedId) return;
+    const target = document.elementFromPoint(event.clientX, event.clientY)?.closest<HTMLElement>('[data-order-id]');
+    const targetId = target?.dataset.orderId;
+    if (!targetId || targetId === draggedId) return;
+    reorder(order.indexOf(draggedId), order.indexOf(targetId));
+  };
+
+  if (score) return <ResultCard title={`${score.correct} de ${item.actions.length} posiciones resueltas sin ayuda`} level={performanceLevel(score)}>
     <p lang="en">{item.explanationEn}</p>
+    <p className="clinical-result-meta">
+      {score.assisted} {score.assisted === 1 ? 'posición colocada con pista' : 'posiciones colocadas con pistas'} · {score.errors} para revisar
+    </p>
     <NextCaseButton score={score} onComplete={onComplete}/>
   </ResultCard>;
 
@@ -176,17 +246,42 @@ function OrderingCaseView({ item, onComplete }: CaseViewProps<OrderingCase>) {
       <p lang="en">{item.scenarioEn}</p>
     </Card>
     <section className="clinical-order" aria-labelledby="selected-actions">
-      <h3 id="selected-actions">Tu orden</h3>
-      {selected.length ? <ol>{selected.map(id => <li key={id}>{actionMap.get(id)?.textEn}</li>)}</ol>
-        : <p className="clinical-empty">Toca las acciones de abajo para construir la secuencia.</p>}
-      <div className="clinical-answer-list">
-        {availableIds.filter(id => !selected.includes(id)).map(id => <Button key={id} variant="answer" lang="en"
-          onClick={() => setSelected(previous => [...previous, id])}>{actionMap.get(id)?.textEn}</Button>)}
+      <div className="clinical-order-heading">
+        <div><h3 id="selected-actions">Tu orden</h3><p>Arrastra las tarjetas o usa las flechas.</p></div>
+        <span>{lockedIds.length} de {hintLimit} pistas</span>
+      </div>
+      <div className="clinical-order-list" role="list">
+        {order.map((id, index) => {
+          const locked = lockedIds.includes(id);
+          const unlocked = order.filter(actionId => !lockedIds.includes(actionId));
+          const movableIndex = unlocked.indexOf(id);
+          return <article key={id} role="listitem" className="clinical-order-card" data-order-id={id} data-locked={locked || undefined}>
+            <button type="button" className="clinical-drag-handle" aria-label="Arrastrar acción" disabled={locked}
+              onPointerDown={event => {
+                setDraggedId(id);
+                event.currentTarget.setPointerCapture(event.pointerId);
+              }}
+              onPointerMove={pointerMove}
+              onPointerUp={event => {
+                if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+                setDraggedId(undefined);
+              }}>
+              {locked ? <LockKeyhole size={19}/> : <GripVertical size={19}/>}
+            </button>
+            <span className="clinical-order-number">{index + 1}</span>
+            <p lang="en">{actionMap.get(id)?.textEn}</p>
+            {locked && <span className="clinical-assisted-label">Colocada con pista</span>}
+            <div className="clinical-order-moves">
+              <button type="button" aria-label="Mover arriba" disabled={locked || movableIndex <= 0} onClick={() => moveBy(id, -1)}><ChevronUp size={18}/></button>
+              <button type="button" aria-label="Mover abajo" disabled={locked || movableIndex < 0 || movableIndex >= unlocked.length - 1} onClick={() => moveBy(id, 1)}><ChevronDown size={18}/></button>
+            </div>
+          </article>;
+        })}
       </div>
       <div className="lumar-actions">
-        <Button variant="secondary" disabled={!selected.length} onClick={() => setSelected([])}><RotateCcw size={17}/> Reiniciar</Button>
-        <Button disabled={selected.length !== item.actions.length}
-          onClick={() => setScore(scoreOrderedActions(selected, item.actions.map(action => action.id)))}>Comprobar orden</Button>
+        <Button variant="secondary" onClick={reset}><RotateCcw size={17}/> Reiniciar</Button>
+        <Button variant="secondary" disabled={lockedIds.length >= hintLimit} onClick={useHint}><Lightbulb size={17}/> Pista de orden</Button>
+        <Button onClick={() => setScore(scoreOrderedActions(order, expectedIds, lockedIds))}>Comprobar orden</Button>
       </div>
     </section>
   </div>;

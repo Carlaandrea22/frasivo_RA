@@ -93,8 +93,8 @@ export function validateInterviewGraph(item: InterviewCase) {
 
 export type PerformanceLevel = 'strong' | 'partial' | 'review';
 
-export function performanceLevel(score: { correct: number; errors: number }): PerformanceLevel {
-  const total = score.correct + score.errors;
+export function performanceLevel(score: { correct: number; errors: number; assisted?: number }): PerformanceLevel {
+  const total = score.correct + score.errors + (score.assisted ?? 0);
   if (!total) return 'review';
   const ratio = score.correct / total;
   if (ratio >= .8) return 'strong';
@@ -102,14 +102,58 @@ export function performanceLevel(score: { correct: number; errors: number }): Pe
   return 'review';
 }
 
-export function scoreOrderedActions(selected: readonly string[], expected: readonly string[]) {
+export function moveItem(items: readonly string[], fromIndex: number, toIndex: number): string[] {
+  if (fromIndex < 0 || fromIndex >= items.length || toIndex < 0 || toIndex >= items.length) return [...items];
+  const result = [...items];
+  const [moved] = result.splice(fromIndex, 1);
+  result.splice(toIndex, 0, moved);
+  return result;
+}
+
+export interface OrderingHintResult {
+  order: string[];
+  lockedIds: string[];
+  hintedId?: string;
+}
+
+export function applyOrderingHint(
+  order: readonly string[],
+  expected: readonly string[],
+  lockedIds: readonly string[],
+): OrderingHintResult {
+  const limit = Math.min(3, Math.max(0, expected.length - 1));
+  if (lockedIds.length >= limit) return { order: [...order], lockedIds: [...lockedIds] };
+  const locked = new Set(lockedIds);
+  const targetIndex = expected.findIndex((id, index) => !locked.has(id) && order[index] !== id);
+  if (targetIndex < 0) return { order: [...order], lockedIds: [...lockedIds] };
+  const hintedId = expected[targetIndex];
+  const fromIndex = order.indexOf(hintedId);
+  if (fromIndex < 0) return { order: [...order], lockedIds: [...lockedIds] };
+  return {
+    order: moveItem(order, fromIndex, targetIndex),
+    lockedIds: [...lockedIds, hintedId],
+    hintedId,
+  };
+}
+
+export function scoreOrderedActions(
+  selected: readonly string[],
+  expected: readonly string[],
+  lockedIds: readonly string[] = [],
+) {
   let correct = 0;
+  let assisted = 0;
+  const locked = new Set(lockedIds);
   for (let index = 0; index < selected.length; index += 1) {
-    if (selected[index] === expected[index]) correct += 1;
+    if (selected[index] !== expected[index]) continue;
+    if (locked.has(selected[index])) assisted += 1;
+    else correct += 1;
   }
   return {
     correct,
-    errors: selected.length - correct,
+    errors: selected.length - correct - assisted,
+    assisted,
+    hints: lockedIds.length,
     complete: selected.length === expected.length,
   };
 }

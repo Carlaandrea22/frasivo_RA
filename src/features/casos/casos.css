@@ -88,7 +88,45 @@
 .clinical-question-card > p { font-size: 1.05rem; line-height: 1.55; }
 .clinical-order { padding: var(--space-4); border: 1px solid var(--line); border-radius: var(--radius-panel); background: var(--white); }
 .clinical-order h3 { margin: 0; }
-.clinical-order ol { display: grid; gap: var(--space-2); margin: 0; padding-left: 1.5rem; }
+.clinical-order-heading { display: flex; align-items: start; justify-content: space-between; gap: var(--space-2); }
+.clinical-order-heading p, .clinical-order-heading > span { margin: 4px 0 0; color: var(--muted); font-size: .82rem; }
+.clinical-order-list { display: grid; gap: 10px; }
+.clinical-order-card {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 68px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--white);
+  box-shadow: 0 4px 14px rgb(28 60 48 / 6%);
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+.clinical-order-card:has(.clinical-drag-handle:active) { border-color: var(--forest); box-shadow: 0 10px 24px rgb(28 60 48 / 16%); transform: scale(1.01); }
+.clinical-order-card[data-locked="true"] { border-color: #c79b24; background: #fffaf0; }
+.clinical-order-card p { margin: 0; line-height: 1.4; }
+.clinical-drag-handle, .clinical-order-moves button {
+  display: grid;
+  min-width: 34px;
+  min-height: 34px;
+  padding: 0;
+  place-items: center;
+  border: 0;
+  border-radius: 9px;
+  background: var(--surface);
+  color: var(--muted);
+  cursor: grab;
+  touch-action: none;
+}
+.clinical-drag-handle:active { cursor: grabbing; }
+.clinical-drag-handle:disabled { cursor: default; color: #8a5b00; background: #fff0bd; }
+.clinical-order-number { display: grid; width: 28px; height: 28px; place-items: center; border-radius: 50%; background: var(--mint); color: var(--forest); font-weight: 800; }
+.clinical-order-moves { display: grid; gap: 4px; }
+.clinical-order-moves button { min-width: 30px; min-height: 27px; cursor: pointer; }
+.clinical-order-moves button:disabled { opacity: .35; cursor: default; }
+.clinical-assisted-label { grid-column: 3 / 4; color: #8a5b00; font-size: .72rem; font-weight: 800; }
 .clinical-result { justify-items: start; }
 .clinical-result p { line-height: 1.5; }
 .clinical-result[data-level="strong"] { border-color: color-mix(in srgb, var(--forest) 35%, var(--line)); }
@@ -106,9 +144,12 @@
   .clinical-preview { grid-template-columns: 1fr; }
   .clinical-session-topbar .button { min-height: 40px; }
   .clinical-order { padding: var(--space-3); }
+  .clinical-order .lumar-actions { align-items: stretch; flex-direction: column; }
+  .clinical-order .lumar-actions .button { width: 100%; }
   .clinical-hint-row { align-items: flex-start; flex-direction: column; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .clinical-typing-dots i { animation: none; opacity: .7; }
+  .clinical-order-card { transition: none; }
 }

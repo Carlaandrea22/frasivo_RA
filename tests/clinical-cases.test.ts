@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import {
+  applyOrderingHint,
   buildCaseSession,
   createInterviewExchange,
   getInterviewChoices,
+  moveItem,
   performanceLevel,
   scoreMultipleChoice,
   scoreOrderedActions,
@@ -104,8 +106,51 @@ describe('sesión de casos clínicos', () => {
   it('califica el orden completo sin aceptar una permutación parcial', () => {
     const correct = ['airway', 'breathing', 'circulation', 'disability', 'exposure'];
 
-    expect(scoreOrderedActions(correct, correct)).toEqual({ correct: 5, errors: 0, complete: true });
-    expect(scoreOrderedActions(['airway', 'circulation'], correct)).toEqual({ correct: 1, errors: 1, complete: false });
+    expect(scoreOrderedActions(correct, correct)).toEqual({ correct: 5, errors: 0, assisted: 0, hints: 0, complete: true });
+    expect(scoreOrderedActions(['airway', 'circulation'], correct)).toEqual({ correct: 1, errors: 1, assisted: 0, hints: 0, complete: false });
+  });
+
+  it('mueve una tarjeta sin modificar ni duplicar la lista original', () => {
+    const original = ['b', 'c', 'a', 'd'];
+
+    expect(moveItem(original, 2, 0)).toEqual(['a', 'b', 'c', 'd']);
+    expect(original).toEqual(['b', 'c', 'a', 'd']);
+    expect(moveItem(original, -1, 2)).toEqual(original);
+  });
+
+  it('coloca una pista en su posición correcta y conserva cada acción una vez', () => {
+    const expected = ['a', 'b', 'c', 'd', 'e'];
+    const result = applyOrderingHint(['c', 'b', 'e', 'a', 'd'], expected, []);
+
+    expect(result.order[0]).toBe('a');
+    expect(result.lockedIds).toEqual(['a']);
+    expect(result.hintedId).toBe('a');
+    expect(new Set(result.order)).toEqual(new Set(expected));
+    expect(result.order).toHaveLength(expected.length);
+  });
+
+  it('limita las pistas de orden a tres y deja una acción en casos de dos pasos', () => {
+    const expected = ['a', 'b', 'c', 'd', 'e'];
+    let order = ['e', 'd', 'c', 'b', 'a'];
+    let locked: string[] = [];
+    for (let index = 0; index < 4; index += 1) {
+      const result = applyOrderingHint(order, expected, locked);
+      order = result.order;
+      locked = result.lockedIds;
+    }
+    expect(locked).toHaveLength(3);
+
+    const short = applyOrderingHint(['b', 'a'], ['a', 'b'], []);
+    const shortAgain = applyOrderingHint(short.order, ['a', 'b'], short.lockedIds);
+    expect(short.lockedIds).toHaveLength(1);
+    expect(shortAgain.lockedIds).toEqual(short.lockedIds);
+  });
+
+  it('separa las posiciones resueltas de las colocadas mediante pistas', () => {
+    const result = scoreOrderedActions(['a', 'b', 'c', 'd'], ['a', 'b', 'c', 'd'], ['a', 'b']);
+
+    expect(result).toEqual({ correct: 2, assisted: 2, errors: 0, hints: 2, complete: true });
+    expect(performanceLevel(result)).toBe('partial');
   });
 
   it('califica una selección usando el identificador correcto', () => {

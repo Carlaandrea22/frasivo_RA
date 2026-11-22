@@ -82,25 +82,11 @@ test('recorre las cinco modalidades de una sesión y conserva cada resultado', a
   await page.getByRole('button', { name: 'Siguiente caso' }).click();
 
   await expect(page.getByText('Caso 3 de 5')).toBeVisible();
-  for (const action of [
-    'Assess and manage the airway.',
-    'Assess breathing and ventilation.',
-    'Assess circulation and control major bleeding.',
-    'Assess neurological disability.',
-    'Expose as needed and prevent hypothermia.',
-  ]) await page.getByRole('button', { name: action }).click();
   await page.getByRole('button', { name: 'Comprobar orden' }).click();
-  await expect(page.getByText('5 de 5 acciones en su posición')).toBeVisible();
+  await expect(page.getByText('5 de 5 posiciones resueltas sin ayuda')).toBeVisible();
   await page.getByRole('button', { name: 'Siguiente caso' }).click();
 
   await expect(page.getByText('Caso 4 de 5')).toBeVisible();
-  for (const action of [
-    'Stay calm and remain with the person.',
-    'Remove nearby objects that could cause injury.',
-    'Cushion the head and loosen tight clothing around the neck.',
-    'Turn the person gently onto one side.',
-    'Time the seizure and seek emergency help when indicated.',
-  ]) await page.getByRole('button', { name: action }).click();
   await page.getByRole('button', { name: 'Comprobar orden' }).click();
   await page.getByRole('button', { name: 'Siguiente caso' }).click();
 
@@ -114,4 +100,57 @@ test('recorre las cinco modalidades de una sesión y conserva cada resultado', a
   const practiceCount = await page.evaluate(() => Object.keys(localStorage)
     .filter(key => key.startsWith('lumar.progress:v1:event:')).length);
   expect(practiceCount).toBe(5);
+});
+
+test('reordena tarjetas, fija una posición con pista y refleja la ayuda en el resultado', async ({ page }) => {
+  const consoleErrors: string[] = [];
+  page.on('console', message => {
+    if (message.type() === 'error') consoleErrors.push(message.text());
+  });
+  await page.addInitScript(() => { Math.random = () => 0.99; });
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto('/#practicar/casos');
+  await page.getByRole('button', { name: 'Empezar sesión de 5 casos' }).click();
+
+  await page.getByRole('button', { name: 'When did the pain begin?' }).click();
+  await page.getByRole('button', { name: 'Did you fall or twist your knee before it started?' }).click();
+  await page.getByRole('button', { name: 'Does your knee ever lock or get stuck?' }).click();
+  await page.getByRole('button', { name: 'Comenzar preguntas de comprensión' }).click();
+  await page.getByRole('button', { name: 'About three weeks ago' }).click();
+  await page.getByRole('button', { name: 'There was no fall or sudden twist' }).click();
+  await page.getByRole('button', { name: 'He could bend and straighten it' }).click();
+  await page.getByRole('button', { name: 'Siguiente caso' }).click();
+
+  await page.getByRole('button', { name: 'When did the discomfort begin?' }).click();
+  await page.getByRole('button', { name: 'What new exercise did you start?' }).click();
+  await page.getByRole('button', { name: 'How strong is it from zero to ten?' }).click();
+  await page.getByRole('button', { name: 'Comenzar preguntas de comprensión' }).click();
+  await page.getByRole('button', { name: 'Two days after changing the gym routine' }).click();
+  await page.getByRole('button', { name: 'Heavier overhead presses' }).click();
+  await page.getByRole('button', { name: 'Seven out of ten' }).click();
+  await page.getByRole('button', { name: 'Siguiente caso' }).click();
+
+  const cards = page.locator('.clinical-order-card');
+  await expect(cards).toHaveCount(5);
+  await expect(cards.first().getByLabel('Arrastrar acción')).toBeVisible();
+  const dragHandle = cards.first().getByLabel('Arrastrar acción');
+  const source = await dragHandle.boundingBox();
+  const target = await cards.nth(1).boundingBox();
+  if (!source || !target) throw new Error('Ordering cards must have measurable positions');
+  await page.mouse.move(source.x + source.width / 2, source.y + source.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(target.x + target.width / 2, target.y + target.height / 2, { steps: 4 });
+  await page.mouse.up();
+  await expect(cards.first()).toContainText('Assess breathing and ventilation.');
+
+  await page.getByRole('button', { name: 'Pista de orden' }).click();
+  await expect(cards.first()).toContainText('Assess and manage the airway.');
+  await expect(cards.first()).toHaveAttribute('data-locked', 'true');
+  await expect(cards.first()).toContainText('Colocada con pista');
+
+  await cards.nth(1).getByRole('button', { name: 'Mover abajo' }).click();
+  await page.getByRole('button', { name: 'Comprobar orden' }).click();
+  await expect(page.getByText('1 posición colocada con pista')).toBeVisible();
+  await expect(page.locator('.clinical-result[data-level="review"]')).toBeVisible();
+  expect(consoleErrors).toEqual([]);
 });
