@@ -64,3 +64,16 @@ Para resumir el archivo, ejecuta `node tests/cuerpo-diagnostico-analizar.mjs /ru
 - Las pruebas de cámara común piden Lite/CPU al worker y desactivan su promoción automática mediante el protocolo de inicio. Esperan atributos de motor, región, proyección o resultado emitido. Una prueba separada carga los modelos reales, calienta Full, comprueba el cambio y confirma el retorno a Lite. Los casos sin conexión esperan la presencia del modelo en la caché y la captura lista.
 
 La repetición local de la base también reprodujo una caída a «Buscando…» mientras se medía la proyección muscular. La prueba intentó acceder a la matriz de un segmento ausente. La comprobación ahora espera a que estén disponibles los segmentos y sus puntos de referencia y conserva el margen geométrico de 15 px.
+
+La comprobación de flecha de mano usa el ancla SVG como señal. Una línea horizontal tiene altura de caja cero aunque se dibuje. El visor fijado conserva el clic real porque la selección depende de los eventos de puntero.
+
+| Comparación local | Aprobadas | Fallos |
+| --- | ---: | ---: |
+| Base `84616c9` | 319/320 | 1 |
+| Tras integrar `origin/Luis` | 350/350 | 0 |
+
+Ambas rondas usaron Chrome en macOS con ANGLE SwiftShader, `CI=1`, un worker y diez repeticiones. La segunda añade dos pruebas de exportación del diagnóstico y una del cambio de motor. Tras el merge también pasaron el build, 202 pruebas unitarias y 124 de la suite completa de Playwright.
+
+```sh
+CI=1 E2E_PORT=4177 npx playwright test 'cuerpo-.*\.spec\.ts' camera-polish.spec.ts pose-full-offline.spec.ts regional-models-offline.spec.ts --workers=1 --repeat-each=10
+```
