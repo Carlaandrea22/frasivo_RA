@@ -1,0 +1,6 @@
+.anatomy-regional-bones {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.anatomy-regional-bones canvas { display: block; width: 100%; height: 100%; }

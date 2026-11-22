@@ -1,0 +1,560 @@
+{
+  "units": "m",
+  "axes": "+Y superior, +Z anterior, +X toward the subject's left",
+  "attribution": "BodyParts3D, \u00a9 The Database Center for Life Science licensed under CC Attribution 4.0 International",
+  "hand": {
+    "palm": {
+      "wrist": [
+        -0.275827,
+        0.812554,
+        0.117633
+      ],
+      "index": [
+        -0.288371,
+        0.726275,
+        0.138971
+      ],
+      "pinky": [
+        -0.229744,
+        0.739371,
+        0.143583
+      ]
+    },
+    "bones": {
+      "metacarpal_thumb": {
+        "indices": [
+          1,
+          2
+        ],
+        "start": [
+          -0.276568,
+          0.7981,
+          0.131224
+        ],
+        "end": [
+          -0.303619,
+          0.771927,
+          0.148328
+        ]
+      },
+      "phalanx_thumb_proximal": {
+        "indices": [
+          2,
+          3
+        ],
+        "start": [
+          -0.30452,
+          0.769346,
+          0.149196
+        ],
+        "end": [
+          -0.315295,
+          0.745458,
+          0.159702
+        ]
+      },
+      "phalanx_thumb_distal": {
+        "indices": [
+          3,
+          4
+        ],
+        "start": [
+          -0.313821,
+          0.745827,
+          0.16281
+        ],
+        "end": [
+          -0.322444,
+          0.726892,
+          0.171281
+        ]
+      },
+      "metacarpal_index": {
+        "indices": [
+          0,
+          5
+        ],
+        "start": [
+          -0.268913,
+          0.789083,
+          0.124589
+        ],
+        "end": [
+          -0.284546,
+          0.729876,
+          0.137796
+        ]
+      },
+      "phalanx_index_proximal": {
+        "indices": [
+          5,
+          6
+        ],
+        "start": [
+          -0.288371,
+          0.726275,
+          0.138971
+        ],
+        "end": [
+          -0.298645,
+          0.694868,
+          0.154426
+        ]
+      },
+      "phalanx_index_middle": {
+        "indices": [
+          6,
+          7
+        ],
+        "start": [
+          -0.299656,
+          0.69357,
+          0.15448
+        ],
+        "end": [
+          -0.305564,
+          0.679532,
+          0.170968
+        ]
+      },
+      "phalanx_index_distal": {
+        "indices": [
+          7,
+          8
+        ],
+        "start": [
+          -0.305623,
+          0.679436,
+          0.171787
+        ],
+        "end": [
+          -0.308065,
+          0.669536,
+          0.185768
+        ]
+      },
+      "metacarpal_middle": {
+        "indices": [
+          0,
+          9
+        ],
+        "start": [
+          -0.258486,
+          0.788203,
+          0.11908
+        ],
+        "end": [
+          -0.265328,
+          0.731297,
+          0.13652
+        ]
+      },
+      "phalanx_middle_proximal": {
+        "indices": [
+          9,
+          10
+        ],
+        "start": [
+          -0.266187,
+          0.7273,
+          0.140061
+        ],
+        "end": [
+          -0.272616,
+          0.693501,
+          0.161407
+        ]
+      },
+      "phalanx_middle_middle": {
+        "indices": [
+          10,
+          11
+        ],
+        "start": [
+          -0.272501,
+          0.691155,
+          0.162035
+        ],
+        "end": [
+          -0.275504,
+          0.67073,
+          0.179381
+        ]
+      },
+      "phalanx_middle_distal": {
+        "indices": [
+          11,
+          12
+        ],
+        "start": [
+          -0.276056,
+          0.669693,
+          0.180267
+        ],
+        "end": [
+          -0.277474,
+          0.660965,
+          0.194414
+        ]
+      },
+      "metacarpal_ring": {
+        "indices": [
+          0,
+          13
+        ],
+        "start": [
+          -0.249225,
+          0.787501,
+          0.121238
+        ],
+        "end": [
+          -0.247028,
+          0.734811,
+          0.134686
+        ]
+      },
+      "phalanx_ring_proximal": {
+        "indices": [
+          13,
+          14
+        ],
+        "start": [
+          -0.247634,
+          0.732303,
+          0.141237
+        ],
+        "end": [
+          -0.248761,
+          0.699067,
+          0.159308
+        ]
+      },
+      "phalanx_ring_middle": {
+        "indices": [
+          14,
+          15
+        ],
+        "start": [
+          -0.24726,
+          0.697235,
+          0.161164
+        ],
+        "end": [
+          -0.250057,
+          0.677958,
+          0.179185
+        ]
+      },
+      "phalanx_ring_distal": {
+        "indices": [
+          15,
+          16
+        ],
+        "start": [
+          -0.249019,
+          0.677808,
+          0.180223
+        ],
+        "end": [
+          -0.250555,
+          0.671949,
+          0.193275
+        ]
+      },
+      "metacarpal_little": {
+        "indices": [
+          0,
+          17
+        ],
+        "start": [
+          -0.239956,
+          0.790182,
+          0.125548
+        ],
+        "end": [
+          -0.231018,
+          0.74204,
+          0.139855
+        ]
+      },
+      "phalanx_little_proximal": {
+        "indices": [
+          17,
+          18
+        ],
+        "start": [
+          -0.229744,
+          0.739371,
+          0.143583
+        ],
+        "end": [
+          -0.226283,
+          0.711551,
+          0.157074
+        ]
+      },
+      "phalanx_little_middle": {
+        "indices": [
+          18,
+          19
+        ],
+        "start": [
+          -0.2256,
+          0.710435,
+          0.158002
+        ],
+        "end": [
+          -0.221451,
+          0.695307,
+          0.170268
+        ]
+      },
+      "phalanx_little_distal": {
+        "indices": [
+          19,
+          20
+        ],
+        "start": [
+          -0.224007,
+          0.693637,
+          0.17042
+        ],
+        "end": [
+          -0.221623,
+          0.683931,
+          0.180667
+        ]
+      }
+    }
+  },
+  "head": {
+    "eyeLeft": [
+      0.034,
+      1.551095,
+      0.165
+    ],
+    "eyeRight": [
+      -0.034,
+      1.551095,
+      0.165
+    ],
+    "nose": [
+      0.0,
+      1.533095,
+      0.196
+    ],
+    "chin": [
+      -0.000272,
+      1.430735,
+      0.159859
+    ],
+    "jawPivot": [
+      0.0,
+      1.506395,
+      0.097187
+    ],
+    "neckJoint": [
+      -0.000456,
+      1.482325,
+      0.071113
+    ]
+  },
+  "foot": {
+    "ankle": [
+      -0.052537,
+      0.003302,
+      0.082033
+    ],
+    "heel": [
+      -0.075792,
+      -0.030888,
+      0.06653
+    ],
+    "toe": [
+      -0.126661,
+      -0.060581,
+      0.225664
+    ]
+  },
+  "sources": {
+    "carpals": [
+      "FJ3361",
+      "FJ3367",
+      "FJ3374",
+      "FJ3382",
+      "FJ3383",
+      "FJ3388",
+      "FJ3389",
+      "FJ3390"
+    ],
+    "metacarpal_thumb": [
+      "FJ3350"
+    ],
+    "phalanx_thumb_proximal": [
+      "FJ3327"
+    ],
+    "phalanx_thumb_distal": [
+      "FJ3198"
+    ],
+    "metacarpal_index": [
+      "FJ3352"
+    ],
+    "phalanx_index_proximal": [
+      "FJ3322"
+    ],
+    "phalanx_index_middle": [
+      "FJ3303"
+    ],
+    "phalanx_index_distal": [
+      "FJ3193"
+    ],
+    "metacarpal_middle": [
+      "FJ3354"
+    ],
+    "phalanx_middle_proximal": [
+      "FJ3325"
+    ],
+    "phalanx_middle_middle": [
+      "FJ3306"
+    ],
+    "phalanx_middle_distal": [
+      "FJ3196"
+    ],
+    "metacarpal_ring": [
+      "FJ3356"
+    ],
+    "phalanx_ring_proximal": [
+      "FJ3326"
+    ],
+    "phalanx_ring_middle": [
+      "FJ3292"
+    ],
+    "phalanx_ring_distal": [
+      "FJ3197"
+    ],
+    "metacarpal_little": [
+      "FJ3358"
+    ],
+    "phalanx_little_proximal": [
+      "FJ3323"
+    ],
+    "phalanx_little_middle": [
+      "FJ3304"
+    ],
+    "phalanx_little_distal": [
+      "FJ3194"
+    ],
+    "frontal": [
+      "FJ3200"
+    ],
+    "parietal": [
+      "FJ3274",
+      "FJ3380"
+    ],
+    "temporal": [
+      "FJ3281",
+      "FJ3386"
+    ],
+    "maxilla": [
+      "FJ3269",
+      "FJ3375"
+    ],
+    "zygomatic": [
+      "FJ3287",
+      "FJ3392"
+    ],
+    "nasal": [
+      "FJ3272",
+      "FJ3378"
+    ],
+    "skull": [
+      "FJ1282",
+      "FJ1285",
+      "FJ1286",
+      "FJ1289",
+      "FJ1297",
+      "FJ1299",
+      "FJ1305",
+      "FJ1317",
+      "FJ1320",
+      "FJ1331",
+      "FJ1336",
+      "FJ1337",
+      "FJ1340",
+      "FJ1348",
+      "FJ1350",
+      "FJ1356",
+      "FJ1368",
+      "FJ1371",
+      "FJ1382",
+      "FJ2772",
+      "FJ3199",
+      "FJ3201",
+      "FJ3263",
+      "FJ3265",
+      "FJ3273",
+      "FJ3309",
+      "FJ3369",
+      "FJ3371",
+      "FJ3379",
+      "FJ3394",
+      "FJ3395"
+    ],
+    "mandible": [
+      "FJ3289"
+    ],
+    "cervical": [
+      "FJ3161",
+      "FJ3164",
+      "FJ3167",
+      "FJ3170",
+      "FJ3172",
+      "FJ3176",
+      "FJ3177"
+    ],
+    "calcaneus": [
+      "FJ3360"
+    ],
+    "talus": [
+      "FJ3385"
+    ],
+    "tarsals": [
+      "FJ3308",
+      "FJ3364",
+      "FJ3370",
+      "FJ3373",
+      "FJ3377"
+    ],
+    "metatarsal_1": [
+      "FJ3351"
+    ],
+    "metatarsal_2": [
+      "FJ3353"
+    ],
+    "metatarsal_3": [
+      "FJ3355"
+    ],
+    "metatarsal_4": [
+      "FJ3357"
+    ],
+    "metatarsal_5": [
+      "FJ3359"
+    ],
+    "foot_phalanges": [
+      "FJ3189",
+      "FJ3190",
+      "FJ3191",
+      "FJ3192",
+      "FJ3195",
+      "FJ3300",
+      "FJ3301",
+      "FJ3302",
+      "FJ3305",
+      "FJ3310",
+      "FJ3319",
+      "FJ3320",
+      "FJ3321",
+      "FJ3324"
+    ]
+  }
+}

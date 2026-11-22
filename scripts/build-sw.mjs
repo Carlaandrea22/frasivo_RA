@@ -15,8 +15,14 @@ for (const file of publicFiles) {
   await cp(`public/${file}`, `dist/${file}`, { recursive: true });
 }
 const files = await walk('dist');
-const fullModel = '/body-tracking/pose_landmarker_full.task';
-if (!files.includes(`dist${fullModel}`)) throw new Error('Falta Pose Full. Ejecuta npm run assets antes de compilar.');
+const deferredModels = new Set([
+  '/body-tracking/pose_landmarker_full.task',
+  '/body-tracking/hand_landmarker.task',
+  '/body-tracking/face_landmarker.task',
+]);
+for (const model of deferredModels) {
+  if (!files.includes(`dist${model}`)) throw new Error(`Falta ${model}. Ejecuta npm run assets antes de compilar.`);
+}
 const hash = createHash('sha256');
 hash.update(await readFile(new URL(import.meta.url)));
 for (const file of files.sort()) hash.update(await readFile(file));
@@ -26,8 +32,8 @@ const runtimeOnly = new Set([
   '/body-tracking/wasm/vision_wasm_nosimd_internal.js',
   '/body-tracking/wasm/vision_wasm_nosimd_internal.wasm',
 ]);
-// The pose worker caches Full when the first precise capture requests it.
-const urls = ['/', ...files.map(file => file.slice(4)).filter(url => url !== fullModel && !runtimeOnly.has(url))];
+// The body worker caches optional models the first time each detector is used.
+const urls = ['/', ...files.map(file => file.slice(4)).filter(url => !deferredModels.has(url) && !runtimeOnly.has(url))];
 await writeFile('dist/sw.js', `// Generated from the exact build.
 const NAME = ${JSON.stringify(cacheName)};
 const FILES = ${JSON.stringify(urls)};
@@ -62,4 +68,4 @@ self.addEventListener('fetch', event => {
   }));
 });
 `);
-console.log(`PWA: ${urls.length} recursos precargados, con Pose Lite y WASM SIMD. Pose Full y variante sin SIMD bajo demanda. Caché: ${cacheName}`);
+console.log(`PWA: ${urls.length} recursos precargados, con Pose Lite y WASM SIMD. Pose Full, mano, cara y variante sin SIMD bajo demanda. Caché: ${cacheName}`);

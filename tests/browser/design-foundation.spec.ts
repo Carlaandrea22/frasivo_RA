@@ -256,7 +256,7 @@ test('Pose dibuja tórax frontal sin caderas, retira selección y pide girar de 
   await useBodyFixture(page);
   await page.goto('/?fps=1');
   await page.getByRole('button', { name: 'Activar cámara' }).click();
-  await expect(page.getByRole('status')).toHaveText('Persona detectada');
+  await expect(page.getByRole('status')).toHaveText('Cuerpo completo');
   await expect(page.getByRole('status')).toHaveCSS('white-space', 'nowrap');
   await expect(page.locator('image[data-part=fibula_right]')).toBeVisible();
   await expect(page.locator('[data-fps-detection]')).toBeVisible();
@@ -269,9 +269,9 @@ test('Pose dibuja tórax frontal sin caderas, retira selección y pide girar de 
   await expect(page.getByRole('button', { name: 'Ver ficha de Peroné' })).toBeVisible();
   await expect(page.locator('.anatomy-active-term')).toHaveCount(0);
   await page.evaluate(() => { (window as unknown as { bodyCameraTest: { shot: string } }).bodyCameraTest.shot = 'torso'; });
-  await expect(page.getByText('Aléjate para ver el cuerpo completo')).toBeVisible();
+  await expect(page.getByText('Para fijar, aléjate hasta ver el cuerpo completo')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Fijar esqueleto' })).toBeDisabled();
-  await expect(page.getByRole('status')).toHaveText('Persona detectada');
+  await expect(page.getByRole('status')).toHaveText('Torso');
   await expect(page.locator('image[data-part=fibula_right]')).toHaveCount(0);
   await expect(page.locator('image[data-part=pelvis_left]')).toHaveCount(0);
   await expect(page.locator('image[data-part=sternum]')).toBeVisible();
@@ -282,7 +282,7 @@ test('Pose dibuja tórax frontal sin caderas, retira selección y pide girar de 
   await page.getByRole('button', { name: 'Cerrar vocabulario' }).click();
   await page.evaluate(() => { (window as unknown as { bodyCameraTest: { shot: string } }).bodyCameraTest.shot = 'back'; });
   await expect(page.getByText('Pídele a la persona que se gire de frente')).toBeVisible();
-  await expect(page.getByRole('status')).toHaveText('Persona detectada');
+  await expect(page.getByRole('status')).toHaveText('Buscando…');
   await expect(page.locator('.anatomy-sprites')).toHaveAttribute('data-visible-parts', '0');
 });
 
@@ -410,10 +410,12 @@ test('la cámara dibuja piezas distales y mantiene el cerebro por encima de los 
     await page.getByRole('button', { name: 'Expandir controles' }).click();
   }
   for (const side of ['left', 'right']) {
-    for (const id of ['tibia', 'fibula', 'patella', 'hand_phalanges', 'foot_phalanges']) {
+    for (const id of ['tibia', 'fibula', 'patella', 'hand_phalanges']) {
       await expect(page.locator(`image[data-part=${id}_${side}]`)).toBeVisible();
     }
   }
+  await expect.poll(() => page.evaluate(() => document.querySelectorAll('image[data-part^=foot_phalanges_]').length
+    + Number(document.querySelector('[data-regional-feet]')?.getAttribute('data-regional-feet') ?? 0))).toBe(2);
   await photograph('huesos');
   await page.getByRole('button', { name: 'Músculos', exact: true }).click();
   for (const id of ['gastrocnemius', 'tibialis_anterior', 'biceps_brachii', 'triceps_brachii']) {

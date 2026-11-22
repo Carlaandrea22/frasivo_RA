@@ -102,6 +102,31 @@
 }
 .anatomy-active-term { color: var(--anatomy-highlight); font: 700 .9rem var(--font-title); }
 
+.anatomy-regional-review {
+  position: absolute;
+  top: 65px;
+  right: 16px;
+  z-index: 1;
+  padding: 3px 7px;
+  border-radius: var(--radius-soft);
+  background: var(--camera-base);
+  font-size: .65rem;
+  pointer-events: none;
+}
+
+.anatomy-debug {
+  position: absolute;
+  inset: 54px auto auto 12px;
+  z-index: 1;
+  max-width: calc(100% - 24px);
+  padding: 5px 8px;
+  border-radius: var(--radius-soft);
+  background: var(--camera-base);
+  color: var(--camera-text);
+  font-size: .6875rem;
+  pointer-events: none;
+}
+
 .anatomy-fps {
   padding: 6px 9px;
   border-radius: var(--radius-soft);

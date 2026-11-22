@@ -34,13 +34,17 @@ interface Props {
   showLabels?: boolean;
   showSelection?: boolean;
   reservedBottom?: number;
+  regionalTargets?: readonly BoneTarget[];
+  preferredLabelIds?: readonly string[];
+  detailRequest?: { id: string };
 }
 
 function mirrored([a, b, c, d]: Matrix) {
   return a*d < b*c;
 }
 
-export function AnatomyOverlay({ placement, live, layer, aspect, opacity, selected, onSelect, onFrame, showLabels, showSelection, reservedBottom }: Props) {
+export function AnatomyOverlay({ placement, live, layer, aspect, opacity, selected, onSelect, onFrame, showLabels, showSelection,
+  reservedBottom, regionalTargets = [], preferredLabelIds, detailRequest }: Props) {
   const { matrices, visible, frontFeet } = placement;
   const groups = useRef(new Map<Group, SVGGElement>());
   const current = useRef(new Map<Group, Matrix>());
@@ -130,7 +134,7 @@ export function AnatomyOverlay({ placement, live, layer, aspect, opacity, select
 
     if (live && targets.size > 0) request = requestAnimationFrame(draw);
     return () => { cancelAnimationFrame(request); resize.disconnect(); };
-  }, [matrices, layer, live, onFrame, preferred, showLabels, showSelection, aspect]);
+  }, [matrices, visible, layer, live, onFrame, preferred, showLabels, showSelection, aspect]);
 
   return <>
     {!live && matrices.trunk && (
@@ -174,7 +178,9 @@ export function AnatomyOverlay({ placement, live, layer, aspect, opacity, select
         </g>
       ))}
     </svg>
-    {layer === 'bones' && (showSelection || showLabels) &&
-      <BoneLabels targets={projected} selected={showSelection ? selected : undefined} showAll={showLabels} reservedBottom={reservedBottom}/>}
+    {layer === 'bones' && (showSelection || showLabels || detailRequest) &&
+      <BoneLabels targets={[...regionalTargets, ...projected]} selected={showSelection ? selected : undefined}
+        showAll={showLabels} reservedBottom={reservedBottom} preferredIds={preferredLabelIds}
+        provisionalIds={regionalTargets.map(target => target.id)} detailRequest={detailRequest}/>}
   </>;
 }

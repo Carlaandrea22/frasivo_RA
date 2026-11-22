@@ -142,7 +142,7 @@ export function atlasPlacement(points: BodyPoint[] | null, aspect: number, viewp
   } else if (faceFront) {
     facing = 'front';
   }
-  if (facing !== 'front') return { matrices, frontFeet, facing, complete: false, visible: [] as AtlasPart[] };
+  if (facing !== 'front' && (!bones || facing === 'back')) return { matrices, frontFeet, facing, complete: false, visible: [] as AtlasPart[] };
 
   if (left && right && scale > 0) {
     const at = midpoint(left, right);
@@ -197,7 +197,7 @@ export function atlasPlacement(points: BodyPoint[] | null, aspect: number, viewp
     const armSupported = Boolean(locate(`shoulder_${side}`) && locate(`wrist_${side}`));
     for (const limb of Object.keys(limbJoints) as (keyof typeof limbJoints)[]) {
       const leg = limb === 'thigh' || limb === 'shin';
-      if (leg && (!leftHip || !rightHip)) continue;
+      if (leg && !bones && (!leftHip || !rightHip)) continue;
       if (bones && leg && kneeProgress !== null && (kneeProgress < .07 || kneeProgress > .96)) continue;
       const [from, to] = limbJoints[limb];
       const a = `${from}_${side}` as Joint, b = `${to}_${side}` as Joint;

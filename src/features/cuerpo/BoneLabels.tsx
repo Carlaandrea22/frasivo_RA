@@ -6,12 +6,14 @@ import { recordConsultation } from '../../shared/progreso';
 import { estructuras } from '../../content/anatomy/catalogo';
 import { anatomyParts } from './anatomy';
 import { arrangeBoneLabels, type BoneTarget } from './boneLabelPlacement';
+import { regionalBoneTerms } from './regionalBoneTerms';
 import './boneLabels.css';
 
 export type { BoneTarget } from './boneLabelPlacement';
 
 export const mainBoneIds = ['skull', 'humerus', 'ribs', 'pelvis', 'femur', 'tibia'];
-const names = new Map(anatomyParts.filter(part => part.layer === 'bones').map(part => [part.id, part]));
+const names = new Map([...anatomyParts.filter(part => part.layer === 'bones'), ...regionalBoneTerms].map(part => [part.id, part]));
+const regionalMetadata = new Map(regionalBoneTerms.map(part => [part.id, part]));
 const details: Record<string, readonly [string, string]> = {
   skull: ['En la cabeza, alrededor del encéfalo.', 'Protege el encéfalo y sostiene las estructuras de la cara.'],
   mandible: ['En la parte inferior de la cara.', 'Sostiene los dientes inferiores y se mueve al masticar.'],
@@ -35,13 +37,16 @@ const details: Record<string, readonly [string, string]> = {
   foot_phalanges: ['En los dedos del pie.', 'Ayudan al equilibrio y al impulso al caminar.'],
 };
 
-export function BoneLabels({ targets, selected, showAll = false, reservedBottom }: {
+export function BoneLabels({ targets, selected, showAll = false, reservedBottom, preferredIds, provisionalIds = [], detailRequest }: {
   targets: readonly BoneTarget[]; selected?: string; showAll?: boolean; reservedBottom?: number;
+  preferredIds?: readonly string[]; provisionalIds?: readonly string[]; detailRequest?: { id: string };
 }) {
   const host = useRef<HTMLDivElement>(null);
   const sheet = useRef<HTMLDialogElement>(null);
   const marker = useId();
   const [detail, setDetail] = useState('');
+  const [provisional, setProvisional] = useState(false);
+  const consumedRequest = useRef<typeof detailRequest>(undefined);
   const [size, setSize] = useState({ width: 375, height: 600 });
   useEffect(() => {
     const observer = new ResizeObserver(([entry]) => {
@@ -52,7 +57,22 @@ export function BoneLabels({ targets, selected, showAll = false, reservedBottom 
   }, []);
   const opened = names.get(detail);
   const catalog = estructuras.find(item => item.id === detail);
-  const featured = (showAll ? mainBoneIds.filter(id => id !== selected).slice(0, selected ? 5 : 6) : []);
+  const region = provisional ? regionalMetadata.get(detail) : undefined;
+  function openDetail(id: string, pending: boolean) {
+    setDetail(id);
+    setProvisional(pending);
+    recordConsultation({ areaId: 'anatomy', groupId: 'huesos', itemId: id });
+    if (!sheet.current?.open) sheet.current?.showModal();
+  }
+  useEffect(() => {
+    if (!detailRequest || consumedRequest.current === detailRequest) return;
+    consumedRequest.current = detailRequest;
+    openDetail(detailRequest.id, true);
+  }, [detailRequest]);
+  const targetIds = new Set(targets.map(target => target.id));
+  const choices = new Set([...(preferredIds ?? mainBoneIds), ...targets.map(target => target.id)]);
+  const featured = showAll ? [...choices].filter(id => id !== selected && targetIds.has(id)
+    && (selected || !id.startsWith('phalanx_'))).slice(0, selected ? 5 : 6) : [];
   const ids = selected ? [selected, ...featured] : featured;
   const positioned = arrangeBoneLabels(targets, ids, selected, { ...size, reservedBottom }).flatMap(label => {
     const bone = names.get(label.id);
@@ -72,11 +92,8 @@ export function BoneLabels({ targets, selected, showAll = false, reservedBottom 
     </svg>
     {positioned.map(label => (
       <div key={label.id} className="bone-label-card" style={{ top: label.top, width: label.cardWidth, left: label.columnX }} data-label-side={label.side} data-bone-label={label.id}>
-        <button type="button" className="bone-label-open" aria-label={`Ver ficha de ${label.bone.es}`} onClick={() => {
-          setDetail(label.id);
-          recordConsultation({ areaId: 'anatomy', groupId: 'huesos', itemId: label.id });
-          sheet.current?.showModal();
-        }}>{label.bone.es}</button>
+        <button type="button" className="bone-label-open" aria-label={`Ver ficha de ${label.bone.es}`}
+          onClick={() => openDetail(label.id, provisionalIds.includes(label.id))}>{label.bone.es}</button>
         <EnglishTerm term={label.bone.en}/>
       </div>
     ))}
@@ -84,9 +101,10 @@ export function BoneLabels({ targets, selected, showAll = false, reservedBottom 
       onClick={event => { if (event.target === event.currentTarget) event.currentTarget.close(); }}>
       {opened && <div className="bone-detail-content">
         <header><h2>{opened.es}</h2><Button variant="text" aria-label="Cerrar ficha" onClick={() => sheet.current?.close()}><X size={18}/></Button></header>
+        {provisional && <small>Provisional</small>}
         <EnglishTerm term={opened.en}/>
-        <p><strong>Ubicación</strong> {catalog?.ubicacion ?? details[detail]?.[0]}</p>
-        <p><strong>Función</strong> {catalog?.funcion ?? details[detail]?.[1]}</p>
+        <p><strong>Ubicación</strong> {region?.location ?? catalog?.ubicacion ?? details[detail]?.[0]}</p>
+        <p><strong>Función</strong> {region?.function ?? catalog?.funcion ?? details[detail]?.[1]}</p>
         {catalog && <a className="button button--primary lumar-link" href={`#explorar/estructura/${catalog.id}`}
           onClick={() => sheet.current?.close()}>Ver en Explorar 3D</a>}
       </div>}
