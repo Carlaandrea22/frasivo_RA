@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { AlertCircle, ArrowRight, Check, RotateCcw } from 'lucide-react';
 import type { ClinicalCase } from '../../content/casos/sessionTypes';
 import { Button } from '../../shared/ui/Button';
@@ -34,8 +34,12 @@ export function CaseResult({ title, children, score, retried, markRetry, last, o
   solutionLabel?: string;
 }) {
   const level = performanceLevel(score);
+  const [revealed, setRevealed] = useState(false);
+  const canRetry = score.errors > 0 && !revealed;
   const heading = useRef<HTMLHeadingElement>(null);
+  const solutionHeading = useRef<HTMLHeadingElement>(null);
   useEffect(() => { heading.current?.focus(); }, []);
+  useEffect(() => { if (revealed) solutionHeading.current?.focus(); }, [revealed]);
   return <Card className="clinical-result" data-level={level}>
     {isPerfectWithoutHints({ ...score, retried }) && <ClinicalConfetti/>}
     <span className="clinical-result-icon" aria-hidden="true">
@@ -44,18 +48,21 @@ export function CaseResult({ title, children, score, retried, markRetry, last, o
     <h2 tabIndex={-1} ref={heading}>{title}</h2>
     {retried && <p className="clinical-result-meta">Resultado del reintento</p>}
     {children}
-    {solution && <details className="clinical-debrief" open={score.errors === 0}>
-      <summary>{solutionLabel}</summary>
+    {solution && (score.errors === 0 || revealed) && <section className="clinical-debrief">
+      <h3 ref={solutionHeading} tabIndex={-1}>Corrección</h3>
+      {revealed && <p className="clinical-result-meta">Solución revelada. Este intento quedó cerrado.</p>}
       <div>{solution}</div>
-    </details>}
+    </section>}
+    {canRetry && solution && <p className="clinical-result-meta">Elige si quieres reintentar o terminar este intento y ver la solución.</p>}
     <div className="clinical-result-actions">
-      {score.errors > 0 && <Button variant="secondary" onClick={() => {
+      {canRetry && <Button variant="secondary" onClick={() => {
         markRetry();
         onRetry();
         window.scrollTo(0, 0);
       }}>
         <RotateCcw size={17} aria-hidden="true"/> {retryLabel}
       </Button>}
+      {canRetry && solution && <Button variant="text" onClick={() => setRevealed(true)}>{solutionLabel}</Button>}
       <Button onClick={() => onComplete({ ...score, retried })}>{last ? 'Ver resultados' : 'Siguiente caso'} <ArrowRight size={17}/></Button>
     </div>
   </Card>;

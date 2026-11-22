@@ -71,8 +71,7 @@ test('la investigación permite seguir una ruta débil, reiniciar y guardar solo
   await choose(page, /Una posible enfermedad transmitida por alimentos/);
   await expect(page.getByRole('heading', { name: 'Revisa tu camino' })).toBeVisible();
   await expect(page.getByText(/0 de 2 hallazgos clave/)).toBeVisible();
-  await page.getByText('Ver hipótesis de referencia').click();
-  await expect(page.getByText('Por qué encaja con el caso')).toBeVisible();
+  await expect(page.getByText('Por qué encaja con el caso')).toHaveCount(0);
   await choose(page, 'Reintentar desde el primer turno');
   await expect(page.getByText('Turno 1 de 3')).toBeVisible();
   await expect(page.getByText('Todavía no, no tengo termómetro en casa.')).toHaveCount(0);
@@ -215,15 +214,13 @@ test('tres pistas corrigen un orden sin aciertos y permiten obtener 5 de 5 sin c
   await expect(page.locator('.clinical-confetti')).toHaveCount(0);
 });
 
-test('muestra la corrección de un orden y guarda un solo resultado aunque se reintente', async ({ page }) => {
+test('guarda un solo resultado aunque se reintente el orden', async ({ page }) => {
   await choose(page, 'Practicar solo Ordenar actuaciones');
   const firstCard = page.locator('[data-order-id="airway"]');
   await firstCard.getByRole('button', { name: 'Mover abajo' }).click();
   await choose(page, 'Comprobar orden');
   await expect(page.getByText('3 de 5 posiciones correctas')).toBeVisible();
-  await page.getByText('Ver orden correcto').click();
-  const solution = page.getByRole('list', { name: 'Orden correcto' });
-  await expect(solution.getByRole('listitem').first()).toContainText('Evalúa y asegura la vía aérea.');
+  await expect(page.getByRole('list', { name: 'Orden correcto' })).toHaveCount(0);
   await choose(page, 'Reintentar');
   await firstCard.getByRole('button', { name: 'Mover arriba' }).click();
   await choose(page, 'Comprobar orden');
@@ -233,6 +230,18 @@ test('muestra la corrección de un orden y guarda un solo resultado aunque se re
   await page.goto('/#progreso');
   await expect(page.getByText('Resuelto en un reintento')).toHaveCount(1);
   await expect(page.getByText('Calificaciones perfectas').locator('..')).toContainText('0%');
+});
+
+test('revelar el orden correcto cierra el intento', async ({ page }) => {
+  await choose(page, 'Practicar solo Ordenar actuaciones');
+  await page.locator('[data-order-id="airway"]').getByRole('button', { name: 'Mover abajo' }).click();
+  await choose(page, 'Comprobar orden');
+  await expect(page.getByRole('button', { name: 'Reintentar' })).toBeVisible();
+  await choose(page, 'Ver orden correcto');
+  const solution = page.getByRole('list', { name: 'Orden correcto' });
+  await expect(solution.getByRole('listitem').first()).toContainText('Evalúa y asegura la vía aérea.');
+  await expect(page.getByRole('button', { name: 'Reintentar' })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Siguiente caso' })).toBeEnabled();
 });
 
 test('permite revisar las respuestas que se fallaron en comprensión', async ({ page }) => {
@@ -245,8 +254,9 @@ test('permite revisar las respuestas que se fallaron en comprensión', async ({ 
   await choose(page, /There was no fall or sudden twist/);
   await choose(page, /He could bend and straighten it/);
   await expect(page.getByRole('heading', { name: '2 de 3 respuestas correctas' })).toBeVisible();
-  await page.getByText('Ver respuestas correctas').click();
+  await choose(page, 'Ver respuestas correctas');
   await expect(page.getByText('It began gradually about three weeks ago.')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Reintentar' })).toHaveCount(0);
   await expect(page.getByRole('list', { name: 'Preguntas para repasar' }).getByRole('listitem')).toHaveCount(1);
 });
 
@@ -254,8 +264,9 @@ test('revela la respuesta de selección múltiple y permite terminar con un resu
   await choose(page, 'Practicar solo Selección múltiple');
   await choose(page, /An oral antibiotic/);
   await choose(page, 'Comprobar respuesta');
-  await page.getByText('Ver respuesta correcta').click();
+  await choose(page, 'Ver respuesta correcta');
   await expect(page.getByText('Adrenalina intramuscular', { exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Reintentar' })).toHaveCount(0);
   await choose(page, 'Ver resultados');
   await expect(page.getByRole('heading', { name: 'Completaste la práctica' })).toBeVisible();
   await expect(page.locator('.clinical-confetti')).toHaveCount(0);
