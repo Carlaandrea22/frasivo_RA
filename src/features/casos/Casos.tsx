@@ -8,7 +8,7 @@ import type { PracticeSessionMode } from '../../shared/progreso';
 import { Button } from '../../shared/ui/Button';
 import { Card } from '../../shared/ui/Card';
 import { ContentState } from '../../shared/ui/ContentState';
-import { Segmented } from '../../shared/ui/Segmented';
+import { ClinicalSetup } from './ClinicalSetup';
 import { ClinicalSession } from './ClinicalSession';
 import { buildCaseSession, buildMixedCaseSession } from './clinicalEngine';
 import './casos.css';
@@ -27,13 +27,8 @@ const modeDescription = {
   'multiple-choice': 'Elige la respuesta que mejor encaja con el caso.',
   matching: 'Conecta cada paciente con la causa que encaja con sus pistas.',
 } as const;
-const practiceModes = [
-  { id: 'entrenamiento', label: 'Entrenamiento' },
-  { id: 'evaluacion', label: 'Evaluación' },
-] as const;
-
 function RecommendedCase({ ids, mode }: { ids: readonly string[]; mode: PracticeSessionMode }) {
-  const [selection] = useState(() => buildCaseSession(ids).slice(0, 1));
+  const [selection] = useState(() => buildCaseSession(ids, undefined, 1));
   return <ClinicalSession caseIds={selection} mode={mode} onExit={() => { window.location.hash = 'practicar'; }}/>;
 }
 
@@ -47,16 +42,26 @@ export function CasoRecomendado({ params }: RouteProps) {
 }
 
 export function Casos(_props: RouteProps) {
-  const [sessionCaseIds, setSessionCaseIds] = useState<string[] | null>(null);
-  const [practiceMode, setPracticeMode] = useState<PracticeSessionMode>('entrenamiento');
+  const [kind, setKind] = useState<ClinicalCase['kind'] | 'mixed'>();
+  const [session, setSession] = useState<{ ids: string[]; mode: PracticeSessionMode }>();
 
-  if (sessionCaseIds) return <ClinicalSession caseIds={sessionCaseIds} mode={practiceMode} onExit={() => setSessionCaseIds(null)}/>;
-
-  const startMixedSession = () => setSessionCaseIds(buildMixedCaseSession(clinicalCases));
-  const startModeSession = (kind: ClinicalCase['kind']) => {
-    const ids = clinicalCases.filter(item => item.kind === kind).map(item => item.id);
-    setSessionCaseIds(buildCaseSession(ids).slice(0, kind === 'multiple-choice' ? 1 : 2));
+  const returnHome = () => {
+    setSession(undefined);
+    setKind(undefined);
+    window.scrollTo(0, 0);
   };
+
+  if (session) return <ClinicalSession caseIds={session.ids} mode={session.mode} onExit={returnHome}/>;
+  if (kind) {
+    const mixed = kind === 'mixed';
+    return <ClinicalSetup title={mixed ? 'Sesión mixta' : clinicalModeLabels[kind]}
+      cases={mixed ? clinicalCases : clinicalCases.filter(item => item.kind === kind)}
+      defaultCount={mixed ? 5 : kind === 'multiple-choice' ? 1 : 2} onBack={returnHome}
+      onStart={(pool, count, mode) => setSession({
+        ids: mixed ? buildMixedCaseSession(pool, undefined, count) : buildCaseSession(pool.map(item => item.id), undefined, count),
+        mode,
+      })}/>;
+  }
 
   return <section className="lumar-page clinical-home">
     <header>
@@ -65,24 +70,13 @@ export function Casos(_props: RouteProps) {
     </header>
     <PracticeTabs active="casos"/>
 
-    <section className="clinical-practice-mode" aria-labelledby="clinical-practice-mode-title">
-      <h2 id="clinical-practice-mode-title">Modo de práctica</h2>
-      <Segmented label="Modo de práctica" options={practiceModes} value={practiceMode} onChange={id => {
-        const mode = practiceModes.find(option => option.id === id);
-        if (mode) setPracticeMode(mode.id);
-      }}/>
-      <p>{practiceMode === 'entrenamiento'
-        ? 'Usa las pistas disponibles y reintenta los casos que necesites repasar.'
-        : 'Resuelve cada caso sin pistas. Verás la corrección al comprobar tu respuesta.'}</p>
-    </section>
-
     <Card className="clinical-intro">
       <span className="clinical-intro-icon" aria-hidden="true"><Stethoscope size={26}/></span>
       <div>
         <h2>Sesión mixta</h2>
-        <p>Un caso de cada modo, incluida la conexión de síntomas con sus causas.</p>
+        <p>Combina distintos tipos de caso en una práctica.</p>
       </div>
-      <Button onClick={startMixedSession}>Empezar sesión de 5 casos <ArrowRight size={17}/></Button>
+      <Button onClick={() => setKind('mixed')}>Configurar sesión mixta <ArrowRight size={17}/></Button>
     </Card>
 
     <section className="clinical-mode-section" aria-labelledby="clinical-mode-title">
@@ -91,7 +85,7 @@ export function Casos(_props: RouteProps) {
         {(Object.keys(clinicalModeLabels) as ClinicalCase['kind'][]).map(kind => {
           const Icon = kindIcon[kind];
           return <Button key={kind} variant="answer" className="clinical-mode-button"
-            aria-label={`Practicar solo ${clinicalModeLabels[kind]}`} onClick={() => startModeSession(kind)}>
+            aria-label={`Practicar solo ${clinicalModeLabels[kind]}`} onClick={() => setKind(kind)}>
             <span className="clinical-kind-icon" aria-hidden="true"><Icon size={19}/></span>
             <span className="clinical-mode-copy"><strong>{clinicalModeLabels[kind]}</strong><small>{modeDescription[kind]}</small></span>
             <ArrowRight className="clinical-mode-arrow" size={16} aria-hidden="true"/>

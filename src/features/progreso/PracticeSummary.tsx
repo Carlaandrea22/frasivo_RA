@@ -3,6 +3,7 @@ import { casos } from '../../content/casos/rodilla';
 import { clinicalModeLabels } from '../../content/casos/sessionTypes';
 import { retoTypeLabels } from '../../content/types';
 import type { PracticeEvent, ReasoningText } from '../../shared/progreso';
+import { clinicalResultHref } from '../casos/ClinicalSummary';
 import { retoTuvoReintentos, rutaResultado } from '../retos/intentos';
 import { challengeCatalog, clinicalCatalog, practiceFormat, practiceFormatLabels, practiceGroup, practiceGroupLabels, practiceId, practiceTitle } from './practiceProgress';
 
@@ -53,6 +54,9 @@ export function PracticeSummary({ event, history = false }: { event: PracticeEve
     </p>}
     {reto && event.context?.kind === 'reto' && <div><a className="progress-result-link" href={rutaResultado(reto.id, event.id)}>
       Ver resultado del reto <ArrowRight size={14}/>
+    </a></div>}
+    {group === 'clinical' && <div><a className="progress-result-link" href={clinicalResultHref(event.id)}>
+      Ver resultado del caso <ArrowRight size={14}/>
     </a></div>}
     {item?.kind === 'investigation' && route && <details>
       <summary>Ruta de investigación</summary>

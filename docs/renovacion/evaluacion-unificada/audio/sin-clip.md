@@ -1,0 +1,591 @@
+# Pronunciaciones sin clip propio
+
+Estas frases y términos se compararon con los MP3 mediante el mismo resolvedor que usa LumAR. El botón usa la voz inglesa del sistema cuando está disponible.
+
+Se encontraron 0 términos de Retos y 558 frases o términos distintos de Casos. Las frases se reproducen completas.
+
+## Retos
+
+Todos los términos tienen clip propio.
+
+
+## Casos clínicos
+
+### Conversación y comprensión (337)
+
+- A headache woke him
+- About five out of ten.
+- About four out of ten.
+- About one year ago
+- About three weeks ago
+- After moving furniture last year
+- After several minutes away from the keyboard, it eases.
+- After swimming last month
+- At the back of her left wrist
+- At the end of the workday
+- At the front, around the kneecap
+- Avoiding overhead movement helped
+- Before breakfast
+- Before carrying any boxes
+- Before joining the gym
+- Behind the calf
+- Behind the knee
+- Bending forward
+- Bending the knee
+- Blankets
+- Books
+- Both feet felt normal
+- Both feet tingled
+- Both legs tingled
+- Both shoulders hurt
+- Can you raise the arm all the way?
+- Can you run with the pain?
+- Can you walk as usual?
+- Desk work was impossible
+- Did it start suddenly or gradually?
+- Did the pain wake you up last night?
+- Did you fall or twist your knee before it started?
+- Did you hit or twist the wrist?
+- Did your routine at work change?
+- Did your routine change before the pain began?
+- Do you have numbness or tingling in the arm?
+- Does it affect your work or daily tasks?
+- Does it become swollen later in the day?
+- Does it disturb your sleep?
+- Does it spread to the fingers?
+- Does resting the shoulder help?
+- Does sitting with your knee bent affect it?
+- Does the arm feel weak when you lift something?
+- Does the discomfort travel down your arm?
+- Does the knee feel as if it might give way?
+- Does the pain travel anywhere else?
+- Does the pain travel down one leg?
+- Does the pain wake you at night?
+- Does your knee ever lock or get stuck?
+- Eight out of ten
+- Every finger tingled
+- Five out of ten
+- Four out of ten
+- Going down is worse, although going up also hurts.
+- Going down stairs was worse
+- Going up only
+- Has the pain changed during these three weeks?
+- Has the wrist bothered you before?
+- Has this happened before?
+- Have you dropped anything because of weakness?
+- Have you ever injured that shoulder?
+- Have you felt any tingling in your feet?
+- Have you felt any tingling?
+- Have you felt numbness or tingling?
+- Have you had this kind of pain before?
+- Have you had this problem before?
+- Have you noticed any swelling?
+- Have you noticed swelling or redness?
+- Have you noticed swelling?
+- Have you tried anything that helps?
+- He began swimming every morning
+- He began using stairs more often
+- He could bend and straighten it
+- He could not fall asleep
+- He could not hold anything
+- He could not sleep at all
+- He could not stand
+- He could not take a step
+- He could only hold a heavy case
+- He could still hold a light bag
+- He could walk normally
+- He did not notice swelling
+- He dropped a heavy box
+- He dropped several cups
+- He fell while running
+- He had not dropped anything
+- He had not noticed swelling
+- He needed a cane
+- He slept normally
+- He slept through the night
+- He stopped walking completely
+- He twisted it playing football
+- He was carrying boxes
+- He was cycling
+- He was lying down
+- He woke every hour
+- Heavier overhead presses
+- Heavier weights helped
+- Her fingers became swollen
+- Her fingertips tingled
+- Her forearm tingled
+- Holding a cup
+- How do you feel when standing upright?
+- How does it compare with yesterday?
+- How strong is it from zero to ten when typing?
+- How strong is it from zero to ten when you bend?
+- How strong is it from zero to ten?
+- How strong is the pain from zero to ten?
+- I am in the middle of a move, and my lower back has been hurting since yesterday.
+- I can, but it becomes uncomfortable after a few minutes.
+- I feel better when I lie on my side.
+- I feel it at the front of my knee, around the kneecap.
+- I first noticed it last Tuesday.
+- I had a mild episode last year, but it went away quickly.
+- I have not seen it swell.
+- I notice it most when I bend forward.
+- I started doing overhead presses with heavier weights.
+- I was carrying boxes up to my apartment.
+- I write with my right hand.
+- Immediately after a fall
+- In the ankle
+- In the center of her right palm
+- In the center of his neck
+- In the left wrist
+- In the lower back
+- Is it only your right shoulder?
+- Is it worse going up or down stairs?
+- Is it worse in the morning or after work?
+- Is the area painful when you touch it?
+- Is the area tender when you touch it?
+- Is the pain in the middle or to one side?
+- It began gradually about three weeks ago.
+- It came on gradually, not during one specific repetition.
+- It disappeared completely
+- It eased after a few minutes
+- It feels tired, but I can still hold a light bag.
+- It felt stable when standing
+- It followed a direct fall
+- It followed an old fracture
+- It gave way every day
+- It got much worse
+- It had become a little stronger
+- It happened every month
+- It happened last winter
+- It hurt only while sleeping
+- It hurt when he stood after sitting
+- It is a little better today.
+- It is a little stronger now, especially after a busy day.
+- It is a little tender on the outer side.
+- It is about seven out of ten when I lift the arm high.
+- It is about six out of ten when I squat.
+- It is more noticeable at the end of the workday.
+- It is mostly on the outside of my right shoulder.
+- It is mostly to the right, just above my hip.
+- It is much less painful than bending forward.
+- It is slightly tender around the lower edge of the kneecap.
+- It moved to her elbow
+- It moved to the other arm
+- It moved to the other knee
+- It reached both knees
+- It reached his foot
+- It reached the fingers
+- It spread to all fingers
+- It spread to her thumb
+- It started gradually
+- It started suddenly
+- It started two days after I changed my gym routine.
+- It stayed at the front of the knee
+- It stayed in his lower back
+- It stayed locked
+- It stayed near the shoulder
+- It stayed near the wrist
+- It swelled every evening
+- It swelled every morning
+- It swelled only in the morning
+- It travelled to the foot
+- It travelled to the lower back
+- It wakes me if I roll onto my right side.
+- It was a little better
+- It was full of books.
+- It was much worse
+- It was the first time
+- It was very swollen after a fall
+- It woke him every night
+- Keeping it bent helped
+- Kitchen utensils
+- Last month
+- Last night
+- Last Tuesday
+- Leg presses only
+- Lifting my arm above my head is the hardest.
+- Lifting the arm above the head
+- Long-distance running
+- Lying in bed
+- Lying on his side
+- Moving one ankle
+- Moving the ankle
+- My left wrist bothers me when I work at the computer.
+- My right knee hurts whenever I squat.
+- My right shoulder has been bothering me when I move my arm.
+- Near her elbow
+- Near the end of the move
+- Near the end, when I lifted one of the last boxes.
+- Near the lower edge of the kneecap
+- Neither direction
+- Nine out of ten
+- No, both feet feel normal.
+- No, I can bend and straighten it fully.
+- No, I do not remember an injury.
+- No, I have never had a significant injury there.
+- No, I have not felt any.
+- No, I have not felt either of those.
+- No, I have not noticed either one.
+- No, I have not seen it swell in the evening either.
+- No, it has not looked swollen.
+- No, it stays in my lower back.
+- No, the sensation in my arm and hand feels normal.
+- No, this is the first time my shoulder has felt like this.
+- No, this is the first time.
+- No. I do not remember any fall or sudden twist.
+- No. I have not dropped anything.
+- No. I sleep normally and notice it with activity.
+- No. I slept through the night.
+- No. It feels stable when I stand on it.
+- No. It stays around the front of the knee.
+- No. It stays around the wrist.
+- No. It stays near the outside of my shoulder.
+- On his left shoulder
+- On the back of the left wrist.
+- On the outside of the right shoulder
+- On the right, above his hip
+- Once, after moving furniture last year.
+- One out of ten
+- Only at night
+- Only the ankle moved
+- Only the left foot tingled
+- Only the left shoulder hurt
+- Opening doors
+- Over the ankle
+- Reaching a high shelf is difficult, but desk work is fine.
+- Reaching a high shelf was difficult
+- Rest and a cold pack helped
+- Rest and a cold pack make it feel better.
+- Rolling onto the right side woke him
+- Running became uncomfortable
+- Running caused numbness
+- Running faster helped
+- Running removed the pain
+- Sensation felt normal
+- Seven out of ten
+- She did not remember an injury
+- She fell off a bike
+- She had not felt tingling
+- She had not seen swelling
+- She spent more time entering records
+- She started lifting boxes
+- She took a week off
+- She twisted it in a game
+- Sitting on the floor
+- Sitting removed the pain
+- Six out of ten
+- Sleeping on it helped
+- Squatting and going down stairs
+- Squatting and going down stairs make it worse.
+- Standing hurt more
+- Standing on one leg
+- Standing upright hurt less
+- Standing was impossible
+- Ten out of ten
+- Ten out of ten at rest
+- The arm did not move
+- The final part was painful
+- The foot was numb
+- The hand was numb
+- The knee became numb
+- The left shoulder felt normal
+- The left side woke him
+- The lower back was tender
+- The next morning
+- The outer side was tender
+- The pain became much stronger
+- The pain decreased
+- The pain settles after I stop putting weight on it for a while.
+- The wrist was tender
+- There was a dislocation last week
+- There was a fracture last year
+- There was a fracture yesterday
+- There was a mild episode last year
+- There was no discomfort
+- There was no fall or sudden twist
+- There was no numbness or tingling
+- There was no previous episode
+- There was no significant previous injury
+- There was no swelling or redness
+- There was redness only
+- There was swelling and redness
+- Three out of ten
+- Turning his head
+- Turning the ankle
+- Two days after changing the gym routine
+- Two out of ten
+- Typing for a long time without a break.
+- Typing without breaks
+- Walking was difficult
+- What did Alex say in response?
+- What did Leo say in response?
+- What did Maya say in response?
+- What did Sam say in response?
+- What happens when you rest?
+- What happens when you take a break?
+- What new exercise did you start?
+- What position feels more comfortable?
+- What was inside that box?
+- What were you doing when it started?
+- When did it first bother you?
+- When did the discomfort begin?
+- When did the pain begin?
+- When during the move did you first feel it?
+- Where do you feel the discomfort?
+- Where exactly do you feel the pain?
+- Where in the wrist do you feel it?
+- Which activities make it hurt more?
+- Which hand do you write with?
+- Which movement bothers you most?
+- Which movement makes it worse?
+- Which task makes it worse?
+- With either hand
+- With her left hand
+- With her right hand
+- Yes, but the last part of the movement is painful.
+- Yes, I can walk normally.
+- Yes. I spent longer than usual entering records for a project.
+- Yes. I started using the stairs much more often at work.
+- Yes. It aches when I stand after sitting for a long time.
+- Yes. It improves when I avoid overhead movement.
+- Yes. My left shoulder feels normal.
+- Yesterday evening
+
+
+### Investigación clínica (144)
+
+- A blockage located in the nose
+- A headache due to lack of sleep
+- A possible foodborne illness
+- A possible injury related to the impact
+- A problem starting at the knee
+- A reaction to chemical exposure
+- A side effect from a new medication
+- Alex had diarrhea and nausea along with the pain.
+- Alex hit his head during the game.
+- An injury after a direct impact
+- Bronchi
+- Can you point to the area that hurts?
+- Did anyone who ate with you get sick?
+- Did anything change in your physical activity?
+- Did anything unusual happen yesterday?
+- Did the pain start after a fall?
+- Did you change jobs recently?
+- Did you hit your head yesterday?
+- Did you hit your head?
+- Did you sleep well last night?
+- Did you start wearing new shoes?
+- Did your friend eat the same thing as you?
+- Do you have any known medical conditions?
+- Do you hear whistling when you breathe out?
+- Do you notice a sound when you breathe?
+- Do you think something you ate made you feel sick?
+- Do you usually get headaches when you don’t sleep enough?
+- Do your knees hurt as well?
+- Does it also happen at night?
+- Does it also happen when you exercise indoors?
+- Does it happen only when you run very fast?
+- Does the pain stay in one spot?
+- Does your nose feel blocked?
+- Does your throat hurt when it happens?
+- Does your voice change?
+- Eli hears whistling while exhaling.
+- Four days a week. Until recently I went out only on Sundays.
+- Has anything like this happened to you before?
+- Has this happened before?
+- Have you been able to drink water?
+- Have you checked your temperature?
+- Have you felt nauseous?
+- Have you had a fever?
+- Have you noticed any changes in your concentration?
+- Have you noticed any changes when going to the bathroom?
+- Have you started taking any new medicine?
+- Have you taken any new medicine recently?
+- High on the right side, where I hit my head.
+- How do you feel when the episode ends?
+- How does it feel after you stop?
+- How is your appetite?
+- How long before you went to bed did the pain start?
+- How long has this been happening?
+- How many days did you run before and how many do you run now?
+- How often do you run now?
+- How would you describe the pain?
+- I collided with another player and struck the upper right side of my head on the ground.
+- I didn’t sleep much. My head already hurt when I went to bed.
+- I don’t feel much like eating today.
+- I fell while playing soccer. My head started hurting shortly afterward.
+- I go back to breathing normally.
+- I had trouble following what I was reading today.
+- I have never had this discomfort before.
+- I have noticed it several times this month.
+- I started running four days a week. I used to run only on Sundays.
+- I was getting ready for breakfast.
+- I was playing soccer with some friends.
+- I was running on a cold morning.
+- I went from one day to four days a week.
+- I’m not sure. I ate out with a friend yesterday.
+- I’ve had a headache since yesterday.
+- I’ve had diarrhea and nausea since this morning.
+- Is there one tender spot or a wider area?
+- It also happened when I was jogging slowly.
+- It eases with rest. It still aches a little after a run.
+- It feels like cramps that come and go.
+- It feels like pressure that hasn’t gone away since yesterday.
+- It has happened when I run outside in cold weather.
+- It hurts along the front and inner side of my shin.
+- It is a strip several centimeters long along the shin.
+- It is the inner side of the shin, across a long area.
+- Muscle soreness after physical exertion
+- My stomach has been hurting since this morning.
+- No, I can breathe through my nose.
+- No, I don’t remember having cramps like these before.
+- No, I feel it across my abdomen.
+- No, I have not had a fever.
+- No, I haven’t started taking anything new.
+- No, I haven’t taken anything new.
+- No, I still work in the same place.
+- No, I was out of the house most of yesterday.
+- No, I wear the same running shoes as before.
+- No, I’ve been able to eat normally.
+- No, it came on gradually. I do not remember hitting my leg.
+- No, my knees feel fine.
+- No, my throat feels normal.
+- No, my voice does not change.
+- No, so far it has happened when running outdoors in the cold.
+- No, that doesn’t usually happen to me.
+- None that I know of. I don’t take any daily medication either.
+- Not yet. I don’t have a thermometer at home.
+- On some nights a dry cough wakes me up.
+- Several hours before, shortly after I fell while playing soccer.
+- Shin pain associated with training load
+- Someone who shared the dish also had diarrhea.
+- Sometimes it is hard to breathe. I feel fine now, but it has happened several times.
+- Temporary narrowing of the airways
+- The body of the stomach mixes food with gastric juice. Nausea after the meal points toward assessing the digestive system.
+- The digestive symptoms and the shared meal help guide the investigation. More information would be needed to identify the cause or link it to a specific food.
+- The discomfort covers a strip along the tibia.
+- The duodenum receives the contents of the stomach. It serves here as a landmark for the small intestine. Diarrhea can originate in different sections.
+- The episodes occur while running in cold weather.
+- The friend who shared my dish also has diarrhea.
+- The headache began shortly after the fall.
+- The impact and the timing of the headache point toward assessing a possible injury. A clinical evaluation would be needed to determine what happened.
+- The lower part of my left leg has been hurting for a few days.
+- The marker shows approximately where the bronchi enter the lungs. Wheezing while breathing out during exercise suggests checking whether these airways narrow during exertion.
+- The parietal bones form the upper sides of the skull. Alex describes a blow high on the right side, near the right parietal bone.
+- The recent increase in training and pain spread along the shin suggest looking into repetitive loading. An interview alone cannot distinguish all causes of pain in that area.
+- The right hemisphere is shown as a landmark beneath the impact site. Headache and trouble concentrating guide the assessment, but on their own they cannot locate a brain injury.
+- The tibial shaft is the long part of the shinbone. Nora describes a strip of pain along the inner edge of the left tibia, an area to assess when reviewing running load.
+- The training frequency increased recently.
+- Throat discomfort that changes the voice
+- We ordered a dish I hadn’t tried before.
+- Were you around paint or cleaning products?
+- What does the pain feel like?
+- What happened just before you first felt the pain?
+- What other symptoms have you had?
+- What was different about that meal?
+- What were you doing before it started?
+- What were you doing the last time it happened?
+- What were you doing when it started?
+- What would you investigate first?
+- Wheezing during exhalation and the link with exercise point toward evaluating the airways. Further assessment would be needed to identify the cause of the episodes.
+- When does it usually happen?
+- Where does it hurt exactly?
+- Where on your head do you feel it?
+- Yes, I collided with another player and hit the upper right side of my head when I fell.
+- Yes, I had diarrhea and nausea this morning.
+- Yes, I hear a whistling sound when I breathe out.
+- Yes, I’ve been able to sip water.
+- Yes, there is a whistling sound as I breathe out.
+- Yes, we shared a dish. She told me this morning that she had diarrhea too.
+- Yes, when I fell during the game.
+
+
+### Ordenar actuaciones (28)
+
+- A patient arrives for a routine blood pressure check. In this demonstration, set up the cuff before the quiet rest period.
+- A person is having a generalized seizure. Put these first-aid actions in the learning sequence.
+- An unresponsive patient arrives at the emergency unit. Put the primary assessment steps in order.
+- Apply soap and lather all hand surfaces.
+- Assess and manage the airway.
+- Assess breathing and ventilation.
+- Assess circulation and control major bleeding.
+- Assess neurological disability.
+- Before seeing a patient at an outpatient clinic, a student washes their hands with soap and water.
+- Cushion the head and loosen tight clothing around the neck.
+- Dry your hands with a clean towel or air dryer.
+- Expose as needed and prevent hypothermia.
+- For this exercise, the position and cuff are set up before the quiet rest and measurement.
+- Keep the person safe, do not restrain them and do not put anything in their mouth. Some protective actions may happen at the same time.
+- Let the patient rest quietly in that position for at least five minutes.
+- Place the cuff on the bare upper arm and support the arm at heart level.
+- Record the reading.
+- Remove nearby objects that could cause injury.
+- Rinse under clean running water.
+- Scrub for at least 20 seconds.
+- Seat the patient with their back supported, legs uncrossed and feet flat.
+- Soap and friction help remove germs. Rinsing carries them away, and drying completes the sequence.
+- Stay calm and remain with the person.
+- Take the reading while the patient stays still and quiet.
+- The systematic sequence is Airway, Breathing, Circulation, Disability and Exposure: ABCDE.
+- Time the seizure and seek emergency help when indicated.
+- Turn the person gently onto one side.
+- Wet your hands under clean running water.
+
+
+### Selección múltiple (24)
+
+- A clinician is evaluating a patient with repeated episodes of wheezing. The patient is comfortable at this visit.
+- A patient develops widespread hives, wheezing and difficulty breathing shortly after eating peanuts.
+- After a routine visit, the nurse explains how a patient should use a new home monitoring device.
+- An oral antibiotic
+- Asking the patient to explain the plan in their own words helps the nurse check how clearly it was explained.
+- Blood glucose concentration
+- Blood oxygen saturation
+- Blood pressure in the arm
+- Can you repeat the instructions word for word?
+- Chest X-ray
+- Do you understand everything?
+- During a respiratory assessment, the clinician places a small pulse oximeter on a patient’s finger.
+- Electrocardiogram
+- For a trained healthcare provider, which medicine is the first-line treatment for suspected anaphylaxis?
+- How will you use the device when you get home? Tell me in your own words.
+- Intramuscular adrenaline
+- Intramuscular adrenaline is the first-line treatment for anaphylaxis. Emergency help and continued assessment are also required.
+- Paracetamol
+- Spirometry
+- Spirometry measures exhaled air volume and flow. The results are interpreted with the rest of the assessment.
+- SpO₂ is an estimate of blood oxygen saturation. The device may also report the pulse rate as a separate number.
+- What does the percentage marked SpO₂ estimate?
+- Which question is the best example of teach-back?
+- Which test measures how much air the patient can breathe out and how fast?
+
+
+### Relaciona síntomas y causas (27)
+
+- After hours of editing on my computer, my eyes feel gritty and dry. They feel better away from the screen.
+- After sweating heavily and drinking little water on a hike, I am thirsty, my mouth is dry, and I urinate less than usual.
+- After walking in new boots, I have a clear fluid-filled blister right where the boot rubbed my heel.
+- As the plane landed, one ear felt blocked and under pressure. It cleared after I swallowed.
+- Both thighs hurt when I go downstairs. It started the day after my first squat class.
+- Caffeine close to bedtime
+- Delayed soreness after unfamiliar exercise
+- Dryness appears after prolonged screen use and improves during breaks.
+- Dryness associated with prolonged screen use
+- Fluid loss with little replacement
+- Fluid loss with little replacement coincides with thirst and less urination.
+- Hours after being in the sun, my shoulders are red and tender right where my shirt did not cover them.
+- I felt nauseated while reading on a winding trip. I felt better after getting out.
+- I struggled to fall asleep on nights when I had caffeinated energy drinks at bedtime. On the other nights I slept as usual.
+- In spring, my nose itches, I sneeze, and my eyes water whenever grass is cut nearby.
+- Motion sickness
+- Pressure change during the flight
+- Reaction to pollen
+- Redness and tenderness follow the outline of the sun-exposed skin.
+- Repeated rubbing from footwear
+- Sneezing and nasal itching coincide with repeated exposure to grass in spring.
+- Sunburn
+- The blister appeared exactly where the shoe rubbed repeatedly.
+- The discomfort began with the altitude change and eased when swallowing equalized the pressure.
+- The muscles used in an unfamiliar exercise became sore the following day.
+- The nausea started during motion and eased once the ride ended.
+- Trouble falling asleep coincides with caffeine consumption close to bedtime.

@@ -1,12 +1,14 @@
 import { useSyncExternalStore } from 'react';
-import { ArrowLeft, History } from 'lucide-react';
-import { getProgress, subscribeProgress } from '../../shared/progreso';
-import { useRacha } from '../../shared/progreso/useRacha';
+import { ArrowLeft, RotateCcw } from 'lucide-react';
+import { casos } from '../../content/casos/rodilla';
+import { clinicalCases } from '../../content/casos/session';
+import { retoModeLabels } from '../../content/types';
+import { EvaluationHistoryLink, EvaluationSummary } from '../../shared/evaluacion/EvaluationSummary';
+import type { PerformanceLevel } from '../../shared/evaluacion/scoring';
+import type { RouteProps } from '../../shared/navegacion';
+import { getProgress, subscribeProgress, type PracticeSessionMode } from '../../shared/progreso';
 import { Button } from '../../shared/ui/Button';
-import { Mascota } from '../progreso/mascota/Mascota';
-import { obtenerEvolucion } from '../progreso/mascota/evolucion';
-import { performanceLevel, scoreRatio, type PerformanceLevel } from './clinicalEngine';
-import { ClinicalConfetti } from './ClinicalConfetti';
+import { ContentState } from '../../shared/ui/ContentState';
 import type { Score } from './ClinicalResult';
 
 const levelLabels = {
@@ -16,34 +18,20 @@ const levelLabels = {
 } satisfies Record<PerformanceLevel, string>;
 const levelsInOrder = Object.keys(levelLabels) as PerformanceLevel[];
 
-export function ClinicalSummary({ total, count, levels, onExit }: {
+const casesHref = '#practicar/casos';
+export const clinicalResultHref = (eventId: string) => `${casesHref}/resultado/${encodeURIComponent(eventId)}`;
+
+export function ClinicalSummary({ total, count, levels, mode, onExit, onRepeat }: {
   total: Score;
   count: number;
   levels: Record<PerformanceLevel, number>;
+  mode: PracticeSessionMode;
   onExit: () => void;
+  onRepeat: () => void;
 }) {
-  const { events } = useSyncExternalStore(subscribeProgress, getProgress);
-  const { dias } = useRacha(events);
-  const { actual } = obtenerEvolucion(dias);
-  const percentage = Math.round(scoreRatio(total) * 100);
-  const level = performanceLevel(total);
-  const assisted = total.assisted ?? 0;
-
-  return <section className="lumar-page clinical-session clinical-complete">
-    {level === 'strong' && <ClinicalConfetti/>}
-    <header className="lumar-card clinical-summary-hero" data-level={level}>
-      <div className="clinical-summary-heading">
-        <p className="lumar-eyebrow">Sesión terminada</p>
-        <h1>{count === 5 ? 'Completaste los cinco casos' : 'Completaste la práctica'}</h1>
-        <p>{level === 'strong' ? 'Buen trabajo. Tu práctica quedó registrada.' : 'Tu práctica quedó registrada. Puedes volver a probar cuando quieras.'}</p>
-      </div>
-      <div className="clinical-summary-score">
-        <strong>{percentage}<span>%</span></strong>
-        <span>de aciertos</span>
-      </div>
-      <Mascota className="clinical-summary-mascot" etapa={actual.id}
-        animacion={level === 'strong' ? 'celebracion' : level === 'review' ? 'triste' : 'reposo'}/>
-    </header>
+  return <section className="lumar-page clinical-session evaluation-results">
+    <EvaluationSummary title={count === 5 ? 'Completaste los cinco casos' : 'Completaste la práctica'}
+      label={retoModeLabels[mode]} score={total}/>
     <section className="lumar-card clinical-summary-detail" aria-labelledby="clinical-summary-detail-title">
       <h2 id="clinical-summary-detail-title">Desempeño por caso</h2>
       <div className="clinical-summary-bar" aria-hidden="true">
@@ -55,11 +43,32 @@ export function ClinicalSummary({ total, count, levels, onExit }: {
           <span>{levelLabels[key]}</span><strong>{levels[key]}</strong>
         </li>)}
       </ul>
-      <p className="clinical-session-totals">{total.correct + assisted} aciertos · {assisted} con pista · {total.errors} para revisar · {total.hints ?? 0} pistas</p>
     </section>
-    <div className="clinical-result-actions">
-      <Button onClick={onExit}><ArrowLeft size={17}/> Volver a Casos clínicos</Button>
-      <a className="button button--secondary lumar-link" href="#progreso/practicas"><History size={17}/> Ver mis prácticas</a>
+    <div className="evaluation-actions">
+      <Button onClick={onRepeat}><RotateCcw size={17} aria-hidden="true"/> Repetir</Button>
+      <Button variant="secondary" onClick={onExit}><ArrowLeft size={17} aria-hidden="true"/> Volver a Casos clínicos</Button>
+      <EvaluationHistoryLink/>
+    </div>
+  </section>;
+}
+
+export function ClinicalHistoryResult({ params }: RouteProps) {
+  const { events } = useSyncExternalStore(subscribeProgress, getProgress);
+  const event = events.find(item => item.id === params.intento);
+  if (event?.kind !== 'practice' || event.groupId !== 'clinical-cases') {
+    return <section className="lumar-page">
+      <ContentState state="unavailable" title="Resultado no disponible en este dispositivo"><EvaluationHistoryLink/></ContentState>
+    </section>;
+  }
+
+  const id = event.activityId ?? event.itemId;
+  const title = clinicalCases.find(item => item.id === id)?.titleEs ?? casos.find(item => item.id === id)?.titulo;
+  const label = event.quick ? 'Práctica rápida' : retoModeLabels[event.mode ?? 'entrenamiento'];
+  return <section className="lumar-page clinical-session evaluation-results">
+    <EvaluationSummary key={event.id} title="Resultado del caso" subtitle={title} label={label} score={event}/>
+    <div className="evaluation-actions">
+      <a className="button button--primary lumar-link" href={casesHref}>Volver a Casos clínicos</a>
+      <EvaluationHistoryLink/>
     </div>
   </section>;
 }

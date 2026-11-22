@@ -50,7 +50,8 @@ test('LumAR recorre sus secciones y subrutas a 375 px', async ({ page }, testInf
   await expect(page).toHaveURL(/#practicar\/casos$/);
   await expect(page.getByRole('heading', { name: 'Casos clínicos' })).toBeVisible();
   expect(await page.getByText(/dolor femoropatelar/i).count()).toBe(0);
-  await page.getByRole('button', { name: 'Empezar sesión de 5 casos' }).click();
+  await page.getByRole('button', { name: 'Configurar sesión mixta' }).click();
+  await page.getByRole('button', { name: 'Empezar práctica', exact: true }).click();
   await expect(page.getByText('Caso 1 de 5')).toBeVisible();
   await shot('casos');
 

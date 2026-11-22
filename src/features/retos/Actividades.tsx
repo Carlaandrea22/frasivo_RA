@@ -4,10 +4,14 @@ import { estructuras } from '../../content/anatomy/catalogo';
 import { modelos } from '../../content/anatomy/modelos';
 import { anotaciones } from '../../content/anotaciones/anatomia';
 import type { PreguntaReto } from '../../content/types';
+import { EvaluationOption } from '../../shared/evaluacion/EvaluationOption';
+import { useEvaluationPronunciation } from '../../shared/evaluacion/useEvaluationPronunciation';
 import { Button } from '../../shared/ui/Button';
 import { ContentState } from '../../shared/ui/ContentState';
 import type { Viewer3DProjectedAnchor } from '../../shared/visor3d/Viewer3D';
 import { distribuirEtiquetas, maxEtiquetasMovil } from '../explorar/atlas';
+import { EnglishTerm } from '../../shared/ui/EnglishTerm';
+import { terminoRespuesta, tituloPareja } from './terminos';
 import { nombreEstructura, type Respuestas } from './intentos';
 
 const Viewer3D = lazy(() => import('../../shared/visor3d/Viewer3D'));
@@ -46,17 +50,14 @@ interface TableroProps {
   onRemove: (pregunta: string) => void;
 }
 
-function nombrePareja(pregunta: PreguntaReto) {
-  const anotacionId = pregunta.respuestas.find(opcion => opcion.id === pregunta.correctaId)?.anotacionId;
-  return anotaciones.find(anotacion => anotacion.id === anotacionId)?.etiquetaEs ?? nombreEstructura(pregunta.estructuraId);
-}
-
 export function Relacionar({ preguntas, respuestas, bloqueado, onAssign }: Omit<TableroProps, 'onRemove'>) {
   const [editando, setEditando] = useState<string>();
   const heading = useRef<HTMLHeadingElement>(null);
   const enfocar = useRef(false);
   const pendiente = preguntas.find(pregunta => !respuestas[pregunta.id]);
   const activa = bloqueado ? undefined : preguntas.find(pregunta => pregunta.id === editando) ?? pendiente;
+  useEvaluationPronunciation(activa?.id);
+  const consigna = activa && tituloPareja(activa);
   const seleccionadas = preguntas.filter(pregunta => respuestas[pregunta.id]);
 
   useEffect(() => {
@@ -71,24 +72,25 @@ export function Relacionar({ preguntas, respuestas, bloqueado, onAssign }: Omit<
   }
 
   return <div className="retos-pairs">
-    {activa && <>
+    {activa && consigna && <>
       <div className="retos-pair-current">
         <p className="retos-meta">{editando ? 'Editar la función de' : 'Elige la función de'}</p>
-        <h3 ref={heading} tabIndex={-1}>{nombrePareja(activa)}</h3>
+        <h3 ref={heading} tabIndex={-1}>{consigna.texto}</h3>
+        {consigna.terminoEn && <EnglishTerm key={consigna.terminoEn} term={consigna.terminoEn} variant="compact"/>}
       </div>
       <div className="retos-option-list" role="group" aria-label="Funciones">
         {activa.respuestas.map(opcion => {
           const asignada = preguntas.find(pregunta => respuestas[pregunta.id] === opcion.id);
           if (asignada && !editando) return null;
           const actual = asignada?.id === activa.id;
-          return <Button key={opcion.id} variant="answer" className="retos-pair-option"
+          return <EvaluationOption key={opcion.id}
             aria-pressed={editando ? actual : undefined} onClick={() => {
               onAssign(activa.id, opcion.id);
               editar(undefined);
             }}>
             <span>{opcion.texto}</span>
-            {asignada && <small>{actual ? 'Función actual' : `Intercambiar con ${nombrePareja(asignada)}`}</small>}
-          </Button>;
+            {asignada && <small>{actual ? 'Función actual' : `Intercambiar con ${tituloPareja(asignada).texto}`}</small>}
+          </EvaluationOption>;
         })}
       </div>
       {editando && <Button variant="text" className="retos-start" onClick={() => editar(undefined)}>Cancelar edición</Button>}
@@ -97,10 +99,11 @@ export function Relacionar({ preguntas, respuestas, bloqueado, onAssign }: Omit<
       <h3 ref={activa ? undefined : heading} tabIndex={activa ? undefined : -1}>{activa || bloqueado ? 'Tus parejas' : 'Revisa tus parejas'}</h3>
       <ul className="retos-pair-list">
         {seleccionadas.map(pregunta => {
-          const nombre = nombrePareja(pregunta);
+          const { texto: nombre, terminoEn } = tituloPareja(pregunta);
           const respuesta = pregunta.respuestas.find(opcion => opcion.id === respuestas[pregunta.id]);
           return <li key={pregunta.id}>
-            <div><strong><Link2 size={16} aria-hidden="true"/>{nombre}</strong><p>{respuesta?.texto}</p></div>
+            <div><strong><Link2 size={16} aria-hidden="true"/>{nombre}</strong><p>{respuesta?.texto}</p>
+              {terminoEn && <EnglishTerm term={terminoEn} variant="compact"/>}</div>
             {!bloqueado && <Button variant="text" disabled={editando === pregunta.id} aria-label={`Editar pareja de ${nombre}`}
               onClick={() => editar(pregunta.id)}>Editar</Button>}
           </li>;
@@ -166,13 +169,17 @@ export function Ubicar({ preguntas, respuestas, bloqueado, onAssign, onRemove }:
     <div className="retos-dock" role="group" aria-label="Etiquetas de partes">
       {opciones.map(opcion => {
         const colocada = Object.values(respuestas).includes(opcion.id);
-        return <Button key={opcion.id} variant="secondary" className="retos-token" disabled={bloqueado || colocada}
-          aria-pressed={ficha === opcion.id && !colocada}
-          draggable={!bloqueado && !colocada}
-          onDragStart={event => { event.dataTransfer.setData('text/plain',opcion.id); event.dataTransfer.effectAllowed = 'move'; }}
-          onClick={() => setFicha(ficha === opcion.id ? undefined : opcion.id)}>
-          <GripVertical size={16} aria-hidden="true"/>{opcion.texto}
-        </Button>;
+        const termino = terminoRespuesta(preguntas[0].estructuraId, opcion.texto);
+        return <div key={opcion.id} className="retos-token-with-audio">
+          <Button variant="secondary" className="retos-token" disabled={bloqueado || colocada}
+            aria-pressed={ficha === opcion.id && !colocada}
+            draggable={!bloqueado && !colocada}
+            onDragStart={event => { event.dataTransfer.setData('text/plain',opcion.id); event.dataTransfer.effectAllowed = 'move'; }}
+            onClick={() => setFicha(ficha === opcion.id ? undefined : opcion.id)}>
+            <GripVertical size={16} aria-hidden="true"/>{opcion.texto}
+          </Button>
+          {termino && <EnglishTerm term={termino} variant="compact"/>}
+        </div>;
       })}
     </div>
   </>;
@@ -243,8 +250,16 @@ export function Senalar({ pregunta, respuesta, bloqueado, onSelect }: {
 export function Repasar({ pregunta, respuesta, bloqueado, onSelect }: {
   pregunta: PreguntaReto; respuesta?: string; bloqueado: boolean; onSelect: (id: string) => void;
 }) {
+  const opciones = pregunta.respuestas.map(opcion => ({
+    ...opcion, termino: terminoRespuesta(pregunta.estructuraId, opcion.texto),
+  }));
+  const pronunciables = opciones.every(opcion => opcion.termino);
   return <div className="retos-option-list" role="group" aria-label="Respuestas">
-    {pregunta.respuestas.map(opcion => <Button key={opcion.id} variant="answer" disabled={bloqueado}
-      aria-pressed={opcion.id === respuesta} onClick={() => onSelect(opcion.id)}>{opcion.texto}</Button>)}
+    {opciones.map(opcion => <EvaluationOption key={opcion.id} disabled={bloqueado}
+      aria-label={opcion.texto} pronunciation={pronunciables ? opcion.termino : undefined}
+      aria-pressed={opcion.id === respuesta} onClick={() => onSelect(opcion.id)}>
+      <span>{opcion.texto}</span>
+      {pronunciables && <small lang="en">{opcion.termino}</small>}
+    </EvaluationOption>)}
   </div>;
 }

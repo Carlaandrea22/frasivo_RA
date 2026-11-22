@@ -1,8 +1,10 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type PointerEvent } from 'react';
 import { Link2, RotateCcw, UserRound } from 'lucide-react';
 import type { MatchingCase } from '../../content/casos/sessionTypes';
+import { useEvaluationPronunciation } from '../../shared/evaluacion/useEvaluationPronunciation';
 import { Button } from '../../shared/ui/Button';
 import { Card } from '../../shared/ui/Card';
+import { EnglishTerm } from '../../shared/ui/EnglishTerm';
 import { Bilingual } from './Bilingual';
 import { CaseResult, type CaseStepProps, type Score } from './ClinicalResult';
 import { shuffled } from './clinicalEngine';
@@ -43,6 +45,7 @@ export function ClinicalMatching({ item, ...step }: CaseStepProps<MatchingCase>)
   const ignoreClick = useRef(false);
   const causes = useMemo(() => shuffled(item.causes), [item]);
   const dragging = !!preview;
+  useEvaluationPronunciation(score ? 'result' : 'matching');
 
   useLayoutEffect(() => {
     const area = board.current;
@@ -197,26 +200,26 @@ export function ClinicalMatching({ item, ...step }: CaseStepProps<MatchingCase>)
       <div className="clinical-match-row clinical-match-patients">
         {item.patients.map((patient, index) => {
           const linked = causes.find(cause => cause.id === connections[patient.id]);
-          return <Button key={patient.id} variant="answer" className="clinical-match-node" data-match-source={patient.id}
+          return <div key={patient.id} className="clinical-match-item"><Button variant="answer" className="clinical-match-node" data-match-source={patient.id}
             data-linked={!!linked} aria-label={`Caso de ${patient.name}`} aria-describedby={`match-clue-${patient.id}`}
             {...nodeEvents({ side: 'patient', id: patient.id })}>
             <strong><UserRound size={16} aria-hidden="true"/> {patient.name}</strong>
-            <span id={`match-clue-${patient.id}`}><Bilingual es={patient.textEs} en={patient.textEn}/>
+            <span id={`match-clue-${patient.id}`}><Bilingual es={patient.textEs} en={patient.textEn} audio={false}/>
               {linked && <span className="clinical-match-connection">Conectado a {linked.textEs}</span>}
             </span>
             <span className="clinical-match-port" data-match-port={endpointKey({ side: 'patient', id: patient.id })} aria-hidden="true" style={{ color: colors[index] }}/>
-          </Button>;
+          </Button><EnglishTerm term={patient.textEn} variant="button"/></div>;
         })}
       </div>
       <h2 className="clinical-match-causes-title">Posibles causas</h2>
       <div className="clinical-match-row clinical-match-causes">
         {causes.map(cause => {
           const owner = item.patients.findIndex(patient => connections[patient.id] === cause.id);
-          return <Button key={cause.id} variant="answer" className="clinical-match-node" data-match-cause={cause.id}
+          return <div key={cause.id} className="clinical-match-item"><Button variant="answer" className="clinical-match-node" data-match-cause={cause.id}
             data-linked={owner >= 0} {...nodeEvents({ side: 'cause', id: cause.id })}>
             <span className="clinical-match-port" data-match-port={endpointKey({ side: 'cause', id: cause.id })} aria-hidden="true" style={{ color: colors[owner] }}/>
-            <Bilingual es={cause.textEs} en={cause.textEn}/>
-          </Button>;
+            <Bilingual es={cause.textEs} en={cause.textEn} audio={false}/>
+          </Button><EnglishTerm term={cause.textEn} variant="button"/></div>;
         })}
       </div>
     </div>

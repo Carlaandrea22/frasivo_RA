@@ -7,7 +7,8 @@ test.beforeEach(async ({ page }) => {
 async function completarCaso(page: Page) {
   await page.goto('/#practicar/casos');
   await page.getByRole('button', { name: 'Practicar solo Selección múltiple' }).click();
-  await page.getByRole('button', { name: 'An oral antibiotic' }).click();
+  await page.getByRole('button', { name: 'Empezar práctica', exact: true }).click();
+  await page.getByRole('button', { name: /^Un antibiótico por vía oral/ }).click();
   await page.getByRole('button', { name: 'Comprobar respuesta' }).click();
   await page.getByRole('button', { name: 'Ver resultados' }).click();
   await page.getByRole('button', { name: 'Volver a Casos clínicos' }).click();

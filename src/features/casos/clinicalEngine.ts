@@ -7,6 +7,10 @@ import type {
   InterviewRecallOption,
   InterviewResponse,
 } from '../../content/casos/sessionTypes';
+import { estructuras } from '../../content/anatomy/catalogo';
+import type { CategoriaAnatomica } from '../../content/types';
+
+export { isPerfectCase, isPerfectWithoutHints, performanceLevel, scoreRatio, strongScoreRatio, type PerformanceLevel } from '../../shared/evaluacion/scoring';
 
 export type RandomSource = () => number;
 
@@ -23,19 +27,26 @@ export function shuffled<T>(items: readonly T[], random: RandomSource = Math.ran
   return result;
 }
 
-export function buildCaseSession(ids: readonly string[], random: RandomSource = Math.random): string[] {
-  return shuffled([...new Set(ids)], random).slice(0, 5);
+const categoryByStructure = new Map(estructuras.map(item => [item.id, item.categoria]));
+
+export function casesForTopic(cases: readonly ClinicalCase[], topic: CategoriaAnatomica | 'aleatorio') {
+  return topic === 'aleatorio' ? cases : cases.filter(item =>
+    item.structuresRelated.some(id => categoryByStructure.get(id) === topic));
 }
 
-export function buildMixedCaseSession(cases: readonly ClinicalCase[], random: RandomSource = Math.random): string[] {
+export function buildCaseSession(ids: readonly string[], random: RandomSource = Math.random, count = 5): string[] {
+  return shuffled([...new Set(ids)], random).slice(0, count);
+}
+
+export function buildMixedCaseSession(cases: readonly ClinicalCase[], random: RandomSource = Math.random, count = 5): string[] {
   const pool = shuffled(cases, random);
   const firstByKind = new Map<ClinicalCase['kind'], string>();
   for (const item of pool) {
     if (!firstByKind.has(item.kind)) firstByKind.set(item.kind, item.id);
   }
-  const required = [...firstByKind.values()];
-  const extras = pool.filter(item => firstByKind.get(item.kind) !== item.id).slice(0, 5 - required.length);
-  return buildCaseSession([...required, ...extras.map(item => item.id)], random);
+  const required = [...firstByKind.values()].slice(0, count);
+  const extras = pool.filter(item => firstByKind.get(item.kind) !== item.id).slice(0, count - required.length);
+  return buildCaseSession([...required, ...extras.map(item => item.id)], random, count);
 }
 
 export interface RecallQuestion {
@@ -113,32 +124,6 @@ export function scoreInvestigation(item: InvestigationCase, path: readonly strin
   const findings = item.findings.filter(finding => foundIds.has(finding.id));
   const correct = Number(hypothesisId === item.preferredHypothesisId);
   return { findings, correct, errors: 1 - correct };
-}
-
-export type PerformanceLevel = 'strong' | 'partial' | 'review';
-
-type GradedScore = { correct: number; errors: number; assisted?: number; hints?: number; retried?: boolean };
-export const strongScoreRatio = .8;
-
-export function scoreRatio(score: GradedScore) {
-  const correct = score.correct + (score.assisted ?? 0);
-  const total = correct + score.errors;
-  return total > 0 ? correct / total : 0;
-}
-
-export function isPerfectCase(score: GradedScore) {
-  return !score.retried && scoreRatio(score) === 1;
-}
-
-export function isPerfectWithoutHints(score: GradedScore) {
-  return isPerfectCase(score) && !score.assisted && !score.hints;
-}
-
-export function performanceLevel(score: GradedScore): PerformanceLevel {
-  const ratio = scoreRatio(score);
-  if (ratio >= strongScoreRatio) return 'strong';
-  if (ratio >= .5) return 'partial';
-  return 'review';
 }
 
 export function moveItem(items: readonly string[], fromIndex: number, toIndex: number): string[] {

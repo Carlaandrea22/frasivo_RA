@@ -64,7 +64,7 @@ export const clinicalCases: readonly ClinicalCase[] = [{
   patientName: 'Alex', openingEn: 'My right knee hurts whenever I squat.',
   openingEs: 'Me duele la rodilla derecha cada vez que me pongo en cuclillas.',
   roots: ['k-onset', 'k-location', 'k-trigger'], nodes: kneeNodes,
-  structuresRelated: ['femur', 'patella'], revision: interviewRevision,
+  structuresRelated: ['femur', 'patella', 'quadriceps_femoris'], revision: interviewRevision,
 }, {
   id: 'shoulder-conversation', kind: 'interview', titleEs: 'Entrevista · Molestia en el hombro',
   summaryEs: 'Pregunta a Sam por su molestia y comprueba cuánto entendiste.',
@@ -72,7 +72,7 @@ export const clinicalCases: readonly ClinicalCase[] = [{
   patientName: 'Sam', openingEn: 'My right shoulder has been bothering me when I move my arm.',
   openingEs: 'Me molesta el hombro derecho cuando muevo el brazo.',
   roots: ['s-onset', 's-location', 's-movement'], nodes: shoulderNodes,
-  structuresRelated: [], revision: interviewRevision,
+  structuresRelated: ['deltoid', 'humerus'], revision: interviewRevision,
 }, {
   id: 'primary-assessment-order', kind: 'ordering', titleEs: 'Orden clínico · Evaluación inicial',
   summaryEs: 'Ordena los cinco pasos de una evaluación inicial sistemática.',
@@ -88,7 +88,7 @@ export const clinicalCases: readonly ClinicalCase[] = [{
   ],
   explanationEs: 'La secuencia ABCDE revisa la vía aérea, la respiración, la circulación, el estado neurológico y la exposición del paciente.',
   explanationEn: 'The systematic sequence is Airway, Breathing, Circulation, Disability and Exposure: ABCDE.',
-  structuresRelated: [],
+  structuresRelated: ['lungs', 'heart'],
   revision: { estado: 'provisional', fuentes: [{ titulo: 'WHO–ICRC · Basic Emergency Care', url: 'https://www.who.int/publications/i/item/basic-emergency-care-approach-to-the-acutely-ill-and-injured' }] },
 }, {
   id: 'seizure-first-aid-order', kind: 'ordering', titleEs: 'Orden clínico · Convulsión',
@@ -105,7 +105,7 @@ export const clinicalCases: readonly ClinicalCase[] = [{
   ],
   explanationEs: 'Protege a la persona, evita sujetarla y no le pongas nada en la boca. Algunas medidas de protección se pueden hacer al mismo tiempo.',
   explanationEn: 'Keep the person safe, do not restrain them and do not put anything in their mouth. Some protective actions may happen at the same time.',
-  structuresRelated: [],
+  structuresRelated: ['brain'],
   revision: { estado: 'provisional', fuentes: [{ titulo: 'CDC · First Aid for Seizures', url: 'https://www.cdc.gov/epilepsy/first-aid-for-seizures/' }] },
 }, {
   id: 'anaphylaxis-choice', kind: 'multiple-choice', titleEs: 'Decisión clínica · Reacción alérgica',
@@ -123,6 +123,6 @@ export const clinicalCases: readonly ClinicalCase[] = [{
   correctId: 'adrenaline',
   explanationEs: 'La adrenalina intramuscular es el tratamiento de primera línea para la anafilaxia. También se requiere ayuda de emergencia y una evaluación continua.',
   explanationEn: 'Intramuscular adrenaline is the first-line treatment for anaphylaxis. Emergency help and continued assessment are also required.',
-  structuresRelated: [],
+  structuresRelated: ['lungs'],
   revision: { estado: 'provisional', fuentes: [{ titulo: 'Resuscitation Council UK · Emergency treatment of anaphylaxis', url: 'https://www.resus.org.uk/library/additional-guidance/guidance-anaphylaxis/emergency-treatment-anaphylactic-reactions' }] },
 }, ...investigationCases, ...additionalInterviewCases, ...additionalOrderingCases, ...additionalMultipleChoiceCases, ...matchingCases];
