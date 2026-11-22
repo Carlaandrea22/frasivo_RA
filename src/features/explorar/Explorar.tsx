@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, ChevronRight, Eye, EyeOff } from 'lucide-react';
 import { categorias, estructuras } from '../../content/anatomy/catalogo';
+import { gruposEtiquetasCorazon } from '../../content/anatomy/corazon';
 import { modelos } from '../../content/anatomy/modelos';
 import { anotaciones } from '../../content/anotaciones/anatomia';
 import { retos } from '../../content/ejercicios/retos';
@@ -55,14 +56,19 @@ function Ficha({ item }: { item: Estructura }) {
   const tap = useRef({ x: 0, y: 0 });
   const [size, setSize] = useState({ width: 343, height: 420 });
   const [showLabels, setShowLabels] = useState(true);
+  const [groupIndex, setGroupIndex] = useState(0);
   const [selectedPart, setSelectedPart] = useState<string>();
   const [screenPoints, setScreenPoints] = useState<readonly Viewer3DProjectedAnchor[]>([]);
   const annotations = useMemo(() => anotaciones.filter(label => label.estructuraId === item.id), [item.id]);
   const anchors = useMemo(() => annotations.map(({ id, nodeId, punto }) => ({ id, nodeId, point: punto })), [annotations]);
   const selectedAnnotation = annotations.find(a => a.parteId === selectedPart);
   const selected = item.partes.find(p => p.id === selectedPart);
-  const labels = distribuirEtiquetas(screenPoints, size.width, size.height, selectedAnnotation?.id);
   const model = item.modelo && modelos[item.modelo.assetId];
+  const group = item.id === 'heart' && model ? gruposEtiquetasCorazon[groupIndex] : undefined;
+  const groupPoints = group ? screenPoints.filter(point =>
+    annotations.some(note => note.id === point.id && group.partes.includes(note.parteId)),
+  ) : screenPoints;
+  const labels = distribuirEtiquetas(groupPoints, size.width, size.height, selectedAnnotation?.id);
   const related = estructuras.filter(i => item.relacionadas.includes(i.id));
   const practices = retos.filter(r => r.estructurasRelacionadas.includes(item.id));
   const practiceLink = practices.length === 1 ? `#practicar/retos/${practices[0].id}` : `#practicar/retos/estructura/${item.id}`;
@@ -82,6 +88,13 @@ function Ficha({ item }: { item: Estructura }) {
     return () => observer.disconnect();
   }, []);
 
+  function selectPart(partId?: string) {
+    setSelectedPart(partId);
+    if (!group || !partId || group.partes.includes(partId)) return;
+    const index = gruposEtiquetasCorazon.findIndex(candidate => candidate.partes.includes(partId));
+    if (index >= 0) setGroupIndex(index);
+  }
+
   const selectNode = (id: string | null) => {
     const candidates = annotations.filter(a => a.nodeId === id || id?.startsWith(`${a.nodeId}_geometry`));
     const distance = (note: typeof annotations[number]) => {
@@ -89,7 +102,7 @@ function Ficha({ item }: { item: Estructura }) {
       return p ? Math.hypot(p.x-tap.current.x, p.y-tap.current.y) : Infinity;
     };
     const part = candidates.sort((a,b) => distance(a)-distance(b))[0];
-    setSelectedPart(part?.parteId);
+    selectPart(part?.parteId);
   };
 
   return <section className="lumar-page explorar-page">
@@ -98,7 +111,7 @@ function Ficha({ item }: { item: Estructura }) {
       <h1>{item.nombreEs}</h1>
     </header>
     <div className="explorar-detail">
-      <div className="explorar-view" ref={frame} onPointerUpCapture={event => {
+      <div className={group ? 'explorar-view explorar-view--grouped' : 'explorar-view'} ref={frame} onPointerUpCapture={event => {
         const stage = frame.current?.querySelector('.viewer3d__stage')?.getBoundingClientRect();
         if (stage) tap.current = { x: event.clientX-stage.left, y: event.clientY-stage.top };
       }}>
@@ -123,6 +136,17 @@ function Ficha({ item }: { item: Estructura }) {
             </>}
           </Viewer3D>
         </Suspense> : <ContentState state="unavailable" title="Modelo 3D no disponible"/>}
+        {group && <div className="explorar-label-groups" role="group" aria-label="Grupos de etiquetas del corazón">
+          <div role="status" className="explorar-label-status">
+            <span>Etiquetas {groupIndex + 1} de {gruposEtiquetasCorazon.length}</span>
+            <strong>{group.nombre}</strong>
+          </div>
+          <Button variant="secondary" onClick={() => {
+            setGroupIndex((groupIndex + 1) % gruposEtiquetasCorazon.length);
+            setSelectedPart(undefined);
+            setShowLabels(true);
+          }}>Siguiente grupo<ChevronRight size={16} aria-hidden="true"/></Button>
+        </div>}
         {annotations.length > 0 && <Button className="explorar-toggle" variant="secondary" aria-label={showLabels ? 'Ocultar etiquetas' : 'Mostrar etiquetas'} aria-pressed={showLabels} onClick={() => setShowLabels(s => !s)}>
           {showLabels ? <Eye size={20}/> : <EyeOff size={20}/>}
         </Button>}
@@ -135,7 +159,7 @@ function Ficha({ item }: { item: Estructura }) {
         <section><h3>Función</h3><p>{item.funcion}</p></section>
         {item.partes.length > 0 && <section>
           <h3>Partes</h3><div className="explorar-parts" role="group" aria-label="Seleccionar parte anatómica">
-            {item.partes.map(part => <Button variant="secondary" key={part.id} aria-pressed={part.id === selectedPart} onClick={() => setSelectedPart(part.id)}>{part.nombreEs}</Button>)}
+            {item.partes.map(part => <Button variant="secondary" key={part.id} aria-pressed={part.id === selectedPart} onClick={() => selectPart(part.id)}>{part.nombreEs}</Button>)}
           </div>
           {selected && <section className="explorar-part-detail" aria-label="Parte seleccionada" aria-live="polite">
             <h3>{selected.nombreEs}</h3><EnglishTerm term={selected.terminoEn}/><p>{selected.ubicacion}</p><p>{selected.funcion}</p>

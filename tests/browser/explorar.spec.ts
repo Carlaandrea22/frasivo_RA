@@ -15,6 +15,18 @@ for (const width of [375, 1440]) test(`Explorar: catálogo y corazón a ${width}
   await page.getByRole('link', { name: /Ver corazón/i }).click();
   await expect(page.locator('[data-viewer-state="ready"]')).toBeVisible();
   await expect(page.locator('.explorar-parts button')).toHaveCount(15);
+  const grupos = page.getByRole('group', { name: 'Grupos de etiquetas del corazón' });
+  const siguiente = grupos.getByRole('button', { name: 'Siguiente grupo' });
+  const etiquetas = page.locator('.explorar-atlas-label strong');
+  const vistas = new Set<string>();
+  for (const [grupo, cantidad] of [['Cámaras', 4], ['Válvulas', 4], ['Aorta y venas cavas', 3], ['Vasos pulmonares', 4]] as const) {
+    await expect(grupos.getByRole('status')).toContainText(grupo);
+    await expect(etiquetas).toHaveCount(cantidad);
+    for (const nombre of await etiquetas.allTextContents()) vistas.add(nombre);
+    await siguiente.click();
+  }
+  expect([...vistas].sort()).toEqual((await page.locator('.explorar-parts button').allTextContents()).sort());
+  await expect(grupos.getByRole('status')).toContainText('Cámaras');
   const point = await page.locator('.explorar-leaders circle').first().evaluate(n => ({ x: Number(n.getAttribute('cx')), y: Number(n.getAttribute('cy')) }));
   await page.locator('canvas').click({ position: point });
   await expect(page.locator('.explorar-parts button[aria-pressed="true"]')).toHaveCount(1);
@@ -22,7 +34,9 @@ for (const width of [375, 1440]) test(`Explorar: catálogo y corazón a ${width}
   await selected.click();
   await expect(selected).toHaveAttribute('aria-pressed', 'true');
   await expect(page.getByRole('region', { name: 'Parte seleccionada' })).toContainText('Mitral valve');
-  await expect(page.locator('.explorar-atlas-label')).toHaveCount(width === 375 ? 6 : 12);
+  await expect(grupos.getByRole('status')).toContainText('Válvulas');
+  await expect(page.locator('.explorar-atlas-label')).toHaveCount(4);
+  await expect(page.locator('.explorar-atlas-label[aria-pressed="true"]')).toContainText('Válvula mitral');
   await page.getByRole('button', { name: 'Ocultar etiquetas' }).click();
   await expect(page.locator('.explorar-atlas-label')).toHaveCount(0);
   await page.getByRole('button', { name: 'Mostrar etiquetas' }).click();

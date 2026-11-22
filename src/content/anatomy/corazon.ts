@@ -4,6 +4,14 @@ export const revisionCorazon: Revision = {
   estado: 'provisional',
   fuentes: [{ titulo: 'OpenStax · Heart Anatomy', url: 'https://openstax.org/books/anatomy-and-physiology-2e/pages/19-1-heart-anatomy' }],
 };
+
+export const gruposEtiquetasCorazon: readonly { nombre: string; partes: readonly string[] }[] = [
+  { nombre: 'Cámaras', partes: ['right_atrium', 'right_ventricle', 'left_atrium', 'left_ventricle'] },
+  { nombre: 'Válvulas', partes: ['tricuspid_valve', 'pulmonary_valve', 'mitral_valve', 'aortic_valve'] },
+  { nombre: 'Aorta y venas cavas', partes: ['aorta', 'superior_vena_cava', 'inferior_vena_cava'] },
+  { nombre: 'Vasos pulmonares', partes: ['pulmonary_trunk', 'right_pulmonary_artery', 'left_pulmonary_artery', 'pulmonary_veins'] },
+];
+
 // IDs exactos de las quince mallas del modelo esquemático existente.
 export const partesCorazon: readonly ParteAnatomica[] = [
   { id: 'right_atrium', nombreEs: 'Aurícula derecha', terminoEn: 'Right atrium', ubicacion: 'Cámara superior derecha.', funcion: 'Recibe el retorno venoso sistémico y lo conduce al ventrículo derecho.' },
