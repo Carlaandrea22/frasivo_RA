@@ -2,6 +2,10 @@ import { cp, readdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { gzipSync } from 'node:zlib';
 
+const pushTest = process.argv.includes('--push-test');
+const output = pushTest ? 'dist-push-test' : 'dist';
+const pushWorker = pushTest ? await readFile(new URL('./push-test-worker.js', import.meta.url), 'utf8') : '';
+
 async function walk(dir) {
   const result = [];
   for (const entry of await readdir(dir, { withFileTypes: true })) {
@@ -20,7 +24,15 @@ const publicFiles = [
   ...(await readdir('public')).filter(name => pagesConfig.has(name)),
 ];
 for (const file of publicFiles) {
-  await cp(`public/${file}`, `dist/${file}`, { recursive: true });
+  await cp(`public/${file}`, `${output}/${file}`, { recursive: true });
+}
+if (pushTest) {
+  const manifestPath = `${output}/manifest.webmanifest`;
+  const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
+  manifest.name = 'LumAR · Prueba de notificaciones';
+  manifest.short_name = 'LumAR Push';
+  manifest.start_url = '/#progreso/notificaciones';
+  await writeFile(manifestPath, JSON.stringify(manifest, null, 2));
 }
 
 const tracking = {
@@ -35,11 +47,11 @@ const nosimd = [
   '/body-tracking/wasm/vision_wasm_nosimd_internal.js',
   '/body-tracking/wasm/vision_wasm_nosimd_internal.wasm',
 ];
-await writeFile(`dist${packedSimd}`, gzipSync(await readFile(`dist${simd}`)));
+await writeFile(`${output}${packedSimd}`, gzipSync(await readFile(`${output}${simd}`)));
 
-const files = (await walk('dist')).sort();
+const files = (await walk(output)).sort();
 // Pages consumes these config files and redirects /index.html to /.
-const urls = files.map(file => file.slice(4))
+const urls = files.map(file => file.slice(output.length))
   .filter(url => url !== '/index.html' && !pagesConfig.has(url.slice(1)));
 for (const required of ['/body-tracking/pose_landmarker_lite.task', ...Object.values(tracking).map(([url]) => url)]) {
   if (!urls.includes(required)) throw new Error(`Falta ${required}. Ejecuta npm run assets antes de compilar.`);
@@ -73,18 +85,19 @@ for (const url of urls) {
 
 const optional = new Set([simd, ...nosimd, ...Object.values(tracking).map(([url]) => url), ...Object.values(layers).flat()]);
 const shell = ['/', ...urls.filter(url => !optional.has(url))];
-const bytes = (await Promise.all(shell.map(url => stat(`dist${url === '/' ? '/index.html' : url}`))))
+const bytes = (await Promise.all(shell.map(url => stat(`${output}${url === '/' ? '/index.html' : url}`))))
   .reduce((total, info) => total + info.size, 0);
 if (bytes > 20_000_000) throw new Error(`La precaché de LumAR supera 20 MB (${bytes} bytes).`);
 
 const runtime = await readFile(new URL('./sw-runtime.js', import.meta.url), 'utf8');
 const config = { shell, layers, simd, packedSimd, nosimd, tracking };
 const hash = createHash('sha256');
-hash.update(runtime).update(JSON.stringify(config));
+hash.update(runtime).update(JSON.stringify(config)).update(pushWorker);
 for (const file of files) hash.update(await readFile(file));
 const cacheName = `lumar-shell-${hash.digest('hex').slice(0, 12)}`;
-await writeFile('dist/sw.js', `// Generated from the exact build.
+await writeFile(`${output}/sw.js`, `// Generated from the exact build.
 const NAME = ${JSON.stringify(cacheName)};
 const CONFIG = ${JSON.stringify(config)};
-${runtime}`);
+${runtime}
+${pushWorker}`);
 console.log(`PWA: ${shell.length} recursos precargados, ${bytes.toLocaleString('es')} bytes. Caché: ${cacheName}`);

@@ -58,6 +58,17 @@ export interface Anotacion extends Revisable {
 export type TipoReto = 'ubica-partes' | 'senala-estructura' | 'relaciona-funcion' | 'repaso-breve';
 export type ModoReto = 'entrenamiento' | 'evaluacion';
 
+export const retoTypeLabels = {
+  'ubica-partes': 'Ubica las partes',
+  'senala-estructura': 'Señala la estructura',
+  'relaciona-funcion': 'Relaciona estructura y función',
+  'repaso-breve': 'Repaso breve',
+} satisfies Record<TipoReto, string>;
+
+export const retoModeLabels = {
+  entrenamiento: 'Entrenamiento', evaluacion: 'Evaluación',
+} satisfies Record<ModoReto, string>;
+
 export interface RespuestaReto {
   id: string;
   texto: string;

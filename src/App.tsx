@@ -1,6 +1,9 @@
-import { useSyncExternalStore } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { Activity, BookOpen, Box, ScanLine } from 'lucide-react';
 import { anatomyArea } from './content/anatomy/area';
+import { RecordatorioRacha } from './features/progreso/mascota/RecordatorioRacha';
+import { QuickInvitation, QuickPractice } from './features/practicaRapida/QuickPractice';
+import { chooseQuickActivity, type QuickActivity } from './features/practicaRapida/quickActivity';
 import { hashSnapshot, resolveRoute, subscribeHash, type RouteDefinition } from './shared/navegacion';
 import { baseRoutes } from './shared/navegacion/baseRoutes';
 import { PwaInstall, PwaUpdate } from './shared/pwa/PwaControls';
@@ -20,10 +23,43 @@ const routes: RouteDefinition[] = [
   ...Object.values(features).flat(),
 ];
 
+const quickHash = '#practicar/rapida';
+const quickInviteCooldown = 5 * 60_000;
+const quickInviteProbability = .2;
+
 export default function App() {
   const hash = useSyncExternalStore(subscribeHash, hashSnapshot);
   const match = resolveRoute(routes, hash);
-  const body = match?.route.tab === 'cuerpo';
+  const atQuick = hash === quickHash;
+  const tab = atQuick ? 'practicar' : match?.route.tab;
+  const body = tab === 'cuerpo';
+  const path = match?.route.path;
+  const canInvite = !!path && (tab !== 'practicar' || path === 'practicar' || path === 'practicar/retos');
+  const navigation = useRef({ hash, tab, canInvite });
+  const nextInvitation = useRef(0);
+  const [offer, setOffer] = useState<{ hash: string; activity: QuickActivity }>();
+  const [quick, setQuick] = useState<{ activity: QuickActivity; deadline: number; returnHash: string }>();
+  const invitation = offer?.hash === hash ? offer.activity : undefined;
+
+  useEffect(() => {
+    const previous = navigation.current;
+    navigation.current = { hash, tab, canInvite };
+    if (previous.hash === hash) return;
+    setOffer(undefined);
+    if (previous.hash === quickHash) setQuick(undefined);
+    if (!canInvite || !previous.canInvite || previous.tab === tab || document.hidden) return;
+    const now = Date.now();
+    if (now < nextInvitation.current || Math.random() >= quickInviteProbability) return;
+    nextInvitation.current = now + quickInviteCooldown;
+    setOffer({ hash, activity: chooseQuickActivity() });
+  }, [hash, tab, canInvite]);
+
+  const startQuick = () => {
+    if (!invitation) return;
+    setOffer(undefined);
+    setQuick({ activity: invitation, deadline: Date.now() + invitation.seconds * 1000, returnHash: hash || '#cuerpo' });
+    window.location.hash = quickHash;
+  };
 
   return (
     <div className="app-shell" data-area={anatomyArea.id}>
@@ -40,7 +76,12 @@ export default function App() {
       <PwaUpdate/>
 
       <main className={`app-main${body ? ' app-main--body' : ''}`}>
-        {match ? <match.route.Screen params={match.params}/> : (
+        {atQuick ? quick ? <QuickPractice activity={quick.activity} deadline={quick.deadline}
+          onExit={() => window.location.replace(quick.returnHash)}/> : <div className="lumar-page">
+          <ContentState state="unavailable" title="Práctica rápida finalizada">
+            <a href="#practicar">Volver a Practicar</a>
+          </ContentState>
+        </div> : match ? <match.route.Screen params={match.params}/> : (
           <div className="lumar-page">
             <ContentState state="unavailable" title="Página no disponible">
               <a href="#cuerpo">Volver a Cuerpo</a>
@@ -52,7 +93,7 @@ export default function App() {
       <nav className="app-navigation" aria-label="Navegación principal">
         <div className="app-navigation-inner">
           {tabs.map(({ id, label, icon: Icon }) => (
-            <Button key={id} variant="nav" aria-current={match?.route.tab === id ? 'page' : undefined}
+            <Button key={id} variant="nav" aria-current={tab === id ? 'page' : undefined}
               onClick={() => { window.location.hash = id; }}>
               <Icon size={19} aria-hidden="true"/>
               {label}
@@ -60,6 +101,8 @@ export default function App() {
           ))}
         </div>
       </nav>
+      <RecordatorioRacha pausado={tab === 'practicar'} oculto={!!invitation}/>
+      {invitation && <QuickInvitation activity={invitation} accept={startQuick} dismiss={() => setOffer(undefined)}/>}
     </div>
   );
 }

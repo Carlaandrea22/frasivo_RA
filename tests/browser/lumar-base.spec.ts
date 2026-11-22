@@ -48,18 +48,16 @@ test('LumAR recorre sus secciones y subrutas a 375 px', async ({ page }, testInf
   await page.getByRole('link', { name: 'Volver a los retos' }).click();
   await page.getByRole('link', { name: 'Casos clínicos', exact: true }).click();
   await expect(page).toHaveURL(/#practicar\/casos$/);
-  await page.getByRole('link', { name: 'Ver caso de muestra' }).click();
-  const caseUrl = page.url();
-  await page.reload();
-  await expect(page).toHaveURL(caseUrl);
-  await expect(page.getByRole('heading', { name: 'Dolor al subir escaleras' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Casos clínicos' })).toBeVisible();
   expect(await page.getByText(/dolor femoropatelar/i).count()).toBe(0);
+  await page.getByRole('button', { name: 'Empezar sesión de 5 casos' }).click();
+  await expect(page.getByText('Caso 1 de 5')).toBeVisible();
   await shot('casos');
 
   await nav.getByRole('button', { name: 'Mi progreso' }).click();
   await expect(page).toHaveURL(/#progreso$/);
   await expect(page.getByRole('heading', { name: 'Mi progreso' })).toBeVisible();
-  await expect(page.getByText('Contenido consultado · 1')).toBeVisible();
+  await expect(page.getByRole('list', { name: 'Mi actividad' })).toContainText(/1\s*Estructuras consultadas/);
   await shot('progreso');
   await page.getByRole('link', { name: 'Mis prácticas' }).click();
   await expect(page).toHaveURL(/#progreso\/practicas$/);
@@ -88,8 +86,8 @@ test('LumAR conserva la preferencia de Cuerpo y recupera el historial de Frasivo
   await page.goto('/#mi-progreso');
   await expect(page.getByRole('heading', { name: 'Mi progreso' })).toBeVisible();
   await expect(page.getByText('6 puntos y 1 término con historial.')).toBeVisible();
-  await expect(page.getByText('Contenido consultado · 0')).toBeVisible();
-  await expect(page.getByText('Desempeños demostrados · 0')).toBeVisible();
+  await expect(page.getByRole('list', { name: 'Mi actividad' })).toContainText(/0\s*Estructuras consultadas/);
+  await expect(page.getByRole('list', { name: 'Mi actividad' })).toContainText(/0%\s*Calificaciones perfectas/);
   const metadata = await page.evaluate(() => JSON.parse(localStorage.getItem('lumar.progress:v1')!));
   expect(metadata.legacy.words.femur).toEqual({ attempts: 2, correct: 1 });
 });

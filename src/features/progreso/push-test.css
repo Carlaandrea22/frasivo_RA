@@ -1,0 +1,6 @@
+.lumar-card.push-test-card, .push-test-card form { display: grid; gap: var(--space-3); }
+.push-test-card label { font-weight: 750; }
+.push-test-card input { width: 100%; }
+.push-test-card .button { justify-self: start; }
+.push-test-receipt { padding: 12px; border-radius: 12px; background: var(--mint); color: var(--forest); line-height: 1.45; }
+.push-test-error { color: #873a2b; }

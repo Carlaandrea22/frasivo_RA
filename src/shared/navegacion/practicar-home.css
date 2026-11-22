@@ -1,0 +1,32 @@
+.lumar-page.practice-home { gap: var(--space-4); }
+.lumar-card.practice-home-feature {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(78px, 1fr);
+  align-items: center;
+  gap: clamp(8px, 4vw, 34px);
+  padding: clamp(16px, 4.5vw, 36px);
+  border-color: #afd2c2;
+  background: radial-gradient(ellipse at 85% 42%, #d4ede0, transparent 68%), #f5fbf7;
+}
+.practice-home-feature-copy { display: grid; gap: 10px; justify-items: start; }
+.practice-home-feature-copy .lumar-eyebrow { display: flex; align-items: center; gap: 6px; }
+.practice-home-feature-copy h2 { font-size: clamp(1.25rem, 4.2vw, 2.12rem); line-height: 1.15; }
+.practice-home-feature-copy > p:not(.lumar-eyebrow), .practice-home-option > p { color: var(--muted); }
+.practice-home-feature-copy .button { margin-top: 4px; }
+.practice-home-feature-stage {
+  display: grid;
+  place-items: center;
+  background: radial-gradient(ellipse at center, #f8fffbe8 0 48%, transparent 49%);
+}
+.practice-home-feature-stage .mascota { width: min(100%, 11rem); }
+.practice-home-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
+.lumar-card.practice-home-option { display: grid; align-content: start; gap: 10px; }
+.practice-home-option-icon { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 13px; background: #e2f2e8; color: var(--forest); }
+.practice-home-option[data-group="clinical"] .practice-home-option-icon { background: #f7ebd8; color: #814918; }
+.practice-home-option h2 { font-size: clamp(1.16rem, 3vw, 1.45rem); }
+.practice-home-option .button { justify-self: start; }
+
+@media (max-width: 560px) {
+  .practice-home-options { grid-template-columns: 1fr; }
+  .practice-home-feature { grid-template-columns: minmax(0, 1fr) minmax(66px, 28%); }
+}

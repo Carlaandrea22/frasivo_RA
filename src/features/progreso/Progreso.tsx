@@ -1,47 +1,63 @@
 import { useSyncExternalStore } from 'react';
+import { ArrowRight, BookOpen, ClipboardList, History, Target, Trophy } from 'lucide-react';
 import { estructuras } from '../../content/anatomy/catalogo';
-import { casos } from '../../content/casos/rodilla';
-import { retos } from '../../content/ejercicios/retos';
-import { getProgress, subscribeProgress, type ReasoningText } from '../../shared/progreso';
-import { Button } from '../../shared/ui/Button';
+import type { RouteProps } from '../../shared/navegacion';
+import { getProgress, subscribeProgress, type PracticeEvent } from '../../shared/progreso';
+import { useRacha } from '../../shared/progreso/useRacha';
 import { Card } from '../../shared/ui/Card';
 import { ContentState } from '../../shared/ui/ContentState';
+import { MascotaProgreso } from './mascota/MascotaProgreso';
+import { PracticeActivity } from './PracticeActivity';
+import { PracticeFormatSelect, progressHref } from './PracticeFormatSelect';
+import { PracticeSummary } from './PracticeSummary';
+import { practiceFormat, practiceProgress, readPracticeFormat } from './practiceProgress';
 import './progreso.css';
 
-const fecha = new Intl.DateTimeFormat('es', { dateStyle: 'medium' });
-
-export function Progreso() {
+export function Progreso({ params }: RouteProps) {
   const { events, legacy } = useSyncExternalStore(subscribeProgress, getProgress);
+  const racha = useRacha(events);
+  const format = readPracticeFormat(params.formato);
+  const statsSummary = practiceProgress(events, format);
   const consulted = new Set(events.filter(event => event.kind === 'consultation').map(event => event.itemId));
-  const practices = events.filter(event => event.kind === 'practice');
-  const performance = events.filter(event => event.kind === 'demonstration');
   const available = estructuras.filter(item => consulted.has(item.id));
   const legacyTerms = Object.keys(legacy?.words ?? {}).length;
-  const last = [...practices].sort((a, b) => b.timestamp.localeCompare(a.timestamp))[0];
-  const activity = last && [...retos, ...casos].find(item => item.id === (last.activityId ?? last.itemId));
+  const last = events.filter((event): event is PracticeEvent =>
+    event.kind === 'practice' && (format === 'all' || practiceFormat(event) === format)).at(-1);
+  const stats = [
+    { label: 'Estructuras consultadas', value: consulted.size, Icon: BookOpen },
+    { label: 'Casos clínicos realizados', value: statsSummary.clinical, Icon: ClipboardList },
+    { label: 'Retos de anatomía realizados', value: statsSummary.challenge, Icon: Target },
+    { label: 'Calificaciones perfectas', value: `${statsSummary.perfectRate}%`, Icon: Trophy,
+      detail: `${statsSummary.perfect} de ${statsSummary.completed} prácticas al primer intento` },
+  ];
 
-  return <section className="lumar-page">
-    <header>
-      <h1>Mi progreso</h1>
-      <p className="lumar-subtitle">En construcción</p>
-    </header>
-    <Card>
-      <h2>Mi actividad</h2>
-      <ul>
-        <li>Contenido consultado · {consulted.size}</li>
-        <li>Prácticas realizadas · {practices.length}</li>
-        <li>Desempeños demostrados · {performance.length}</li>
+  return <section className="lumar-page progress-page">
+    <MascotaProgreso {...racha}/>
+    <Card className="progress-overview">
+      <header>
+        <div><h1>Mi progreso</h1><p className="lumar-subtitle">Tu actividad y resultados de práctica.</p></div>
+        <a className="button button--primary lumar-link" href={progressHref('history', format)}>Mis prácticas <ArrowRight size={17}/></a>
+      </header>
+      <PracticeFormatSelect format={format} counts={statsSummary.formats}
+        onChange={value => window.location.replace(progressHref('overview', value))}/>
+      <ul className="progress-stats" aria-label="Mi actividad">
+        {stats.map(({ label, value, detail, Icon }) => <li key={label}>
+          <Icon size={17} aria-hidden="true"/><strong>{value}</strong><span>{label}</span>
+          {detail && <small>{detail}</small>}
+        </li>)}
       </ul>
-      <a className="button button--primary lumar-link" href="#progreso/practicas">Mis prácticas</a>
     </Card>
-    {last && <Card>
-      <h2>Última práctica registrada</h2>
-      {activity && <p>{activity.titulo}</p>}
-      <p>{last.correct} aciertos · {last.errors} errores · {last.hints} pistas</p>
+    {import.meta.env.MODE === 'push-test' && <div>
+      <a className="button button--secondary lumar-link" href="#progreso/notificaciones">Prueba de notificaciones</a>
+    </div>}
+    {last && <Card className="progress-entry">
+      <p className="progress-caption"><History size={16} aria-hidden="true"/> Última práctica registrada</p>
+      <PracticeSummary event={last}/>
     </Card>}
-    {available.length ? <Card>
-      <h2>Consultas recientes</h2>
-      {available.map(item => <a key={item.id} href={`#explorar/estructura/${item.id}`}>{item.nombreEs}</a>)}
+    <PracticeActivity modes={statsSummary.modes} recommendation={statsSummary.recommendation} format={format}/>
+    {available.length ? <Card className="progress-entry">
+      <h2>Estructuras consultadas</h2>
+      <div className="progress-consulted">{available.map(item => <a key={item.id} href={`#explorar/estructura/${item.id}`}>{item.nombreEs}<ArrowRight size={14}/></a>)}</div>
     </Card> : <ContentState state="empty" title="Tu primer objetivo">
       <p><a href="#explorar">Explora una estructura anatómica</a> para agregarla a tus consultas.</p>
     </ContentState>}
@@ -49,52 +65,6 @@ export function Progreso() {
       <h2>Progreso anterior</h2>
       <p>{legacy.points} puntos y {legacyTerms} {legacyTerms === 1 ? 'término' : 'términos'} con historial.</p>
     </Card>}
-    <div><Button variant="secondary" onClick={() => { window.location.hash = 'progreso/creditos'; }}>Créditos</Button></div>
-  </section>;
-}
-
-function Reasoning({ text }: { text: ReasoningText }) {
-  const hypothesis = casos.flatMap(item => [item.hipotesis.correcta, ...item.hipotesis.alternativas])
-    .find(item => item.id === text.hypothesisId)?.texto ?? text.hypothesisId;
-  return <dl className="progreso-ficha">
-    <dt>Resumen</dt><dd>{text.summary}</dd>
-    <dt>Hipótesis</dt><dd>{hypothesis}</dd>
-    <dt>Hallazgos</dt><dd>{text.evidence}</dd>
-    <dt>Información por investigar</dt><dd>{text.missingInformation}</dd>
-  </dl>;
-}
-
-export function Practicas() {
-  const { events } = useSyncExternalStore(subscribeProgress, getProgress);
-  const practices = events.filter(event => event.kind === 'practice').sort((a, b) => b.timestamp.localeCompare(a.timestamp));
-  return <section className="lumar-page">
-    <header>
-      <h1>Mis prácticas</h1>
-      <p className="lumar-subtitle">En construcción</p>
-    </header>
-    {practices.length ? practices.map(event => {
-      const id = event.activityId ?? event.itemId;
-      const item = [...retos, ...casos].find(activity => activity.id === id);
-      return <Card key={event.id}>
-        <h2>{item?.titulo ?? 'Actividad registrada'}</h2>
-        <time dateTime={event.timestamp}>{fecha.format(new Date(event.timestamp))}</time>
-        <p>{event.correct} aciertos · {event.errors} errores · {event.hints} pistas</p>
-        {event.reasoning && <details>
-          <summary>Ficha de razonamiento</summary>
-          <h3>Texto inicial del estudiante</h3>
-          <Reasoning text={event.reasoning.original}/>
-          {event.reasoning.suggestions.length > 0 && <>
-            <h3>Sugerencias del tutor</h3>
-            <ul>{event.reasoning.suggestions.map((text, i) => <li key={i}>{text}</li>)}</ul>
-          </>}
-          {event.reasoning.revised && <>
-            <h3>Revisión del estudiante</h3>
-            <Reasoning text={event.reasoning.revised}/>
-          </>}
-        </details>}
-      </Card>;
-    }) : <ContentState state="empty" title="Todavía no tienes prácticas registradas">
-      <p><a href="#practicar">Ir a Practicar</a></p>
-    </ContentState>}
+    <div><a className="button button--text lumar-link" href="#progreso/creditos">Créditos</a></div>
   </section>;
 }

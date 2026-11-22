@@ -1,7 +1,12 @@
 import type { RouteDefinition } from '../../shared/navegacion';
-import { Progreso, Practicas } from './Progreso';
+import { Progreso } from './Progreso';
+import { Practicas } from './PracticeHistory';
+import { PushTest } from './PushTest';
 
 export const routes = [
   { path: 'progreso', tab: 'progreso', Screen: Progreso },
+  { path: 'progreso/actividad/:formato', tab: 'progreso', Screen: Progreso },
   { path: 'progreso/practicas', tab: 'progreso', Screen: Practicas },
+  { path: 'progreso/practicas/:formato', tab: 'progreso', Screen: Practicas },
+  ...(import.meta.env.MODE === 'push-test' ? [{ path: 'progreso/notificaciones', tab: 'progreso', Screen: PushTest } as const] : []),
 ] satisfies RouteDefinition[];

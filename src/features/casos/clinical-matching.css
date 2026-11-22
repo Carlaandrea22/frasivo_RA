@@ -1,0 +1,67 @@
+.lumar-card.clinical-match { display: grid; min-width: 0; gap: var(--space-3); }
+.clinical-match > p { color: var(--muted); }
+.clinical-match-board { position: relative; isolation: isolate; min-width: 0; }
+.clinical-match-board h2 { position: relative; z-index: 1; font-size: 1rem; margin-bottom: 10px; color: var(--forest); }
+.clinical-match-causes-title {
+  width: fit-content;
+  margin-top: 52px;
+  padding-inline-end: 6px;
+  background: var(--paper);
+}
+.clinical-match-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.clinical-match-row .clinical-match-node {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  align-content: start;
+  min-width: 0;
+  width: 100%;
+  gap: 6px;
+  padding: 12px;
+  text-align: start;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.clinical-match-node strong { display: flex; align-items: center; gap: 6px; color: var(--forest); }
+.clinical-match-node .clinical-bilingual { font-size: .9rem; font-weight: 600; }
+.clinical-match-node .clinical-bilingual small { font-size: .77rem; }
+.clinical-match-node[aria-pressed="true"] { outline: 2px solid var(--forest); background: var(--mint); }
+.clinical-match-node[data-linked="true"] { border-color: #8ab6a4; }
+.clinical-match-connection { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+.clinical-match-port {
+  position: absolute;
+  z-index: 1;
+  inset-inline-start: 50%;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  transform: translateX(-50%);
+  color: #69917f;
+}
+.clinical-match-port::before { content: ''; width: 13px; height: 13px; border: 2px solid currentColor; border-radius: 50%; background: var(--paper); }
+.clinical-match-port { cursor: grab; touch-action: none; }
+.clinical-match-patients .clinical-match-port { inset-block-end: -17px; }
+.clinical-match-causes .clinical-match-port { inset-block-start: -17px; }
+.clinical-match-node[data-linked="true"] .clinical-match-port::before { background: currentColor; box-shadow: 0 0 0 2px var(--paper); }
+.clinical-match-wires { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+.clinical-match-wire, .clinical-match-preview { fill: none; stroke-linecap: round; stroke-width: 3; }
+.clinical-match-wire { stroke-dasharray: 1; animation: clinical-match-connect 350ms ease-out both; }
+.clinical-match-preview { opacity: .8; }
+.clinical-match-status { min-height: 1.5em; color: var(--forest); font-weight: 700; }
+
+@keyframes clinical-match-connect { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+
+@media (max-width: 640px) {
+  .clinical-match-board { padding-inline-end: 34px; }
+  .clinical-match-row { grid-template-columns: 1fr; gap: 9px; }
+  .clinical-match-causes-title { margin-top: 18px; }
+  .clinical-match-patients .clinical-match-port, .clinical-match-causes .clinical-match-port {
+    inset: 50% -17px auto auto;
+    transform: translateY(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .clinical-match-wire { animation: none; }
+}

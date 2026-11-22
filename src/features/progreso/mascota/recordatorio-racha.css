@@ -1,0 +1,56 @@
+.recordatorio-racha {
+  position: fixed;
+  z-index: 3;
+  inset-inline-end: max(18px, env(safe-area-inset-right, 0px));
+  inset-block-end: calc(88px + env(safe-area-inset-bottom, 0px));
+  display: grid;
+  grid-template-columns: 54px minmax(0, 1fr) 44px;
+  align-items: start;
+  gap: 10px;
+  width: min(24.5rem, calc(100% - 36px));
+  padding: 12px;
+  border: 1px solid #9bc3b2;
+  border-radius: 17px;
+  background: #f7fdf9;
+  box-shadow: 0 10px 32px rgb(22 58 49 / 22%);
+  color: var(--ink);
+}
+.recordatorio-racha-retrato {
+  align-self: start;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #e0f1e7;
+}
+.recordatorio-racha-texto { padding-block: 3px; }
+.recordatorio-racha h2 { font-size: .95rem; color: var(--forest); }
+.recordatorio-racha p { margin-block: 4px; font-weight: 650; line-height: 1.4; }
+.recordatorio-racha small { color: var(--muted); line-height: 1.3; }
+.recordatorio-racha-cerrar {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  place-items: center;
+  border: 0;
+  border-radius: 12px;
+  background: #e8f3ed;
+  color: var(--forest);
+  cursor: pointer;
+}
+.recordatorio-racha .button { grid-column: 2 / -1; justify-self: start; }
+
+@media (max-width: 520px) {
+  .recordatorio-racha {
+    inset-inline: max(10px, env(safe-area-inset-left, 0px)) max(10px, env(safe-area-inset-right, 0px));
+    inset-block-end: calc(83px + env(safe-area-inset-bottom, 0px));
+    grid-template-columns: 56px minmax(0, 1fr) 44px;
+    width: auto;
+    gap: 9px;
+    padding: 13px;
+    border-radius: 20px;
+  }
+  .recordatorio-racha h2 { font-size: 1rem; }
+  .recordatorio-racha p { font-size: 1.04rem; }
+  .recordatorio-racha small { font-size: .86rem; }
+  .recordatorio-racha .button { grid-column: 1 / -1; justify-self: stretch; min-height: 48px; }
+}
