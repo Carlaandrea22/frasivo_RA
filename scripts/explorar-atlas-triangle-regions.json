@@ -1836,6 +1836,404 @@
           "surfaceArea": 0.1067942116966087
         }
       }
+    },
+    "pancreas": {
+      "nodeId": "pancreas",
+      "maxTriangles": 40000,
+      "triangles": 38928,
+      "surfaceArea": 0.014514606674368645,
+      "sourceSha256": "cffdd21841a755eb58f27903a263e7d1245979f5575c6194815056ea50a4e6dc",
+      "bounds": {
+        "min": [
+          -0.03409314528107643,
+          0.3035867214202881,
+          -0.032517220824956894
+        ],
+        "max": [
+          0.07734076678752899,
+          0.37559881806373596,
+          0.051097992807626724
+        ]
+      },
+      "regions": {
+        "pancreas__cuerpo": {
+          "triangles": 12807,
+          "surfaceArea": 0.003620668001238753
+        },
+        "pancreas__cabeza": {
+          "triangles": 4617,
+          "surfaceArea": 0.004205025310616354
+        },
+        "pancreas__cuello": {
+          "triangles": 765,
+          "surfaceArea": 0.0006770703566621106
+        },
+        "pancreas__cola": {
+          "triangles": 19537,
+          "surfaceArea": 0.0048146799319404325
+        },
+        "pancreas__proceso_unciforme": {
+          "triangles": 1202,
+          "surfaceArea": 0.0011971630739109947
+        }
+      }
+    },
+    "spleen": {
+      "nodeId": "spleen",
+      "maxTriangles": 40000,
+      "triangles": 16872,
+      "surfaceArea": 0.02747324838899312,
+      "sourceSha256": "dba491c8729eeb0b5429a288da4f228dbbd6b5da4e128c28407e225a3b8b9fa4",
+      "bounds": {
+        "min": [
+          0.025887958705425262,
+          0.3107449412345886,
+          -0.08084036409854889
+        ],
+        "max": [
+          0.13629551231861115,
+          0.4293825030326843,
+          0.00779232382774353
+        ]
+      },
+      "regions": {
+        "spleen__superficie_colica": {
+          "triangles": 1040,
+          "surfaceArea": 0.0012004038311431411
+        },
+        "spleen__superficie_diafragmatica": {
+          "triangles": 6320,
+          "surfaceArea": 0.014202319161056383
+        },
+        "spleen__superficie_gastrica": {
+          "triangles": 2384,
+          "surfaceArea": 0.004680814747359654
+        },
+        "spleen__hilio": {
+          "triangles": 5339,
+          "surfaceArea": 0.0037503587220401695
+        },
+        "spleen__superficie_renal": {
+          "triangles": 1789,
+          "surfaceArea": 0.003639351927393773
+        }
+      }
+    },
+    "gallbladder": {
+      "nodeId": "gallbladder",
+      "maxTriangles": 40000,
+      "triangles": 2674,
+      "surfaceArea": 0.003968480039366784,
+      "sourceSha256": "6006e3a89d65849eb0099d257ce6ef19f77e6b0bb609e2f980ad2418c7eb7e62",
+      "bounds": {
+        "min": [
+          -0.06328170001506805,
+          1.051069974899292,
+          0.1284410059452057
+        ],
+        "max": [
+          -0.02089800126850605,
+          1.091480016708374,
+          0.17856000363826752
+        ]
+      },
+      "regions": {
+        "gallbladder__cuello": {
+          "triangles": 275,
+          "surfaceArea": 0.00016299792172562184
+        },
+        "gallbladder__fondo": {
+          "triangles": 978,
+          "surfaceArea": 0.0013341511297363425
+        },
+        "gallbladder__cuerpo": {
+          "triangles": 1143,
+          "surfaceArea": 0.002370763789667819
+        },
+        "gallbladder__conducto_cistico": {
+          "triangles": 278,
+          "surfaceArea": 0.0001005671982370008
+        }
+      }
+    },
+    "esophagus": {
+      "nodeId": "esophagus",
+      "maxTriangles": 40000,
+      "triangles": 2642,
+      "surfaceArea": 0.011778651035379254,
+      "sourceSha256": "41bdb815ada40944ec2f399f1b2b711c91c441a629de45dacb741eaf527979fd",
+      "bounds": {
+        "min": [
+          -0.010109600611031055,
+          1.1662400960922241,
+          0.06341640651226044
+        ],
+        "max": [
+          0.015808001160621643,
+          1.4156100749969482,
+          0.10837400704622269
+        ]
+      },
+      "regions": {
+        "esophagus__cervical": {
+          "triangles": 319,
+          "surfaceArea": 0.002035356481605788
+        },
+        "esophagus__abdominal": {
+          "triangles": 632,
+          "surfaceArea": 0.000934977781530308
+        },
+        "esophagus__toracica": {
+          "triangles": 1691,
+          "surfaceArea": 0.008808316772243158
+        }
+      }
+    },
+    "trachea_bronchi": {
+      "nodeId": "trachea_bronchi",
+      "maxTriangles": 40000,
+      "triangles": 39983,
+      "surfaceArea": 0.023858037960025783,
+      "sourceSha256": "57af267c54b4bc7b5faef7aa3f795a405415cd4c26ea1186467d5ceac107c235",
+      "bounds": {
+        "min": [
+          -0.027208346873521805,
+          0.503806471824646,
+          -0.02583663910627365
+        ],
+        "max": [
+          0.04751479998230934,
+          0.660141110420227,
+          0.05422163009643555
+        ]
+      },
+      "regions": {
+        "trachea_bronchi__carina": {
+          "triangles": 763,
+          "surfaceArea": 0.000586536076663119
+        },
+        "trachea_bronchi__cartilago_bronquial_izquierdo": {
+          "triangles": 1682,
+          "surfaceArea": 0.0009610049623944974
+        },
+        "trachea_bronchi__cartilago_bronquial_derecho": {
+          "triangles": 587,
+          "surfaceArea": 0.0003515759196088326
+        },
+        "trachea_bronchi__bronquio_principal_izquierdo": {
+          "triangles": 1922,
+          "surfaceArea": 0.002123766352842375
+        },
+        "trachea_bronchi__bronquio_principal_derecho": {
+          "triangles": 618,
+          "surfaceArea": 0.0007585521998000947
+        },
+        "trachea_bronchi__traquea": {
+          "triangles": 13224,
+          "surfaceArea": 0.013724448230784813
+        },
+        "trachea_bronchi__cartilago_traqueal": {
+          "triangles": 21187,
+          "surfaceArea": 0.00535215421793205
+        }
+      }
+    },
+    "urinary_bladder": {
+      "nodeId": "urinary_bladder",
+      "maxTriangles": 40000,
+      "triangles": 10071,
+      "surfaceArea": 0.019298023855309508,
+      "sourceSha256": "9a778a086ee2021929543b45ee6e3f06dbf8d3e646d5b6cf34164e9e15bbd24d",
+      "bounds": {
+        "min": [
+          -0.036882560700178146,
+          0.010439242236316204,
+          -0.017449405044317245
+        ],
+        "max": [
+          0.026926394551992416,
+          0.05030447989702225,
+          0.054864414036273956
+        ]
+      },
+      "regions": {
+        "urinary_bladder__base_vesical": {
+          "triangles": 4886,
+          "surfaceArea": 0.009706873980943668
+        },
+        "urinary_bladder__cupula": {
+          "triangles": 4498,
+          "surfaceArea": 0.008564478573507334
+        },
+        "urinary_bladder__trigono": {
+          "triangles": 443,
+          "surfaceArea": 0.0007536075788569505
+        },
+        "urinary_bladder__orificio_ureteral_izquierdo": {
+          "triangles": 44,
+          "surfaceArea": 0.00007930518782261788
+        },
+        "urinary_bladder__orificio_ureteral_derecho": {
+          "triangles": 88,
+          "surfaceArea": 0.00005883556250651076
+        },
+        "urinary_bladder__cuello": {
+          "triangles": 112,
+          "surfaceArea": 0.0001349229716724253
+        }
+      }
+    },
+    "larynx": {
+      "nodeId": "larynx",
+      "maxTriangles": 40000,
+      "triangles": 13238,
+      "surfaceArea": 0.01039376764083463,
+      "sourceSha256": "cd7db77df5b4a08b8351e1a04ddc8a4df119489110dc1f092d773945f947f29c",
+      "bounds": {
+        "min": [
+          -0.028447207063436508,
+          0.6275649070739746,
+          0.021707570180296898
+        ],
+        "max": [
+          0.02530587464570999,
+          0.7001882791519165,
+          0.060335882008075714
+        ]
+      },
+      "regions": {
+        "larynx__aritenoides_izquierdo": {
+          "triangles": 1320,
+          "surfaceArea": 0.0003922032878170241
+        },
+        "larynx__aritenoides_derecho": {
+          "triangles": 1206,
+          "surfaceArea": 0.0004011986206023845
+        },
+        "larynx__corniculado_izquierdo": {
+          "triangles": 254,
+          "surfaceArea": 0.000046578635880744524
+        },
+        "larynx__corniculado_derecho": {
+          "triangles": 338,
+          "surfaceArea": 0.000059228134164347766
+        },
+        "larynx__cricoides": {
+          "triangles": 2130,
+          "surfaceArea": 0.0026366406389897053
+        },
+        "larynx__epiglotico": {
+          "triangles": 814,
+          "surfaceArea": 0.0017389528312631382
+        },
+        "larynx__tiroides": {
+          "triangles": 7176,
+          "surfaceArea": 0.005118965492117285
+        }
+      }
+    },
+    "adrenal_glands": {
+      "nodeId": "adrenal_glands",
+      "maxTriangles": 40000,
+      "triangles": 29662,
+      "surfaceArea": 0.00516560639311886,
+      "sourceSha256": "5f9f6ae247b9b15ff64a88c73f07465cf07fc892854debb0d78b02d94455c9fa",
+      "bounds": {
+        "min": [
+          -0.05852830410003662,
+          1.0700501203536987,
+          0.05516490340232849
+        ],
+        "max": [
+          0.04992460086941719,
+          1.1320000886917114,
+          0.08912600576877594
+        ]
+      },
+      "regions": {
+        "adrenal_glands__derecha": {
+          "triangles": 9874,
+          "surfaceArea": 0.0019948437906013297
+        },
+        "adrenal_glands__izquierda": {
+          "triangles": 19788,
+          "surfaceArea": 0.0031707626025175304
+        }
+      }
+    },
+    "ureters": {
+      "nodeId": "ureters",
+      "maxTriangles": 40000,
+      "triangles": 39917,
+      "surfaceArea": 0.019216902663538916,
+      "sourceSha256": "61cfe09151b6239cfddd39a5beecf0670d94c19f8a5a7b1bbcfa98c3ea95c33b",
+      "bounds": {
+        "min": [
+          -0.0705292820930481,
+          0.03731853514909744,
+          -0.042892783880233765
+        ],
+        "max": [
+          0.08372572809457779,
+          0.3311893939971924,
+          0.03143193945288658
+        ]
+      },
+      "regions": {
+        "ureters__calices_izquierdos": {
+          "triangles": 9560,
+          "surfaceArea": 0.001785940730242192
+        },
+        "ureters__calices_derechos": {
+          "triangles": 10197,
+          "surfaceArea": 0.002646959707916703
+        },
+        "ureters__pelvis_renal_izquierda": {
+          "triangles": 2446,
+          "surfaceArea": 0.0010970945504359347
+        },
+        "ureters__pelvis_renal_derecha": {
+          "triangles": 1934,
+          "surfaceArea": 0.0007320821177383254
+        },
+        "ureters__ureter_izquierdo": {
+          "triangles": 8702,
+          "surfaceArea": 0.006722379759313034
+        },
+        "ureters__ureter_derecho": {
+          "triangles": 7078,
+          "surfaceArea": 0.006232445797892728
+        }
+      }
+    },
+    "thymus": {
+      "nodeId": "thymus",
+      "maxTriangles": 40000,
+      "triangles": 39994,
+      "surfaceArea": 0.02171566896594429,
+      "sourceSha256": "1a0caef3a55e88d9367fe73c8da0e1276ff67a4033a34a46dbf587d672d7fddc",
+      "bounds": {
+        "min": [
+          -0.026911010965704918,
+          1.229699969291687,
+          0.11561872810125351
+        ],
+        "max": [
+          0.06961645931005478,
+          1.3490321636199951,
+          0.1722138673067093
+        ]
+      },
+      "regions": {
+        "thymus__lobulo_derecho": {
+          "triangles": 16500,
+          "surfaceArea": 0.009090281453128667
+        },
+        "thymus__lobulo_izquierdo": {
+          "triangles": 23494,
+          "surfaceArea": 0.012625387512815622
+        }
+      }
     }
   }
 }

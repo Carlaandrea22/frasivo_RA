@@ -23,6 +23,16 @@ COLORS = {
     'liver': ((.30, .059, .035), .43),
     'small_intestine': ((.48, .248, .164), .46),
     'large_intestine': ((.415, .175, .130), .49),
+    'pancreas': ((.63, .37, .14), .51),
+    'spleen': ((.32, .088, .135), .44),
+    'gallbladder': ((.28, .34, .105), .39),
+    'esophagus': ((.48, .235, .181), .47),
+    'trachea_bronchi': ((.63, .36, .305), .46),
+    'urinary_bladder': ((.58, .29, .21), .43),
+    'larynx': ((.59, .33, .28), .46),
+    'adrenal_glands': ((.65, .435, .165), .52),
+    'ureters': ((.66, .45, .323), .46),
+    'thymus': ((.62, .335, .237), .52),
 }
 REFERENCE = {
     'huesos': 'huesos-regiones.glb',
@@ -40,6 +50,26 @@ def import_meshes(scene, path, is_obj):
         bpy.ops.import_scene.gltf(filepath=path)
     bpy.context.view_layer.update()
     return [obj for obj in scene.objects if obj not in old and obj.type == 'MESH']
+
+
+def source_meshes(scene, repo, source):
+    path = repo + '/' + source['path']
+    node_parts = source.get('glbNodes')
+    if node_parts is None:
+        return [(obj, source) for obj in import_meshes(scene, path, True)]
+    meshes = import_meshes(scene, path, False)
+    selected, found = [], set()
+    for obj in meshes:
+        node = obj
+        while node is not None and node.name not in node_parts:
+            node = node.parent
+        if node is not None:
+            selected.append((obj, {**source, 'partId': node_parts[node.name]}))
+            found.add(node.name)
+    missing = set(node_parts) - found
+    if missing:
+        raise ValueError(f'Nodos ausentes en {path}: {sorted(missing)}')
+    return selected
 
 
 def triangle_count(obj):
@@ -89,6 +119,14 @@ def clean(obj, target, preserve_vertices):
     if not preserve_vertices:
         bmesh.ops.remove_doubles(geometry, verts=list(geometry.verts), dist=.000002)
         bmesh.ops.dissolve_degenerate(geometry, edges=list(geometry.edges), dist=.000001)
+        geometry.verts.index_update()
+        seen = set()
+        for face in list(geometry.faces):
+            key = tuple(sorted(vertex.index for vertex in face.verts))
+            if key in seen:
+                geometry.faces.remove(face)
+            else:
+                seen.add(key)
         bmesh.ops.recalc_face_normals(geometry, faces=list(geometry.faces))
     for face in geometry.faces:
         face.smooth = True
@@ -176,8 +214,8 @@ def prepare(model, repo, output):
         else:
             color = COLORS.get(model['id'], COLORS.get(model['category']))
             for source in model['sources']:
-                for obj in import_meshes(scene, repo + '/' + source['path'], True):
-                    incoming.append((obj, source, color))
+                for obj, part_source in source_meshes(scene, repo, source):
+                    incoming.append((obj, part_source, color))
         objects = [obj for obj, _, _ in incoming]
         if not objects:
             raise ValueError(f"{model['id']}: falta la superficie original")

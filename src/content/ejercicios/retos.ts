@@ -5,6 +5,7 @@ import type { ModoReto, PreguntaReto, RespuestaReto, Reto } from '../types';
 import { preguntasRepasoAmpliacion } from './repasoAmpliacion';
 import { preguntasRepasoHuesos } from './repasoHuesos';
 import { preguntasRepasoMusculos } from './repasoMusculos';
+import { preguntasRepasoOrganos } from './repasoOrganos';
 
 const modos = ['entrenamiento', 'evaluacion'] satisfies ModoReto[];
 const revision = (id: string) => estructuras.find(item => item.id === id)!.revision;
@@ -139,12 +140,16 @@ const recorridosAmpliacion = [
   { id: 'cabeza-cuello-columna', titulo: 'Mandíbula, hioides y columna', modelos: ['mandible', 'hyoid', 'cervical_vertebra', 'thoracic_lumbar_vertebrae', 'sacrum'] },
   { id: 'hombro-espalda-cuello', titulo: 'Músculos del hombro, la espalda y el cuello', modelos: ['pectoralis_major', 'trapezius', 'latissimus_dorsi', 'sternocleidomastoid'] },
   { id: 'abdomen-respiracion', titulo: 'Músculos del abdomen y la respiración', modelos: ['rectus_abdominis', 'external_oblique', 'diaphragm'] },
+  { id: 'digestion-superior', titulo: 'Páncreas, vesícula biliar y esófago', modelos: ['pancreas', 'gallbladder', 'esophagus'] },
+  { id: 'vias-respiratorias', titulo: 'Laringe, tráquea y bronquios principales', modelos: ['trachea_bronchi', 'larynx'] },
+  { id: 'via-urinaria', titulo: 'Vías urinarias y suprarrenales', modelos: ['urinary_bladder', 'ureters', 'adrenal_glands'] },
+  { id: 'organos-linfoides', titulo: 'Bazo y timo', modelos: ['spleen', 'thymus'] },
   { id: 'craneo-columna', titulo: 'Cráneo y columna vertebral', modelos: ['skull', 'spine'] },
   { id: 'cerebro-digestion', titulo: 'Cerebro, hígado e intestinos', modelos: ['brain', 'liver', 'small_intestine', 'large_intestine'] },
   { id: 'cadera-muslo-pierna', titulo: 'Músculos de la cadera, el muslo y la pierna', modelos: ['gluteus_maximus', 'hamstrings', 'tibialis_anterior'] },
 ] as const;
 
-const preguntasRepasoRecorridos = [...preguntasRepasoAmpliacion, ...preguntasRepasoHuesos, ...preguntasRepasoMusculos];
+const preguntasRepasoRecorridos = [...preguntasRepasoAmpliacion, ...preguntasRepasoHuesos, ...preguntasRepasoMusculos, ...preguntasRepasoOrganos];
 
 const partesParaRelacionar: Readonly<Partial<Record<string, PartesPorModelo>>> = {
   'craneo-columna': { skull: ['mandibula'], spine: ['atlas', 'axis', 'coccix'] },

@@ -56,7 +56,7 @@ for (const model of manifest.fichas) {
   for (const [part, primitives] of regions) {
     const name = model.retainedAsset ? part : `${root}__${part}`;
     const back = posterior.has(part) || model.posteriorParts?.includes(part);
-    const coverage = measure(primitives, data, binary, back);
+    const coverage = measure(primitives, data, binary, back, model.anchorHints?.[part]);
     bounds.union(coverage.box);
     measured[name] = { triangles: coverage.triangles, surfaceArea: coverage.surfaceArea };
     total.triangles += coverage.triangles;
@@ -69,7 +69,8 @@ for (const model of manifest.fichas) {
   const maxTriangles = model.maxTriangles ?? (['skull', 'spine', 'ribs', 'hand', 'foot'].includes(id) ? 60_000 : 40_000);
   if (total.triangles > maxTriangles) throw new Error(id + ': supera el límite de triángulos.');
   const asset = { ...data.asset, generator: 'Blender y LumAR' };
-  if (!model.retainedAsset) asset.copyright = 'BodyParts3D, © The Database Center for Life Science licensed under CC Attribution 4.0 International';
+  if (model.attribution) asset.copyright = model.attribution;
+  else if (!model.retainedAsset) asset.copyright = 'BodyParts3D, © The Database Center for Life Science licensed under CC Attribution 4.0 International';
   const result = { ...data, asset, scene: 0, scenes: [{ name: 'Explorar 3D', nodes: [0] }], nodes, meshes };
   await writeFile(join(output, id + '.glb'), writeGlb(result, binary));
   models[id] = {
@@ -101,7 +102,7 @@ if (replaceProjectMetadata || mergeProjectMetadata) {
   await writeFile(pointsPath, JSON.stringify({ ...oldPoints, ...points }, null, 2) + '\n');
 }
 
-function measure(primitives, data, binary, back) {
+function measure(primitives, data, binary, back, hint) {
   const box = new Box3();
   const candidates = [];
   const triangle = new Triangle();
@@ -120,8 +121,8 @@ function measure(primitives, data, binary, back) {
     }
   }
   if (!candidates.length) throw new Error('Región sin triángulos.');
-  const target = box.getCenter(new Vector3());
-  target.z = back ? box.min.z : box.max.z;
+  const target = hint ? new Vector3(...hint) : box.getCenter(new Vector3());
+  if (!hint) target.z = back ? box.min.z : box.max.z;
   let point = candidates[0];
   for (const center of candidates) if (center.distanceToSquared(target) < point.distanceToSquared(target)) point = center;
   return { box, triangles: candidates.length, surfaceArea, point: point.toArray() };
