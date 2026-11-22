@@ -51,6 +51,24 @@ test('la cámara de 375 px muestra los huesos de la espalda con etiquetas biling
   await expect(sacrum.getByText('Sacrum', { exact: true })).toBeVisible();
   await expect(page.locator('[data-anatomy-arrow=scapula]')).toHaveAttribute('data-bone-source', /^scapula_(left|right)$/);
   await expect(page.locator('[data-anatomy-arrow=sacrum]')).toHaveAttribute('data-bone-source', 'sacrum');
+  const ribs = page.locator('[data-anatomy-arrow=ribs]');
+  await expect(ribs).toHaveAttribute('data-bone-source', /^ribs_(left|right)$/);
+  const { distance, side, column, ribU, lateralU } = await ribs.evaluate(node => {
+    const rib = node as SVGLineElement;
+    const spine = document.querySelector<SVGLineElement>('[data-anatomy-arrow=spine]')!;
+    const tip = (line: SVGLineElement) => new DOMPoint(line.x2.baseVal.value, line.y2.baseVal.value)
+      .matrixTransform(line.getScreenCTM()!);
+    const a = tip(rib), b = tip(spine);
+    const source = document.querySelector<SVGImageElement>(`image[data-part="${rib.dataset.boneSource}"]`)!;
+    const local = a.matrixTransform(source.getScreenCTM()!.inverse());
+    const ribU = (local.x - source.x.baseVal.value) / source.width.baseVal.value;
+    return { distance: Math.hypot(a.x-b.x, a.y-b.y), side: a.x < b.x ? 'left' : 'right', ribU,
+      lateralU: rib.dataset.boneSource === 'ribs_left' ? .82 : .18,
+      column: document.querySelector<HTMLElement>('[data-anatomy-label=ribs]')!.dataset.labelSide };
+  });
+  expect(distance).toBeGreaterThanOrEqual(40);
+  expect(side).toBe(column);
+  expect(ribU).toBeCloseTo(lateralU, 1);
   await page.screenshot({ path: testInfo.outputPath('huesos-espalda-375.png') });
   await scapula.getByRole('button', { name: 'Ver ficha de Escápula' }).click();
   await expect(page.getByRole('dialog', { name: 'Escápula' })).toBeVisible();

@@ -156,13 +156,13 @@ export default function MedicineExplorer() {
     }
   }, [live]);
   const adjustment = placement.facing === 'front' ? 'Mantén la pose un momento' : 'Encuadra a la persona de frente';
-  const pinReason = live && !fixedPose && !canFix && captureProgress === null
+  const pinReason = live && !fixedPose && !showFramingGuide && !canFix && captureProgress === null
     ? (regions?.status === 'Espalda' ? 'Para fijar, encuadra el cuerpo completo de frente'
-      : regions && !regions.fullBody && !(regions.status === 'Buscando…' && placement.facing === 'back')
+      : regions && !regions.fullBody
       ? 'Para fijar, aléjate hasta ver el cuerpo completo'
       : placement.facing === 'back' || placement.facing === 'side' ? 'Pídele a la persona que se gire de frente' : poseIssue || adjustment)
     : '';
-  const footGuide = layer === 'bones' && regions?.status === 'Buscando…' && camera.tracking !== 'loading' && placement.facing !== 'back'
+  const footGuide = !showFramingGuide && layer === 'bones' && regions?.legsMissingAnkle.length
     ? 'Incluye el tobillo y parte de la pierna para ver los huesos del pie.'
     : '';
   const noOrgans = layer === 'organs' && Boolean(regions && /^(?:Mano |Ambas manos|Brazo |Pierna |Pie |Ambos pies)/.test(regions.status));

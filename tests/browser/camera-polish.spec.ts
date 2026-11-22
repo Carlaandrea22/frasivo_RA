@@ -5,7 +5,7 @@ test('muestra la guía de primera vez y retira la silueta al detectar un cuerpo'
   const source = 'data:image/jpeg;base64,' + (await readFile('tests/fixtures/pose-front.jpg')).toString('base64');
   await page.setViewportSize({ width: 375, height: 812 });
   await page.addInitScript(source => {
-    const scene = { person: false, requests: 0 };
+    const scene = { person: 'none', requests: 0 };
     Object.assign(window, { guideTestScene: scene });
     Object.defineProperty(navigator.mediaDevices, 'getUserMedia', {
       value: async () => {
@@ -17,10 +17,12 @@ test('muestra la guía de primera vez y retira la silueta al detectar un cuerpo'
         canvas.width = 560;
         canvas.height = 1040;
         const ctx = canvas.getContext('2d')!;
-        const zoom = 1040/925;
         const draw = () => {
-          if (scene.person) ctx.drawImage(image, 140, 65, 550, 925, (560-550*zoom)/2, 0, 550*zoom, 1040);
-          else {
+          if (scene.person !== 'none') {
+            const height = scene.person === 'partial' ? 750 : 925;
+            const zoom = 1040/height;
+            ctx.drawImage(image, 140, 65, 550, height, (560-550*zoom)/2, 0, 550*zoom, 1040);
+          } else {
             const background = ctx.createLinearGradient(0, 0, 560, 1040);
             background.addColorStop(0, '#273e37');
             background.addColorStop(1, '#566b61');
@@ -50,18 +52,26 @@ test('muestra la guía de primera vez y retira la silueta al detectar un cuerpo'
   await sheet.getByRole('button', { name: 'Entendido' }).click();
   await expect(page.locator('.anatomy-status')).toHaveText('Buscando…');
   const framing = page.getByText('Encuadra a la persona dentro de la silueta');
+  const footHint = page.getByText('Incluye el tobillo y parte de la pierna para ver los huesos del pie.');
   await expect(framing).toBeVisible();
+  await expect(page.locator('.anatomy-stage-hint')).toHaveCount(0);
+  await expect(footHint).toHaveCount(0);
   await expect.poll(async () => {
     const guide = await framing.boundingBox();
     const panel = await page.locator('.anatomy-controls').boundingBox();
     return Boolean(guide && panel && guide.y + guide.height < panel.y);
   }).toBe(true);
   await page.screenshot({ path: testInfo.outputPath('silueta.png') });
-  await page.evaluate(() => {
-    (window as unknown as { guideTestScene: { person: boolean } }).guideTestScene.person = true;
-  });
+  const showPerson = (person: 'partial' | 'full') => page.evaluate(person => {
+    (window as unknown as { guideTestScene: { person: string } }).guideTestScene.person = person;
+  }, person);
+  await showPerson('partial');
+  await expect(footHint).toBeVisible({ timeout: 20_000 });
+  await expect(framing).toHaveCount(0);
+  await showPerson('full');
   await expect(page.locator('.anatomy-status')).toHaveText('Cuerpo completo');
   await expect(framing).toHaveCount(0);
+  await expect(footHint).toHaveCount(0);
   await page.getByRole('button', { name: 'Guía de cámara' }).click();
   await expect(sheet).toBeVisible();
   await sheet.getByRole('button', { name: 'Entendido' }).click();

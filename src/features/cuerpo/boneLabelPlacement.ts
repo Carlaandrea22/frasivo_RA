@@ -6,6 +6,7 @@ export interface BoneTarget {
   y: number;
   centerX?: number;
   source?: string;
+  lateral?: boolean;
 }
 
 export const posteriorBoneLabels = ['scapula', 'spine', 'ribs', 'sacrum', 'pelvis', 'femur'];
@@ -73,13 +74,15 @@ export function arrangeBoneLabels(targets: readonly BoneTarget[], ids: readonly 
   const visibleBottom = height - (size.reservedBottom ?? 0);
   const visible = targets.filter(target => target.x >= 0 && target.x <= 1 && target.y >= 0
     && target.y*height <= visibleBottom);
+  const central = new Set(centerBones);
+  for (const target of visible) if (target.lateral) central.delete(target.id);
   // A touched lateral bone keeps the same side. Reserve those slots before
   // using the roomier column for bones around the midline.
   const orderedIds = [...new Set(ids)].slice(0, 6).sort((a, b) =>
-    Number(b === selected) - Number(a === selected) || Number(centerBones.has(a)) - Number(centerBones.has(b)));
+    Number(b === selected) - Number(a === selected) || Number(central.has(a)) - Number(central.has(b)));
   for (const id of orderedIds) {
     const matches = visible.filter(target => target.id === id);
-    const options = (id === selected && !centerBones.has(id) ? matches.slice(0, 1) : matches)
+    const options = (id === selected && !central.has(id) ? matches.slice(0, 1) : matches)
       .map(target => ({ target, side: targetSide(target) }))
       .filter(({side}) => columns[side].length < capacity)
       .sort((a,b) => {

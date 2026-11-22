@@ -157,8 +157,10 @@ export function chooseRegions(points: BodyPoint[], aspect: number, viewportAspec
   }
   if (!feet.length) reasons.push('Faltan puntos coherentes de tobillo, talón y punta');
   if (fullBody && poseHead) groups.add('head');
+  const legsMissingAnkle = sides.filter(side => groups.has(`thigh_${side}`) && !groups.has(`shin_${side}`)
+    && !at(`ankle_${side}`, .59));
   return { groups, hands: visibleHands, face: fullBody && poseHead && layer === 'bones' ? null : visibleFace,
-    feet, neck, status, reasons, fullBody, detailedHands, detailedFace };
+    feet, neck, status, reasons, fullBody, detailedHands, detailedFace, legsMissingAnkle };
 }
 
 // Only acquire a region after two consecutive observations. Invalidated

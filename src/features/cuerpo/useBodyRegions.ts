@@ -35,6 +35,7 @@ export function useBodyRegions(active: boolean, ...input: Parameters<typeof choo
     hands: candidate.hands.filter(hand => confirmed.has(`detail_hand_${hand.side}`)),
     face: confirmed.has('detail_face') ? candidate.face : null,
     neck: confirmed.has('neck') ? candidate.neck : null,
+    legsMissingAnkle: candidate.legsMissingAnkle.filter(side => confirmed.has(`thigh_${side}`)),
     fullBody: candidate.fullBody && confirmed.has('full'),
     status: confirmed.has(`status:${candidate.status}`) ? candidate.status : 'Buscando…',
   } satisfies Decision), [candidate, confirmed]);

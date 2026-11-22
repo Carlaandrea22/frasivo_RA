@@ -97,16 +97,19 @@ export function AnatomyOverlay({ placement, live, layer, aspect, opacity, select
       const left = (width-aspect*scale)/2, top = (height-scale)/2;
       const trunk = current.current.get('trunk') ?? current.current.get('pelvis') ?? current.current.get('head');
       const centerX = trunk ? (left+scale*applyBoneTransform(trunk, [0, -1.2])[0])/width : .5;
+      const posterior = live && facing === 'back';
       candidates.current = parts.flatMap(part => {
         const matrix = current.current.get(part.group);
         if (!matrix) return [];
         const spriteId = atlasSpriteId(part, live, frontFeet, facing);
         const [x, y, w, h] = atlasSprite(part, live, frontFeet, facing);
-        const point = live && facing === 'back' ? part.backLabelPoint ?? part.labelPoint : part.labelPoint;
-        const anchors = point ? [[x+point[0]*w, y+point[1]*h] as const] : boneSpritePoints(spriteId, [x, y, w, h]);
+        const lateral = posterior && part.term === 'ribs';
+        const point = lateral ? undefined : posterior ? part.backLabelPoint ?? part.labelPoint : part.labelPoint;
+        const anchors = point ? [[x+point[0]*w, y+point[1]*h] as const]
+          : boneSpritePoints(lateral ? part.id : spriteId, [x, y, w, h]);
         return anchors.map(anchor => {
           const [x, y] = applyBoneTransform(matrix, anchor);
-          return { id: part.term, key: part.id, source: part.id, centerX,
+          return { id: part.term, key: part.id, source: part.id, centerX, lateral,
             x: (left+scale*x)/width, y: (top+scale*y)/height };
         });
       });

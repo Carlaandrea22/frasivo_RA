@@ -180,6 +180,13 @@ Esta propuesta deja **Congelar** como acción separada. **Fijar** conserva una p
 - **Verificación en el Mac.** Build, 66 pruebas unitarias y 50 de navegador. Los pulmones ocupan el 88,8 % del ancho entre hombros en cámara y alrededor del 88,7 % en la malla fijada. La precarga quedó en **14.632.172 bytes** en 111 recursos. Se verificó el uso de Pose Lite después de recargar sin conexión y la actualización al pulsar «Actualizar» en una instalación simulada.
 - **Capturas a 375 px.** [Órganos](renovacion/cuerpo-pulido/organos.png) · [Ícono de inicio](renovacion/cuerpo-pulido/icono-inicio.png) · [Guía](renovacion/cuerpo-pulido/guia-uso.png) · [Silueta](renovacion/cuerpo-pulido/silueta.png) · [Huesos de espaldas](renovacion/cuerpo-pulido/huesos-espalda.png) · [Instalar](renovacion/cuerpo-pulido/instalar.png) · [Instrucciones de iPhone](renovacion/cuerpo-pulido/instalar-iphone.png) · [Actualizar](renovacion/cuerpo-pulido/actualizar.png)
 
+### Pulido de Cuerpo y del visor compartido
+
+- En el visor 3D las mallas visibles ocultan los anclajes que quedan detrás de su superficie. El contrato de proyección sigue siendo `id`, `x`, `y` y `visible`. [Arquitectura](ARQUITECTURA.md#interfaz-y-visor-compartidos)
+- En la vista posterior de Huesos, la flecha de Costillas apunta al lateral del mismo lado que su ficha. La prueba a 375 px exige al menos 40 px hasta la punta de Columna vertebral.
+- «Buscando…» muestra la silueta y su instrucción de encuadre. El aviso del pie aparece con una pierna detectada sin un tobillo fiable.
+- [Espalda con costillas](renovacion/cuerpo-pulido-2/espalda-costillas.png) · [Silueta buscando](renovacion/cuerpo-pulido-2/silueta-buscando.png) · [Corazón con la etiqueta mitral oculta](renovacion/cuerpo-pulido-2/corazon-etiqueta-oculta.png)
+
 #### Pruebas pendientes en teléfonos físicos
 
 - **Cámara.** Comprueba la guía inicial, la detección con luz real, la escala de los órganos con movimiento y el cambio de vista frontal a posterior en Huesos.

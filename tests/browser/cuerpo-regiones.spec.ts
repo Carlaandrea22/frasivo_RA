@@ -85,16 +85,16 @@ for (const scene of scenes) {
         return pose >= 3 && hand >= 2 && face >= 2;
       }, undefined, { timeout: 15000 });
       const footLabel = page.locator('[data-bone-label=calcaneus]');
-      await expect(footLabel.or(page.getByText('Incluye el tobillo y parte de la pierna para ver los huesos del pie.'))).toBeVisible();
+      await expect(footLabel.or(page.getByText('Encuadra a la persona dentro de la silueta'))).toBeVisible();
+      await expect(page.getByText('Incluye el tobillo y parte de la pierna para ver los huesos del pie.')).toHaveCount(0);
       await expect(atlas.locator('image[data-part=ribs]')).toHaveCount(0);
       await expect(atlas.locator('image[data-part=skull]')).toHaveCount(0);
     }
     if (scene.key !== 'cuerpo-completo') {
       await expect(page.getByRole('button', { name: 'Fijar esqueleto' })).toBeDisabled();
-      if (scene.key === 'pie') {
-        await expect(page.locator('#anatomy-pin-reason')).toHaveText(/Incluye el tobillo|Para fijar/);
-        await expect(page.locator('.anatomy-stage-hint > span')).toHaveCount(1);
-      } else await expect(page.locator('#anatomy-pin-reason')).toHaveText('Para fijar, aléjate hasta ver el cuerpo completo');
+      if (scene.key !== 'pie') {
+        await expect(page.locator('#anatomy-pin-reason')).toHaveText('Para fijar, aléjate hasta ver el cuerpo completo');
+      }
       await expect(atlas.locator('image[data-part=femur_left]')).toHaveCount(0);
     } else {
       await expect(page.getByRole('button', { name: 'Fijar esqueleto' })).toBeEnabled();
