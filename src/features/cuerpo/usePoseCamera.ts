@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { stabilizeLivePose, type LivePose } from './livePose';
 import { useBodyCamera } from './useBodyCamera';
 import { captureWindow, type PoseSample } from './poseCapture';
 import {
@@ -17,9 +18,12 @@ const emptyStats = (): Record<DetectorKind, DetectorStat> => ({
 });
 
 export function usePoseCamera(
-  onDetection?: (time: number) => void, detailed = false, regionalHint?: { current: RegionalHint }, paused = false,
+  viewportAspect: number, onDetection?: (time: number) => void, detailed = false,
+  regionalHint?: { current: RegionalHint }, paused = false,
 ) {
   const camera = useBodyCamera(detailed);
+  const viewport = useRef(viewportAspect);
+  viewport.current = viewportAspect;
   const highDetail = useRef(detailed);
   const hints = useRef(regionalHint);
   const pauseInference = useRef(paused);
@@ -28,6 +32,7 @@ export function usePoseCamera(
   pauseInference.current = paused;
   const { status, stop, videoRef } = camera;
   const [history, setHistory] = useState<PoseSample[]>([]);
+  const [livePose, setLivePose] = useState<LivePose>();
   const [tracking, setTracking] = useState<'loading' | 'searching' | 'tracking'>('loading');
   const [modelError, setModelError] = useState('');
   const [aspect, setAspect] = useState(4 / 5);
@@ -35,11 +40,14 @@ export function usePoseCamera(
   const [face, setFace] = useState<FaceRegion | null>(null);
   const [handChecked, setHandChecked] = useState(false);
   const [detectorStats, setDetectorStats] = useState(emptyStats);
+  const [poseEngine, setPoseEngine] = useState('');
 
   useEffect(() => {
     if (status !== 'active') return;
     let disposed = false, busy = false, lastVideoTime = -1, started = 0, lastPoseResult = 0;
-    let poseFrames = 0;
+    let poseFrames = 0, fullLosses = 0;
+    let engine = '', triedFull = false, fullTrial = true;
+    const rates: { time: number; inference: number }[] = [];
     let worker: Worker | undefined;
     const states: Record<DetectorKind, DetectorState> = { pose: 'loading', hand: 'idle', face: 'idle' };
     const last: Record<DetectorKind, number> = { pose: -Infinity, hand: -Infinity, face: -Infinity };
@@ -50,9 +58,11 @@ export function usePoseCamera(
 
     setModelError('');
     setHistory([]);
+    setLivePose(undefined);
     setHands(emptyHands);
     setFace(null);
     setHandChecked(false);
+    setPoseEngine('');
     setTracking('loading');
 
     function updateStats() {
@@ -75,6 +85,7 @@ export function usePoseCamera(
       if (disposed) return;
       setModelError(message);
       setHistory([]);
+      setLivePose(undefined);
       stop();
     };
 
@@ -104,9 +115,46 @@ export function usePoseCamera(
             poseFrames++;
             lastPoseResult = arrived;
             onDetection?.(arrived);
+            const currentEngine = `${data.model}/${data.delegate}`;
+            if (engine !== currentEngine) {
+              engine = currentEngine;
+              rates.length = 0;
+              if (onDetection) setPoseEngine(engine);
+            }
+            const wholeBody = hints.current?.current.fullBody;
+            if (data.model === 'full' && fullTrial) {
+              fullLosses = wholeBody && data.points.length ? 0 : fullLosses+1;
+              if (fullLosses >= 3) {
+                fullTrial = false;
+                worker!.postMessage({ type: 'use-lite' });
+              }
+            }
+            if (highDetail.current && wholeBody) {
+              rates.push({ time: arrived, inference: data.ms });
+              if (rates.length > 9) rates.shift();
+              if (rates.length === 9) {
+                const fps = 8000/(arrived-rates[0].time);
+                const mean = rates.reduce((sum, item) => sum+item.inference, 0)/rates.length;
+                if (data.model === 'lite' && !triedFull && fps >= 9 && mean < 45) {
+                  triedFull = true;
+                  worker!.postMessage({ type: 'try-full' });
+                } else if (data.model === 'full') {
+                  fullTrial = false;
+                  if (fps < 9 || mean > 75) {
+                    worker!.postMessage({ type: 'use-lite' });
+                    rates.length = 0;
+                  }
+                }
+              }
+            } else rates.length = 0;
             const sample: PoseSample = { time: data.time, points: data.points, world: data.world };
             setHistory(previous => sample.points.length
               ? [...previous.filter(frame => sample.time - frame.time <= captureWindow), sample] : []);
+            const video = videoRef.current;
+            if (video?.videoHeight) {
+              const aspect = video.videoWidth/video.videoHeight, viewportAspect = viewport.current;
+              setLivePose(previous => stabilizeLivePose(sample.points, sample.time, aspect, viewportAspect, previous));
+            }
             setTracking(sample.points.length ? 'tracking' : 'searching');
           } else if (data.type === 'hand') {
             setHandChecked(true);
@@ -137,6 +185,7 @@ export function usePoseCamera(
       if (lastPoseResult && now - lastPoseResult > 720) {
         lastPoseResult = 0;
         setHistory(previous => previous.length ? [] : previous);
+        setLivePose(undefined);
         setTracking('searching');
       }
       for (const kind of ['hand', 'face'] as const) {
@@ -163,7 +212,8 @@ export function usePoseCamera(
         }
       }
 
-      if (now - started < (hint ? 76 : 90)) return;
+      const interval = hint?.fullBody ? 64 : hint ? 76 : 90;
+      if (now - started < interval) return;
       const active = lastSeen.hand > lastSeen.face ? 'hand' : lastSeen.face ? 'face' : null;
       const detector = hint ? chooseDetector(hint, states, last, now, active) : 'pose';
       busy = true;
@@ -179,7 +229,7 @@ export function usePoseCamera(
         if (disposed) { frame.close(); return; }
         worker!.postMessage({ type: 'frame', detector, frame, timestamp: performance.now() }, [frame]);
       } catch { fail('No se pudo analizar la cámara. Prueba un navegador actualizado o vuelve a intentarlo.'); }
-    }, 20);
+    }, 16);
     return () => {
       disposed = true;
       clearInterval(timer);
@@ -192,6 +242,7 @@ export function usePoseCamera(
   const startCamera = camera.start;
   const start = useCallback(() => {
     setHistory([]);
+    setLivePose(undefined);
     setTracking('loading');
     setModelError('');
     return startCamera();
@@ -199,9 +250,10 @@ export function usePoseCamera(
   const samples = status === 'active' ? history : emptySamples;
   return {
     ...camera, start, samples, points: samples.at(-1)?.points ?? emptyPoints, tracking, modelError, aspect,
+    livePose: status === 'active' ? livePose : undefined,
     hands: status === 'active' && detailed ? hands : emptyHands,
     face: status === 'active' && detailed ? face : null,
     handChecked,
-    detectorStats,
+    detectorStats, poseEngine,
   };
 }

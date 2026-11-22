@@ -13,7 +13,20 @@ const cachesByModel = {
   face: 'body-face-landmarker-v1',
 };
 
-let pose: PoseLandmarker | undefined;
+type PoseModel = 'lite' | 'full';
+type Delegate = 'GPU' | 'CPU';
+interface PoseDetector {
+  model: PoseModel;
+  delegate: Delegate;
+  landmarker: PoseLandmarker;
+}
+
+let pose: PoseDetector | undefined;
+let lite: PoseDetector | undefined;
+let live = false;
+let prepareFull = false;
+let candidate: PoseDetector | undefined;
+let warmupFrames = 0;
 let hand: HandLandmarker | undefined;
 let face: FaceLandmarker | undefined;
 let fileset: ReturnType<typeof FilesetResolver.forVisionTasks> | undefined;
@@ -51,6 +64,81 @@ async function loadModel(model: keyof typeof paths) {
   return bytes;
 }
 
+function hardwareWebGL() {
+  try {
+    const context = new OffscreenCanvas(1, 1).getContext('webgl2', { failIfMajorPerformanceCaveat: true });
+    if (!context) return false;
+    const extension = context.getExtension('WEBGL_debug_renderer_info');
+    const renderer = extension ? String(context.getParameter(extension.UNMASKED_RENDERER_WEBGL)) : '';
+    context.getExtension('WEBGL_lose_context')?.loseContext();
+    return !/swiftshader|llvmpipe|software/i.test(renderer);
+  } catch {
+    return false;
+  }
+}
+
+async function createPose(model: PoseModel, delegate: Delegate, fullModel?: Uint8Array): Promise<PoseDetector> {
+  const vision = await wasm();
+  const source = fullModel ? { modelAssetBuffer: fullModel } : {
+    modelAssetPath: new URL('/body-tracking/pose_landmarker_lite.task', scope.location.origin).href,
+  };
+  const landmarker = await PoseLandmarker.createFromOptions(vision, {
+    baseOptions: { ...source, delegate },
+    canvas: new OffscreenCanvas(1, 1), runningMode: 'VIDEO', numPoses: 1,
+    minPoseDetectionConfidence: .6, minPosePresenceConfidence: .6, minTrackingConfidence: .6,
+    outputSegmentationMasks: false,
+  });
+  return { model, delegate, landmarker };
+}
+
+function closePose(detector: PoseDetector) {
+  try { detector.landmarker.close(); } catch { /* The graph may already have lost its context. */ }
+}
+
+function useLite() {
+  if (pose && lite && pose !== lite) {
+    closePose(pose);
+    pose = lite;
+  }
+}
+
+async function detectPose(frame: ImageBitmap, time: number) {
+  if (!pose) throw new Error('El seguimiento no está listo.');
+  if (candidate) {
+    try {
+      const first = candidate.landmarker.detectForVideo(frame, time);
+      warmupFrames++;
+      if (warmupFrames >= 3 && first.landmarks.length) {
+        pose = candidate;
+        candidate = undefined;
+        return first;
+      }
+      first.close();
+      if (warmupFrames >= 6) {
+        closePose(candidate);
+        candidate = undefined;
+      }
+    } catch {
+      if (candidate) closePose(candidate);
+      candidate = undefined;
+    }
+  }
+  try {
+    return pose.landmarker.detectForVideo(frame, time);
+  } catch (error) {
+    if (!live) throw error;
+    if (pose.model === 'full') {
+      useLite();
+      try { return pose.landmarker.detectForVideo(frame, time); } catch { /* Retry using CPU below. */ }
+    }
+    if (pose.delegate === 'CPU') throw error;
+    const failed = pose;
+    pose = lite = await createPose('lite', 'CPU');
+    closePose(failed);
+    return pose.landmarker.detectForVideo(frame, time);
+  }
+}
+
 async function prepareSpecialist(kind: Specialist) {
   const [vision, modelAssetBuffer] = await Promise.all([wasm(), loadModel(kind)]);
   const common = {
@@ -74,16 +162,30 @@ async function prepareSpecialist(kind: Specialist) {
 async function process(data: MessageEvent['data']) {
   if (data.type === 'init') {
     if (typeof OffscreenCanvas === 'undefined') throw new Error('Este navegador necesita una versión compatible con OffscreenCanvas.');
-    const [vision, fullModel] = await Promise.all([wasm(), data.model === 'full' ? loadModel('full') : undefined]);
-    pose = await PoseLandmarker.createFromOptions(vision, {
-      baseOptions: fullModel ? { modelAssetBuffer: fullModel, delegate: 'CPU' } : {
-        modelAssetPath: new URL('/body-tracking/pose_landmarker_lite.task', scope.location.origin).href, delegate: 'CPU',
-      },
-      canvas: new OffscreenCanvas(1, 1), runningMode: 'VIDEO', numPoses: 1,
-      minPoseDetectionConfidence: .6, minPosePresenceConfidence: .6, minTrackingConfidence: .6,
-      outputSegmentationMasks: false,
-    });
+    const model: PoseModel = data.model === 'full' ? 'full' : 'lite';
+    live = model === 'lite';
+    if (live && hardwareWebGL()) {
+      try { pose = await createPose('lite', 'GPU'); } catch { /* CPU remains available. */ }
+    }
+    pose ??= await createPose(model, 'CPU', model === 'full' ? await loadModel('full') : undefined);
+    if (live) lite = pose;
     scope.postMessage({ type: 'ready' });
+    return;
+  }
+
+  if (data.type === 'try-full' && live && lite && !prepareFull) {
+    prepareFull = true;
+    try {
+      const fullModel = await loadModel('full');
+      candidate = await createPose('full', lite.delegate, fullModel);
+    } catch {
+      // A failed download or unsupported graph leaves the live Lite graph running.
+    }
+    return;
+  }
+
+  if (data.type === 'use-lite') {
+    useLite();
     return;
   }
 
@@ -125,9 +227,9 @@ async function process(data: MessageEvent['data']) {
       } : null;
       scope.postMessage({ type: 'face', time, ms: performance.now()-started, face: region });
     } else {
-      if (!pose) throw new Error('El seguimiento no está listo.');
-      const result = pose.detectForVideo(frame, time);
-      scope.postMessage({ type: 'pose', time, ms: performance.now()-started, points: result.landmarks[0] ?? [], world: result.worldLandmarks[0] ?? [] });
+      const result = await detectPose(frame, time);
+      scope.postMessage({ type: 'pose', time, ms: performance.now()-started,
+        model: pose?.model, delegate: pose?.delegate, points: result.landmarks[0] ?? [], world: result.worldLandmarks[0] ?? [] });
       result.close();
     }
   } finally {
