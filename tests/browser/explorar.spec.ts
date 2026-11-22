@@ -135,9 +135,14 @@ for (const width of [375,1440]) test(`resalta solo la cabeza del fémur a ${widt
   await page.goto('/#explorar/estructura/femur');
   await expect(page.locator('[data-viewer-state="ready"]')).toBeVisible();
   await page.getByRole('button',{ name: 'Ocultar etiquetas' }).click();
-  const before = await page.locator('canvas').screenshot();
+  const canvas = page.locator('canvas');
+  const captureModel = async () => {
+    await canvas.evaluate(element => element.scrollIntoView({ block: 'center', behavior: 'instant' }));
+    return canvas.screenshot();
+  };
+  const before = await captureModel();
   await page.locator('.explorar-parts').getByRole('button',{ name: 'Cabeza del fémur', exact: true }).click();
-  const after = await page.locator('canvas').screenshot();
+  const after = await captureModel();
   const difference = await page.evaluate(async ({ before, after }) => {
     const read = async (base64: string) => {
       const image = new Image(); image.src = `data:image/png;base64,${base64}`; await image.decode();

@@ -202,6 +202,13 @@ a { color: var(--forest); }
 }
 
 .app-area { color: var(--muted); font-weight: 700; }
+
+.app-shell > .recordatorio-racha {
+  position: static;
+  width: min(24.5rem, calc(100% - 20px));
+  margin: var(--space-2) auto 0;
+}
+
 .app-main {
   display: flex;
   width: min(calc(100% - 2 * var(--space-5)), var(--page-width));

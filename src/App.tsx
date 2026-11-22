@@ -74,6 +74,8 @@ export default function App() {
         </div>
       </header>
       <PwaUpdate/>
+      <RecordatorioRacha pausado={body || tab === 'practicar'} oculto={!!invitation}/>
+      {invitation && <QuickInvitation activity={invitation} accept={startQuick} dismiss={() => setOffer(undefined)}/>}
 
       <main className={`app-main${body ? ' app-main--body' : ''}`}>
         {atQuick ? quick ? <QuickPractice activity={quick.activity} deadline={quick.deadline}
@@ -101,8 +103,6 @@ export default function App() {
           ))}
         </div>
       </nav>
-      <RecordatorioRacha pausado={body || tab === 'practicar'} oculto={!!invitation}/>
-      {invitation && <QuickInvitation activity={invitation} accept={startQuick} dismiss={() => setOffer(undefined)}/>}
     </div>
   );
 }
