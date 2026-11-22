@@ -118,3 +118,13 @@ La tarjeta principal de «Ubica las partes» reúne los diez modelos y los
 tres recorridos. El selector ofrece practicar un modelo concreto, completar
 un recorrido o elegir un modelo al azar al empezar. Los enlaces desde
 Explorar preseleccionan la estructura cuando corresponde.
+
+### Ampliación de «Señala la estructura»
+
+La actividad usa el mismo selector de modelos, recorridos y selección al
+azar. Hay consignas para los diez modelos del atlas. Se reutilizan las
+mallas seleccionables de Explorar y las preguntas originales del corazón.
+Las consignas del cuádriceps se limitan a las porciones accesibles al
+tocar el modelo. El vasto intermedio queda disponible en «Ubica las partes».
+
+- Selector de «Señala la estructura» a [375 px](../capturas/carla/retos-senala-selector-375.png) y en [escritorio](../capturas/carla/retos-senala-selector-1440.png).

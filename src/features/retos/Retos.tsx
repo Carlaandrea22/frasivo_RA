@@ -30,13 +30,27 @@ const modos: Record<ModoReto, { label: string; descripcion: string }> = {
   evaluacion: { label: 'Evaluación', descripcion: 'Sin ayuda y con la corrección al final' },
 };
 
-const retosUbicar = retos.filter(reto => reto.tipo === 'ubica-partes');
-const recorridos = retosUbicar.filter(reto => reto.estructurasRelacionadas.length > 1);
-const modelosUbicar = estructuras.flatMap(estructura => {
-  const reto = retosUbicar.find(item => item.preguntas.some(pregunta => pregunta.estructuraId === estructura.id));
-  return reto ? [{ estructura, reto }] : [];
-});
-const rutaUbicar = (estructuraId?: string) => `${rutaRetos}/ubicar${estructuraId ? `/estructura/${estructuraId}` : ''}`;
+type TipoConModelo = 'ubica-partes' | 'senala-estructura';
+const tiposConModelo = ['ubica-partes', 'senala-estructura'] satisfies TipoConModelo[];
+const selectorPorTipo = {
+  'ubica-partes': { ruta: 'ubicar', descripcion: 'Coloca etiquetas en el modelo 3D. Elige qué quieres practicar o prueba un modelo al azar.' },
+  'senala-estructura': { ruta: 'senalar', descripcion: 'Gira un modelo 3D y toca la pieza indicada.' },
+};
+const rutaModelo = (tipo: TipoConModelo, estructuraId?: string) =>
+  `${rutaRetos}/${selectorPorTipo[tipo].ruta}${estructuraId ? `/estructura/${estructuraId}` : ''}`;
+
+function usaModelo(tipo: TipoReto): tipo is TipoConModelo {
+  return tipo === 'ubica-partes' || tipo === 'senala-estructura';
+}
+
+function opcionesDeModelo(tipo: TipoConModelo) {
+  const actividades = retos.filter(reto => reto.tipo === tipo);
+  const modelos = estructuras.flatMap(estructura => {
+    const reto = actividades.find(item => item.preguntas.some(pregunta => pregunta.estructuraId === estructura.id));
+    return reto ? [{ estructura, reto }] : [];
+  });
+  return { modelos, recorridos: actividades.filter(reto => reto.estructurasRelacionadas.length > 1) };
+}
 
 function retoParaModelo(reto: Reto, modeloId: string): Reto {
   if (reto.estructurasRelacionadas.length === 1) return reto;
@@ -44,14 +58,16 @@ function retoParaModelo(reto: Reto, modeloId: string): Reto {
   if (!primera) return reto;
   return {
     ...reto,
-    titulo: `Ubica las partes · ${nombreEstructura(modeloId)}`,
+    titulo: `${tipos[reto.tipo].nombre} · ${nombreEstructura(modeloId)}`,
     estructurasRelacionadas: [modeloId],
     preguntas: [primera, ...otras],
   };
 }
 
 function duracion(reto: Reto) {
-  return reto.tipo === 'ubica-partes' ? Math.max(2, reto.estructurasRelacionadas.length) : tipos[reto.tipo].minutos;
+  if (reto.tipo === 'ubica-partes') return Math.max(2, reto.estructurasRelacionadas.length);
+  if (reto.tipo === 'senala-estructura') return Math.max(1, Math.ceil(reto.preguntas.length * 2 / 3));
+  return tipos[reto.tipo].minutos;
 }
 
 function rondasDeReto(reto: Reto): readonly (readonly PreguntaReto[])[] {
@@ -81,10 +97,10 @@ function Fuentes({ reto }: { reto: Reto }) {
 
 function Lista({ estructuraId }: { estructuraId?: string }) {
   const disponibles = estructuraId ? retos.filter(reto => reto.estructurasRelacionadas.includes(estructuraId)) : retos;
-  const ubicar = disponibles.filter(reto => reto.tipo === 'ubica-partes');
-  const otros = disponibles.filter(reto => reto.tipo !== 'ubica-partes');
-  const ultimoUbicar = ubicar.map(ultimoIntento).filter(evento => evento?.kind === 'practice')
-    .sort((a, b) => b.timestamp.localeCompare(a.timestamp))[0];
+  const grupos = tiposConModelo.map(tipo => ({ tipo, actividades: disponibles.filter(reto => reto.tipo === tipo) }));
+  const ubicar = grupos[0];
+  const senalar = grupos[1];
+  const otros = disponibles.filter(reto => !usaModelo(reto.tipo));
   return <section className="lumar-page retos-page">
     <header>
       <h1>Retos de anatomía</h1>
@@ -92,17 +108,9 @@ function Lista({ estructuraId }: { estructuraId?: string }) {
     </header>
     <PracticeTabs active="retos"/>
     {estructuraId && <a className="retos-back" href={rutaRetos}>Ver todos los retos</a>}
-    {ubicar.length > 0 && <Card className="retos-card retos-featured">
-      <div className="retos-featured-title"><Layers size={26} aria-hidden="true"/><h2>Ubica las partes</h2></div>
-      <p>Coloca etiquetas en el modelo 3D. Elige qué quieres practicar o prueba un modelo al azar.</p>
-      <div className="retos-actions">
-        <a className="button button--primary lumar-link" href={rutaUbicar(estructuraId)}>Elegir práctica<ArrowRight size={17} aria-hidden="true"/></a>
-        {ultimoUbicar?.activityId && <a className="retos-history" href={rutaResultado(ultimoUbicar.activityId, ultimoUbicar.id)}>
-          Último resultado: {ultimoUbicar.correct} de {ultimoUbicar.correct+ultimoUbicar.errors}
-        </a>}
-      </div>
-    </Card>}
-    {otros.length > 0 && <div className="retos-grid">
+    {ubicar.actividades.length > 0 && <TarjetaModelo {...ubicar} estructuraId={estructuraId}/>}
+    {(otros.length > 0 || senalar.actividades.length > 0) && <div className="retos-grid">
+      {senalar.actividades.length > 0 && <TarjetaModelo {...senalar} estructuraId={estructuraId}/>}
       {otros.map(reto => {
         const resultado = ultimoIntento(reto);
         return <Card key={reto.id} className="retos-card">
@@ -123,6 +131,26 @@ function Lista({ estructuraId }: { estructuraId?: string }) {
   </section>;
 }
 
+function TarjetaModelo({ tipo, actividades, estructuraId }: { tipo: TipoConModelo; actividades: readonly Reto[]; estructuraId?: string }) {
+  const { icon: Icon, nombre } = tipos[tipo];
+  const principal = tipo === 'ubica-partes';
+  const ultimo = actividades.map(ultimoIntento).filter(evento => evento?.kind === 'practice')
+    .sort((a, b) => b.timestamp.localeCompare(a.timestamp))[0];
+  return <Card className={principal ? 'retos-card retos-featured' : 'retos-card'}>
+    <div className="retos-featured-title"><Icon size={principal ? 26 : 20} aria-hidden="true"/><h2>{nombre}</h2></div>
+    <p>{selectorPorTipo[tipo].descripcion}</p>
+    <div className="retos-actions">
+      <a className="button button--primary lumar-link" href={rutaModelo(tipo, estructuraId)}
+        aria-label={principal ? undefined : `Elegir modelo para ${nombre}`}>
+        {principal ? 'Elegir práctica' : 'Elegir modelo'}<ArrowRight size={17} aria-hidden="true"/>
+      </a>
+      {ultimo?.activityId && <a className="retos-history" href={rutaResultado(ultimo.activityId, ultimo.id)}>
+        Último resultado: {ultimo.correct} de {ultimo.correct+ultimo.errors}
+      </a>}
+    </div>
+  </Card>;
+}
+
 function SelectorModo({ opciones, modo, onChange }: { opciones: readonly ModoReto[]; modo: ModoReto; onChange: (id: ModoReto) => void }) {
   return <>
     <h2>Elige un modo</h2>
@@ -134,29 +162,34 @@ function SelectorModo({ opciones, modo, onChange }: { opciones: readonly ModoRet
 }
 
 export function UbicaInicio({ params }: RouteProps) {
-  return <ConfigurarUbicar key={params.estructuraId ?? 'todos'} estructuraId={params.estructuraId}/>;
+  return <ConfigurarModelo key={params.estructuraId ?? 'todos'} tipo="ubica-partes" estructuraId={params.estructuraId}/>;
 }
 
-function ConfigurarUbicar({ estructuraId }: { estructuraId?: string }) {
-  const [seleccion, setSeleccion] = useState(modelosUbicar.some(({ estructura }) => estructura.id === estructuraId) ? estructuraId! : '');
+export function SenalaInicio({ params }: RouteProps) {
+  return <ConfigurarModelo key={params.estructuraId ?? 'todos'} tipo="senala-estructura" estructuraId={params.estructuraId}/>;
+}
+
+function ConfigurarModelo({ tipo, estructuraId }: { tipo: TipoConModelo; estructuraId?: string }) {
+  const { modelos, recorridos } = useMemo(() => opcionesDeModelo(tipo), [tipo]);
+  const [seleccion, setSeleccion] = useState(() => modelos.find(({ estructura }) => estructura.id === estructuraId)?.estructura.id ?? '');
   const [aleatorio, setAleatorio] = useState(false);
   const [modo, setModo] = useState<ModoReto>('entrenamiento');
   const [jugando, setJugando] = useState<Reto>();
-  const modelo = modelosUbicar.find(opcion => opcion.estructura.id === seleccion);
+  const modelo = modelos.find(opcion => opcion.estructura.id === seleccion);
   const recorrido = recorridos.find(reto => reto.id === seleccion);
   const fuente = aleatorio ? undefined : modelo?.reto ?? recorrido;
   if (jugando) return <Juego reto={jugando} modo={modo}/>;
 
   function empezar() {
     if (!aleatorio && recorrido) { setJugando(recorrido); return; }
-    const opcion = aleatorio ? modelosUbicar[Math.floor(Math.random()*modelosUbicar.length)] : modelo;
+    const opcion = aleatorio ? modelos[Math.floor(Math.random()*modelos.length)] : modelo;
     if (opcion) setJugando(retoParaModelo(opcion.reto, opcion.estructura.id));
   }
 
   return <section className="lumar-page retos-page">
     <header><a className="retos-back" href={estructuraId ? `${rutaRetos}/estructura/${estructuraId}` : rutaRetos}>
       <ArrowLeft size={18} aria-hidden="true"/>Volver a los retos
-    </a><h1>Ubica las partes</h1></header>
+    </a><h1>{tipos[tipo].nombre}</h1></header>
     <Card className="retos-card retos-configurar">
       <h2>¿Qué quieres practicar?</h2>
       <Segmented label="Selección de práctica" value={aleatorio ? 'azar' : 'elegir'}
@@ -167,7 +200,7 @@ function ConfigurarUbicar({ estructuraId }: { estructuraId?: string }) {
         <select value={seleccion} onChange={event => setSeleccion(event.target.value)}>
           <option value="">Elige una opción</option>
           {categorias.map(categoria => <optgroup key={categoria.id} label={categoria.nombre}>
-            {modelosUbicar.filter(({ estructura }) => estructura.categoria === categoria.id).map(({ estructura }) =>
+            {modelos.filter(({ estructura }) => estructura.categoria === categoria.id).map(({ estructura }) =>
               <option key={estructura.id} value={estructura.id}>{estructura.nombreEs}</option>,
             )}
           </optgroup>)}
@@ -177,7 +210,7 @@ function ConfigurarUbicar({ estructuraId }: { estructuraId?: string }) {
         </select>
       </label>}
       <SelectorModo opciones={['entrenamiento','evaluacion']} modo={modo} onChange={setModo}/>
-      <Button className="retos-start" disabled={aleatorio ? modelosUbicar.length === 0 : !modelo && !recorrido} onClick={empezar}>Empezar reto</Button>
+      <Button className="retos-start" disabled={aleatorio ? modelos.length === 0 : !modelo && !recorrido} onClick={empezar}>Empezar reto</Button>
       {fuente && <Fuentes reto={fuente}/>}
     </Card>
   </section>;
@@ -291,7 +324,7 @@ function Juego({ reto, modo }: { reto: Reto; modo: ModoReto }) {
       {tablero && <p>{tipos[reto.tipo].objetivo}</p>}
       {ubicar && <Ubicar key={paso} {...tableroProps}/>}
       {reto.tipo === 'relaciona-funcion' && <Relacionar {...tableroProps}/>}
-      {reto.tipo === 'senala-estructura' && <Senalar {...opcionProps}/>}
+      {reto.tipo === 'senala-estructura' && <Senalar key={pregunta.estructuraId} {...opcionProps}/>}
       {reto.tipo === 'repaso-breve' && <Repasar {...opcionProps}/>}
       {entrenamiento && <div className="retos-hints">
         <Button variant="secondary" disabled={reveladas >= pistas.length || !!correccion}
@@ -335,9 +368,9 @@ function Resultados({ reto, intento }: { reto: Reto; intento: string }) {
   </ContentState></section>;
 
   const { registro, correcciones, modo } = resultado;
-  const modeloSolo = reto.tipo === 'ubica-partes' && registro.correct + registro.errors < reto.preguntas.length;
-  const tituloResultado = modeloSolo ? retoParaModelo(reto, registro.itemId).titulo : reto.titulo;
-  const repetir = modeloSolo ? rutaUbicar(registro.itemId) : rutaReto(reto.id);
+  const tipoModelo = usaModelo(reto.tipo) && registro.correct + registro.errors < reto.preguntas.length ? reto.tipo : undefined;
+  const tituloResultado = tipoModelo ? retoParaModelo(reto, registro.itemId).titulo : reto.titulo;
+  const repetir = tipoModelo ? rutaModelo(tipoModelo, registro.itemId) : rutaReto(reto.id);
   const errores = correcciones.filter(row => !row.acierto || row.erroresPrevios.length > 0);
   const filas = soloErrores ? errores : correcciones;
   return <section className="lumar-page retos-page">

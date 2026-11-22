@@ -31,6 +31,48 @@ test('agrupa las variantes de Ubica las partes y permite elegir un modelo o empe
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(375);
 });
 
+test('Señala la estructura abre huesos, músculos y órganos, y puede elegir al azar', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 900 });
+  await page.goto('/#practicar/retos');
+  const abrir = page.getByRole('link', { name: 'Elegir modelo para Señala la estructura', exact: true });
+  await abrir.click();
+  const selector = page.getByRole('combobox', { name: 'Modelo o recorrido' });
+  await expect(selector.locator('optgroup').filter({ has: page.locator('option[value="tibia"]') })).toHaveAttribute('label', 'Huesos');
+  for (const [id, nombre] of [['tibia', 'Tibia'], ['biceps_brachii', 'Bíceps braquial'], ['lungs', 'Pulmones']]) {
+    await selector.selectOption(id);
+    await page.getByRole('button', { name: 'Empezar reto' }).click();
+    await expect(page.getByRole('region', { name: `Modelo 3D de ${nombre}`, exact: true })).toHaveAttribute('data-viewer-state', 'ready');
+    await expect(page.getByRole('heading', { name: /^Toca:/ })).toBeVisible();
+    await page.getByRole('button', { name: 'Salir', exact: true }).click();
+    await page.getByRole('link', { name: 'Salir del reto' }).click();
+    await abrir.click();
+  }
+  await page.getByRole('button', { name: 'Aleatorio', exact: true }).click();
+  await expect(selector).toHaveCount(0);
+  await page.getByRole('button', { name: 'Empezar reto' }).click();
+  await expect(page.getByRole('region', { name: /^Modelo 3D de / })).toHaveAttribute('data-viewer-state', 'ready');
+});
+
+test('un modelo elegido en Señala guarda su resultado y se puede repetir', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 900 });
+  await page.goto('/#explorar/estructura/lungs');
+  await page.getByRole('link', { name: 'Practicar esta estructura' }).click();
+  await page.getByRole('link', { name: 'Elegir modelo para Señala la estructura' }).click();
+  const selector = page.getByRole('combobox', { name: 'Modelo o recorrido' });
+  await expect(selector).toHaveValue('lungs');
+  await page.getByRole('button', { name: 'Evaluación', exact: true }).click();
+  await page.getByRole('button', { name: 'Empezar reto' }).click();
+  await page.getByRole('button', { name: 'Mostrar números para seleccionar' }).click();
+  for (let i = 1; i <= 5; i++) {
+    await page.getByRole('button', { name: `Pieza ${i}`, exact: true }).click();
+    await page.getByRole('button', { name: i < 5 ? 'Siguiente' : 'Ver resultado', exact: true }).click();
+  }
+  await expect(page.getByText('5 de 5', { exact: true })).toBeVisible();
+  await page.reload();
+  await page.getByRole('link', { name: 'Repetir', exact: true }).click();
+  await expect(selector).toHaveValue('lungs');
+});
+
 test('Entrenamiento permite usar una pista, corregir la respuesta y repasar el error guardado', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 900 });
   await page.goto('/#practicar/retos/repaso-musculos');

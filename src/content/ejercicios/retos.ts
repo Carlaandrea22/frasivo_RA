@@ -45,10 +45,11 @@ function preguntasDePartes(estructuraId: string, ids?: readonly string[]) {
   }));
 }
 
-function retoDeUbicar(id: string, titulo: string, modelos: readonly [string, ...string[]]): Reto {
-  const [primera, ...otras] = modelos.flatMap(estructuraId =>
-    preguntasDePartes(estructuraId, estructuraId === 'heart' ? gruposEtiquetasCorazon[0].partes : undefined),
-  );
+function retoDeModelos(
+  id: string, titulo: string, tipo: 'ubica-partes' | 'senala-estructura',
+  modelos: readonly [string, ...string[]], preguntasPorModelo: (estructuraId: string) => readonly PreguntaReto[],
+): Reto {
+  const [primera, ...otras] = modelos.flatMap(preguntasPorModelo);
   if (!primera) throw new Error(`Faltan las partes del reto ${id}`);
   const [fuente, ...fuentes] = revision(modelos[0]).fuentes;
   const porUrl = new Map(fuentes.map(item => [item.url, item]));
@@ -56,9 +57,14 @@ function retoDeUbicar(id: string, titulo: string, modelos: readonly [string, ...
     if (item.url !== fuente.url) porUrl.set(item.url, item);
   }
   return {
-    id, titulo, tipo: 'ubica-partes', modos, estructurasRelacionadas: modelos,
+    id, titulo, tipo, modos, estructurasRelacionadas: modelos,
     preguntas: [primera, ...otras], revision: { estado: 'provisional', fuentes: [fuente, ...porUrl.values()] },
   };
+}
+
+function retoDeUbicar(id: string, titulo: string, modelos: readonly [string, ...string[]]) {
+  return retoDeModelos(id, titulo, 'ubica-partes', modelos, estructuraId =>
+    preguntasDePartes(estructuraId, estructuraId === 'heart' ? gruposEtiquetasCorazon[0].partes : undefined));
 }
 
 const piezasCorazon = anotaciones.filter(note => note.estructuraId === 'heart');
@@ -70,6 +76,25 @@ function pieza(id: string, pista: string, feedbackError: string): PreguntaReto {
     id: `toca-${id}`, enunciado: `Toca: ${note.etiquetaEs} · ${note.etiquetaEn}`, estructuraId: 'heart',
     respuestas: opcionesCorazon, correctaId: id, pistas: [pista], feedbackError,
   };
+}
+
+const preguntasCorazon = [
+  pieza('aorta', 'Busca el vaso que forma un arco en la parte superior del modelo.', 'La aorta sale del ventrículo izquierdo y forma un arco superior.'),
+  pieza('mitral_valve', 'Está entre las dos cámaras izquierdas, a la derecha de la imagen frontal.', 'La válvula mitral separa la aurícula izquierda del ventrículo izquierdo.'),
+  pieza('right_ventricle', 'Inspecciona la cámara inferior azul a la izquierda de la imagen frontal.', 'El ventrículo derecho impulsa sangre hacia los pulmones por el tronco pulmonar.'),
+] satisfies [PreguntaReto, ...PreguntaReto[]];
+
+function preguntasDeSenalar(estructuraId: string): readonly PreguntaReto[] {
+  if (estructuraId === 'heart') return preguntasCorazon;
+  const estructura = estructuras.find(item => item.id === estructuraId)!;
+  const notas = anotaciones.filter(note => note.estructuraId === estructuraId);
+  const respuestas = notas.map(note => ({ id: note.parteId, texto: note.etiquetaEs, nodeId: note.nodeId }));
+  // The intermedius lies under rectus femoris and can't reliably be tapped directly.
+  return estructura.partes.filter(parte => parte.id !== 'vasto_intermedio').map(parte => ({
+    id: `toca-${estructuraId}-${parte.id}`, enunciado: `Toca: ${parte.nombreEs} · ${parte.terminoEn}`,
+    estructuraId, respuestas, correctaId: parte.id, pistas: [parte.ubicacion],
+    feedbackError: `${parte.ubicacion} ${parte.funcion}`,
+  }));
 }
 
 export const retos: readonly Reto[] = [
@@ -108,11 +133,7 @@ export const retos: readonly Reto[] = [
   },
   {
     id: 'corazon-3d', titulo: 'Explora el corazón en corte', tipo: 'senala-estructura', modos, estructurasRelacionadas: ['heart'],
-    preguntas: [
-      pieza('aorta', 'Busca el vaso que forma un arco en la parte superior del modelo.', 'La aorta sale del ventrículo izquierdo y forma un arco superior.'),
-      pieza('mitral_valve', 'Está entre las dos cámaras izquierdas, a la derecha de la imagen frontal.', 'La válvula mitral separa la aurícula izquierda del ventrículo izquierdo.'),
-      pieza('right_ventricle', 'Inspecciona la cámara inferior azul a la izquierda de la imagen frontal.', 'El ventrículo derecho impulsa sangre hacia los pulmones por el tronco pulmonar.'),
-    ],
+    preguntas: preguntasCorazon,
     revision: revision('heart'),
   },
   {
@@ -147,4 +168,7 @@ export const retos: readonly Reto[] = [
   retoDeUbicar('partes-huesos', 'Cinco huesos del atlas', ['tibia', 'humerus', 'radius', 'pelvis', 'patella']),
   retoDeUbicar('partes-musculos', 'Partes del bíceps y el cuádriceps', ['biceps_brachii', 'quadriceps_femoris']),
   retoDeUbicar('partes-organos', 'Partes del corazón y los pulmones', ['heart', 'lungs']),
+  retoDeModelos('senala-huesos', 'Señala partes de los huesos', 'senala-estructura', ['femur', 'tibia', 'humerus', 'radius', 'pelvis', 'patella'], preguntasDeSenalar),
+  retoDeModelos('senala-musculos', 'Señala partes del bíceps y el cuádriceps', 'senala-estructura', ['biceps_brachii', 'quadriceps_femoris'], preguntasDeSenalar),
+  retoDeModelos('senala-organos', 'Señala partes del corazón y los pulmones', 'senala-estructura', ['heart', 'lungs'], preguntasDeSenalar),
 ];
