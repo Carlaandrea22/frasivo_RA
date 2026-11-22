@@ -1,0 +1,239 @@
+/** node scripts/generate-explorar-regions.mjs
+ * Derivado de BodyParts3D CC BY 4.0. Véase assets/anatomy/FUENTES.md.
+ * Divide los triángulos existentes; conserva posiciones, normales y materiales.
+ * Máscaras geométricas orientativas, pendientes de revisión anatómica.
+ */
+import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+
+const atlasRegions = JSON.parse(await readFile(new URL('./explorar-atlas-triangle-regions.json', import.meta.url), 'utf8'));
+
+const boneMasks = {
+  femur_left: { cabeza: ([x,y]) => x < .105 && y > .798, condilos: ([,y]) => y < .421, cuerpo: ([,y]) => y > .445 && y < .765 },
+  tibia_left: { condilos: ([,y]) => y > .337, maleolo: ([x,y]) => x < .066 && y < .041, cuerpo: ([,y]) => y > .06 && y < .32 },
+  humerus_left: { cabeza: ([x,y]) => x < .185 && y > 1.301, troclea: ([x,y]) => x < .218 && y < 1.068, cuerpo: ([,y]) => y > 1.09 && y < 1.285 },
+  radius_left: { cabeza: ([,y]) => y > 1.014, estiloides: ([x,y]) => x > .26 && y < .849, cuerpo: ([,y]) => y > .865 && y < 1.002 },
+  pelvis_left: {
+    acetabulo: ([x,y,z]) => Math.hypot((x-.109)/.022,(y-.835)/.023,(z-.082)/.026) < 1,
+    ilion: ([,y]) => y > .851,
+    pubis: ([,y,z]) => y < .854 && z > .095,
+    isquion: ([,y,z]) => y < .831 && z < .093,
+  },
+  patella_left: {
+    base_superior: ([,y]) => y > .398,
+    vertice: ([,y]) => y < .377,
+    cara_articular: ([,y,z]) => y > .38 && z < .110,
+  },
+  ulna_left: {
+    olecranon: ([,y,z]) => y > 1.042 && z < .092,
+    cuerpo: ([,y]) => y < 1.015 && y > .838,
+    cabeza: ([,y]) => y < .832,
+  },
+  fibula_left: {
+    cabeza: ([,y]) => y > .337,
+    cuerpo: ([,y]) => y > .032 && y < .322,
+    maleolo: ([,y]) => y < .023,
+  },
+};
+
+// Group the disconnected surfaces already present in the mesh. Blender may
+// export a vertex twice if its normal differs, so weld by position for this lookup.
+function byComponent(positions, triangles, names, split) {
+  const parents = positions.map((_, i) => i);
+  const root = i => {
+    while (parents[i] !== i) { parents[i] = parents[parents[i]]; i = parents[i]; }
+    return i;
+  };
+  const join = (a,b) => { parents[root(b)] = root(a); };
+  const positionIds = new Map();
+  positions.forEach((point,i) => {
+    const key = point.join(',');
+    if (positionIds.has(key)) join(positionIds.get(key),i);
+    else positionIds.set(key,i);
+  });
+  for (const [a,b,c] of triangles) { join(a,b); join(a,c); }
+  const counts = new Map();
+  for (const [a] of triangles) {
+    const id = root(a);
+    counts.set(id,(counts.get(id) ?? 0)+1);
+  }
+  const components = [...counts].sort((a,b) => b[1]-a[1]);
+  const named = new Map(names.map((name,i) => {
+    if (!components[i] || components[i][1] < 100) throw Error(`Componente anatómico ausente: ${name}`);
+    return [components[i][0],name];
+  }));
+  return (center,triangle) => {
+    const name = named.get(root(triangle[0])) ?? 'base';
+    return split ? split(name,center) : name;
+  };
+}
+
+const generatedPoints = {};
+const output = new URL('../src/content/anatomy/modelos/', import.meta.url);
+const vertebrae = parseGlb(await readFile(new URL('vertebras-adicionales.glb', output)));
+await mkdir(output,{ recursive:true });
+await generate('bones', 'huesos-regiones.glb', {
+  ...Object.fromEntries(Object.entries(boneMasks).map(([id,masks]) => [id, () => center => Object.entries(masks).find(([,mask]) => mask(center))?.[0] ?? 'base'])),
+  sternum: (points,triangles) => byComponent(points,triangles,['cuerpo','manubrio','xifoides']),
+}, atlasRegions.bones, {
+  skull: [{ part: 'mandibula', nodeName: 'mandible' }],
+  spine: [{ part: 'atlas', nodeName: 'atlas', input: vertebrae }, { part: 'axis', nodeName: 'axis', input: vertebrae }],
+});
+await generate('muscles', 'musculos-regiones.glb', {
+  biceps_brachii_left: (points,triangles) => byComponent(points,triangles,['cabeza_corta','cabeza_larga']),
+  quadriceps_femoris_left: (points,triangles) => byComponent(points,triangles,['vasto_lateral','recto_femoral','vasto_medial','vasto_intermedio']),
+  deltoid_left: (points,triangles) => byComponent(points,triangles,['clavicular','espinal','acromial']),
+  triceps_brachii_left: (points,triangles) => byComponent(points,triangles,['cabeza_lateral','cabeza_larga','cabeza_medial']),
+  gastrocnemius_left: (points,triangles) => byComponent(points,triangles,['cabeza_medial','cabeza_lateral']),
+});
+await generate('organs', 'pulmones-regiones.glb', {
+  lungs: (points,triangles) => byComponent(points,triangles,['inferior_derecho','superior_derecho','inferior_izquierdo','superior_izquierdo'],
+    (name,[,y,z]) => name === 'superior_derecho' && y < 1.259 && z > .115 ? 'medio_derecho' : name),
+});
+await generate('organs', 'organos-regiones.glb', {
+  kidneys: () => ([x]) => x > 0 ? 'izquierdo' : 'derecho',
+  stomach: () => ([x,y]) => {
+    if (x < .017 && y > 1.113) return 'cardias';
+    if (x < .020 && y < 1.089) return 'pilorica';
+    if (y > 1.135) return 'fondo';
+    return 'cuerpo';
+  },
+}, atlasRegions.organs);
+await writeFile(new URL('../src/content/anotaciones/puntos-regiones.json',import.meta.url),JSON.stringify(generatedPoints,null,2)+'\n');
+
+function parseGlb(bytes) {
+  const jsonLength = bytes.readUInt32LE(12);
+  return {
+    data: JSON.parse(bytes.subarray(20, 20+jsonLength).toString()),
+    binary: bytes.subarray(28+jsonLength),
+    views: new Map(), accessors: new Map(),
+  };
+}
+
+async function generate(sourceName, fileName, definitions, atlasMapping, additions = {}) {
+  const source = await readFile(new URL(`../assets/anatomy/body/${sourceName}.glb`, import.meta.url));
+  if (atlasMapping) {
+    if (createHash('sha256').update(source).digest('hex') !== atlasMapping.sha256) {
+      throw Error(`La malla ${sourceName} cambió. Regenera su mapa con map-explorar-atlas-regions.py.`);
+    }
+    for (const [nodeId, ranges] of Object.entries(atlasMapping.regions)) {
+      definitions[nodeId] = (_, triangles) => {
+        const names = ranges.flatMap(([region, count]) => Array(count).fill(region));
+        if (names.length !== triangles.length) throw Error(`Mapa incompleto para ${nodeId}`);
+        return (_center, _triangle, index) => names[index];
+      };
+    }
+  }
+  const original = parseGlb(source);
+  const result = {
+    asset: { version: '2.0', generator: 'LumAR · generate-explorar-regions.mjs', copyright: 'BodyParts3D, © The Database Center for Life Science licensed under CC Attribution 4.0 International' },
+    scene: 0, scenes: [{ name: 'Explorar: regiones provisionales', nodes: [] }],
+    nodes: [], meshes: [], materials: original.data.materials, accessors: [], bufferViews: [], buffers: [],
+    extras: { revision: 'provisional', segmentation: 'Máscaras geométricas orientativas, sin validación anatómica. Se conserva cada triángulo original una vez.' },
+  };
+  const chunks = [];
+  let byteLength = 0;
+  function append(data, options = {}) {
+    const padding = (4-byteLength%4)%4;
+    if (padding) { chunks.push(Buffer.alloc(padding)); byteLength += padding; }
+    const index = result.bufferViews.length;
+    result.bufferViews.push({ ...options, buffer: 0, byteOffset: byteLength, byteLength: data.length });
+    chunks.push(data); byteLength += data.length;
+    return index;
+  }
+  function copyAccessor(id, { data, binary, views, accessors }) {
+    if (accessors.has(id)) return accessors.get(id);
+    const a = data.accessors[id];
+    if (a.sparse) throw Error('No se admiten atributos sparse en esta fuente.');
+    if (!views.has(a.bufferView)) {
+      const view = data.bufferViews[a.bufferView];
+      views.set(a.bufferView, append(binary.subarray(view.byteOffset ?? 0, (view.byteOffset ?? 0)+view.byteLength), view));
+    }
+    const next = result.accessors.length;
+    result.accessors.push({ ...a, bufferView: views.get(a.bufferView) });
+    accessors.set(id,next); return next;
+  }
+  function readAccessor({ data, binary }, id, index, component = 0) {
+    const a = data.accessors[id], view = data.bufferViews[a.bufferView];
+    const bytes = a.componentType === 5123 ? 2 : 4;
+    const stride = view.byteStride ?? bytes*(a.type === 'VEC3' ? 3 : 1);
+    const offset = (view.byteOffset ?? 0)+(a.byteOffset ?? 0)+index*stride+component*bytes;
+    if (a.componentType === 5126) return binary.readFloatLE(offset);
+    if (a.componentType === 5125) return binary.readUInt32LE(offset);
+    if (a.componentType === 5123) return binary.readUInt16LE(offset);
+    throw Error(`Tipo no compatible: ${a.componentType}`);
+  }
+  function readMesh(nodeName, input) {
+    const { data } = input;
+    const node = data.nodes.find(n => n.name === nodeName);
+    const primitives = data.meshes[node.mesh].primitives;
+    if (primitives.length !== 1) throw Error(`Se esperaba una primitiva para ${nodeName}.`);
+    const primitive = primitives[0];
+    const count = data.accessors[primitive.indices].count;
+    const positionId = primitive.attributes.POSITION;
+    const positions = Array.from({ length: data.accessors[positionId].count }, (_,i) => [0,1,2].map(k => readAccessor(input,positionId,i,k)));
+    const triangles = Array.from({ length: count/3 }, (_,i) => [0,1,2].map(k => readAccessor(input,primitive.indices,i*3+k)));
+    const centers = triangles.map(triangle => [0,1,2].map(axis => triangle.reduce((sum,vertex) => sum+positions[vertex][axis],0)/3));
+    return { node, primitive, positions, triangles, centers };
+  }
+  function copyAttributes(primitive, input) {
+    return Object.fromEntries(Object.entries(primitive.attributes).map(([key,id]) => [key,copyAccessor(id,input)]));
+  }
+  function addPart(parent, part, primitive, centers) {
+    const name = `${parent.name}__${part}`;
+    if (part !== 'base') {
+      const middle = [0,1,2].map(axis => centers.reduce((sum,p) => sum+p[axis],0)/centers.length);
+      const back = ['cara_articular', 'occipital', 'cerebelo', 'caudado'].includes(part);
+      const front = centers.reduce((z,p) => back ? Math.min(z,p[2]) : Math.max(z,p[2]),middle[2]);
+      const distance = ([x,y,z]) => (x-middle[0])**2+(y-middle[1])**2+(z-front)**2;
+      const point = centers.reduce((best,p) => distance(p) < distance(best) ? p : best,centers[0]);
+      generatedPoints[name] = point.map(v => Number(v.toFixed(7)));
+    }
+    const mesh = result.meshes.length;
+    result.meshes.push({ name, primitives: [primitive] });
+    parent.children.push(result.nodes.length);
+    result.nodes.push({ name, mesh, extras: { nodeId: name, revision: 'provisional' } });
+    console.log(`${parent.name}/${part}: ${result.accessors[primitive.indices].count/3} triángulos`);
+  }
+  for (const [nodeId, classifier] of Object.entries(definitions)) {
+    const { node, primitive, positions, triangles, centers } = readMesh(nodeId, original);
+    const regions = new Map();
+    const classify = classifier(positions,triangles);
+    for (const [index, triangle] of triangles.entries()) {
+      const center = centers[index];
+      const region = classify(center,triangle,index);
+      if (!regions.has(region)) regions.set(region,{ indices: [], centers: [] });
+      regions.get(region).indices.push(...triangle);
+      regions.get(region).centers.push(center);
+    }
+    const parentIndex = result.nodes.length;
+    const parent = { ...node, children: [] };
+    delete parent.mesh;
+    result.nodes.push(parent); result.scenes[0].nodes.push(parentIndex);
+    const attributes = copyAttributes(primitive, original);
+    for (const [part,{ indices, centers }] of regions) {
+      const buffer = Buffer.alloc(indices.length*4);
+      indices.forEach((value,i) => buffer.writeUInt32LE(value,i*4));
+      const accessor = result.accessors.length;
+      result.accessors.push({ bufferView: append(buffer,{ target: 34963 }), componentType: 5125, count: indices.length, type: 'SCALAR' });
+      addPart(parent, part, { ...primitive, attributes, indices: accessor }, centers);
+    }
+    for (const { part, nodeName, input = original } of additions[nodeId] ?? []) {
+      const addition = readMesh(nodeName,input);
+      addPart(parent, part, {
+        ...addition.primitive, attributes: copyAttributes(addition.primitive,input),
+        indices: copyAccessor(addition.primitive.indices,input), material: primitive.material,
+      }, addition.centers);
+    }
+  }
+  result.buffers.push({ byteLength });
+  let json = Buffer.from(JSON.stringify(result));
+  json = Buffer.concat([json,Buffer.alloc((4-json.length%4)%4,0x20)]);
+  let bin = Buffer.concat(chunks);
+  bin = Buffer.concat([bin,Buffer.alloc((4-bin.length%4)%4)]);
+  const header = Buffer.alloc(20), binHeader = Buffer.alloc(8);
+  header.writeUInt32LE(0x46546c67,0); header.writeUInt32LE(2,4); header.writeUInt32LE(28+json.length+bin.length,8);
+  header.writeUInt32LE(json.length,12); header.writeUInt32LE(0x4e4f534a,16);
+  binHeader.writeUInt32LE(bin.length,0); binHeader.writeUInt32LE(0x004e4942,4);
+  await writeFile(new URL(fileName,output),Buffer.concat([header,json,binHeader,bin]));
+}
