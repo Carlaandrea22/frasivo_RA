@@ -63,19 +63,32 @@ function retoDeModelos(
   };
 }
 
-function retoDeFunciones(id: string, titulo: string, modelos: readonly [string, ...string[]]) {
-  const opciones = modelos.map(estructuraId => {
-    const { funcion } = estructuras.find(item => item.id === estructuraId)!;
-    return { id: estructuraId, texto: funcion };
-  }).reverse();
-  return retoDeModelos(id, titulo, 'relaciona-funcion', modelos, estructuraId => {
-    const { nombreEs, ubicacion, funcion } = estructuras.find(item => item.id === estructuraId)!;
-    return [{
-      id: `funcion-${estructuraId}`, enunciado: `¿Qué función cumple ${nombreEs.toLocaleLowerCase('es')}?`,
-      estructuraId, respuestas: opciones, correctaId: estructuraId,
-      pistas: [ubicacion], feedbackError: `${ubicacion} ${funcion}`,
-    }];
+type PartesPorModelo = Readonly<Record<string, readonly string[]>>;
+
+function retoDeFunciones(id: string, titulo: string, modelos: readonly [string, ...string[]], partesPorModelo: PartesPorModelo = {}) {
+  const elementos = modelos.flatMap(estructuraId => {
+    const estructura = estructuras.find(item => item.id === estructuraId)!;
+    const { nombreEs, ubicacion, funcion } = estructura;
+    const partes = (partesPorModelo[estructuraId] ?? []).map(parteId => {
+      const parte = estructura.partes.find(item => item.id === parteId);
+      const anotacion = anotaciones.find(item => item.estructuraId === estructuraId && item.parteId === parteId);
+      if (!parte || !anotacion) throw new Error(`Falta la parte ${parteId} de ${estructuraId} en ${id}`);
+      return {
+        id: anotacion.id, estructuraId, anotacionId: anotacion.id,
+        nombreEs: parte.nombreEs, ubicacion: parte.ubicacion, funcion: parte.funcion,
+      };
+    });
+    return [{ id: estructuraId, estructuraId, nombreEs, ubicacion, funcion, anotacionId: undefined }, ...partes];
   });
+  const opciones: RespuestaReto[] = elementos.map(({ id, funcion, anotacionId }) => ({ id, texto: funcion, anotacionId })).reverse();
+  return retoDeModelos(id, titulo, 'relaciona-funcion', modelos, estructuraId => elementos
+    .filter(elemento => elemento.estructuraId === estructuraId)
+    .map(({ id, nombreEs, ubicacion, funcion, anotacionId }) => ({
+      id: `funcion-${id}`,
+      enunciado: anotacionId ? nombreEs : `¿Qué función cumple ${nombreEs.toLocaleLowerCase('es')}?`,
+      estructuraId, respuestas: opciones, correctaId: id,
+      pistas: [ubicacion], feedbackError: `${ubicacion} ${funcion}`,
+    })));
 }
 
 function retoDeUbicar(id: string, titulo: string, modelos: readonly [string, ...string[]]) {
@@ -122,6 +135,10 @@ const recorridosAmpliacion = [
   { id: 'craneo-columna', titulo: 'Cráneo y columna vertebral', modelos: ['skull', 'spine'] },
   { id: 'cerebro-digestion', titulo: 'Cerebro, hígado e intestinos', modelos: ['brain', 'liver', 'small_intestine', 'large_intestine'] },
 ] as const;
+
+const partesParaRelacionar: Readonly<Partial<Record<string, PartesPorModelo>>> = {
+  'craneo-columna': { skull: ['mandibula'], spine: ['atlas', 'axis', 'coccix'] },
+};
 
 export const retos: readonly Reto[] = [
   {
@@ -263,7 +280,7 @@ export const retos: readonly Reto[] = [
   ...recorridosAmpliacion.flatMap(({ id, titulo, modelos }) => [
     retoDeUbicar(`partes-${id}`, titulo, modelos),
     retoDeModelos(`senala-${id}`, titulo, 'senala-estructura', modelos, preguntasDeSenalar),
-    retoDeFunciones(`funcion-${id}`, titulo, modelos),
+    retoDeFunciones(`funcion-${id}`, titulo, modelos, partesParaRelacionar[id]),
     retoDeModelos(`repaso-${id}`, titulo, 'repaso-breve', modelos, estructuraId =>
       preguntasRepasoAmpliacion.filter(pregunta => pregunta.estructuraId === estructuraId)),
   ]),

@@ -46,6 +46,11 @@ interface TableroProps {
   onRemove: (pregunta: string) => void;
 }
 
+function nombrePareja(pregunta: PreguntaReto) {
+  const anotacionId = pregunta.respuestas.find(opcion => opcion.id === pregunta.correctaId)?.anotacionId;
+  return anotaciones.find(anotacion => anotacion.id === anotacionId)?.etiquetaEs ?? nombreEstructura(pregunta.estructuraId);
+}
+
 export function Relacionar({ preguntas, respuestas, bloqueado, onAssign }: Omit<TableroProps, 'onRemove'>) {
   const [editando, setEditando] = useState<string>();
   const heading = useRef<HTMLHeadingElement>(null);
@@ -69,7 +74,7 @@ export function Relacionar({ preguntas, respuestas, bloqueado, onAssign }: Omit<
     {activa && <>
       <div className="retos-pair-current">
         <p className="retos-meta">{editando ? 'Editar la función de' : 'Elige la función de'}</p>
-        <h3 ref={heading} tabIndex={-1}>{nombreEstructura(activa.estructuraId)}</h3>
+        <h3 ref={heading} tabIndex={-1}>{nombrePareja(activa)}</h3>
       </div>
       <div className="retos-option-list" role="group" aria-label="Funciones">
         {activa.respuestas.map(opcion => {
@@ -82,7 +87,7 @@ export function Relacionar({ preguntas, respuestas, bloqueado, onAssign }: Omit<
               editar(undefined);
             }}>
             <span>{opcion.texto}</span>
-            {asignada && <small>{actual ? 'Función actual' : `Intercambiar con ${nombreEstructura(asignada.estructuraId)}`}</small>}
+            {asignada && <small>{actual ? 'Función actual' : `Intercambiar con ${nombrePareja(asignada)}`}</small>}
           </Button>;
         })}
       </div>
@@ -92,7 +97,7 @@ export function Relacionar({ preguntas, respuestas, bloqueado, onAssign }: Omit<
       <h3 ref={activa ? undefined : heading} tabIndex={activa ? undefined : -1}>{activa || bloqueado ? 'Tus parejas' : 'Revisa tus parejas'}</h3>
       <ul className="retos-pair-list">
         {seleccionadas.map(pregunta => {
-          const nombre = nombreEstructura(pregunta.estructuraId);
+          const nombre = nombrePareja(pregunta);
           const respuesta = pregunta.respuestas.find(opcion => opcion.id === respuestas[pregunta.id]);
           return <li key={pregunta.id}>
             <div><strong><Link2 size={16} aria-hidden="true"/>{nombre}</strong><p>{respuesta?.texto}</p></div>

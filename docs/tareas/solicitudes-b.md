@@ -202,3 +202,8 @@ dos modelos tienen siete partes seleccionables cada uno. El límite del
 resaltado entre el sacro y el cóccix es orientativo.
 
 - [Mandíbula resaltada en móvil](../capturas/carla/atlas-mandibula-375.png) y [columna con el cóccix resaltado en escritorio](../capturas/carla/atlas-columna-completa-1440.png).
+
+El tema «Cráneo y columna vertebral» incluye también la mandíbula, el atlas,
+el axis y el cóccix en «Relaciona estructura y función» y «Repaso breve».
+Cada actividad suma seis parejas o preguntas en ese tema, que se puede
+elegir en el selector o practicar cuando salga en «Aleatorio».
