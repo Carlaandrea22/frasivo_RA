@@ -66,12 +66,16 @@ export function explicacion(pregunta: PreguntaReto, opcion: string) {
   return pregunta.respuestas.find(item => item.id === opcion)?.feedbackError ?? pregunta.feedbackError;
 }
 
+export function puntuarCorrecciones(correcciones: readonly Correccion[]) {
+  const correct = correcciones.filter(row => row.acierto).length;
+  return { correct, errors: correcciones.length - correct };
+}
+
 export function guardarResultado(reto: Reto, resultado: Resultado) {
-  const correct = resultado.correcciones.filter(row => row.acierto).length;
   const estructura = estructuras.find(item => item.id === reto.estructurasRelacionadas[0]);
   const target = { areaId: 'anatomy', groupId: estructura?.categoria, itemId: estructura?.id ?? reto.id, activityId: reto.id };
   const intento = recordPractice({
-    ...target, correct, errors: resultado.correcciones.length - correct, hints: resultado.totalPistas,
+    ...target, ...puntuarCorrecciones(resultado.correcciones), hints: resultado.totalPistas,
     retried: resultado.correcciones.some(row => row.erroresPrevios.length > 0),
     quick: resultado.quick,
     context: { kind: 'reto', mode: resultado.modo },

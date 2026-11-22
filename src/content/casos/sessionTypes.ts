@@ -96,11 +96,25 @@ export interface MultipleChoiceCase extends ClinicalCaseBase {
   explanationEn: string;
 }
 
-export type ClinicalCase = InterviewCase | InvestigationCase | OrderingCase | MultipleChoiceCase;
+export interface MatchingPatient extends ChoiceOption {
+  name: string;
+  correctId: string;
+  explanationEs: string;
+  explanationEn: string;
+}
+
+export interface MatchingCase extends ClinicalCaseBase {
+  kind: 'matching';
+  patients: ClinicalTriple<MatchingPatient>;
+  causes: ClinicalTriple<ChoiceOption>;
+}
+
+export type ClinicalCase = InterviewCase | InvestigationCase | OrderingCase | MultipleChoiceCase | MatchingCase;
 
 export const clinicalModeLabels = {
   interview: 'Conversación y comprensión',
   investigation: 'Investigación clínica',
   ordering: 'Ordenar actuaciones',
   'multiple-choice': 'Selección múltiple',
+  matching: 'Relaciona síntomas y causas',
 } satisfies Record<ClinicalCase['kind'], string>;

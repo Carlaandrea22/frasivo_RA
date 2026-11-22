@@ -42,7 +42,7 @@ export function CaseResult({ title, children, score, retried, markRetry, last, o
   useEffect(() => { heading.current?.focus(); }, []);
   useEffect(() => { if (revealed) solutionHeading.current?.focus(); }, [revealed]);
   return <Card className="clinical-result" data-level={level}>
-    {isPerfectWithoutHints({ ...score, retried }) && <ClinicalConfetti/>}
+    {!submitTimed && isPerfectWithoutHints({ ...score, retried }) && <ClinicalConfetti/>}
     <span className="clinical-result-icon" aria-hidden="true">
       {level === 'strong' ? <Check size={24}/> : <AlertCircle size={24}/>}
     </span>

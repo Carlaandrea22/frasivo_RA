@@ -1,8 +1,9 @@
 import type { RouteDefinition } from '../../shared/navegacion';
-import { RelacionaInicio, RepasoInicio, Retos, SenalaInicio, UbicaInicio } from './Retos';
+import { RelacionaInicio, RepasoInicio, RetoRecomendado, Retos, SenalaInicio, UbicaInicio } from './Retos';
 
 export const routes = [
   { path: 'practicar/retos', tab: 'practicar', Screen: Retos },
+  { path: 'practicar/retos/modo/:modo', tab: 'practicar', Screen: RetoRecomendado },
   { path: 'practicar/retos/ubicar', tab: 'practicar', Screen: UbicaInicio },
   { path: 'practicar/retos/ubicar/estructura/:estructuraId', tab: 'practicar', Screen: UbicaInicio },
   { path: 'practicar/retos/senalar', tab: 'practicar', Screen: SenalaInicio },

@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { ArrowRight, CircleHelp, ListOrdered, MessagesSquare, Search, Stethoscope } from 'lucide-react';
+import { ArrowRight, CircleHelp, Link2, ListOrdered, MessagesSquare, Search, Stethoscope } from 'lucide-react';
 import { clinicalCases } from '../../content/casos/session';
 import { clinicalModeLabels, type ClinicalCase } from '../../content/casos/sessionTypes';
 import type { RouteProps } from '../../shared/navegacion';
 import { PracticeTabs } from '../../shared/navegacion/PracticarHome';
 import { Button } from '../../shared/ui/Button';
 import { Card } from '../../shared/ui/Card';
+import { ContentState } from '../../shared/ui/ContentState';
 import { ClinicalSession } from './ClinicalSession';
 import { buildCaseSession, buildMixedCaseSession } from './clinicalEngine';
 import './casos.css';
@@ -15,13 +16,28 @@ const kindIcon = {
   investigation: Search,
   ordering: ListOrdered,
   'multiple-choice': CircleHelp,
+  matching: Link2,
 } as const;
 const modeDescription = {
   interview: 'Recuerda los detalles de una conversación con el paciente.',
   investigation: 'Haz preguntas, reúne hallazgos y elige una hipótesis.',
   ordering: 'Organiza las actuaciones de una situación clínica.',
   'multiple-choice': 'Elige la respuesta que mejor encaja con el caso.',
+  matching: 'Conecta cada paciente con la causa que encaja con sus pistas.',
 } as const;
+
+function RecommendedCase({ ids }: { ids: readonly string[] }) {
+  const [selection] = useState(() => buildCaseSession(ids).slice(0, 1));
+  return <ClinicalSession caseIds={selection} onExit={() => { window.location.hash = 'practicar'; }}/>;
+}
+
+export function CasoRecomendado({ params }: RouteProps) {
+  const ids = clinicalCases.filter(item => item.kind === params.modo).map(item => item.id);
+  if (ids.length) return <RecommendedCase key={params.modo} ids={ids}/>;
+  return <section className="lumar-page"><ContentState state="unavailable" title="Modo clínico no disponible">
+    <a href="#practicar/casos">Ver casos clínicos</a>
+  </ContentState></section>;
+}
 
 export function Casos(_props: RouteProps) {
   const [sessionCaseIds, setSessionCaseIds] = useState<string[] | null>(null);
@@ -45,7 +61,7 @@ export function Casos(_props: RouteProps) {
       <span className="clinical-intro-icon" aria-hidden="true"><Stethoscope size={26}/></span>
       <div>
         <h2>Sesión mixta</h2>
-        <p>Cinco casos que combinan lectura, investigación, orden y selección múltiple.</p>
+        <p>Un caso de cada modo, incluida la conexión de síntomas con sus causas.</p>
       </div>
       <Button onClick={startMixedSession}>Empezar sesión de 5 casos <ArrowRight size={17}/></Button>
     </Card>

@@ -23,7 +23,7 @@ test.beforeEach(async ({ page }) => {
 async function offerClinicalChoice(page: Page) {
   await page.goto('/#cuerpo');
   await expect(accept(page)).toHaveCount(0);
-  await draw(page, .1, .1, .99, 0);
+  await draw(page, .1, .1, .7, 0);
   await page.getByRole('button', { name: 'Explorar 3D', exact: true }).click();
   await expect(page.getByText(/Selección múltiple · 15 s/)).toBeVisible();
 }
@@ -38,6 +38,9 @@ test('el reloj empieza al aceptar y para al registrar el caso de selección múl
   await page.getByRole('button', { name: /Intramuscular adrenaline/ }).click();
   await page.getByRole('button', { name: 'Comprobar respuesta' }).click();
   await expect(page.getByText('Respuesta registrada')).toBeVisible();
+  await expect(page.locator('.quick-outcome')).toContainText('100%');
+  await expect(page.locator('.quick-outcome [data-animacion="celebracion"]')).toBeVisible();
+  await expect(page.locator('.clinical-confetti')).toHaveCount(1);
   await expect(timeBar(page)).toHaveCount(0);
   await page.clock.fastForward(20_000);
   await expect(page.getByRole('heading', { name: 'Respuesta correcta' })).toBeVisible();
@@ -59,6 +62,8 @@ test('la barra se vacía y al agotarse el tiempo se cierra la práctica sin guar
   await expect(bar.locator('..')).toHaveAttribute('data-urgent', 'true');
   await page.clock.fastForward(10_000);
   await expect(page.getByRole('heading', { name: 'Se acabó el tiempo' })).toBeVisible();
+  await expect(page.locator('.quick-outcome [data-animacion="triste"]')).toBeVisible();
+  await expect(page.locator('.clinical-confetti')).toHaveCount(0);
   await expect(bar).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Comprobar respuesta' })).toHaveCount(0);
   expect(await events(page)).toEqual([]);
@@ -74,6 +79,7 @@ test('un reto rápido de anatomía muestra una pregunta y guarda la corrección'
   await page.getByRole('button', { name: 'Bíceps braquial' }).click();
   await page.getByRole('button', { name: 'Ver resultado' }).click();
   await expect(page.getByRole('heading', { name: 'Resultado del reto' })).toBeVisible();
+  await expect(page.locator('.quick-outcome')).toContainText('100%');
   expect(await events(page)).toMatchObject([{ kind: 'practice', correct: 1, quick: true, context: { kind: 'reto' } }]);
   await page.getByRole('button', { name: 'Terminar práctica' }).click();
   await expect(page.getByText(/Repaso breve · Práctica rápida/)).toBeVisible();
@@ -108,4 +114,16 @@ test('una prueba en curso y un aviso reciente bloquean nuevas invitaciones', asy
   await page.getByRole('button', { name: 'Ahora no' }).click();
   await page.getByRole('button', { name: 'Cuerpo', exact: true }).click();
   await expect(accept(page)).toHaveCount(0);
+});
+
+test('el orden rápido da un minuto y un resultado bajo sin confeti', async ({ page }) => {
+  await page.goto('/#cuerpo');
+  await draw(page, .1, .1, .5, 0);
+  await page.getByRole('button', { name: 'Explorar 3D', exact: true }).click();
+  await expect(page.getByText(/Ordenar actuaciones · 60 s/)).toBeVisible();
+  await accept(page).click();
+  await expect(timeBar(page)).toHaveJSProperty('max', 60_000);
+  await page.getByRole('button', { name: 'Comprobar orden' }).click();
+  await expect(page.locator('.quick-outcome')).toContainText('60%');
+  await expect(page.locator('.clinical-confetti')).toHaveCount(0);
 });

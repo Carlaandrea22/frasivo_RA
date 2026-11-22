@@ -12,7 +12,7 @@ import { ContentState } from '../../shared/ui/ContentState';
 import { Segmented } from '../../shared/ui/Segmented';
 import { Relacionar, Repasar, Senalar, Ubicar } from './Actividades';
 import {
-  asignar, corregir, emparejar, explicacion, guardarResultado, leerResultado, modeloDelResultado, nombreEstructura,
+  asignar, corregir, emparejar, explicacion, guardarResultado, leerResultado, modeloDelResultado, nombreEstructura, puntuarCorrecciones,
   rutaFicha, rutaResultado, rutaReto, rutaRetos, tituloResultadoReto, tituloRetoParaEstructura, ultimoIntento,
   type Correccion, type Respuestas,
 } from './intentos';
@@ -254,7 +254,7 @@ function Preparar({ reto }: { reto: Reto }) {
 export function Juego({ reto, modo, quick }: {
   reto: Reto;
   modo: ModoReto;
-  quick?: { finish: () => boolean; exit: () => void };
+  quick?: { finish: (score: ReturnType<typeof puntuarCorrecciones>) => boolean; exit: () => void };
 }) {
   const ubicar = reto.tipo === 'ubica-partes';
   const tablero = ubicar || reto.tipo === 'relaciona-funcion';
@@ -296,7 +296,7 @@ export function Juego({ reto, modo, quick }: {
   function avanzar(filas: Correccion[]) {
     const todas = [...terminadas,...filas];
     if (ultima) {
-      if (guardado.current || (quick && !quick.finish())) return;
+      if (guardado.current || (quick && !quick.finish(puntuarCorrecciones(todas)))) return;
       guardado.current = true;
       const intento = guardarResultado(reto, { modo, totalPistas: pistasTotales, correcciones: todas, quick: quick ? true : undefined });
       if (quick) setIntentoRapido(intento.id);
@@ -446,6 +446,19 @@ function Resultados({ reto, intento, quickExit }: { reto: Reto; intento: string;
       })}
     </div>}
   </section>;
+}
+
+function RecommendedChallenge({ options }: { options: readonly Reto[] }) {
+  const [reto] = useState(() => options[Math.floor(Math.random() * options.length)]);
+  return <Juego reto={reto} modo="entrenamiento"/>;
+}
+
+export function RetoRecomendado({ params }: RouteProps) {
+  const options = retos.filter(reto => reto.tipo === params.modo && reto.modos.includes('entrenamiento'));
+  if (options.length) return <RecommendedChallenge key={params.modo} options={options}/>;
+  return <section className="lumar-page"><ContentState state="unavailable" title="Modo de reto no disponible">
+    <a href={rutaRetos}>Ver retos de anatomía</a>
+  </ContentState></section>;
 }
 
 export function Retos({ params }: RouteProps) {

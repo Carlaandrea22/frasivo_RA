@@ -1,13 +1,13 @@
 import { ArrowRight, Route } from 'lucide-react';
 import { Card } from '../../shared/ui/Card';
-import { rutaRetos } from '../retos/intentos';
-import { practiceModeLabels, type PracticeMode, type practiceProgress } from './practiceProgress';
+import { practiceModeLabels, recommendationHref, recommendationReason, type PracticeMode, type practiceProgress } from './practiceProgress';
 
 const modeColors = {
   interview: '#2b8067',
   investigation: '#5a75b8',
   ordering: '#d69832',
   'multiple-choice': '#b85d48',
+  matching: '#44788e',
   'ubica-partes': '#785aa4',
   'senala-estructura': '#27889d',
   'relaciona-funcion': '#b7527c',
@@ -48,13 +48,11 @@ export function PracticeActivity({ modes, recommendation }: Pick<ReturnType<type
       <div>
         <p className="progress-caption">Sugerencia de práctica</p>
         <h3>{practiceModeLabels[recommendation.kind]}</h3>
-        <p>{recommendation.reason === 'accuracy'
-          ? `Tu promedio más bajo está en este modo, con ${recommendation.accuracy}% de aciertos.`
-          : recommendation.count ? 'Es uno de los modos que menos has practicado.' : 'Todavía puedes explorar este modo por primera vez.'}</p>
+        <p>{recommendationReason(recommendation)}</p>
       </div>
       <a className="button button--secondary lumar-link progress-practice-link"
-        href={recommendation.group === 'challenge' ? rutaRetos : '#practicar/casos'}>
-        {recommendation.group === 'challenge' ? 'Ir a retos de anatomía' : 'Ir a casos clínicos'} <ArrowRight size={16}/>
+        href={recommendationHref(recommendation)}>
+        Practicar este modo <ArrowRight size={16}/>
       </a>
     </div>}
   </Card>;

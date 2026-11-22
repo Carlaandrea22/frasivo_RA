@@ -89,3 +89,14 @@ export function practiceProgress(events: readonly ProgressEvent[]) {
     recommendation: recommended && { ...toDisplayMode(recommended), reason: weakest ? 'accuracy' as const : 'frequency' as const },
   };
 }
+
+type Recommendation = NonNullable<ReturnType<typeof practiceProgress>['recommendation']>;
+
+export function recommendationHref({ group, kind }: Pick<Recommendation, 'group' | 'kind'>) {
+  return `#practicar/${group === 'clinical' ? 'casos' : 'retos'}/modo/${kind}`;
+}
+
+export function recommendationReason(recommendation: Recommendation) {
+  if (recommendation.reason === 'accuracy') return `Tu promedio más bajo está en este modo, con ${recommendation.accuracy}% de aciertos.`;
+  return recommendation.count ? 'Es uno de los modos que menos has practicado.' : 'Todavía puedes explorar este modo por primera vez.';
+}

@@ -34,4 +34,18 @@
 .quick-practice-time::-webkit-progress-bar { background: var(--time-track); }
 .quick-practice-time::-webkit-progress-value { border-radius: inherit; background: var(--time-fill); }
 .quick-practice-time::-moz-progress-bar { border-radius: inherit; background: var(--time-fill); }
-.lumar-card.quick-timeout { display: grid; gap: var(--space-3); justify-items: start; }
+.lumar-card.quick-outcome {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(70px, 27%);
+  align-items: center;
+  gap: var(--space-2);
+  border-color: #bbd7c9;
+  background: radial-gradient(ellipse at 100% 0%, #d7f1de, transparent 76%), #f6fbf6;
+}
+.quick-outcome[data-level="partial"] { border-color: #dfb968; background: #fff9e8; }
+.quick-outcome[data-level="review"] { border-color: #ead0c4; background: #fff7f2; }
+.quick-outcome > div { display: grid; justify-items: start; gap: 6px; }
+.quick-outcome h2, .quick-outcome h1 { font-size: clamp(1.25rem, 4vw, 2rem); }
+.quick-outcome-score { color: var(--forest); font: 800 clamp(1.8rem, 7vw, 3rem)/1.1 var(--font-title); }
+.quick-outcome-score span { font: 700 .85rem var(--font-text); }
+.quick-outcome > .quick-outcome-mascot { width: min(100%, 9rem); justify-self: center; }

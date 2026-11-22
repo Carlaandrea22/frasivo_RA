@@ -43,7 +43,7 @@ function countPaths(item: InterviewCase, path: readonly string[] = []): number {
 
 describe('sesión de casos clínicos', () => {
   it('ofrece cuatro casos por modo, con conversaciones bilingües', () => {
-    expect(clinicalCases).toHaveLength(16);
+    expect(clinicalCases).toHaveLength(19);
     for (const kind of ['interview', 'investigation', 'ordering', 'multiple-choice']) {
       expect(clinicalCases.filter(item => item.kind === kind)).toHaveLength(4);
     }
@@ -74,13 +74,23 @@ describe('sesión de casos clínicos', () => {
     }
   });
 
-  it('incluye los cuatro modos dentro de cada sesión mixta de cinco casos', () => {
+  it('ofrece tableros bilingües con una causa distinta para cada paciente', () => {
+    const matching = clinicalCases.filter(item => item.kind === 'matching');
+    expect(matching).toHaveLength(3);
+    for (const item of matching) {
+      expect(new Set(item.patients.map(patient => patient.correctId))).toEqual(new Set(item.causes.map(cause => cause.id)));
+      expect(new Set(item.patients.map(patient => patient.id)).size).toBe(3);
+      expect(item.patients.every(patient => patient.textEs && patient.textEn && patient.explanationEs && patient.explanationEn)).toBe(true);
+    }
+  });
+
+  it('incluye los cinco modos dentro de cada sesión mixta de cinco casos', () => {
     const selections = new Set<string>();
     for (const seed of [0, .25, .5, .75, .99]) {
       const ids = buildMixedCaseSession(clinicalCases, () => seed);
       expect(new Set(ids).size).toBe(5);
       const kinds = clinicalCases.filter(item => ids.includes(item.id)).map(item => item.kind);
-      expect(new Set(kinds)).toEqual(new Set(['interview', 'investigation', 'ordering', 'multiple-choice']));
+      expect(new Set(kinds)).toEqual(new Set(['interview', 'investigation', 'ordering', 'multiple-choice', 'matching']));
       selections.add([...ids].sort().join('|'));
     }
     expect(selections.size).toBeGreaterThan(1);

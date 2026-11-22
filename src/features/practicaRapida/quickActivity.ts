@@ -9,8 +9,9 @@ type ClinicalMode = ClinicalCase['kind'];
 export const quickDurations = {
   interview: 60,
   investigation: 60,
-  ordering: 35,
+  ordering: 60,
   'multiple-choice': 15,
+  matching: 60,
   'ubica-partes': 40,
   'senala-estructura': 45,
   'relaciona-funcion': 25,

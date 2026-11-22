@@ -106,7 +106,7 @@ test('la investigación permite seguir una ruta débil, reiniciar y guardar solo
   await expect(entry.getByText('¿Tienes alguna enfermedad conocida?')).toHaveCount(0);
 });
 
-test('completa los cuatro modos en cinco casos y muestra los resultados al finalizar', async ({ page }) => {
+test('completa los cinco modos y muestra los resultados al finalizar', async ({ page }) => {
   await page.clock.setFixedTime(new Date(2026, 10, 22, 12));
   await choose(page, 'Empezar sesión de 5 casos');
   await expect(page.getByText('Caso 1 de 5')).toBeVisible();
@@ -138,13 +138,14 @@ test('completa los cuatro modos en cinco casos y muestra los resultados al final
   await next(page);
 
   await expect(page.getByText('Caso 5 de 5')).toBeVisible();
-  await choose(page, /When did the discomfort begin/);
-  await choose(page, /What new exercise did you start/);
-  await choose(page, /How strong is it from zero to ten/);
-  await choose(page, 'Comenzar preguntas de comprensión');
-  await choose(page, /Two days after changing the gym routine/);
-  await choose(page, /Heavier overhead presses/);
-  await choose(page, /Seven out of ten/);
+  await choose(page, 'Caso de Alex');
+  await choose(page, /Mareo por movimiento/);
+  await choose(page, 'Caso de Mariana');
+  await choose(page, /Dolor muscular tardío/);
+  await choose(page, 'Caso de Juan');
+  await choose(page, /Cafeína cerca de la hora de dormir/);
+  await choose(page, 'Comprobar conexiones');
+  await expect(page.getByRole('heading', { name: '3 de 3 conexiones correctas' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Siguiente caso' })).toHaveCount(0);
   await choose(page, 'Ver resultados');
 

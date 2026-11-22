@@ -14,7 +14,7 @@ function randomIndex(length: number, random: RandomSource): number {
   return Math.min(length - 1, Math.max(0, Math.floor(random() * length)));
 }
 
-function shuffled<T>(items: readonly T[], random: RandomSource): T[] {
+export function shuffled<T>(items: readonly T[], random: RandomSource = Math.random): T[] {
   const result = [...items];
   for (let index = result.length - 1; index > 0; index -= 1) {
     const swap = randomIndex(index + 1, random);

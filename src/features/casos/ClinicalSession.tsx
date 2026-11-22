@@ -29,6 +29,7 @@ import {
   type PerformanceLevel,
 } from './clinicalEngine';
 import { InterviewCaseView, InvestigationCaseView } from './ClinicalConversationCase';
+import { ClinicalMatching } from './ClinicalMatching';
 import { CaseResult, type CaseStepProps, type Score } from './ClinicalResult';
 import { ClinicalSummary } from './ClinicalSummary';
 import { Bilingual } from './Bilingual';
@@ -39,6 +40,7 @@ const sessionLabels = {
   investigation: 'Investigación clínica',
   ordering: 'Orden clínico',
   'multiple-choice': 'Decisión clínica',
+  matching: 'Relaciona síntomas y causas',
 };
 function OrderingCaseView({ item, ...step }: CaseStepProps<OrderingCase>) {
   const actionMap = useMemo(() => new Map(item.actions.map(action => [action.id, action])), [item]);
@@ -256,13 +258,14 @@ function CaseView({ item, onComplete, last, submitTimed }: Pick<CaseStepProps<Cl
   if (item.kind === 'interview') return <InterviewCaseView item={item} {...step}/>;
   if (item.kind === 'investigation') return <InvestigationCaseView item={item} {...step}/>;
   if (item.kind === 'ordering') return <OrderingCaseView item={item} {...step}/>;
+  if (item.kind === 'matching') return <ClinicalMatching item={item} {...step}/>;
   return <MultipleChoiceCaseView item={item} {...step}/>;
 }
 
 export function ClinicalSession({ caseIds: sessionIds, onExit, finishTimed }: {
   caseIds: readonly string[];
   onExit: () => void;
-  finishTimed?: () => boolean;
+  finishTimed?: (score: Score) => boolean;
 }) {
   const [index, setIndex] = useState(0);
   const [total, setTotal] = useState<Score>({ correct: 0, errors: 0, hints: 0, assisted: 0 });
@@ -319,7 +322,7 @@ export function ClinicalSession({ caseIds: sessionIds, onExit, finishTimed }: {
       <p className="lumar-subtitle">{item.instructionsEs}</p>
     </header>
     <CaseView key={item.id} item={item} onComplete={finishTimed ? onExit : complete} last={index === sessionIds.length - 1}
-      submitTimed={finishTimed && (score => finishTimed() && save(score))}/>
+      submitTimed={finishTimed && (score => finishTimed(score) && save(score))}/>
     <p className="clinical-disclaimer">Material educativo provisional basado en la fuente indicada. No sustituye formación clínica supervisada.</p>
   </section>;
 }

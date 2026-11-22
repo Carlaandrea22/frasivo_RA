@@ -1,4 +1,5 @@
 import { investigationCases } from './investigations';
+import { matchingCases } from './matchingCases';
 import { interviewRevision, nodeFactory } from './interviewNodes';
 import { additionalInterviewCases } from './readings';
 import { additionalMultipleChoiceCases, additionalOrderingCases } from './shortCases';
@@ -124,4 +125,4 @@ export const clinicalCases: readonly ClinicalCase[] = [{
   explanationEn: 'Intramuscular adrenaline is the first-line treatment for anaphylaxis. Emergency help and continued assessment are also required.',
   structuresRelated: [],
   revision: { estado: 'provisional', fuentes: [{ titulo: 'Resuscitation Council UK · Emergency treatment of anaphylaxis', url: 'https://www.resus.org.uk/library/additional-guidance/guidance-anaphylaxis/emergency-treatment-anaphylactic-reactions' }] },
-}, ...investigationCases, ...additionalInterviewCases, ...additionalOrderingCases, ...additionalMultipleChoiceCases];
+}, ...investigationCases, ...additionalInterviewCases, ...additionalOrderingCases, ...additionalMultipleChoiceCases, ...matchingCases];
