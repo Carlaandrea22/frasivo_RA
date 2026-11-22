@@ -8,6 +8,8 @@ export interface BoneTarget {
   source?: string;
 }
 
+export const posteriorBoneLabels = ['scapula', 'spine', 'ribs', 'sacrum', 'pelvis', 'femur'];
+
 type Point = readonly [number, number];
 type Side = 'left' | 'right';
 
@@ -45,7 +47,7 @@ export function applyBoneTransform([a,b,c,d,tx,ty]: Matrix, [x,y]: Point): Point
   return [a*x+c*y+tx, b*x+d*y+ty];
 }
 
-const centerBones = new Set(['skull', 'mandible', 'ribs', 'spine', 'sternum', 'pelvis']);
+const centerBones = new Set(['skull', 'mandible', 'ribs', 'spine', 'sternum', 'pelvis', 'sacrum']);
 const margin = 8;
 const gap = 6;
 

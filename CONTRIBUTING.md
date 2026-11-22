@@ -20,6 +20,8 @@ npm run dev
 
 Antes de pedir la revisión, ejecuta las pruebas y la compilación. Usa las pruebas de navegador para verificar recorridos de interfaz y los enlaces entre rutas. La suite requiere Chrome.
 
+GitHub Actions ejecuta **Build y pruebas en Chrome** en cada PR dirigido a `Luis` y cada push a esa rama. El pull request debe pasar esta revisión antes de unirse. Si Playwright falla, los artefactos de la ejecución incluyen el reporte y las capturas disponibles.
+
 ```sh
 npm test
 npm run build

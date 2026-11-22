@@ -1,3 +1,4 @@
+import { activateBodyCamera } from './body-camera';
 import { readFile } from 'node:fs/promises';
 import { expect, test } from '@playwright/test';
 
@@ -28,7 +29,7 @@ test('las tarjetas quedan junto a su hueso y las flechas terminan en píxeles op
   }, photo);
 
   await page.goto('/#cuerpo');
-  await page.getByRole('button', { name: 'Activar cámara' }).click();
+  await activateBodyCamera(page);
   await expect(page.locator('image[data-part=femur_left]')).toBeVisible();
   await page.getByRole('button', { name: 'Minimizar controles' }).click();
   await page.getByRole('button', { name: 'Etiquetas', exact: true }).click();

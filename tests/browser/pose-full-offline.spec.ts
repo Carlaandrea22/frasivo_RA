@@ -1,3 +1,4 @@
+import { activateBodyCamera } from './body-camera';
 import { readFile } from 'node:fs/promises';
 import { expect, test } from '@playwright/test';
 
@@ -45,7 +46,7 @@ test('Fijar descarga Pose Full del mismo origen y lo reutiliza sin conexión', a
   expect(modelRequests).toEqual([]);
 
   const takePose = async () => {
-    await page.getByRole('button', { name: 'Activar cámara' }).click();
+    await activateBodyCamera(page);
     await page.getByRole('button', { name: 'Fijar esqueleto' }).click();
     await expect(page.getByRole('button', { name: 'Ver en 3D' })).toBeEnabled({ timeout: 15_000 });
     await expect(page.getByText('Esqueleto fijado', { exact: true })).toBeVisible();

@@ -1,10 +1,12 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties } from 'react';
 import { Bone, BookOpen, Camera, ChevronDown, ChevronUp, Dumbbell, Heart, Pin, Square, Volume2, X } from 'lucide-react';
 import { Button } from '../../shared/ui/Button';
+import { warmAnatomyLayer } from '../../shared/pwa/offline';
 import { AnatomyOverlay } from './AnatomyOverlay';
 import { anatomyParts, type AnatomyLayer, type BodyPoint } from './anatomy';
 import { atlasPlacement, visibleRegion } from './atlasAlignment';
 import type { BoneTarget } from './BoneLabels';
+import { posteriorBoneLabels } from './boneLabelPlacement';
 import FixedSkeleton from './FixedSkeleton';
 import type { CameraFraming } from './cameraFraming';
 import { capturePrecisePose } from './precisePoseCapture';
@@ -14,6 +16,7 @@ import { useFrameRate } from './useFrameRate';
 import { useBodyRegions } from './useBodyRegions';
 import { regionalBoneTerms, regionalMainTerms } from './regionalBoneTerms';
 import type { RegionalHint } from './regionalDetection';
+import { CameraGuide, FramingGuide } from './CameraGuide';
 import './medicine.css';
 
 const layers = [
@@ -24,6 +27,7 @@ const layers = [
 
 const compactViewport = '(max-width: 760px)';
 const controlsStorageKey = 'frasivo.body.controls-minimized';
+const guideStorageKey = 'lumar.body.camera-guide.v1';
 const RegionalBones = lazy(() => import('./RegionalBones'));
 const emptyPoints: BodyPoint[] = [];
 const emptyTargets: BoneTarget[] = [];
@@ -67,6 +71,11 @@ export default function MedicineExplorer() {
   const [captureError, setCaptureError] = useState('');
   const pendingCapture = useRef<AbortController>(null);
   const [audioError, setAudioError] = useState(false);
+  const guide = useRef<HTMLDialogElement>(null);
+  const startAfterGuide = useRef(false);
+  const [guideSeen, setGuideSeen] = useState(() => {
+    try { return localStorage.getItem(guideStorageKey) === 'true'; } catch { return false; }
+  });
   const [debug] = useState(() => new URLSearchParams(window.location.search).get('debug') === '1');
   const [diagnostics] = useState(() => debug || new URLSearchParams(window.location.search).get('fps') === '1');
   const { fps: detectionFps, record: recordDetection, reset: resetDetection } = useFrameRate();
@@ -85,8 +94,8 @@ export default function MedicineExplorer() {
   const waiting = camera.status === 'permission';
   const aspect = live ? camera.aspect : .8;
   const points = live ? camera.points : null;
-  const atlas = useMemo(() => atlasPlacement(points, aspect, live ? viewportAspect : aspect, true, layer !== 'bones'),
-    [points, aspect, live, viewportAspect, layer]);
+  const atlas = useMemo(() => atlasPlacement(points, aspect, live ? viewportAspect : aspect, true, true),
+    [points, aspect, live, viewportAspect]);
   const regions = useBodyRegions(live && !fixedPose, points ?? emptyPoints, aspect, viewportAspect,
     camera.hands, camera.face, atlas.facing, undefined, layer);
   useEffect(() => {
@@ -118,7 +127,8 @@ export default function MedicineExplorer() {
   const regional = Boolean(regions && (layer !== 'organs' && regions.hands.length || regionalFeet.length || regions.face));
   useEffect(() => { if (!regional) setRegionalTargets(emptyTargets); }, [regional]);
   const targets = regional ? regionalTargets : emptyTargets;
-  const preferredLabels = regions && !regions.fullBody && !regions.groups.has('trunk')
+  const preferredLabels = layer === 'bones' && atlas.facing === 'back' ? posteriorBoneLabels
+    : regions && !regions.fullBody && !regions.groups.has('trunk')
     ? [...(regions.hands.length ? regionalLabelIds[layer].hand : []),
        ...(regions.face ? regionalLabelIds[layer].head : []),
        ...(regions.feet.length ? regionalLabelIds[layer].foot : [])]
@@ -136,6 +146,7 @@ export default function MedicineExplorer() {
     : regions?.status ?? (camera.tracking === 'tracking' ? 'Persona detectada' : 'Buscando una persona');
   const poseIssue = captureIssue(camera.samples.at(-1), aspect, viewportAspect, performance.now());
   const canFix = live && !fixedPose && placement.facing === 'front' && !poseIssue && regions?.fullBody;
+  const showFramingGuide = live && !fixedPose && (status === 'Buscando…' || status === 'Preparando seguimiento');
   useEffect(() => () => pendingCapture.current?.abort(), []);
   useEffect(() => {
     if (!live) {
@@ -146,7 +157,8 @@ export default function MedicineExplorer() {
   }, [live]);
   const adjustment = placement.facing === 'front' ? 'Mantén la pose un momento' : 'Encuadra a la persona de frente';
   const pinReason = live && !fixedPose && !canFix && captureProgress === null
-    ? (regions && !regions.fullBody && !(regions.status === 'Buscando…' && placement.facing === 'back')
+    ? (regions?.status === 'Espalda' ? 'Para fijar, encuadra el cuerpo completo de frente'
+      : regions && !regions.fullBody && !(regions.status === 'Buscando…' && placement.facing === 'back')
       ? 'Para fijar, aléjate hasta ver el cuerpo completo'
       : placement.facing === 'back' || placement.facing === 'side' ? 'Pídele a la persona que se gire de frente' : poseIssue || adjustment)
     : '';
@@ -198,6 +210,7 @@ export default function MedicineExplorer() {
 
   function changeLayer(next: AnatomyLayer) {
     if (next === layer) return;
+    void warmAnatomyLayer(next);
     setLayer(next);
     setSelected('');
     setBoneSelection(false);
@@ -260,13 +273,27 @@ export default function MedicineExplorer() {
   );
 
   const privacyNote = <p className="anatomy-note">Las ilustraciones muestran ubicaciones aproximadas. La cámara se procesa en tu dispositivo.</p>;
+  function openCameraGuide(start: boolean) {
+    startAfterGuide.current = start;
+    guide.current?.showModal();
+  }
+
+  function acknowledgeGuide() {
+    const start = startAfterGuide.current;
+    setGuideSeen(true);
+    try { localStorage.setItem(guideStorageKey, 'true'); } catch { /* Storage can be unavailable. */ }
+    guide.current?.close();
+    if (start) void camera.start();
+  }
+
   const cameraButton = (iconOnly = false) => {
     const label = waiting ? 'Cancelar cámara' : live ? 'Detener cámara' : 'Activar cámara';
     return (
       <Button variant={live || waiting ? 'secondary' : 'primary'}
         className={iconOnly ? 'anatomy-icon-button' : undefined} aria-label={label} onClick={() => {
           if (live || waiting) camera.stop();
-          else void camera.start();
+          else if (guideSeen) void camera.start();
+          else openCameraGuide(true);
         }}>
         {live || waiting ? <Square size={15} aria-hidden="true"/> : <Camera size={18} aria-hidden="true"/>}
         {!iconOnly && label}
@@ -316,6 +343,7 @@ export default function MedicineExplorer() {
 
   return (
     <section className={`body-explorer${layer === 'bones' ? ' body-explorer--bones' : ''}${minimized ? ' body-explorer--minimized' : ''}${fixedPose ? ' body-explorer--fixed' : ''}`} aria-label="Cámara corporal">
+      <CameraGuide sheet={guide} onUnderstand={acknowledgeGuide} onClose={() => { startAfterGuide.current = false; }}/>
       <div className={live ? 'anatomy-stage anatomy-stage--live' : 'anatomy-stage'}>
         <div className="anatomy-stage-header">
           <span className="anatomy-status" role="status"><i aria-hidden="true"/>{status}</span>
@@ -328,15 +356,19 @@ export default function MedicineExplorer() {
               </span> fps
             </span>
           )}
-          {!waiting && !fixedPose &&
+          {!waiting && !fixedPose && <div className="anatomy-stage-tools">
             <Button className="anatomy-label-toggle" variant="secondary" aria-pressed={showLabels}
-              onClick={() => setShowLabels(value => !value)}>Etiquetas</Button>}
+              onClick={() => setShowLabels(value => !value)}>Etiquetas</Button>
+            <Button className="camera-help" variant="secondary" aria-haspopup="dialog" aria-label="Guía de cámara"
+              onClick={() => openCameraGuide(false)}>?</Button>
+          </div>}
         </div>
         {live && !fixedPose && (regional || layer !== 'bones' && visibleTerms.size > 0) &&
           <span className="anatomy-regional-review">Provisional</span>}
         <div className="anatomy-window" ref={windowRef}>
           <div className="anatomy-frame" style={{ '--frame-ratio': aspect } as CSSProperties}>
             <video ref={camera.videoRef} autoPlay playsInline muted aria-label="Vista de la cámara" className={live ? 'visible' : ''}/>
+            {showFramingGuide && <FramingGuide reservedBottom={reservedBottom}/>}
             {!waiting && !fixedPose && <AnatomyOverlay
               placement={placement}
               live={live}

@@ -61,15 +61,25 @@ test('cuerpo completo mantiene torso y piernas, mientras un recorte conserva sol
   expect(partial.groups.has('shin_left')).toBe(false);
 });
 
-test('una mano pequeña en un cuerpo de espaldas conserva la guía del atlas', () => {
+test('una mano pequeña en un cuerpo de espaldas deja el seguimiento en el atlas posterior', () => {
   const hand: HandRegion = {
     side: 'right', confidence: .98, worldLandmarks: [],
     landmarks: Array.from({ length: 21 }, (_, i) => ({ x: .15 + (i%5)*.015, y: .42 + Math.floor(i/5)*.014 })),
   };
-  const result = chooseRegions(pose(), 1, 1, [hand], null, 'back');
-  expect(result.status).toBe('Buscando…');
+  const back = pose().map((point, index) => ({ ...point, x: 1-point.x, visibility: index < 7 ? 0 : point.visibility }));
+  const result = chooseRegions(back, 1, 1, [hand], null, 'back');
+  expect(result.status).toBe('Espalda');
   expect(result.hands).toHaveLength(0);
-  expect(result.reasons).toContain('Pose está de espaldas');
+  expect(result.groups.has('trunk')).toBe(true);
+  expect(result.groups.has('pelvis')).toBe(true);
+  expect(result.groups.has('shin_left')).toBe(true);
+  expect(result.fullBody).toBe(false);
+  const crop = back.slice(0, 23);
+  const partial = chooseRegions(crop, 1, 1, [], null, 'back');
+  expect(partial.status).toBe('Espalda');
+  expect(partial.groups.has('trunk')).toBe(true);
+  expect(partial.groups.has('pelvis')).toBe(false);
+  expect(partial.groups.has('shin_left')).toBe(false);
 });
 
 test('las capas blandas comparten el encuadre posterior y descartan un torso sin caderas para el abdomen', () => {

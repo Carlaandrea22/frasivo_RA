@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises';
-import { Mesh } from 'three';
+import { Box3, Mesh, Vector3 } from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { expect, it } from 'vitest';
 import anchors from '../assets/anatomy/body/anchors.json';
@@ -45,6 +45,28 @@ it('usa las articulaciones capturadas y el mismo origen en las tres capas fijada
     expect(organs.position.toArray()).toEqual(bones.position.toArray());
     expect(muscles.userData.calibrationJoints).toEqual(bones.userData.calibrationJoints);
     expect(organs.userData.calibrationJoints).toEqual(bones.userData.calibrationJoints);
+
+    const bounds = (model: typeof bones, id: string) => new Box3().setFromObject(model.getObjectByName(id)!, true);
+    const pelvis = bounds(bones, 'pelvis_left').union(bounds(bones, 'pelvis_right'));
+    const ribs = bounds(bones, 'ribs_left').union(bounds(bones, 'ribs_right'));
+    const center = ribs.getCenter(new Vector3());
+    const lungs = bounds(organs, 'lungs');
+    const heart = bounds(organs, 'heart').getCenter(new Vector3());
+    const colon = bounds(organs, 'large_intestine');
+    const shoulderSpan = world[landmark.shoulder_left].x - world[landmark.shoulder_right].x;
+    const lungSize = lungs.getSize(new Vector3());
+    expect(lungSize.x / shoulderSpan).toBeGreaterThan(.86);
+    expect(lungSize.x / shoulderSpan).toBeLessThan(.96);
+    expect(lungSize.y / ribs.getSize(new Vector3()).y).toBeGreaterThan(.77);
+    expect(heart.x - center.x).toBeGreaterThan(.015);
+    expect(heart.x - center.x).toBeLessThan(.05);
+    expect(heart.z).toBeGreaterThan(lungs.getCenter(new Vector3()).z);
+    expect(bounds(organs, 'heart').max.z).toBeLessThan(bounds(bones, 'sternum').max.z);
+    expect(bounds(organs, 'liver').getCenter(new Vector3()).x).toBeLessThan(center.x);
+    expect(bounds(organs, 'stomach').getCenter(new Vector3()).x).toBeGreaterThan(center.x);
+    expect(colon.getSize(new Vector3()).x / pelvis.getSize(new Vector3()).x).toBeGreaterThan(.86);
+    expect(colon.min.y).toBeLessThan(pelvis.getCenter(new Vector3()).y);
+    expect(colon.min.y).toBeGreaterThan(pelvis.min.y);
   } finally {
     for (const model of [bones, muscles, organs]) disposeSkeleton(model);
   }

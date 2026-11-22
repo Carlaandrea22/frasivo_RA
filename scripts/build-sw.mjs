@@ -1,5 +1,7 @@
-import { cp, readdir, readFile, writeFile } from 'node:fs/promises';
+import { cp, readdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
+import { gzipSync } from 'node:zlib';
+
 async function walk(dir) {
   const result = [];
   for (const entry of await readdir(dir, { withFileTypes: true })) {
@@ -9,63 +11,74 @@ async function walk(dir) {
   }
   return result;
 }
+
 // Vite does not copy public/ wholesale, so stale detector assets stay out.
-const publicFiles = ['manifest.webmanifest', 'icon.svg', 'icon-192.png', 'icon-512.png', 'icon-maskable.png', 'body-tracking'];
+const publicFiles = [
+  'manifest.webmanifest', 'favicon.ico', 'apple-touch-icon.png',
+  'icon.svg', 'icon-192.png', 'icon-512.png', 'icon-maskable.png', 'body-tracking',
+];
 for (const file of publicFiles) {
   await cp(`public/${file}`, `dist/${file}`, { recursive: true });
 }
-const files = await walk('dist');
-const deferredModels = new Set([
-  '/body-tracking/pose_landmarker_full.task',
-  '/body-tracking/hand_landmarker.task',
-  '/body-tracking/face_landmarker.task',
-]);
-for (const model of deferredModels) {
-  if (!files.includes(`dist${model}`)) throw new Error(`Falta ${model}. Ejecuta npm run assets antes de compilar.`);
-}
-const hash = createHash('sha256');
-hash.update(await readFile(new URL(import.meta.url)));
-for (const file of files.sort()) hash.update(await readFile(file));
-const cacheName = `lumar-${hash.digest('hex').slice(0, 12)}`;
-// MediaPipe selects this pair only when its SIMD capability check fails.
-const runtimeOnly = new Set([
+
+const tracking = {
+  full: ['/body-tracking/pose_landmarker_full.task', 'pose-landmarker-full-v1'],
+  hand: ['/body-tracking/hand_landmarker.task', 'body-hand-landmarker-v1'],
+  face: ['/body-tracking/face_landmarker.task', 'body-face-landmarker-v1'],
+};
+const simd = '/body-tracking/wasm/vision_wasm_internal.wasm';
+// A .gz extension can make static hosts decode the payload as HTTP Content-Encoding.
+const packedSimd = `${simd}.bin`;
+const nosimd = [
   '/body-tracking/wasm/vision_wasm_nosimd_internal.js',
   '/body-tracking/wasm/vision_wasm_nosimd_internal.wasm',
-]);
-// The body worker caches optional models the first time each detector is used.
-const urls = ['/', ...files.map(file => file.slice(4)).filter(url => !deferredModels.has(url) && !runtimeOnly.has(url))];
+];
+await writeFile(`dist${packedSimd}`, gzipSync(await readFile(`dist${simd}`)));
+
+const files = (await walk('dist')).sort();
+const urls = files.map(file => file.slice(4));
+for (const required of ['/body-tracking/pose_landmarker_lite.task', ...Object.values(tracking).map(([url]) => url)]) {
+  if (!urls.includes(required)) throw new Error(`Falta ${required}. Ejecuta npm run assets antes de compilar.`);
+}
+
+const { parts } = JSON.parse(await readFile('assets/anatomy/body/anchors.json', 'utf8'));
+const spriteLayers = new Map();
+for (const { id, layer, demoSprite, backSprite } of parts) {
+  spriteLayers.set(id, layer);
+  if (demoSprite) spriteLayers.set(`${id}_front`, layer);
+  if (backSprite) spriteLayers.set(`${id}_back`, layer);
+}
+
+const geometryLayers = {
+  bones: new Set(['bones', 'hand', 'head', 'foot']),
+  muscles: new Set(['muscles', 'hand-muscles', 'head-muscles']),
+  organs: new Set(['organs', 'head-organs', 'heart-cutaway']),
+};
+const layers = { muscles: [], organs: [] };
+for (const url of urls) {
+  const asset = /^\/assets\/(.+)-[\w-]{8}\.(glb|webp)$/.exec(url);
+  if (!asset) continue;
+  const [, name, format] = asset;
+  const layer = format === 'webp' ? spriteLayers.get(name) :
+    Object.keys(geometryLayers).find(key => geometryLayers[key].has(name));
+  if (format === 'glb' && !layer) throw new Error(`No se asignó una capa a ${url}.`);
+  if (layer === 'muscles' || layer === 'organs') layers[layer].push(url);
+}
+
+const optional = new Set([simd, ...nosimd, ...Object.values(tracking).map(([url]) => url), ...Object.values(layers).flat()]);
+const shell = ['/', ...urls.filter(url => !optional.has(url))];
+const bytes = (await Promise.all(shell.map(url => stat(`dist${url === '/' ? '/index.html' : url}`))))
+  .reduce((total, info) => total + info.size, 0);
+if (bytes > 20_000_000) throw new Error(`La precaché de LumAR supera 20 MB (${bytes} bytes).`);
+
+const runtime = await readFile(new URL('./sw-runtime.js', import.meta.url), 'utf8');
+const config = { shell, layers, simd, packedSimd, nosimd, tracking };
+const hash = createHash('sha256');
+hash.update(runtime).update(JSON.stringify(config));
+for (const file of files) hash.update(await readFile(file));
+const cacheName = `lumar-shell-${hash.digest('hex').slice(0, 12)}`;
 await writeFile('dist/sw.js', `// Generated from the exact build.
 const NAME = ${JSON.stringify(cacheName)};
-const FILES = ${JSON.stringify(urls)};
-const RUNTIME_ONLY = new Set(${JSON.stringify([...runtimeOnly])});
-self.addEventListener('install', event => {
-  event.waitUntil(caches.open(NAME).then(cache => cache.addAll(FILES)).then(() => self.skipWaiting()));
-});
-self.addEventListener('activate', event => {
-  event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(k => (k.startsWith('lumar-') || k.startsWith('frasivo-explore-')) && k !== NAME).map(k => caches.delete(k)))).then(() => self.clients.claim()));
-});
-self.addEventListener('fetch', event => {
-  const request = event.request;
-  const url = new URL(request.url);
-  if (request.method !== 'GET' || url.origin !== self.location.origin) return;
-  event.respondWith(caches.open(NAME).then(async cache => {
-    // Only this build's public static files are stored here. Ignore Vary:
-    // Origin because module/style requests add Origin but precache does not.
-    const cached = await cache.match(request, { ignoreVary: true });
-    if (cached) return cached;
-    try {
-      const response = await fetch(request);
-      if (RUNTIME_ONLY.has(url.pathname) && response.ok && response.status !== 206) {
-        try { await cache.put(request, response.clone()); }
-        catch { /* If storage is full, the online response still works. */ }
-      }
-      return response;
-    }
-    catch (error) {
-      if (request.mode === 'navigate') return (await cache.match('/index.html')) || Response.error();
-      throw error;
-    }
-  }));
-});
-`);
-console.log(`PWA: ${urls.length} recursos precargados, con Pose Lite y WASM SIMD. Pose Full, mano, cara y variante sin SIMD bajo demanda. Caché: ${cacheName}`);
+const CONFIG = ${JSON.stringify(config)};
+${runtime}`);
+console.log(`PWA: ${shell.length} recursos precargados, ${bytes.toLocaleString('es')} bytes. Caché: ${cacheName}`);

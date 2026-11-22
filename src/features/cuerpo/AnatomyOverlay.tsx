@@ -22,8 +22,8 @@ const layers = {
 type Group = AtlasPart['group'];
 type Placement = ReturnType<typeof atlasPlacement>;
 const torsoWindow = {
-  trunk: 'M 0 -1.384 C .145 -1.404 .172 -1.295 .158 -1.178 C .148 -1.077 .125 -1.015 0 -1.002 C -.125 -1.015 -.148 -1.077 -.158 -1.178 C -.172 -1.295 -.145 -1.404 0 -1.384 Z',
-  abdomen: 'M 0 -1.15 C .153 -1.149 .148 -1.058 .147 -1.005 C .149 -.919 .141 -.79 .088 -.745 C .017 -.705 -.066 -.73 -.112 -.772 C -.157 -.827 -.153 -.99 -.146 -1.064 C -.141 -1.127 -.06 -1.16 0 -1.15 Z',
+  trunk: 'M 0 -1.401 C .12 -1.41 .159 -1.358 .168 -1.249 C .184 -1.163 .173 -1.075 .153 -1.028 C .139 -1.002 .065 -1.015 0 -1.02 C -.067 -1.005 -.151 -.989 -.164 -1.022 C -.177 -1.079 -.184 -1.164 -.169 -1.249 C -.158 -1.358 -.12 -1.41 0 -1.401 Z',
+  abdomen: 'M 0 -1.118 C .141 -1.129 .157 -1.071 .153 -.991 C .153 -.903 .133 -.8 .075 -.759 C .031 -.731 -.039 -.736 -.081 -.763 C -.138 -.807 -.159 -.903 -.157 -.991 C -.163 -1.076 -.146 -1.126 0 -1.118 Z',
 };
 
 interface Props {
@@ -162,7 +162,7 @@ export function AnatomyOverlay({ placement, live, layer, aspect, opacity, select
       data-rendered={layer} data-visible-parts={parts.length} data-focused-organ={focusedOrgan} style={{ opacity }}>
       {layer === 'organs' && live && <defs>
         <filter id={`${organWindow}-feather`} filterUnits="userSpaceOnUse" x="-.25" y="-1.55" width=".5" height=".95">
-          <feGaussianBlur stdDeviation=".012"/>
+          <feGaussianBlur stdDeviation=".008"/>
         </filter>
         {Object.entries(torsoWindow).map(([group, path]) => <mask key={group} id={`${organWindow}-${group}`}
           maskUnits="userSpaceOnUse" x="-.25" y="-1.55" width=".5" height=".95">
@@ -176,7 +176,7 @@ export function AnatomyOverlay({ placement, live, layer, aspect, opacity, select
         }}>
           <g mask={layer === 'organs' && live && (group === 'trunk' || group === 'abdomen') ? `url(#${organWindow}-${group})` : undefined}>
           {layer === 'organs' && live && (group === 'trunk' || group === 'abdomen') &&
-            <path d={torsoWindow[group]} data-organ-window={group} fill="#543031" opacity=".22" pointerEvents="none"/>}
+            <path d={torsoWindow[group]} data-organ-window={group} fill="#543031" opacity=".15" pointerEvents="none"/>}
           {parts.filter(part => part.group === group).map(part => {
             const [x, y, width, height] = atlasSprite(part, live, frontFeet, facing);
             const spriteId = atlasSpriteId(part, live, frontFeet, facing);
@@ -188,6 +188,7 @@ export function AnatomyOverlay({ placement, live, layer, aspect, opacity, select
               className={part.term === selected ? 'selected' : undefined}
               href={sprites[`../../../assets/anatomy/body/sprites/${spriteId}.webp`]}
               x={x} y={y} width={width} height={height}
+              preserveAspectRatio={layer === 'organs' ? 'none' : undefined}
               opacity={recedes ? .19 : 1}
             />;
           })}

@@ -1,5 +1,6 @@
 import type { AnatomyLayer, BodyPoint, Matrix } from './anatomy';
 import anchors from '../../../assets/anatomy/body/anchors.json';
+import { fittedOrganSprite } from './organFit';
 
 type Vec2 = readonly [number, number];
 type SpriteBounds = [number, number, number, number];
@@ -71,7 +72,8 @@ export function atlasSprite(part: AtlasPart, live: boolean, frontFeet: ReadonlyS
     return [-.054, -1.64, .108, .086];
   }
   if (live && facing === 'back' && part.backSprite) return part.backSprite;
-  return (!live || frontFeet.has(part.group)) && part.demoSprite ? part.demoSprite : part.sprite;
+  const bounds = (!live || frontFeet.has(part.group)) && part.demoSprite ? part.demoSprite : part.sprite;
+  return part.layer === 'organs' ? fittedOrganSprite(part.id, bounds) : bounds;
 }
 
 function rest(joint: Joint): Vec2 {
@@ -128,6 +130,7 @@ export function atlasPlacement(points: BodyPoint[] | null, aspect: number, viewp
   const frontFeet = new Set<Group>();
   for (const part of atlasParts) matrices[part.group] = points ? null : demo;
   const inFrame = (sorted: AtlasPart[], facing: Facing = 'front') => sorted.filter(part => {
+    if (part.layer === 'bones' && (facing === 'back' ? !part.view : part.view === 'back')) return false;
     const matrix = matrices[part.group];
     return matrix && overlapsVisibleFrame(matrix, atlasSprite(part, Boolean(points), frontFeet, facing), region);
   });
@@ -187,7 +190,18 @@ export function atlasPlacement(points: BodyPoint[] | null, aspect: number, viewp
     matrices.pelvis = fitSegment(rest('hip_right'), rest('hip_left'), rightHip, leftHip);
   }
 
-  if (eyeLeft && eyeRight && faceFront) {
+  const earWidth = earLeft && earRight ? distance(earLeft, earRight) : 0;
+  if (back && earLeft && earRight && left && right && earLeft[0] < earRight[0]
+    && earWidth > .18 * shoulderWidth && earWidth < .68 * shoulderWidth
+    && Math.max(earLeft[1], earRight[1]) < midpoint(left, right)[1] - .12 * shoulderWidth) {
+    const restRight = rest('ear_right'), restLeft = rest('ear_left');
+    const [x, y] = midpoint(earLeft, earRight);
+    const earScale = earWidth / distance(restLeft, restRight);
+    // Rear ear estimates may fall inside the hair. Keep their center and roll while limiting the scale.
+    const ratio = Math.min(scale, Math.max(scale * .78, earScale)) / earScale;
+    const fitEar = (ear: Vec2): Vec2 => [x + (ear[0] - x) * ratio, y + (ear[1] - y) * ratio];
+    matrices.head = fitSegment(restRight, restLeft, fitEar(earRight), fitEar(earLeft), true);
+  } else if (!back && eyeLeft && eyeRight && faceFront) {
     const eyeFit = fitSegment(rest('eye_right'), rest('eye_left'), eyeRight, eyeLeft);
     const earFit = earLeft && earRight && earLeft[0] > earRight[0]
       ? fitSegment(rest('ear_right'), rest('ear_left'), earRight, earLeft) : null;
@@ -252,10 +266,14 @@ export function atlasPlacement(points: BodyPoint[] | null, aspect: number, viewp
       if (distance(k, h) < Math.max(.013, reach*.7) && reach < Math.max(.035, scale*.27)) {
         const group = `foot_${side}` as const;
         if (!foreshortened(heel, toe, span, Math.max(.015, scale*.065))) {
-          const [ankleX, ankleY] = anchors.spriteAnchors[bones ? heel : ankle];
-          const [toeX, toeY] = anchors.spriteAnchors[toe];
-          matrices[group] = fitSegment([ankleX, ankleY], [toeX, toeY], bones ? h : k, f);
-        } else if (f[1] > k[1] + reach*.45 && reach >= Math.max(.012, scale*.035)) {
+          if (back) {
+            matrices[group] = fitSegment(rest(heel), rest(toe), h, f, true);
+          } else {
+            const [ankleX, ankleY] = anchors.spriteAnchors[bones ? heel : ankle];
+            const [toeX, toeY] = anchors.spriteAnchors[toe];
+            matrices[group] = fitSegment([ankleX, ankleY], [toeX, toeY], bones ? h : k, f);
+          }
+        } else if (!back && f[1] > k[1] + reach*.45 && reach >= Math.max(.012, scale*.035)) {
           matrices[group] = bones && span >= .01
             ? fitSegment(rest(heel), rest(toe), h, f)
             : !bones ? fitSegment(rest(ankle), rest(toe), k, f) : null;

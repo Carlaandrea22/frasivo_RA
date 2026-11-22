@@ -55,7 +55,8 @@ describe('esqueleto fijado', () => {
     }
     const floor = new Box3().setFromObject(posed, true).min.y;
     expect(floor).toBeCloseTo(0, 5);
-    expect(posed.children).toHaveLength(36);
+    expect(posed.children).toHaveLength(39);
+    for (const id of ['scapula_left', 'scapula_right', 'sacrum']) expect(mesh(id)).toBeInstanceOf(Mesh);
     disposeSkeleton(posed);
   });
 });

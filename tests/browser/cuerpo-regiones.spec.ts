@@ -1,3 +1,4 @@
+import { activateBodyCamera } from './body-camera';
 import { readFile } from 'node:fs/promises';
 import { expect, test, type Page } from '@playwright/test';
 
@@ -62,7 +63,7 @@ for (const scene of scenes) {
     await cameraPhoto(page, scene.file, scene.crop);
     await page.goto('/#cuerpo');
     await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller));
-    await page.getByRole('button', { name: 'Activar cámara' }).click();
+    await activateBodyCamera(page);
     await page.getByRole('button', { name: 'Minimizar controles' }).click();
     await page.getByRole('button', { name: 'Etiquetas', exact: true }).click();
     await expect(page.locator('.anatomy-status')).toHaveText(scene.status, { timeout: 20000 });

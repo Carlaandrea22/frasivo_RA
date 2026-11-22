@@ -59,14 +59,14 @@ export function chooseRegions(points: BodyPoint[], aspect: number, viewportAspec
     && (!torso || shoulderWidth < faceSize.height*.92 || neckLength < faceSize.height*.13 || (!hips && !elbows)));
   const contradicted = largeHandOverrides || largeFaceOverrides;
   const back = facing === 'back' && torso && !contradicted;
-  const posterior = back && layer !== 'bones';
   const visibleHands = back ? [] : acceptedHands;
   const visibleFace = back ? null : acceptedFace;
   const groups = new Set<Group>();
   const reasons: string[] = [];
   const feet: RegionalFoot[] = [];
   const eyeLeft = at('eye_left'), eyeRight = at('eye_right');
-  const poseHead = torso && shoulders && eyeLeft && eyeRight && at('ear_left', .55) && at('ear_right', .55)
+  const earLeft = at('ear_left', .55), earRight = at('ear_right', .55);
+  const poseHead = torso && shoulders && eyeLeft && eyeRight && earLeft && earRight
     && Math.max(eyeLeft[1], eyeRight[1]) < shoulders[1] - shoulderWidth*.12
     && separation(eyeLeft, eyeRight) < shoulderWidth*.50;
   const neckConfidence = layer === 'bones' || hips || elbows ? .65 : confirmed.has('neck') ? .79 : .83;
@@ -76,14 +76,15 @@ export function chooseRegions(points: BodyPoint[], aspect: number, viewportAspec
     ? { shoulderLeft: value('shoulder_left'), shoulderRight: value('shoulder_right') } : null;
 
   if (contradicted) reasons.push(largeHandOverrides ? 'Pose no coincide con la escala de la mano' : 'Pose no coincide con la escala de la cara');
-  else if (facing !== 'back' || posterior) {
+  else if (facing !== 'back' || back) {
     const missing: string[] = [];
     const disproportionate: string[] = [];
-    if (torso && (facing === 'front' || posterior)) {
+    if (torso && (facing === 'front' || back)) {
       groups.add('trunk');
       if (hips) { groups.add('pelvis'); groups.add('abdomen'); }
     } else reasons.push('Hombros fuera del encuadre o torso desproporcionado');
     if (!back && (!acceptedFace || layer !== 'bones') && poseHead) groups.add('head');
+    if (back && layer === 'bones' && earLeft && earRight) groups.add('head');
     for (const side of sides) {
       const supported = (joint: string, threshold?: number) => at(`${joint}_${side}` as Joint, threshold);
       const chain = [
@@ -110,7 +111,7 @@ export function chooseRegions(points: BodyPoint[], aspect: number, viewportAspec
         }
         groups.add(group);
       }
-      if (torso && !acceptedHands.some(hand => hand.side === side) && supported('wrist')
+      if (torso && !visibleHands.some(hand => hand.side === side) && supported('wrist')
         && supported('index', .55) && supported('pinky', .55) && supported('thumb', .55)) groups.add(`hand_${side}`);
 
       const ankle = supported('ankle', .59), heel = supported('heel', .40), toe = supported('toe', .56);
@@ -120,7 +121,8 @@ export function chooseRegions(points: BodyPoint[], aspect: number, viewportAspec
         const support = knee ? separation(knee, ankle) : shoulderWidth;
         if (length >= height*.013 && support > height*.055 && length < support*.95
           && separation(heel, ankle) < length*1.25) {
-          feet.push({ side, ankle: value(`ankle_${side}`), heel: value(`heel_${side}`), toe: value(`toe_${side}`) });
+          if (back) groups.add(`foot_${side}`);
+          else feet.push({ side, ankle: value(`ankle_${side}`), heel: value(`heel_${side}`), toe: value(`toe_${side}`) });
         }
       }
     }
@@ -140,7 +142,7 @@ export function chooseRegions(points: BodyPoint[], aspect: number, viewportAspec
     && separation(eyeLeft, eyeRight) >= height*.019);
   let status = 'Buscando…';
   if (fullBody) status = 'Cuerpo completo';
-  else if (posterior) status = 'Espalda';
+  else if (back) status = 'Espalda';
   else if (groups.has('trunk')) status = 'Torso';
   else if (visibleHands.length > 1) status = 'Ambas manos';
   else if (visibleHands.length === 1) status = `Mano ${sideName(visibleHands[0].side, true)}`;

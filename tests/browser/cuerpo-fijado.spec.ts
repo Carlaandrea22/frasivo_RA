@@ -1,3 +1,4 @@
+import { activateBodyCamera } from './body-camera';
 import { spawnSync } from 'node:child_process';
 import { readFile, writeFile } from 'node:fs/promises';
 import { expect, test, type Page } from '@playwright/test';
@@ -40,7 +41,7 @@ async function capturedBody(page: Page, quickLook = false) {
     });
   }, { source, quickLook });
   await page.goto('/#cuerpo');
-  await page.getByRole('button', { name: 'Activar cámara' }).click();
+  await activateBodyCamera(page);
   await expect(page.locator('.anatomy-status')).toHaveText('Cuerpo completo', { timeout: 30_000 });
 }
 

@@ -1,3 +1,4 @@
+import { activateBodyCamera } from './body-camera';
 import { readFile } from 'node:fs/promises';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
 
@@ -38,7 +39,7 @@ async function cameraPhoto(page: Page, fixture: string, crop?: [number, number, 
 async function activate(page: Page, name: 'Músculos' | 'Órganos') {
   await page.goto('/?fps=1#cuerpo');
   await page.getByRole('button', { name, exact: true }).click();
-  await page.getByRole('button', { name: 'Activar cámara' }).click();
+  await activateBodyCamera(page);
   await page.getByRole('button', { name: 'Minimizar controles' }).click();
   await page.getByRole('button', { name: 'Etiquetas', exact: true }).click();
 }

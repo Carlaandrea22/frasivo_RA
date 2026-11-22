@@ -1,3 +1,4 @@
+import { activateBodyCamera } from './body-camera';
 import { readFileSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 import { expect, test, type Page } from '@playwright/test';
@@ -45,7 +46,7 @@ async function openCamera(page: Page, shot: Shot, layer: Layer, debug = false) {
   }, { url, x, y, width, height, w, h });
   await page.goto(debug ? '/?debug=1#cuerpo' : '/#cuerpo');
   await page.getByRole('button', { name: layer, exact: true }).click();
-  await page.getByRole('button', { name: 'Activar cámara' }).click();
+  await activateBodyCamera(page);
 }
 
 async function showLabels(page: Page) {
@@ -113,6 +114,8 @@ test('la ventana de órganos de cuerpo completo conserva el tórax y el abdomen'
   await expect(page.locator('[data-organ-window=abdomen]')).toHaveCount(1);
   await expect(page.locator('[data-anatomy-label=heart]')).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath('organos-torso-completo.png') });
+  await page.getByRole('button', { name: 'Etiquetas', exact: true }).click();
+  await page.screenshot({ path: testInfo.outputPath('organos-375.png') });
 });
 
 test('la ventana conserva el tórax sin inventar el abdomen y abre el corazón en corte', async ({ page }, testInfo) => {
@@ -185,6 +188,34 @@ test('mide el seguimiento de las tres capas y el ajuste de articulaciones de los
       }), segments);
       expect(Math.max(...errors)).toBeLessThan(15);
       Object.assign(measurements, { projectionErrorPx: errors });
+    }
+    if (layer === 'Órganos') {
+      const ratio = await sprite(page, 'lungs').evaluate(async node => {
+        const lungs = node as unknown as SVGImageElement;
+        const image = new Image();
+        image.src = lungs.href.baseVal;
+        await image.decode();
+        const canvas = document.createElement('canvas');
+        const width = canvas.width = image.naturalWidth;
+        const height = canvas.height = image.naturalHeight;
+        const context = canvas.getContext('2d')!;
+        context.drawImage(image, 0, 0);
+        const pixels = context.getImageData(0, 0, width, height).data;
+        let left = width, right = 0;
+        for (let pixel = 0; pixel < width*height; pixel++) {
+          if (pixels[4*pixel+3] < 192) continue;
+          const x = pixel % width;
+          left = Math.min(left, x);
+          right = Math.max(right, x+1);
+        }
+        const shoulderX = (index: number) =>
+          document.querySelector<SVGGElement>(`[data-landmark="${index}"]`)!.getScreenCTM()!.e;
+        const shoulderSpan = Math.abs(shoulderX(11)-shoulderX(12));
+        return lungs.getBoundingClientRect().width * (right-left)/width / shoulderSpan;
+      });
+      expect(ratio).toBeGreaterThan(.86);
+      expect(ratio).toBeLessThan(.96);
+      Object.assign(measurements, { lungToShoulderWidth: ratio });
     }
   }
   await writeFile(testInfo.outputPath('fps.json'), JSON.stringify(measurements, null, 2));

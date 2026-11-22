@@ -3,7 +3,8 @@
 Run from the repository:
     Blender --background --factory-startup --python-exit-code 1 --python scripts/prepare-bodyparts3d.py
 Append `-- --soft-tissues-only` to regenerate muscles and organs while retaining
-the existing bone and reference files.
+the existing bone and reference files, or `-- --posterior-bones` to update the
+posterior bone atlas while retaining existing anterior artwork where possible.
 """
 from collections import defaultdict
 from math import cos, pi
@@ -32,6 +33,7 @@ SPRITES.mkdir(parents=True, exist_ok=True)
 REGIONS.mkdir(parents=True, exist_ok=True)
 WORK.mkdir(parents=True, exist_ok=True)
 soft_tissues_only = "--soft-tissues-only" in sys.argv
+posterior_bones_only = "--posterior-bones" in sys.argv
 
 
 def table(name):
@@ -189,7 +191,7 @@ def make_part(term, layer, group, mat, source, budget, side=None, *, view="front
     if mat in (muscle, muscle_dark):
         paint_fibers(obj, mat.diffuse_color)
     record = {"id": id, "term": term, "layer": layer, "group": group, "source": source}
-    if layer != "bones" and view != "front":
+    if view != "front":
         record["view"] = view
     records.append(record)
     return obj
@@ -234,17 +236,18 @@ def paint_fibers(obj, color):
 
 mandible = elements([52748])
 skull = sorted(set(elements([46565], partof)) - set(mandible))
-make_part("skull", "bones", "head", ivory, skull, 12500)
+make_part("skull", "bones", "head", ivory, skull, 12500, view="both")
 make_part("mandible", "bones", "head", ivory, mandible, 4500)
 make_part("sternum", "bones", "trunk", ivory, elements([7485], partof), 2500)
-# Keep vertebrae and sacrum rather than duplicating intervening discs as bone.
+# Model the sacrum separately so it can be selected on either side of the pelvis.
 vertebrae = defaultdict(list)
 for row in (SOURCE / "partof_parts_list_e.txt").read_text().splitlines()[1:]:
     fma, _, label = row.split("\t")
-    if (label.endswith(" vertebra") or label in {"sacrum", "coccyx"}) and not label.startswith(("anterior", "posterior")):
+    if (label.endswith(" vertebra") or label == "coccyx") and not label.startswith(("anterior", "posterior")):
         vertebrae[int(fma.removeprefix("FMA"))] = label
 spine = sorted(set(elements(list(vertebrae), partof)) & set(elements([13478], partof)))
-make_part("spine", "bones", "abdomen", ivory, spine, 11500)
+make_part("spine", "bones", "abdomen", ivory, spine, 11500, view="both")
+make_part("sacrum", "bones", "pelvis", ivory, elements([16202], partof), 2500, view="both")
 
 bones = [
     ("clavicle", "trunk", 13323, 13322),
@@ -283,14 +286,19 @@ hands_feet = {
     },
 }
 for number, side in enumerate(("left", "right")):
-    make_part("ribs", "bones", "trunk", ivory, elements(ribs[number], partof), 10000, side)
+    make_part("ribs", "bones", "trunk", ivory, elements(ribs[number], partof), 10000, side, view="both")
     for term, group, left, right in bones:
+        view = "front" if term in {"clavicle", "patella"} else "both"
         make_part(term, "bones", "pelvis" if term == "pelvis" else group if group == "trunk" else f"{group}_{side}",
-                  ivory, elements([left if number == 0 else right]), 3700, side)
+                  ivory, elements([left if number == 0 else right]), 3700, side, view=view)
 
     for term in ("carpals", "metacarpals", "hand_phalanges", "tarsals", "metatarsals", "foot_phalanges"):
         segment = "hand" if term in ("carpals", "metacarpals", "hand_phalanges") else "foot"
-        make_part(term, "bones", f"{segment}_{side}", ivory, elements(hands_feet[side][term]), 3500, side)
+        make_part(term, "bones", f"{segment}_{side}", ivory, elements(hands_feet[side][term]), 3500, side, view="both")
+
+# The scapulae sit behind the ribs and are painted on top of both rib sprites.
+for side, concept in (("left", 13396), ("right", 13395)):
+    make_part("scapula", "bones", "trunk", ivory, elements([concept], partof), 3300, side, view="back")
 
 muscles = [
     ("pectoralis_major", "trunk", [34691, 79980, 45875], [34690, 79979, 45874]),
@@ -477,7 +485,7 @@ anchors["thorax_center"] = [0, 1.225 + offset, .12]
 def export_model(collection, output_file):
     bpy.ops.export_scene.gltf(filepath=str(output_file), collection=collection.name, export_format="GLB",
                              export_animations=False, export_texcoords=False, export_normals=True,
-                             export_extras=True)
+                             export_extras=collection.name != "bones")
     assert output_file.stat().st_size <= 4_000_000, (output_file, output_file.stat().st_size)
     print(output_file.name, len(collection.objects), output_file.stat().st_size, flush=True)
 
@@ -499,16 +507,18 @@ def export_region(name, layer, objects):
 
 
 for layer, collection in collections.items():
-    if layer != "bones" or not soft_tissues_only:
-        export_model(collection, OUTPUT / f"{layer}.glb")
+    if (layer == "bones" and soft_tissues_only) or (layer != "bones" and posterior_bones_only):
+        continue
+    export_model(collection, OUTPUT / f"{layer}.glb")
 
-export_region("hand-muscles", "muscles", [f"{term}_right" for term in (
-    "thenar_eminence", "hypothenar_eminence", "dorsal_interossei", "flexor_tendons", "extensor_tendons",
-)])
-export_region("head-muscles", "muscles", [
-    *(term for term, _, _ in facial_muscles), "sternocleidomastoid_left", "sternocleidomastoid_right",
-])
-export_region("head-organs", "organs", ["brain", "trachea", "thyroid_gland"])
+if not posterior_bones_only:
+    export_region("hand-muscles", "muscles", [f"{term}_right" for term in (
+        "thenar_eminence", "hypothenar_eminence", "dorsal_interossei", "flexor_tendons", "extensor_tendons",
+    )])
+    export_region("head-muscles", "muscles", [
+        *(term for term, _, _ in facial_muscles), "sternocleidomastoid_left", "sternocleidomastoid_right",
+    ])
+    export_region("head-organs", "organs", ["brain", "trachea", "thyroid_gland"])
 
 collections["reference"] = bpy.data.collections.new("Demo reference only")
 scene.collection.children.link(collections["reference"])
@@ -611,27 +621,43 @@ def render_sprite(part, destination, resolution, direction=FRONT, *, label=False
     return [center.x-width/2, -center.dot(up)-height/2, width, height], label_point
 
 
-existing_atlas = json.loads((OUTPUT / "anchors.json").read_text()) if soft_tissues_only else None
-if existing_atlas:
+existing_atlas = json.loads((OUTPUT / "anchors.json").read_text()) if soft_tissues_only or posterior_bones_only else None
+existing_bones = {}
+if soft_tissues_only:
     records[:] = [row for row in records if row["layer"] != "bones"]
+if posterior_bones_only:
+    records[:] = [row for row in records if row["layer"] == "bones"]
+    existing_bones = {row["id"]: row for row in existing_atlas["parts"] if row["layer"] == "bones"}
 for record in records:
     part_id = record["id"]
     part = collections[record["layer"]].objects[part_id]
     view = record.get("view", "front")
     direction = FOOT if record["group"].startswith("foot_") else BACK if view == "back" else FRONT
     anterior = front_trapezius.get(part_id) if direction == FRONT else None
-    record["sprite"], label_point = render_sprite(anterior or part, SPRITES / f"{part_id}.webp", 560, direction,
-                                                   label=record["layer"] != "bones")
-    if label_point:
-        record["labelPoint"] = label_point
+    previous = existing_bones.get(part_id)
+    if previous and view != "back" and part_id != "spine":
+        for field in ("sprite", "demoSprite", "labelPoint"):
+            if field in previous:
+                record[field] = previous[field]
+    else:
+        resolution = 320 if view == "back" and record["layer"] == "bones" else 560
+        label = record["layer"] != "bones" or view == "back" or part_id == "sacrum"
+        record["sprite"], label_point = render_sprite(anterior or part, SPRITES / f"{part_id}.webp", resolution, direction, label=label)
+        if label_point:
+            record["labelPoint"] = label_point
+        if direction == FOOT:
+            record["demoSprite"], _ = render_sprite(part, SPRITES / f"{part.name}_front.webp", 560)
     if view == "both":
+        resolution = 320 if record["layer"] == "bones" else 560
         record["backSprite"], record["backLabelPoint"] = render_sprite(
-            part, SPRITES / f"{part.name}_back.webp", 560, BACK, label=True,
+            part, SPRITES / f"{part.name}_back.webp", resolution, BACK, label=True,
         )
-    if direction == FOOT:
-        record["demoSprite"], _ = render_sprite(part, SPRITES / f"{part.name}_front.webp", 560)
-if existing_atlas:
+if soft_tissues_only:
     records[:0] = [row for row in existing_atlas["parts"] if row["layer"] == "bones"]
+if posterior_bones_only:
+    latest = json.loads((OUTPUT / "anchors.json").read_text())
+    records.extend(row for row in latest["parts"] if row["layer"] != "bones")
+if existing_atlas:
     context = existing_atlas["reference"]
 else:
     context, _ = render_sprite(skin, OUTPUT / "body-reference.webp", 900)

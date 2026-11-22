@@ -6,6 +6,7 @@ import musclesUrl from '../../../assets/anatomy/body/muscles.glb?url';
 import organsUrl from '../../../assets/anatomy/body/organs.glb?url';
 import type { AnatomyLayer, BodyPoint } from './anatomy';
 import { atlasParts, landmark, limbJoints, sides, type Joint } from './atlasAlignment';
+import { organFit } from './organFit';
 
 const layerUrls = { muscles: musclesUrl, organs: organsUrl };
 const footNodes = new Set(atlasParts.filter(part => part.layer === 'bones' && part.group.startsWith('foot_')).map(part => part.id));
@@ -84,6 +85,10 @@ function placeLayer(model: Group, layer: AnatomyLayer, matrices: ReadonlyMap<str
   const posed = new Group();
   posed.name = layer === 'bones' ? 'Posed_skeleton' : `Posed_${layer}`;
   for (const { part, mesh, placement } of placements) {
+    const fit = layer === 'organs' ? organFit(part.id) : undefined;
+    if (fit) {
+      mesh.geometry.applyMatrix4(new Matrix4().makeScale(...fit.scale).setPosition(...fit.offset));
+    }
     mesh.userData.term = part.term;
     mesh.updateMatrix();
     mesh.matrixAutoUpdate = false;
