@@ -1,0 +1,53 @@
+.mascota { display: block; width: 100%; height: auto; }
+.mascota__cuerpo { transform-origin: 120px 225px; }
+.mascota__ojos { transform-box: fill-box; transform-origin: center; }
+.mascota__risa, .mascota__destellos { display: none; }
+.mascota__brazo { transform-origin: 0 0; }
+
+.mascota:is([data-animacion="reposo"], [data-animacion="respiracion"]) .mascota__cuerpo {
+  animation: mascota-respirar 3.8s ease-in-out infinite;
+}
+.mascota[data-animacion="reposo"] .mascota__ojos { animation: mascota-parpadear-en-reposo 5.6s ease-in-out infinite; }
+.mascota[data-animacion="parpadeo"] .mascota__ojos { animation: mascota-parpadear 480ms ease-in-out both; }
+.mascota[data-animacion="saludo"] .mascota__brazo--saludo { animation: mascota-saludar 1.4s ease-in-out both; }
+.mascota[data-animacion="celebracion"] .mascota__brazo { animation: mascota-celebrar 1.5s ease-in-out both; }
+.mascota[data-animacion="celebracion"] .mascota__cuerpo { animation: mascota-elevar 1.5s ease-in-out both; }
+.mascota[data-animacion="celebracion"] .mascota__sonrisa { display: none; }
+.mascota[data-animacion="celebracion"] :is(.mascota__risa, .mascota__destellos) { display: inline; }
+.mascota[data-animacion="celebracion"] .mascota__destellos { animation: mascota-destellos 1.5s ease-out both; }
+
+@keyframes mascota-respirar {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.015, 1.025); }
+}
+@keyframes mascota-parpadear-en-reposo {
+  0%, 57%, 63%, 100% { transform: scaleY(1); }
+  60% { transform: scaleY(.085); }
+}
+@keyframes mascota-parpadear {
+  0%, 26%, 72%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(.085); }
+}
+@keyframes mascota-saludar {
+  0%, 100% { transform: rotate(0); }
+  28%, 55% { transform: rotate(-125deg); }
+  42%, 72% { transform: rotate(-104deg); }
+}
+@keyframes mascota-celebrar {
+  0%, 100% { transform: rotate(0); }
+  25%, 72% { transform: rotate(-126deg); }
+  46% { transform: rotate(-113deg); }
+}
+@keyframes mascota-elevar {
+  0%, 100% { transform: translateY(0); }
+  34%, 60% { transform: translateY(-4px); }
+}
+@keyframes mascota-destellos {
+  0%, 100% { opacity: 0; }
+  28%, 70% { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mascota[data-animacion] :is(.mascota__cuerpo, .mascota__ojos, .mascota__brazo, .mascota__destellos) { animation: none; }
+  .mascota[data-animacion="saludo"] .mascota__brazo--saludo,
+  .mascota[data-animacion="celebracion"] .mascota__brazo { transform: rotate(-116deg); }
+}

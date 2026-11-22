@@ -7,6 +7,7 @@ import { retos } from '../../content/ejercicios/retos';
 import { getProgress, subscribeProgress, type PracticeEvent, type ReasoningText } from '../../shared/progreso';
 import { Card } from '../../shared/ui/Card';
 import { ContentState } from '../../shared/ui/ContentState';
+import { MascotaProgreso } from './mascota/MascotaProgreso';
 import './progreso.css';
 
 const fecha = new Intl.DateTimeFormat('es', { dateStyle: 'medium' });
@@ -61,6 +62,8 @@ export function Progreso() {
   const performance = events.filter(event => event.kind === 'demonstration');
   const available = estructuras.filter(item => consulted.has(item.id));
   const legacyTerms = Object.keys(legacy?.words ?? {}).length;
+  const legacyCorrect = Object.values(legacy?.words ?? {}).reduce((total, word) => total + word.correct, 0);
+  const correct = practices.reduce((total, practice) => total + practice.correct, legacyCorrect);
   const last = practices.at(-1);
   const stats = [
     { label: 'Estructuras consultadas', count: consulted.size, Icon: BookOpen },
@@ -80,6 +83,7 @@ export function Progreso() {
         </li>)}
       </ul>
     </Card>
+    <MascotaProgreso aciertos={correct}/>
     {last && <Card className="progress-entry">
       <p className="progress-caption"><History size={16} aria-hidden="true"/> Última práctica registrada</p>
       <PracticeSummary event={last}/>

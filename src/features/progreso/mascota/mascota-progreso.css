@@ -1,0 +1,80 @@
+.lumar-card.mascota-panel {
+  grid-template-columns: minmax(0, .86fr) minmax(0, 1fr);
+  align-items: stretch;
+  gap: clamp(14px, 3vw, 26px);
+  padding: clamp(12px, 2.6vw, 20px);
+  border-color: #bfd8ce;
+}
+
+.mascota-escena {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  place-items: end center;
+  isolation: isolate;
+  background: radial-gradient(ellipse at 55% 85%, #d0ebde, #edf6ef 80%);
+  border-radius: 18px;
+}
+.mascota-escena::before {
+  position: absolute;
+  z-index: -1;
+  bottom: 19%;
+  width: min(66%, 11rem);
+  aspect-ratio: 1;
+  border: 1px solid #fff9;
+  border-radius: 50%;
+  background: #f7fff570;
+  content: '';
+}
+.mascota-escena .mascota { width: min(100%, 14.5rem); }
+.mascota-etapa {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 4px 9px;
+  border: 1px solid #c6e0d2;
+  border-radius: 999px;
+  background: #f6fdf8;
+  color: var(--forest);
+  font-size: .73rem;
+  font-weight: 750;
+}
+.mascota-info {
+  display: grid;
+  min-width: 0;
+  align-content: center;
+  justify-items: start;
+  gap: 14px;
+  padding: 4px 5px 4px 0;
+}
+.mascota-info .mascota-contexto { color: var(--forest); font-size: .8rem; font-weight: 750; }
+.mascota-info h2 { font-size: clamp(1.45rem, 5vw, 2rem); line-height: 1.12; letter-spacing: -.025em; }
+.mascota-evolucion { display: grid; width: 100%; gap: 6px; }
+.mascota-evolucion p { color: var(--muted); font-size: .86rem; }
+.mascota-evolucion .mascota-aciertos { color: var(--ink); }
+.mascota-aciertos strong { font: 800 1.25rem/1 var(--font-title); }
+.mascota-evolucion progress {
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 9px;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 999px;
+  background: #deebe4;
+  color: var(--forest);
+  accent-color: var(--forest);
+}
+.mascota-evolucion progress::-webkit-progress-bar { background: #deebe4; }
+.mascota-evolucion progress::-webkit-progress-value { border-radius: 999px; background: var(--forest); }
+.mascota-evolucion progress::-moz-progress-bar { border-radius: 999px; background: var(--forest); }
+
+.mascota-gestos { display: flex; flex-wrap: wrap; gap: 8px; }
+.mascota-gestos .button { gap: 6px; }
+
+@media (max-width: 520px) {
+  .lumar-card.mascota-panel { grid-template-columns: 1fr; }
+  .mascota-escena .mascota { width: min(100%, 13.5rem); }
+  .mascota-info { padding: 2px 3px 4px; }
+}
