@@ -1,4 +1,5 @@
 import { estructuras, revisionFemur } from '../anatomy/catalogo';
+import { gruposEtiquetasCorazon } from '../anatomy/corazon';
 import { anotaciones } from '../anotaciones/anatomia';
 import type { ModoReto, PreguntaReto, RespuestaReto, Reto } from '../types';
 
@@ -26,6 +27,37 @@ function etiqueta(parte: keyof typeof explicacionesFemur, numero: number): Pregu
   return {
     id: `etiqueta-${parte}`, enunciado: `¿Qué parte señala el recuadro ${numero}?`, estructuraId: 'femur',
     respuestas: nombresFemur, correctaId: parte, pistas: [pista], feedbackError,
+  };
+}
+
+function preguntasDePartes(estructuraId: string, ids?: readonly string[]) {
+  const estructura = estructuras.find(item => item.id === estructuraId)!;
+  const partes = estructura.partes.filter(parte => !ids || ids.includes(parte.id));
+  const respuestas: readonly RespuestaReto[] = [...partes].reverse().map(parte => ({
+    id: parte.id,
+    texto: parte.nombreEs,
+    anotacionId: anotaciones.find(note => note.estructuraId === estructuraId && note.parteId === parte.id)!.id,
+  }));
+  return partes.map((parte, index): PreguntaReto => ({
+    id: `${estructuraId}-${parte.id}`, enunciado: `${estructura.nombreEs} · Recuadro ${index + 1}`,
+    estructuraId, respuestas, correctaId: parte.id, pistas: [parte.ubicacion],
+    feedbackError: `El recuadro señala: ${parte.nombreEs}. ${parte.ubicacion}`,
+  }));
+}
+
+function retoDeUbicar(id: string, titulo: string, modelos: readonly [string, ...string[]]): Reto {
+  const [primera, ...otras] = modelos.flatMap(estructuraId =>
+    preguntasDePartes(estructuraId, estructuraId === 'heart' ? gruposEtiquetasCorazon[0].partes : undefined),
+  );
+  if (!primera) throw new Error(`Faltan las partes del reto ${id}`);
+  const [fuente, ...fuentes] = revision(modelos[0]).fuentes;
+  const porUrl = new Map(fuentes.map(item => [item.url, item]));
+  for (const estructuraId of modelos.slice(1)) for (const item of revision(estructuraId).fuentes) {
+    if (item.url !== fuente.url) porUrl.set(item.url, item);
+  }
+  return {
+    id, titulo, tipo: 'ubica-partes', modos, estructurasRelacionadas: modelos,
+    preguntas: [primera, ...otras], revision: { estado: 'provisional', fuentes: [fuente, ...porUrl.values()] },
   };
 }
 
@@ -112,4 +144,7 @@ export const retos: readonly Reto[] = [
       fuentes: [revision('biceps_brachii').fuentes[0], revision('quadriceps_femoris').fuentes[0]],
     },
   },
+  retoDeUbicar('partes-huesos', 'Cinco huesos del atlas', ['tibia', 'humerus', 'radius', 'pelvis', 'patella']),
+  retoDeUbicar('partes-musculos', 'Partes del bíceps y el cuádriceps', ['biceps_brachii', 'quadriceps_femoris']),
+  retoDeUbicar('partes-organos', 'Partes del corazón y los pulmones', ['heart', 'lungs']),
 ];

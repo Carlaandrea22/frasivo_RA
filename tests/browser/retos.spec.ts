@@ -107,3 +107,53 @@ test('Evaluación del corazón selecciona en 3D y guarda la corrección al termi
   await page.getByRole('button', { name: 'Mi progreso' }).click();
   await expect(page.getByText('Prácticas realizadas · 1')).toBeVisible();
 });
+
+test.describe('Ubica las partes con varios modelos', () => {
+  test.use({ hasTouch: true, viewport: { width: 375, height: 900 } });
+
+  const retos = [
+    { id: 'partes-huesos', modelos: [
+      ['Tibia', 'Cóndilos tibiales', 'Cuerpo de la tibia', 'Maléolo medial'],
+      ['Húmero', 'Cabeza del húmero', 'Cuerpo del húmero', 'Tróclea humeral'],
+      ['Radio', 'Cabeza del radio', 'Cuerpo del radio', 'Apófisis estiloides'],
+      ['Hueso coxal', 'Ilion', 'Isquion', 'Pubis', 'Acetábulo'],
+      ['Rótula', 'Base de la rótula', 'Vértice de la rótula', 'Cara articular'],
+    ] },
+    { id: 'partes-musculos', modelos: [
+      ['Bíceps braquial', 'Cabeza larga', 'Cabeza corta'],
+      ['Cuádriceps femoral', 'Recto femoral', 'Vasto lateral', 'Vasto medial', 'Vasto intermedio'],
+    ] },
+    { id: 'partes-organos', modelos: [
+      ['Corazón', 'Aurícula derecha', 'Ventrículo derecho', 'Aurícula izquierda', 'Ventrículo izquierdo'],
+      ['Pulmones', 'Lóbulo superior derecho', 'Lóbulo medio derecho', 'Lóbulo inferior derecho', 'Lóbulo superior izquierdo', 'Lóbulo inferior izquierdo'],
+    ] },
+  ];
+
+  for (const { id, modelos } of retos) test(`cambia entre los modelos de ${id} y suma todas las etiquetas`, async ({ page }) => {
+    const entrenamiento = id === 'partes-musculos';
+    await page.goto(`/#practicar/retos/${id}`);
+    if (!entrenamiento) await page.getByRole('button', { name: 'Evaluación' }).tap();
+    await page.getByRole('button', { name: 'Empezar reto' }).tap();
+    let total = 0;
+    for (const [index, [modelo, ...partes]] of modelos.entries()) {
+      await expect(page.getByText(`Modelo ${index+1} de ${modelos.length}`, { exact: true })).toBeVisible();
+      await expect(page.getByRole('region', { name: `Modelo 3D de ${modelo}`, exact: true })).toHaveAttribute('data-viewer-state', 'ready');
+      await expect(page.locator('.retos-drop--overlay')).toHaveCount(partes.length);
+      await expect(page.getByRole('button', { name: 'Comprobar' })).toBeDisabled();
+      const etiquetas = page.getByRole('group', { name: 'Etiquetas de partes' });
+      for (const [position, parte] of partes.entries()) {
+        await etiquetas.getByRole('button', { name: parte, exact: true }).tap();
+        await page.getByRole('button', { name: `Recuadro ${position+1}, vacío`, exact: true }).tap();
+      }
+      total += partes.length;
+      await page.getByRole('button', { name: 'Comprobar' }).tap();
+      if (entrenamiento) {
+        await expect(page.getByText('¡Correcto!', { exact: true })).toBeVisible();
+        const accion = index === modelos.length-1 ? 'Ver resultado' : 'Siguiente';
+        await page.getByRole('button', { name: accion, exact: true }).tap();
+      } else await expect(page.locator('.retos-feedback')).toHaveCount(0);
+    }
+    await expect(page.getByText(`${total} de ${total}`, { exact: true })).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(375);
+  });
+});

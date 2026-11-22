@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, Box, CheckCircle2, CircleHelp, Clock, Layers, Link2, ListChecks, LogOut } from 'lucide-react';
 import { retos } from '../../content/ejercicios/retos';
 import type { ModoReto, PreguntaReto, Reto, TipoReto } from '../../content/types';
@@ -29,6 +29,22 @@ const modos: Record<ModoReto, { label: string; descripcion: string }> = {
   evaluacion: { label: 'Evaluación', descripcion: 'Sin ayuda y con la corrección al final' },
 };
 
+function duracion(reto: Reto) {
+  return reto.tipo === 'ubica-partes' ? Math.max(2, reto.estructurasRelacionadas.length) : tipos[reto.tipo].minutos;
+}
+
+function rondasDeReto(reto: Reto): readonly (readonly PreguntaReto[])[] {
+  if (reto.tipo === 'relaciona-funcion') return [reto.preguntas];
+  if (reto.tipo !== 'ubica-partes') return reto.preguntas.map(pregunta => [pregunta]);
+  const porModelo = new Map<string, PreguntaReto[]>();
+  for (const pregunta of reto.preguntas) {
+    const ronda = porModelo.get(pregunta.estructuraId);
+    if (ronda) ronda.push(pregunta);
+    else porModelo.set(pregunta.estructuraId, [pregunta]);
+  }
+  return [...porModelo.values()];
+}
+
 function Tipo({ tipo }: { tipo: TipoReto }) {
   const { icon: Icon, nombre } = tipos[tipo];
   return <span className="retos-tipo"><Icon size={17} aria-hidden="true"/>{nombre}</span>;
@@ -58,7 +74,7 @@ function Lista({ estructuraId }: { estructuraId?: string }) {
           <Tipo tipo={reto.tipo}/>
           <h2>{reto.titulo}</h2>
           <p>{reto.estructurasRelacionadas.map(nombreEstructura).join(', ')}</p>
-          <p className="retos-meta"><Clock size={15} aria-hidden="true"/> ~{tipos[reto.tipo].minutos} min · {reto.modos.map(modo => modos[modo].label).join(' y ')}</p>
+          <p className="retos-meta"><Clock size={15} aria-hidden="true"/> ~{duracion(reto)} min · {reto.modos.map(modo => modos[modo].label).join(' y ')}</p>
           {resultado?.kind === 'practice' && <a className="retos-history" href={rutaResultado(reto.id, resultado.id)}>
             Último resultado: {resultado.correct} de {resultado.correct+resultado.errors}
           </a>}
@@ -85,7 +101,7 @@ function Preparar({ reto }: { reto: Reto }) {
       <Tipo tipo={reto.tipo}/>
       <h2>Objetivo</h2>
       <p>{tipos[reto.tipo].objetivo}</p>
-      <p className="retos-meta">{reto.preguntas.length} preguntas · ~{tipos[reto.tipo].minutos} min</p>
+      <p className="retos-meta">{reto.preguntas.length} {reto.tipo === 'ubica-partes' ? 'etiquetas' : 'preguntas'} · ~{duracion(reto)} min</p>
       <h2>Elige un modo</h2>
       <Segmented label="Modo del reto" value={modo}
         options={reto.modos.map(id => ({ id, label: modos[id].label }))}
@@ -99,7 +115,9 @@ function Preparar({ reto }: { reto: Reto }) {
 }
 
 function Juego({ reto, modo }: { reto: Reto; modo: ModoReto }) {
-  const tablero = reto.tipo === 'ubica-partes' || reto.tipo === 'relaciona-funcion';
+  const ubicar = reto.tipo === 'ubica-partes';
+  const tablero = ubicar || reto.tipo === 'relaciona-funcion';
+  const rondas = useMemo(() => rondasDeReto(reto), [reto]);
   const entrenamiento = modo === 'entrenamiento';
   const [paso, setPaso] = useState(0);
   const [respuestas, setRespuestas] = useState<Respuestas>({});
@@ -110,11 +128,11 @@ function Juego({ reto, modo }: { reto: Reto; modo: ModoReto }) {
   const [terminadas, setTerminadas] = useState<Correccion[]>([]);
   const guardado = useRef(false);
   const heading = useRef<HTMLHeadingElement>(null);
-  const pregunta = reto.preguntas[paso];
-  const preguntas = tablero ? reto.preguntas : [pregunta];
+  const preguntas = rondas[paso];
+  const pregunta = preguntas[0];
   const pistas = preguntas.flatMap(p => p.pistas);
   const completas = preguntas.every(p => respuestas[p.id]);
-  const ultima = tablero || paso === reto.preguntas.length-1;
+  const ultima = paso === rondas.length-1;
   const fallo = correccion?.some(row => !row.acierto) ?? false;
 
   useEffect(() => heading.current?.focus(), [paso]);
@@ -156,7 +174,7 @@ function Juego({ reto, modo }: { reto: Reto; modo: ModoReto }) {
   }
 
   const tableroProps = {
-    preguntas: reto.preguntas, respuestas, bloqueado: !!correccion,
+    preguntas, respuestas, bloqueado: !!correccion,
     onAssign: (id: string, opcion: string) => setRespuestas(current => asignar(current,id,opcion)),
     onRemove: quitar,
   };
@@ -172,13 +190,14 @@ function Juego({ reto, modo }: { reto: Reto; modo: ModoReto }) {
       </BottomSheet>
     </header>
     <div className="retos-progress">
+      {ubicar && rondas.length > 1 && <p>Modelo {paso + 1} de {rondas.length}</p>}
       <p>{tablero ? `${progreso} de ${preguntas.length} ${reto.tipo === 'relaciona-funcion' ? 'parejas formadas' : 'etiquetas colocadas'}` : `Pregunta ${progreso} de ${reto.preguntas.length}`}</p>
-      <progress aria-label="Progreso del reto" max={reto.preguntas.length} value={progreso}/>
+      <progress aria-label="Progreso del reto" max={reto.preguntas.length} value={tablero ? terminadas.length + progreso : progreso}/>
     </div>
     <Card className="retos-card">
-      <h2 tabIndex={-1} ref={heading}>{tablero ? tipos[reto.tipo].nombre : pregunta.enunciado}</h2>
+      <h2 tabIndex={-1} ref={heading}>{ubicar && rondas.length > 1 ? nombreEstructura(pregunta.estructuraId) : tablero ? tipos[reto.tipo].nombre : pregunta.enunciado}</h2>
       {tablero && <p>{tipos[reto.tipo].objetivo}</p>}
-      {reto.tipo === 'ubica-partes' && <Ubicar {...tableroProps}/>}
+      {ubicar && <Ubicar key={paso} {...tableroProps}/>}
       {reto.tipo === 'relaciona-funcion' && <Relacionar {...tableroProps}/>}
       {reto.tipo === 'senala-estructura' && <Senalar {...opcionProps}/>}
       {reto.tipo === 'repaso-breve' && <Repasar {...opcionProps}/>}

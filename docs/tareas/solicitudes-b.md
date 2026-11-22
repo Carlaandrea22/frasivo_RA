@@ -83,7 +83,7 @@ inglés estadounidense](../../src/content/anatomy/pronunciacion/README.md).
 
 ## Retos de anatomía · etapa 2
 
-El catálogo de retos incluye cuatro actividades sobre huesos, corazón y
+El catálogo de retos incluye cuatro tipos de actividad sobre huesos, corazón y
 músculos. Entrenamiento ofrece pistas y reintentos. Evaluación guarda la
 corrección para el resultado. Los resultados conservan los errores de los
 reintentos para repasar, aunque el puntaje usa la respuesta final.
@@ -105,3 +105,11 @@ consulta para conservar el intento abierto durante Entrenamiento.
 
 - Catálogo a [375 px](../capturas/carla/retos-catalogo-375.png) y en [escritorio](../capturas/carla/retos-catalogo-1440.png).
 - Colocar etiquetas a [375 px](../capturas/carla/retos-ubica-375.png) y en [escritorio](../capturas/carla/retos-ubica-1440.png).
+
+### Ampliación de «Ubica las partes»
+
+El reto original del fémur mantiene su enlace. Hay tres retos adicionales
+con un modelo por ronda y un resultado para el reto completo. Huesos pasa
+por tibia, húmero, radio, hueso coxal y rótula. Músculos usa bíceps y
+cuádriceps. Órganos usa las cuatro cámaras del corazón y los cinco lóbulos
+pulmonares. Las etiquetas usan los anclajes de Explorar.
