@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties } from 'react';
 import { Bone, BookOpen, Camera, ChevronDown, ChevronUp, Dumbbell, Heart, Pin, Square, Volume2, X } from 'lucide-react';
 import { Button } from '../../shared/ui/Button';
+import { canPronounce, playPronunciation, stopPronunciation } from '../../shared/audio/pronunciacion';
 import { warmAnatomyLayer } from '../../shared/pwa/offline';
 import { AnatomyOverlay } from './AnatomyOverlay';
 import { anatomyParts, type AnatomyLayer, type BodyPoint } from './anatomy';
@@ -172,7 +173,7 @@ export default function MedicineExplorer() {
     try { localStorage.setItem(controlsStorageKey, String(minimized)); } catch { /* Storage can be unavailable. */ }
   }, [minimized]);
 
-  useEffect(() => () => window.speechSynthesis?.cancel(), []);
+  useEffect(() => stopPronunciation, []);
 
   useEffect(() => {
     const element = windowRef.current!;
@@ -228,17 +229,9 @@ export default function MedicineExplorer() {
   }
 
   function speak() {
-    const synthesis = window.speechSynthesis;
-    if (!synthesis || !term) return;
-    synthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(term.en);
-    utterance.lang = 'en-US';
-    utterance.rate = .82;
+    if (!term) return;
     setAudioError(false);
-    utterance.onerror = event => {
-      if (event.error !== 'canceled' && event.error !== 'interrupted') setAudioError(true);
-    };
-    synthesis.speak(utterance);
+    playPronunciation(term.en, () => setAudioError(true));
   }
 
   const vocabulary = (
@@ -259,14 +252,14 @@ export default function MedicineExplorer() {
               <h2 lang="en">{term.en}</h2>
               <p>{term.es}</p>
             </div>
-            <Button variant="sound" aria-label={`Escuchar ${term.en}`} disabled={!window.speechSynthesis} onClick={speak}>
+            <Button variant="sound" aria-label={`Escuchar ${term.en}`} disabled={!canPronounce(term.en)} onClick={speak}>
               <Volume2 size={20} aria-hidden="true"/>
             </Button>
           </div>
           {term.provisional && <small>Provisional</small>}
           <p><strong>Ubicación</strong> {term.location}</p>
           <p><strong>Función</strong> {term.description}</p>
-          {audioError && <p role="status">La voz inglesa no está disponible en este dispositivo.</p>}
+          {audioError && <p role="status">No se pudo reproducir la pronunciación. Inténtalo de nuevo.</p>}
         </>
       )}
     </>

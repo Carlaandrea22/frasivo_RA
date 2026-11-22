@@ -29,6 +29,24 @@ self.addEventListener('activate', event => {
   })());
 });
 
+async function audioRange(response, range) {
+  const match = /^bytes=(\d*)-(\d*)$/.exec(range);
+  if (!match || (!match[1] && !match[2])) return response;
+  const audio = await response.blob();
+  const [, first, last] = match;
+  const start = first ? Number(first) : Math.max(0, audio.size - Number(last));
+  const end = first && last ? Math.min(audio.size - 1, Number(last)) : audio.size - 1;
+  if (start > end) return new Response(null, {
+    status: 416, headers: { 'Content-Range': `bytes */${audio.size}` },
+  });
+  const headers = new Headers(response.headers);
+  headers.delete('Content-Encoding');
+  headers.set('Accept-Ranges', 'bytes');
+  headers.set('Content-Range', `bytes ${start}-${end}/${audio.size}`);
+  headers.set('Content-Length', String(end - start + 1));
+  return new Response(audio.slice(start, end + 1), { status: 206, headers });
+}
+
 function download(path) {
   if (!pending.has(path)) {
     const result = (async () => {
@@ -49,11 +67,12 @@ function download(path) {
 }
 
 async function respond(request, url) {
-  if (request.headers.has('range')) return fetch(request);
+  const range = request.headers.get('range');
+  if (range && !url.pathname.endsWith('.mp3')) return fetch(request);
   const shell = await caches.open(NAME);
   // Requests for scripts/styles may add Origin while precache requests do not.
   const cached = await shell.match(request, { ignoreVary: true, ignoreSearch: request.mode === 'navigate' });
-  if (cached) return cached;
+  if (cached) return range ? audioRange(cached, range) : cached;
   if (url.pathname === CONFIG.simd && typeof DecompressionStream === 'function') {
     const compressed = await shell.match(CONFIG.packedSimd);
     if (compressed?.body) {

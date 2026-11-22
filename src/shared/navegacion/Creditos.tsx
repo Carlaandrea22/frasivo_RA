@@ -36,6 +36,15 @@ export function Creditos() {
       </ul>
     </Card>
     <Card>
+      <h2>Pronunciación en inglés</h2>
+      <p>Clips generados con Piper y el modelo en_US-ljspeech-medium. El conjunto de grabaciones LJ Speech es de dominio público.</p>
+      <ul>
+        <li><a href="https://github.com/OHF-Voice/piper1-gpl">Piper</a></li>
+        <li><a href="https://huggingface.co/rhasspy/piper-voices/blob/main/en/en_US/ljspeech/medium/MODEL_CARD">Modelo en_US-ljspeech-medium</a></li>
+        <li><a href="https://keithito.com/LJ-Speech-Dataset/">Conjunto LJ Speech</a></li>
+      </ul>
+    </Card>
+    <Card>
       <h2>Tipografía e interfaz</h2>
       <ul>
         <li><a href="https://github.com/google/fonts/blob/main/ofl/dmsans/OFL.txt">DM Sans · SIL OFL 1.1</a></li>

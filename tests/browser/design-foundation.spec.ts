@@ -130,13 +130,24 @@ test('Pose Lite detecta sin conexión tras la primera carga y libera la cámara 
   })).toEqual({ stops: 1, workerStops: 1 });
 });
 
-test('la pronunciación se muestra deshabilitada cuando falta la voz del dispositivo', async ({ page }) => {
+test('Cuerpo reproduce el MP3 precargado sin conexión y sin la voz del dispositivo', async ({ page, context }) => {
   await page.addInitScript(() => Object.defineProperty(window, 'speechSynthesis', { value: undefined }));
   await page.goto('/');
+  await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller));
+  await context.setOffline(true);
   await page.getByText('Vocabulario de la capa', { exact: true }).click();
   const sound = page.getByRole('button', { name: 'Escuchar Skull' });
-  await expect(sound).toBeDisabled();
-  await expect(sound).toHaveCSS('box-shadow', 'none');
+  await expect(sound).toBeEnabled();
+  const audio = page.waitForResponse(response => /\/skull-[\w-]+\.mp3$/.test(response.url()) && response.ok());
+  await sound.click();
+  const clip = await audio;
+  expect(clip.fromServiceWorker()).toBe(true);
+  expect(clip.headers()['content-type']).toContain('audio/');
+  const ranged = await page.evaluate(async url => {
+    const response = await fetch(url, { headers: { Range: 'bytes=0-99' } });
+    return { status: response.status, bytes: (await response.arrayBuffer()).byteLength, range: response.headers.get('Content-Range') };
+  }, clip.url());
+  expect(ranged).toEqual({ status: 206, bytes: 100, range: expect.stringMatching(/^bytes 0-99\/\d+$/) });
   await expect(page.getByRole('heading', { name: 'Skull' })).toBeVisible();
 });
 
