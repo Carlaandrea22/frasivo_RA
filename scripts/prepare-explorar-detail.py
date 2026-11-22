@@ -146,6 +146,23 @@ def create_material(part, color):
     return material
 
 
+def mask_part(point, normal, masks):
+    coordinates = [axis * 1000 for axis in point]
+    for mask in masks:
+        if 'min' in mask and any(value < limit for value, limit in zip(coordinates, mask['min'])):
+            continue
+        if 'max' in mask and any(value > limit for value, limit in zip(coordinates, mask['max'])):
+            continue
+        if 'normalMax' in mask and any(value > limit for value, limit in zip(normal, mask['normalMax'])):
+            continue
+        if 'ellipse' in mask:
+            center, radii = mask['ellipse']
+            if sum(((value - origin) / radius) ** 2 for value, origin, radius in zip(coordinates, center, radii)) > 1:
+                continue
+        return mask['partId']
+    raise ValueError('La última máscara debe cubrir el resto de la superficie')
+
+
 def prepare(model, repo, output):
     scene = bpy.data.scenes.new('LumAR | Preparación de Explorar')
     previous = bpy.context.window.scene
@@ -155,20 +172,24 @@ def prepare(model, repo, output):
         incoming = []
         if model.get('retainedAsset'):
             for obj in import_meshes(scene, repo + '/' + model['retainedAsset']['path'], False):
-                incoming.append((obj, obj.name, material_color(obj)))
+                incoming.append((obj, {'partId': obj.name}, material_color(obj)))
         else:
             color = COLORS.get(model['id'], COLORS.get(model['category']))
             for source in model['sources']:
                 for obj in import_meshes(scene, repo + '/' + source['path'], True):
-                    incoming.append((obj, source.get('partId'), color))
+                    incoming.append((obj, source, color))
         objects = [obj for obj, _, _ in incoming]
         if not objects:
             raise ValueError(f"{model['id']}: falta la superficie original")
         budget = model.get('maxTriangles', 60000 if model['id'] in ('skull', 'spine', 'ribs', 'hand', 'foot') else 40000)
         counts = [triangle_count(obj) for obj in objects]
         ratio = min(1, (budget - len(objects) * 2) / sum(counts))
-        for (obj, _, _), count in zip(incoming, counts):
+        for (obj, source, _), count in zip(incoming, counts):
             clean(obj, max(4, int(count * ratio)), bool(model.get('retainedAsset')))
+            if source.get('offsetMm'):
+                offset = Vector(source['offsetMm']) * .001
+                obj.data.transform(Matrix.Translation(offset))
+                obj.data.update()
         low, high = bounds(objects)
 
         guides = {}
@@ -181,7 +202,7 @@ def prepare(model, repo, output):
             if guide.get('partId'):
                 loaded = import_meshes(scene, repo + '/' + guide['path'], True)
                 guides.setdefault(guide['partId'], []).extend(loaded)
-        if not guides and model['id'] != 'spine' and any(part is None for _, part, _ in incoming):
+        if not guides and model['id'] != 'spine' and any(not (source.get('partId') or source.get('masks')) for _, source, _ in incoming):
             reference_path = repo + '/src/content/anatomy/modelos/' + REFERENCE[model['category']]
             reference = import_meshes(scene, reference_path, False)
             prefix = model['root'] + '__'
@@ -204,17 +225,31 @@ def prepare(model, repo, output):
 
         tree = surface_tree(objects)
         reach = min(.025, max(.004, max(high - low) * .11))
-        for obj, part, color in incoming:
+        for obj, source, color in incoming:
             mesh = obj.data
             mesh.materials.clear()
-            regions = [part] if part is not None else ['sacro', 'coccix'] if model['id'] == 'spine' else list(trees)
+            part = source.get('partId')
+            masks = source.get('masks')
+            offset = Vector(source.get('offsetMm', (0, 0, 0))) * .001
+            if part is not None:
+                regions = [part]
+            elif masks:
+                regions = list(dict.fromkeys(mask['partId'] for mask in masks))
+            elif model['id'] == 'spine':
+                regions = ['sacro', 'coccix']
+            else:
+                regions = list(trees)
             for region in regions:
                 if region not in materials:
                     materials[region] = create_material(region, color)
                 mesh.materials.append(materials[region])
             lookup = {region: index for index, region in enumerate(regions)}
             for face in mesh.polygons:
-                face.material_index = lookup[part if part is not None else classify(face.center)]
+                region = part
+                if region is None:
+                    point = face.center - offset
+                    region = mask_part(point, face.normal, masks) if masks else classify(point)
+                face.material_index = lookup[region]
             bake_ao(obj, tree, reach)
         count = sum(triangle_count(obj) for obj in objects)
         if count > budget:

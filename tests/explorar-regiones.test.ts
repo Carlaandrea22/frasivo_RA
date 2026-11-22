@@ -21,9 +21,10 @@ type Coverage = Surface & {
 const atlas: { version: number; models: Record<string, Coverage> } =
   JSON.parse(readFileSync('scripts/explorar-atlas-triangle-regions.json', 'utf8'));
 const fichas = Object.entries(faseA.estructuras).map(([id, original]) => ({ id, original }));
+const fichasConModelo = estructuras.flatMap(ficha => ficha.modelo ? [{ ...ficha, modelo: ficha.modelo }] : []);
 const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
 const axes = ['x', 'y', 'z'] as const;
-const complexModels = new Set(['skull', 'spine']);
+const complexModels = new Set(['skull', 'spine', 'ribs', 'hand', 'foot']);
 
 function readModel(id: string) {
   return readFileSync(`src/content/anatomy/modelos/fichas/explorar-${id}.glb`);
@@ -128,13 +129,12 @@ describe('regiones seleccionables del atlas', () => {
     expect(notes.map(note => [note.id, note.parteId, note.nodeId])).toEqual(expect.arrayContaining(original.anotaciones));
   });
 
-  it('sirve un GLB Meshopt cuantizado distinto para cada una de las 24 fichas', () => {
+  it('sirve un GLB Meshopt cuantizado distinto para cada ficha del atlas', () => {
     expect(fichas).toHaveLength(24);
+    expect(Object.keys(atlas.models).sort()).toEqual(fichasConModelo.map(ficha => ficha.id).sort());
     const urls = new Set<string>();
-    for (const { id } of fichas) {
-      const modelo = estructuras.find(item => item.id === id)?.modelo;
-      expect(modelo, id).toBeDefined();
-      const url = modelos[modelo!.assetId];
+    for (const { id, modelo } of fichasConModelo) {
+      const url = modelos[modelo.assetId];
       expect(new URL(url, 'http://localhost').pathname, id).toMatch(new RegExp(`/explorar-${id}\\.glb$`));
       urls.add(url);
       const bytes = readModel(id);
@@ -142,24 +142,25 @@ describe('regiones seleccionables del atlas', () => {
       const data = JSON.parse(bytes.toString('utf8', 20, 20 + bytes.readUInt32LE(12)));
       expect(data.extensionsRequired, id).toEqual(expect.arrayContaining(['EXT_meshopt_compression', 'KHR_mesh_quantization']));
     }
-    expect(urls.size).toBe(24);
+    expect(urls.size).toBe(fichasConModelo.length);
   });
 
-  it.each(fichas)('conserva la cobertura de la fuente de detalle y los anclajes de $id', async ({ id, original }) => {
+  it.each(fichasConModelo)('conserva la cobertura de la fuente de detalle y los anclajes de $id', async ({ id, modelo, partes }) => {
     expect(atlas.version).toBe(2);
     const expected = atlas.models[id];
     expect(expected, id).toBeDefined();
-    expect(expected.nodeId).toBe(original.nodeId);
+    expect(expected.nodeId).toBe(modelo.nodeId);
     expect(expected.maxTriangles).toBe(complexModels.has(id) ? 60_000 : 40_000);
 
-    const scene = await modelScene(readModel(id), original.nodeId);
+    const scene = await modelScene(readModel(id), modelo.nodeId);
     scene.root.traverse(node => {
-      if (node instanceof Mesh) expect(scene.visible.has(node), node.name).toBe(true);
+      if (!(node instanceof Mesh)) return;
+      expect(scene.visible.has(node), node.name).toBe(true);
+      expect(node.geometry.getAttribute('color'), node.name).toBeDefined();
     });
 
-    const item = estructuras.find(item => item.id === id)!;
     const notes = anotaciones.filter(note => note.estructuraId === id);
-    expect(notes.map(note => note.parteId).sort()).toEqual(item.partes.map(part => part.id).sort());
+    expect(notes.map(note => note.parteId).sort()).toEqual(partes.map(part => part.id).sort());
     const anchors = new Map<string, Vector3>();
     for (const note of notes) {
       const node = scene.nodes.get(note.nodeId);

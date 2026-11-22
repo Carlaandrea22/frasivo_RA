@@ -940,6 +940,556 @@
           "surfaceArea": 0.025801469085668036
         }
       }
+    },
+    "clavicle": {
+      "nodeId": "clavicle",
+      "maxTriangles": 40000,
+      "triangles": 10252,
+      "surfaceArea": 0.01771615696709604,
+      "sourceSha256": "be82279d591d7809d4ea214ab4e287e3c990bc2e8945ed9e3e6a05dead366d6c",
+      "bounds": {
+        "min": [
+          -0.15003301203250885,
+          1.331760048866272,
+          0.047223903238773346
+        ],
+        "max": [
+          0.14869600534439087,
+          1.366860032081604,
+          0.14676600694656372
+        ]
+      },
+      "regions": {
+        "clavicle__extremo_esternal_derecho": {
+          "triangles": 1581,
+          "surfaceArea": 0.0018378515990988941
+        },
+        "clavicle__extremo_acromial_derecho": {
+          "triangles": 1321,
+          "surfaceArea": 0.0016190628607246065
+        },
+        "clavicle__cuerpo_derecho": {
+          "triangles": 2210,
+          "surfaceArea": 0.005405768913891479
+        },
+        "clavicle__extremo_esternal_izquierdo": {
+          "triangles": 1730,
+          "surfaceArea": 0.0018417060386126717
+        },
+        "clavicle__extremo_acromial_izquierdo": {
+          "triangles": 1300,
+          "surfaceArea": 0.0016011373874775595
+        },
+        "clavicle__cuerpo_izquierdo": {
+          "triangles": 2110,
+          "surfaceArea": 0.005410630167290829
+        }
+      }
+    },
+    "scapula": {
+      "nodeId": "scapula",
+      "maxTriangles": 40000,
+      "triangles": 39993,
+      "surfaceArea": 0.0634409200184829,
+      "sourceSha256": "e61f45922d35b3d4e6b7c52285cc1078afe0772d74f87e3ccf1c501590374b66",
+      "bounds": {
+        "min": [
+          -0.16868886351585388,
+          1.2014847993850708,
+          -0.011355212889611721
+        ],
+        "max": [
+          0.1673869490623474,
+          1.3598625659942627,
+          0.09909261018037796
+        ]
+      },
+      "regions": {
+        "scapula__acromion_derecho": {
+          "triangles": 2693,
+          "surfaceArea": 0.002719076293776878
+        },
+        "scapula__apofisis_coracoides_derecha": {
+          "triangles": 1661,
+          "surfaceArea": 0.0010873537434427601
+        },
+        "scapula__cavidad_glenoidea_derecha": {
+          "triangles": 1388,
+          "surfaceArea": 0.0013617102154460875
+        },
+        "scapula__espina_derecha": {
+          "triangles": 2084,
+          "surfaceArea": 0.003404628919204004
+        },
+        "scapula__base": {
+          "triangles": 23876,
+          "surfaceArea": 0.04630506767848413
+        },
+        "scapula__acromion_izquierdo": {
+          "triangles": 2923,
+          "surfaceArea": 0.0027112070571692556
+        },
+        "scapula__apofisis_coracoides_izquierda": {
+          "triangles": 1625,
+          "surfaceArea": 0.0010812701559862338
+        },
+        "scapula__cavidad_glenoidea_izquierda": {
+          "triangles": 1510,
+          "surfaceArea": 0.0013569410635394855
+        },
+        "scapula__espina_izquierda": {
+          "triangles": 2233,
+          "surfaceArea": 0.0034136648914340688
+        }
+      }
+    },
+    "ribs": {
+      "nodeId": "ribs",
+      "maxTriangles": 60000,
+      "triangles": 59923,
+      "surfaceArea": 0.21058873433400294,
+      "sourceSha256": "d5de140e4f0e577c74274e97cce804eeaf3e86c6e2e402a3273cce79e5e22dd6",
+      "bounds": {
+        "min": [
+          -0.1377476304769516,
+          1.009811282157898,
+          0.003600001335144043
+        ],
+        "max": [
+          0.13545949757099152,
+          1.3875977993011475,
+          0.19675958156585693
+        ]
+      },
+      "regions": {
+        "ribs__verdaderas": {
+          "triangles": 34498,
+          "surfaceArea": 0.12180050540528965
+        },
+        "ribs__cabeza": {
+          "triangles": 254,
+          "surfaceArea": 0.0003362449909446018
+        },
+        "ribs__cuello": {
+          "triangles": 202,
+          "surfaceArea": 0.00041341378473491475
+        },
+        "ribs__tuberculo": {
+          "triangles": 320,
+          "surfaceArea": 0.0005330387058080953
+        },
+        "ribs__surco_costal": {
+          "triangles": 191,
+          "surfaceArea": 0.0011308623867218785
+        },
+        "ribs__cuerpo": {
+          "triangles": 2330,
+          "surfaceArea": 0.009369439284467094
+        },
+        "ribs__falsas": {
+          "triangles": 16402,
+          "surfaceArea": 0.05701976963074566
+        },
+        "ribs__flotantes": {
+          "triangles": 5726,
+          "surfaceArea": 0.019985460145291054
+        }
+      }
+    },
+    "mandible": {
+      "nodeId": "mandible",
+      "maxTriangles": 40000,
+      "triangles": 21658,
+      "surfaceArea": 0.01454086870309429,
+      "sourceSha256": "5b434e932c8de7ac9580c635320ce39e4a9735cff76ce025863ad37c863b3c41",
+      "bounds": {
+        "min": [
+          -0.050896503031253815,
+          1.435650110244751,
+          0.09956210851669312
+        ],
+        "max": [
+          0.04955749958753586,
+          1.5155000686645508,
+          0.1789260059595108
+        ]
+      },
+      "regions": {
+        "mandible__proceso_condilar": {
+          "triangles": 3598,
+          "surfaceArea": 0.001380813384946676
+        },
+        "mandible__proceso_coronoides": {
+          "triangles": 1428,
+          "surfaceArea": 0.0007787703662557668
+        },
+        "mandible__angulo": {
+          "triangles": 1619,
+          "surfaceArea": 0.001323415152404986
+        },
+        "mandible__rama": {
+          "triangles": 3904,
+          "surfaceArea": 0.003928847623499809
+        },
+        "mandible__cuerpo": {
+          "triangles": 11109,
+          "surfaceArea": 0.007129022175987052
+        }
+      }
+    },
+    "hand": {
+      "nodeId": "hand",
+      "maxTriangles": 60000,
+      "triangles": 36215,
+      "surfaceArea": 0.027669888189090844,
+      "sourceSha256": "9da7182821deb38b4e3dff50e29b66ea5a50ed0fee822ea8e7212f57e00fd636",
+      "bounds": {
+        "min": [
+          -0.32465100288391113,
+          0.6632280349731445,
+          0.10655900090932846
+        ],
+        "max": [
+          -0.2195120006799698,
+          0.8221950531005859,
+          0.1918340027332306
+        ]
+      },
+      "regions": {
+        "hand__trapezoide": {
+          "triangles": 616,
+          "surfaceArea": 0.0005127012340817327
+        },
+        "hand__escafoides": {
+          "triangles": 1074,
+          "surfaceArea": 0.0008742007942306188
+        },
+        "hand__semilunar": {
+          "triangles": 864,
+          "surfaceArea": 0.0007125008562236331
+        },
+        "hand__piramidal": {
+          "triangles": 704,
+          "surfaceArea": 0.0005832036217298095
+        },
+        "hand__pisiforme": {
+          "triangles": 396,
+          "surfaceArea": 0.00032783836234599316
+        },
+        "hand__trapecio": {
+          "triangles": 1026,
+          "surfaceArea": 0.0008153622624419859
+        },
+        "hand__grande": {
+          "triangles": 1284,
+          "surfaceArea": 0.0010638721360712203
+        },
+        "hand__ganchoso": {
+          "triangles": 1150,
+          "surfaceArea": 0.0009529307405812778
+        },
+        "hand__falanges_pulgar": {
+          "triangles": 2408,
+          "surfaceArea": 0.0016625001279628494
+        },
+        "hand__falanges_indice": {
+          "triangles": 3460,
+          "surfaceArea": 0.0023892620592863177
+        },
+        "hand__falanges_medio": {
+          "triangles": 4084,
+          "surfaceArea": 0.0028034213790809675
+        },
+        "hand__falanges_anular": {
+          "triangles": 3422,
+          "surfaceArea": 0.002374998459950639
+        },
+        "hand__falanges_menique": {
+          "triangles": 2573,
+          "surfaceArea": 0.0017705121616559728
+        },
+        "hand__metacarpiano_i": {
+          "triangles": 2434,
+          "surfaceArea": 0.001895390372175908
+        },
+        "hand__metacarpiano_ii": {
+          "triangles": 3218,
+          "surfaceArea": 0.0026607683148160287
+        },
+        "hand__metacarpiano_iii": {
+          "triangles": 3018,
+          "surfaceArea": 0.0025458632066443555
+        },
+        "hand__metacarpiano_iv": {
+          "triangles": 2306,
+          "surfaceArea": 0.0019381002409979034
+        },
+        "hand__metacarpiano_v": {
+          "triangles": 2178,
+          "surfaceArea": 0.0017864618588136264
+        }
+      }
+    },
+    "foot": {
+      "nodeId": "foot",
+      "maxTriangles": 60000,
+      "triangles": 56428,
+      "surfaceArea": 0.0490645851118194,
+      "sourceSha256": "5dd5a3ee258b1811b1636a9ed936935fca716c908ba736a12498f9ed1a97d6db",
+      "bounds": {
+        "min": [
+          -0.14632099866867065,
+          -0.004171000327914953,
+          0.009193969890475273
+        ],
+        "max": [
+          -0.05521170422434807,
+          0.06978770345449448,
+          0.23084501922130585
+        ]
+      },
+      "regions": {
+        "foot__astragalo": {
+          "triangles": 5962,
+          "surfaceArea": 0.006266352497470701
+        },
+        "foot__calcaneo": {
+          "triangles": 5448,
+          "surfaceArea": 0.009206821668184352
+        },
+        "foot__navicular": {
+          "triangles": 3022,
+          "surfaceArea": 0.0025136297182017132
+        },
+        "foot__metatarsiano_i": {
+          "triangles": 4886,
+          "surfaceArea": 0.003989166860501929
+        },
+        "foot__metatarsiano_ii": {
+          "triangles": 3258,
+          "surfaceArea": 0.002700934749629791
+        },
+        "foot__metatarsiano_iii": {
+          "triangles": 3030,
+          "surfaceArea": 0.002585070426654804
+        },
+        "foot__metatarsiano_iv": {
+          "triangles": 2918,
+          "surfaceArea": 0.0024909399102716213
+        },
+        "foot__metatarsiano_v": {
+          "triangles": 3432,
+          "surfaceArea": 0.0029707004239683137
+        },
+        "foot__cuneiforme_medial": {
+          "triangles": 4114,
+          "surfaceArea": 0.002494824287449554
+        },
+        "foot__cuneiforme_intermedio": {
+          "triangles": 1948,
+          "surfaceArea": 0.0012179784375489714
+        },
+        "foot__cuneiforme_lateral": {
+          "triangles": 2702,
+          "surfaceArea": 0.0017035862346062055
+        },
+        "foot__cuboides": {
+          "triangles": 3634,
+          "surfaceArea": 0.0030504046818107394
+        },
+        "foot__falanges_ii": {
+          "triangles": 2480,
+          "surfaceArea": 0.0015341560109789784
+        },
+        "foot__falanges_iii": {
+          "triangles": 2190,
+          "surfaceArea": 0.0013250242854262533
+        },
+        "foot__falanges_iv": {
+          "triangles": 1976,
+          "surfaceArea": 0.0012254187061494126
+        },
+        "foot__falanges_v": {
+          "triangles": 1716,
+          "surfaceArea": 0.0010546540304248737
+        },
+        "foot__falanges_i": {
+          "triangles": 3712,
+          "surfaceArea": 0.002734922182541194
+        }
+      }
+    },
+    "cervical_vertebra": {
+      "nodeId": "cervical_vertebra",
+      "maxTriangles": 40000,
+      "triangles": 4224,
+      "surfaceArea": 0.0046130643245168405,
+      "sourceSha256": "01e077365370ee94587f41f71b11b23621f8a8b83e4b51ceda3bdb30d555477f",
+      "bounds": {
+        "min": [
+          -0.02866380102932453,
+          1.4205100536346436,
+          0.046530403196811676
+        ],
+        "max": [
+          0.027058400213718414,
+          1.4447500705718994,
+          0.09769490361213684
+        ]
+      },
+      "regions": {
+        "cervical_vertebra__foramenes_transversos": {
+          "triangles": 793,
+          "surfaceArea": 0.0006055133957402156
+        },
+        "cervical_vertebra__apofisis_transversas": {
+          "triangles": 1243,
+          "surfaceArea": 0.0011121845382534483
+        },
+        "cervical_vertebra__apofisis_espinosa": {
+          "triangles": 518,
+          "surfaceArea": 0.0006287032150513297
+        },
+        "cervical_vertebra__cuerpo": {
+          "triangles": 846,
+          "surfaceArea": 0.0011035709164503886
+        },
+        "cervical_vertebra__arco": {
+          "triangles": 824,
+          "surfaceArea": 0.001163092259021459
+        }
+      }
+    },
+    "thoracic_lumbar_vertebrae": {
+      "nodeId": "thoracic_lumbar_vertebrae",
+      "maxTriangles": 40000,
+      "triangles": 25490,
+      "surfaceArea": 0.021399913603257704,
+      "sourceSha256": "029b0c5d1237e22f522755eb946c6c7b505f3c8515ab4051cc10b7b574d3d898",
+      "bounds": {
+        "min": [
+          -0.08588410913944244,
+          1.2022300958633423,
+          -0.006402000784873962
+        ],
+        "max": [
+          0.08988110721111298,
+          1.2627300024032593,
+          0.07638099789619446
+        ]
+      },
+      "regions": {
+        "thoracic_lumbar_vertebrae__carillas_costales_t7": {
+          "triangles": 1291,
+          "surfaceArea": 0.0007521463341056797
+        },
+        "thoracic_lumbar_vertebrae__apofisis_transversas_t7": {
+          "triangles": 1349,
+          "surfaceArea": 0.0008869496862356296
+        },
+        "thoracic_lumbar_vertebrae__apofisis_espinosa_t7": {
+          "triangles": 1620,
+          "surfaceArea": 0.0013095551996349904
+        },
+        "thoracic_lumbar_vertebrae__cuerpo_t7": {
+          "triangles": 1990,
+          "surfaceArea": 0.002775891518809146
+        },
+        "thoracic_lumbar_vertebrae__arco_t7": {
+          "triangles": 4490,
+          "surfaceArea": 0.003198012304893305
+        },
+        "thoracic_lumbar_vertebrae__apofisis_transversas_l3": {
+          "triangles": 1686,
+          "surfaceArea": 0.0009319399263226225
+        },
+        "thoracic_lumbar_vertebrae__apofisis_espinosa_l3": {
+          "triangles": 1893,
+          "surfaceArea": 0.001421472267098916
+        },
+        "thoracic_lumbar_vertebrae__cuerpo_l3": {
+          "triangles": 3834,
+          "surfaceArea": 0.005729697093100789
+        },
+        "thoracic_lumbar_vertebrae__arco_l3": {
+          "triangles": 7337,
+          "surfaceArea": 0.004394249273056625
+        }
+      }
+    },
+    "sacrum": {
+      "nodeId": "sacrum",
+      "maxTriangles": 40000,
+      "triangles": 39997,
+      "surfaceArea": 0.035600399029672714,
+      "sourceSha256": "54947dda9dff64a2e55005609d57173e46ee79daaf2ea6f4a9b7acd883debb1f",
+      "bounds": {
+        "min": [
+          -0.060176704078912735,
+          0.7906794548034668,
+          0.005626350175589323
+        ],
+        "max": [
+          0.06209990382194519,
+          0.9359990954399109,
+          0.09456820040941238
+        ]
+      },
+      "regions": {
+        "sacrum__coccix": {
+          "triangles": 4182,
+          "surfaceArea": 0.0018955155489360249
+        },
+        "sacrum__promontorio": {
+          "triangles": 1266,
+          "surfaceArea": 0.0017042893067790387
+        },
+        "sacrum__alas": {
+          "triangles": 6437,
+          "surfaceArea": 0.0059301526925002734
+        },
+        "sacrum__foramenes_sacros": {
+          "triangles": 9031,
+          "surfaceArea": 0.006311177445175222
+        },
+        "sacrum__sacro": {
+          "triangles": 19081,
+          "surfaceArea": 0.019759264036282153
+        }
+      }
+    },
+    "hyoid": {
+      "nodeId": "hyoid",
+      "maxTriangles": 40000,
+      "triangles": 5534,
+      "surfaceArea": 0.0015079043044749336,
+      "sourceSha256": "0728e7d741eb8fabcceb26d9e2782060de95b471063f9b5579689e75fb095e63",
+      "bounds": {
+        "min": [
+          -0.021618099883198738,
+          1.4310400485992432,
+          0.1008090004324913
+        ],
+        "max": [
+          0.020314600318670273,
+          1.4499499797821045,
+          0.13565699756145477
+        ]
+      },
+      "regions": {
+        "hyoid__astas_menores": {
+          "triangles": 1042,
+          "surfaceArea": 0.0001201744184248281
+        },
+        "hyoid__astas_mayores": {
+          "triangles": 2605,
+          "surfaceArea": 0.0008193210213593447
+        },
+        "hyoid__cuerpo": {
+          "triangles": 1887,
+          "surfaceArea": 0.0005684088646907609
+        }
+      }
     }
   }
 }
