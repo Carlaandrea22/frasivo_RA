@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { anatomyParts, demoPose } from '../src/features/cuerpo/anatomy';
-import { atlasMatrices, atlasParts, atlasPlacement } from '../src/features/cuerpo/atlasAlignment';
+import { atlasMatrices, atlasParts, atlasPlacement, atlasSpriteId } from '../src/features/cuerpo/atlasAlignment';
 import anchors from '../assets/anatomy/body/anchors.json';
 
 const assets = new URL('../assets/anatomy/body/', import.meta.url);
@@ -26,6 +26,11 @@ describe('atlas anatómico de BodyParts3D', () => {
     for (const part of atlasParts) {
       expect(part.sprite).toHaveLength(4);
       expect(readFileSync(new URL(`sprites/${part.id}.webp`, assets)).toString('ascii', 8, 12)).toBe('WEBP');
+      if (part.view === 'both') {
+        expect(part.backSprite).toHaveLength(4);
+        expect(part.backLabelPoint).toHaveLength(2);
+        expect(readFileSync(new URL(`sprites/${part.id}_back.webp`, assets)).toString('ascii', 8, 12)).toBe('WEBP');
+      }
       if (part.group.startsWith('foot')) {
         expect(part.demoSprite).toHaveLength(4);
         expect(readFileSync(new URL(`sprites/${part.id}_front.webp`, assets)).toString('ascii', 8, 12)).toBe('WEBP');
@@ -55,14 +60,27 @@ describe('atlas anatómico de BodyParts3D', () => {
     expect(atlasPlacement(widerShoulders, .8).matrices.head).toEqual(torso.matrices.head);
   });
 
-  it('oculta los segmentos escorzados, fuera del recorte y en una vista de espaldas', () => {
+  it('oculta los segmentos escorzados y fuera del recorte', () => {
     const compressed = front.map((point, i) => i === 25 ? { ...front[23], x: .59, y: .56, z: -.3 } : point);
     expect(atlasMatrices(compressed, .8).thigh_left).toBeNull();
     expect(atlasMatrices(compressed, .8).thigh_right).toHaveLength(6);
     expect(atlasPlacement(front, 1, .32).matrices.forearm_right).toBeNull();
+  });
+
+  it('elige las proyecciones posteriores únicamente cuando se habilita la espalda', () => {
     const back = front.map((point, i) => ({ ...point, x: 1 - point.x, visibility: i <= 6 ? 0 : point.visibility }));
     expect(atlasPlacement(back, .8).facing).toBe('back');
     expect(atlasPlacement(back, .8).visible).toEqual([]);
+    const placement = atlasPlacement(back, .8, .8, true, true);
+    const visibleBones = placement.visible.filter(part => part.layer === 'bones');
+    expect(visibleBones.map(part => atlasSpriteId(part, true, placement.frontFeet, placement.facing))).toEqual(expect.arrayContaining([
+      'skull_back', 'scapula_left', 'scapula_right', 'spine_back', 'ribs_left_back', 'ribs_right_back', 'sacrum_back',
+      'pelvis_left_back', 'pelvis_right_back', 'humerus_left_back', 'ulna_right_back', 'femur_left_back', 'tibia_right_back',
+    ]));
+    expect(visibleBones.some(part => ['clavicle', 'mandible', 'patella', 'sternum'].includes(part.term))).toBe(false);
+    for (const view of [atlasPlacement(front, .8), atlasPlacement(null, .8)]) {
+      expect(view.visible.some(part => part.term === 'scapula')).toBe(false);
+    }
   });
 
   it('coloca la mano y el pie solo con sus referencias visibles', () => {

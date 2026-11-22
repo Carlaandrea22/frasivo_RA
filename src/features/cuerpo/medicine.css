@@ -101,6 +101,33 @@
   text-align: center;
 }
 .anatomy-active-term { color: var(--anatomy-highlight); font: 700 .9rem var(--font-title); }
+.anatomy-layer-shortcuts { display: flex; gap: 6px; justify-content: center; margin-block: 3px; }
+.anatomy-layer-shortcuts .button { padding-inline: 10px; font-size: .75rem; }
+
+.anatomy-regional-review {
+  position: absolute;
+  top: 65px;
+  right: 16px;
+  z-index: 1;
+  padding: 3px 7px;
+  border-radius: var(--radius-soft);
+  background: var(--camera-base);
+  font-size: .65rem;
+  pointer-events: none;
+}
+
+.anatomy-debug {
+  position: absolute;
+  inset: 54px auto auto 12px;
+  z-index: 1;
+  max-width: calc(100% - 24px);
+  padding: 5px 8px;
+  border-radius: var(--radius-soft);
+  background: var(--camera-base);
+  color: var(--camera-text);
+  font-size: .6875rem;
+  pointer-events: none;
+}
 
 .anatomy-fps {
   padding: 6px 9px;
@@ -354,14 +381,14 @@
   .anatomy-sheet .anatomy-note { margin-top: var(--space-3); }
 }
 
-.body-explorer--bones .anatomy-status { white-space: nowrap; flex-shrink: 0; }
-.body-explorer--bones .anatomy-fps { white-space: nowrap; }
+.anatomy-status { white-space: nowrap; flex-shrink: 0; }
+.anatomy-fps { white-space: nowrap; }
 .anatomy-frozen-preview { position: absolute; inset: 0; pointer-events: none; }
 .anatomy-frozen-preview .anatomy-sprites,
 .anatomy-frozen-preview .anatomy-sprites image { pointer-events: none; }
 
 @media (max-width: 380px) {
-  .body-explorer--bones .anatomy-stage-header { gap: 4px; }
-  .body-explorer--bones .anatomy-status { gap: 4px; padding-inline: 5px; font-size: .75rem; }
-  .body-explorer--bones .anatomy-fps { padding-inline: 3px; font-size: .62rem; }
+  .anatomy-stage-header { gap: 4px; }
+  .anatomy-status { gap: 4px; padding-inline: 5px; font-size: .75rem; }
+  .anatomy-fps { padding-inline: 3px; font-size: .62rem; }
 }

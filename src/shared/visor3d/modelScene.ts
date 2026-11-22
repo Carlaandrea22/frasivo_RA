@@ -1,6 +1,6 @@
 import {
-  Box3, InstancedMesh, Line, Mesh, Points, SkinnedMesh, Texture, Vector3,
-  type BufferGeometry, type Camera, type Material, type Object3D,
+  Box3, InstancedMesh, Line, Mesh, Points, Raycaster, SkinnedMesh, Texture, Vector2, Vector3,
+  type BufferGeometry, type Camera, type Intersection, type Material, type Object3D,
 } from 'three';
 
 export interface Viewer3DAnchor {
@@ -96,17 +96,41 @@ export function createModelScene(root: Object3D, nodeId?: string): ModelScene | 
 export function projectAnchors(
   model: ModelScene, camera: Camera, anchors: readonly Viewer3DAnchor[], width: number, height: number,
 ): Viewer3DProjectedAnchor[] {
-  const point = new Vector3();
+  const visible = new Set<Object3D>();
+  const occluders: Mesh[] = [];
+  model.root.traverseVisible(node => {
+    if (!model.visible.has(node)) return;
+    visible.add(node);
+    if (node instanceof Mesh && node.layers.test(camera.layers)) occluders.push(node);
+  });
+  const world = new Vector3(), point = new Vector3(), ndc = new Vector2();
+  const tolerance = model.bounds.getSize(point).length() * .005; // 1% of the bounding sphere radius.
+  const ray = new Raycaster();
+  ray.layers.mask = camera.layers.mask;
+  const intersections: Intersection<Mesh>[] = [];
   return anchors.map(({ id, nodeId, point: local }) => {
     const node = nodeId === undefined ? model.root : model.nodes.get(nodeId);
-    if (!node || (nodeId !== undefined && !model.visible.has(node))) return { id, x: 0, y: 0, visible: false };
-    point.set(...local).applyMatrix4(node.matrixWorld).project(camera);
+    if (!node || !visible.size || (nodeId !== undefined && !visible.has(node))) return { id, x: 0, y: 0, visible: false };
+    world.set(...local).applyMatrix4(node.matrixWorld);
+    point.copy(world).project(camera);
     if (![point.x, point.y, point.z].every(Number.isFinite)) return { id, x: 0, y: 0, visible: false };
+    const inFrame = Math.abs(point.x) <= 1 && Math.abs(point.y) <= 1 && Math.abs(point.z) <= 1;
+    let blocked = false;
+    if (inFrame) {
+      ray.setFromCamera(ndc.set(point.x, point.y), camera);
+      ray.far = world.distanceTo(ray.ray.origin) - tolerance;
+      intersections.length = 0;
+      ray.intersectObjects(occluders, false, intersections);
+      blocked = intersections.some(({ object, face }) => {
+        const material = Array.isArray(object.material) ? object.material[face?.materialIndex ?? 0] : object.material;
+        return material?.visible;
+      });
+    }
     return {
       id,
       x: (point.x + 1) * width / 2,
       y: (1 - point.y) * height / 2,
-      visible: Math.abs(point.x) <= 1 && Math.abs(point.y) <= 1 && Math.abs(point.z) <= 1,
+      visible: inFrame && !blocked && (!(node instanceof Mesh) || node.layers.test(camera.layers)),
     };
   });
 }

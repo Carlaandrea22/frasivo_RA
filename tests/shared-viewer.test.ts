@@ -38,14 +38,14 @@ describe('escena del visor 3D compartido', () => {
     camera.position.z = 5;
     camera.updateMatrixWorld();
     const anchors = [
-      { id: 'here', nodeId: 'detail', point: [0, 0, 0] },
+      { id: 'here', nodeId: 'detail', point: [0, 0, .5] },
       { id: 'hidden', nodeId: 'sibling', point: [0, 0, 0] },
       { id: 'outside', nodeId: 'detail', point: [0, 20, 0] },
     ] as const;
 
     let points = projectAnchors(model, camera, anchors, 200, 100);
     expect(points[0].visible).toBe(true);
-    expect(points[0].x).toBeCloseTo(110);
+    expect(points[0].x).toBeCloseTo(100 + 50 / 4.5);
     expect(points[0].y).toBeCloseTo(50);
     expect(points[1].visible).toBe(false);
     expect(points[2].visible).toBe(false);
@@ -53,6 +53,37 @@ describe('escena del visor 3D compartido', () => {
     camera.position.z = 2;
     camera.updateMatrixWorld();
     points = projectAnchors(model, camera, anchors, 200, 100);
-    expect(points[0].x).toBeCloseTo(125);
+    expect(points[0].x).toBeCloseTo(100 + 50 / 1.5);
+  });
+
+  it('oculta un punto detrás de una caja visible y conserva un anclaje de superficie', () => {
+    const root = new Group();
+    const blockerGroup = new Group();
+    const target = new Mesh(new BoxGeometry(), new MeshBasicMaterial());
+    const blocker = new Mesh(new BoxGeometry(), new MeshBasicMaterial());
+    target.name = 'target';
+    blocker.position.z = 2;
+    blockerGroup.add(blocker);
+    root.add(target, blockerGroup);
+    const model = createModelScene(root)!;
+    const camera = new PerspectiveCamera(60, 1, .01, 100);
+    camera.position.z = 5;
+    camera.updateMatrixWorld();
+
+    const anchors = [{ id: 'surface', nodeId: 'target', point: [0, 0, .49] }] as const;
+    const projected = () => projectAnchors(model, camera, anchors, 100, 100)[0];
+    expect(projected()).toEqual({ id: 'surface', x: 50, y: 50, visible: false });
+    blockerGroup.visible = false;
+    expect(projected().visible).toBe(true);
+    blockerGroup.visible = true;
+    blocker.material.visible = false;
+    expect(projected().visible).toBe(true);
+    blocker.material.visible = true;
+    blocker.layers.set(1);
+    expect(projected().visible).toBe(true);
+    camera.layers.enable(1);
+    expect(projected().visible).toBe(false);
+    model.visible.delete(blocker);
+    expect(projected().visible).toBe(true);
   });
 });

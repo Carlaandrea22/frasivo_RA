@@ -8,6 +8,7 @@ import { Button } from '../../shared/ui/Button';
 import { projectBones } from './boneProjection';
 import { deviceRotation, frozenPosition, type CameraFraming } from './cameraFraming';
 import { fitPoseProjection } from './poseProjection';
+import type { AnatomyLayer } from './anatomy';
 import type { PrecisePose } from './poseCapture';
 import './CameraSkeleton.css';
 
@@ -24,6 +25,8 @@ type OrientationConstructor = typeof DeviceOrientationEvent & {
 
 interface CameraSkeletonProps {
   model: Group;
+  reference: Group;
+  layer: AnatomyLayer;
   framing: CameraFraming;
   selected?: string;
   onPick: (id: string, x: number, y: number, nodeName?: string) => void;
@@ -34,9 +37,16 @@ interface CameraSkeletonProps {
   onReady?: () => void;
 }
 
-export default function CameraSkeleton({ model, framing, selected, onPick, onProject, trackedIds, projection, allowMotion = true, onReady }: CameraSkeletonProps) {
+const canvasNames = {
+  bones: 'Esqueleto 3D sobre la cámara', muscles: 'Músculos 3D sobre la cámara', organs: 'Órganos 3D sobre la cámara',
+};
+
+export default function CameraSkeleton({
+  model, reference, layer, framing, selected, onPick, onProject, trackedIds, projection, allowMotion = true, onReady,
+}: CameraSkeletonProps) {
   const host = useRef<HTMLDivElement>(null);
   const draw = useRef<() => void>(undefined);
+  const replaceModel = useRef<(model: Group, layer: AnatomyLayer) => void>(undefined);
   const rotation = useRef(new Quaternion());
   const [motionEnabled, setMotionEnabled] = useState(false);
   const [motion, setMotion] = useState<MotionStatus>('idle');
@@ -47,6 +57,7 @@ export default function CameraSkeleton({ model, framing, selected, onPick, onPro
   });
   const pick = useEffectEvent(onPick);
   const ready = useEffectEvent(() => onReady?.());
+  const currentModel = useEffectEvent(() => ({ model, layer }));
   const { x, y, height } = framing;
   const trackedKey = trackedIds?.join('|');
 
@@ -63,16 +74,14 @@ export default function CameraSkeleton({ model, framing, selected, onPick, onPro
     const canvas = renderer.domElement;
     renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
     renderer.setClearAlpha(0);
-    canvas.setAttribute('aria-label', 'Esqueleto 3D sobre la cámara');
     root.appendChild(canvas);
 
-    const skeleton = model.clone();
-    const bounds = new Box3().setFromObject(skeleton, true);
+    let skeleton: Group | undefined;
+    let source: Group | undefined;
+    const bounds = new Box3().setFromObject(reference, true);
     const size = bounds.getSize(new Vector3());
     const pivot = new Group();
     const center = bounds.getCenter(new Vector3());
-    skeleton.position.sub(center);
-    pivot.add(skeleton);
     const camera = new PerspectiveCamera(42, 1, .025, 80);
     const scene = new Scene();
     const key = new DirectionalLight(0xfff3e3, 2);
@@ -109,7 +118,7 @@ export default function CameraSkeleton({ model, framing, selected, onPick, onPro
 
     function render() {
       frame = 0;
-      if (!width || !viewHeight || contextLost) return;
+      if (!width || !viewHeight || contextLost || !skeleton) return;
       if (calibration) {
         const { fit } = calibration;
         camera.position.fromArray(fit.position).sub(center);
@@ -155,7 +164,7 @@ export default function CameraSkeleton({ model, framing, selected, onPick, onPro
       width = root.clientWidth;
       viewHeight = root.clientHeight;
       if (!width || !viewHeight) return;
-      calibration = projection ? fitPoseProjection(model, projection, width, viewHeight) : null;
+      calibration = projection ? fitPoseProjection(reference, projection, width, viewHeight) : null;
       measureProjection = Boolean(calibration);
       camera.aspect = width / viewHeight;
       camera.updateProjectionMatrix();
@@ -195,7 +204,7 @@ export default function CameraSkeleton({ model, framing, selected, onPick, onPro
       pointers.delete(event.pointerId);
       if (tap?.id !== event.pointerId) return;
       tap = undefined;
-      if (event.type !== 'pointerup' || !width || !viewHeight) return;
+      if (event.type !== 'pointerup' || !width || !viewHeight || !skeleton) return;
 
       const box = canvas.getBoundingClientRect();
       const point = new Vector2((event.clientX - box.left) / box.width, (event.clientY - box.top) / box.height);
@@ -234,12 +243,28 @@ export default function CameraSkeleton({ model, framing, selected, onPick, onPro
     const observer = new ResizeObserver(resize);
     observer.observe(root);
     draw.current = invalidate;
+    replaceModel.current = (next, nextLayer) => {
+      if (next === source) return;
+      source = next;
+      if (skeleton) pivot.remove(skeleton);
+      updateHighlight();
+      picked = undefined;
+      targets = [];
+      skeleton = next.clone();
+      skeleton.position.sub(center);
+      pivot.add(skeleton);
+      canvas.setAttribute('aria-label', canvasNames[nextLayer]);
+      invalidate();
+    };
+    const initial = currentModel();
+    replaceModel.current(initial.model, initial.layer);
     resize();
 
     return () => {
       observer.disconnect();
       cancelAnimationFrame(frame);
       draw.current = undefined;
+      replaceModel.current = undefined;
       canvas.removeEventListener('pointerdown', onPointerDown);
       canvas.removeEventListener('pointermove', onPointerMove);
       canvas.removeEventListener('pointerup', onPointerEnd);
@@ -252,7 +277,11 @@ export default function CameraSkeleton({ model, framing, selected, onPick, onPro
       renderer.forceContextLoss();
       canvas.remove();
     };
-  }, [model, projection, x, y, height]);
+  }, [reference, projection, x, y, height]);
+
+  useEffect(() => {
+    replaceModel.current?.(model, layer);
+  }, [model, layer]);
 
   useEffect(() => {
     draw.current?.();
@@ -311,7 +340,7 @@ export default function CameraSkeleton({ model, framing, selected, onPick, onPro
   }
 
   return <>
-    <div className="anatomy-camera-skeleton" ref={host}/>
+    <div className="anatomy-camera-skeleton" data-layer={layer} ref={host}/>
     <div className="anatomy-camera-motion">
       {allowMotion && !failed && <Button variant="secondary" aria-pressed={motionEnabled} disabled={motion === 'requesting'}
         onClick={() => { void toggleMotion(); }}>
@@ -320,7 +349,7 @@ export default function CameraSkeleton({ model, framing, selected, onPick, onPro
       </Button>}
       {failed && <p role="alert">El modelo sobre la cámara necesita WebGL.</p>}
       {motion === 'waiting' && <p role="status">Buscando el sensor de giro…</p>}
-      {motion === 'unavailable' && <p role="status">Puedes girar el esqueleto con un dedo.</p>}
+      {motion === 'unavailable' && <p role="status">Puedes girar el modelo con un dedo.</p>}
     </div>
   </>;
 }

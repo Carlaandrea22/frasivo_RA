@@ -6,6 +6,7 @@ import { QuickInvitation, QuickPractice } from './features/practicaRapida/QuickP
 import { chooseQuickActivity, type QuickActivity } from './features/practicaRapida/quickActivity';
 import { hashSnapshot, resolveRoute, subscribeHash, type RouteDefinition } from './shared/navegacion';
 import { baseRoutes } from './shared/navegacion/baseRoutes';
+import { PwaInstall, PwaUpdate } from './shared/pwa/PwaControls';
 import { Button } from './shared/ui/Button';
 import { ContentState } from './shared/ui/ContentState';
 
@@ -64,11 +65,15 @@ export default function App() {
     <div className="app-shell" data-area={anatomyArea.id}>
       <header className={body ? 'app-header app-header--body' : 'app-header'}>
         <div className="app-brand">
-          <span className="app-mark" aria-hidden="true"><Activity size={21}/></span>
+          <img className="app-mark" src="/icon.svg" alt="" width="38" height="38"/>
           <span>LumAR</span>
         </div>
-        <span className="app-area">{anatomyArea.name}</span>
+        <div className="app-header-actions">
+          <span className="app-area">{anatomyArea.name}</span>
+          <PwaInstall/>
+        </div>
       </header>
+      <PwaUpdate/>
 
       <main className={`app-main${body ? ' app-main--body' : ''}`}>
         {atQuick ? quick ? <QuickPractice activity={quick.activity} deadline={quick.deadline}

@@ -20,6 +20,8 @@ npm run dev
 
 Antes de pedir la revisión, ejecuta las pruebas y la compilación. Usa las pruebas de navegador para verificar recorridos de interfaz y los enlaces entre rutas. La suite requiere Chrome.
 
+GitHub Actions ejecuta **Build y pruebas en Chrome** en cada PR dirigido a `Luis` y cada push a esa rama. El pull request debe pasar esta revisión antes de unirse. Si Playwright falla, los artefactos de la ejecución incluyen el reporte y las capturas disponibles.
+
 ```sh
 npm test
 npm run build
@@ -30,6 +32,19 @@ Revisa el flujo en móvil y escritorio, la navegación con teclado y Atrás/Adel
 
 ## Contenido didáctico
 
-- Escribe la interfaz y las explicaciones en español. Incluye el término inglés de cada estructura con acceso a la pronunciación del dispositivo cuando esté disponible.
+- Escribe la interfaz y las explicaciones en español. Usa `EnglishTerm` para el término inglés de cada estructura y genera su clip con la voz compartida.
 - Mantén identificadores estables para datos que ya tengan enlaces o actividad guardada. Registra la fuente, el estado de revisión profesional y los créditos de cada recurso incorporado según corresponda.
 - Identifica textos, casos o recursos visuales provisionales y deja visible su estado mientras permanezcan pendientes de validación.
+
+### Clips de pronunciación
+
+Usa Python 3.12 e instala `piper-tts==1.8.0` e `imageio-ffmpeg` en un entorno virtual fuera del repositorio. Descarga `en_US-ljspeech-medium.onnx` y su archivo `.onnx.json` en `assets/_fuentes/voces/`. [Piper Voices](https://huggingface.co/rhasspy/piper-voices/tree/main/en/en_US/ljspeech/medium)
+
+```sh
+python3.12 -m venv /tmp/lumar-voz
+/tmp/lumar-voz/bin/pip install piper-tts==1.8.0 imageio-ffmpeg
+/tmp/lumar-voz/bin/python scripts/generate-cuerpo-audio.py \
+  assets/_fuentes/voces/en_US-ljspeech-medium.onnx "English term"
+```
+
+Sin términos explícitos, el script completa el vocabulario de Cuerpo. Conserva los MP3 existentes y genera los nuevos a 48 kbps. Escucha el resultado antes de incorporar el MP3 a `src/content/anatomy/pronunciacion/`.

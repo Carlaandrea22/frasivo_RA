@@ -1,9 +1,11 @@
-import { averagePreciseCapture, captureIssue, preciseCaptureDuration, type PoseSample, type PrecisePose } from './poseCapture';
+import { averagePreciseCapture, captureIssue, preciseCaptureDuration, preciseCaptureEdgeTolerance,
+  type PoseSample, type PrecisePose } from './poseCapture';
 import workerUrl from '../../generated/pose.worker.js?url';
 
 const modelError = 'No se pudo cargar el modelo de captura precisa. Comprueba la conexión e inténtalo de nuevo.';
 const frameError = 'No se pudo analizar la cámara. Comprueba que sigue activa e inténtalo de nuevo.';
 const captureError = 'No hubo suficientes cuadros para fijar la pose. Quédate quieto e inténtalo de nuevo.';
+const maximumCaptureDuration = 4500;
 
 export function capturePrecisePose(
   video: HTMLVideoElement,
@@ -71,12 +73,17 @@ export function capturePrecisePose(
         onProgress(progress);
         if (settled) return;
       }
-      if (progress < 1) {
+      const lastSample = samples.at(-1);
+      const hasCoverage = samples.length >= 3 &&
+        lastSample!.time >= start + preciseCaptureDuration - preciseCaptureEdgeTolerance;
+      // Slower devices may need longer to collect three frames across the capture.
+      if (progress < 1 || (!hasCoverage && now - start < maximumCaptureDuration)) {
         void sampleFrame(now);
       } else if (!busy) {
         const aspect = video.videoWidth / video.videoHeight;
         const issue = samples.map(sample => captureIssue(sample, aspect, viewportAspect)).find(Boolean);
-        const pose = averagePreciseCapture(samples, start, aspect, viewportAspect);
+        const duration = Math.max(preciseCaptureDuration, (lastSample?.time ?? start) - start);
+        const pose = averagePreciseCapture(samples, start, aspect, viewportAspect, duration);
         if (!pose) { fail(issue || captureError); return; }
         cleanup();
         resolve(pose);
@@ -91,7 +98,7 @@ export function capturePrecisePose(
       if (settled) return;
       if (data.type === 'ready') {
         clearTimeout(timeout);
-        timeout = window.setTimeout(() => fail(captureError), preciseCaptureDuration + 3500);
+        timeout = window.setTimeout(() => fail(captureError), maximumCaptureDuration + 1500);
         animation = requestAnimationFrame(collect);
       } else if (data.type === 'pose') {
         samples.push({ time: data.time, points: data.points, world: data.world });

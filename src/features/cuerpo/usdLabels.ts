@@ -2,7 +2,7 @@ import {
   Box3, CanvasTexture, ConeGeometry, CylinderGeometry, Float32BufferAttribute, Group, Mesh, MeshStandardMaterial,
   Raycaster, Shape, ShapeGeometry, SRGBColorSpace, Vector3,
 } from 'three';
-import { anatomyParts, type AnatomyPart } from './anatomy';
+import { anatomyParts, type AnatomyLayer, type AnatomyPart } from './anatomy';
 
 const up = new Vector3(0, 1, 0);
 const intoModel = new Vector3(0, 0, -1);
@@ -48,7 +48,7 @@ function cardGeometry(width: number, height: number) {
   return geometry;
 }
 
-function pointOnBone(mesh: Mesh) {
+function pointOnMesh(mesh: Mesh) {
   const bounds = new Box3().setFromObject(mesh, true);
   const center = bounds.getCenter(new Vector3());
   const ray = new Raycaster(new Vector3(center.x, center.y, bounds.max.z + .01), intoModel);
@@ -88,9 +88,9 @@ function addArrow(group: Group, from: Vector3, to: Vector3, material: MeshStanda
   group.add(shaft, tip);
 }
 
-export function buildUsdLabels(skeleton: Group, ids: readonly string[]) {
+export function buildUsdLabels(skeleton: Group, ids: readonly string[], layer: AnatomyLayer = 'bones') {
   const labels = new Group();
-  labels.name = 'Bone_labels';
+  labels.name = 'Anatomy_labels';
   if (!ids.length) return labels;
 
   const meshes: Mesh[] = [];
@@ -101,8 +101,9 @@ export function buildUsdLabels(skeleton: Group, ids: readonly string[]) {
   skeleton.updateWorldMatrix(true, true);
   for (const id of ids) {
     const mesh = meshes.find(node => node.name === id) ?? meshes.find(node => node.userData.term === id);
-    const term = anatomyParts.find(part => part.layer === 'bones' && part.id === mesh?.userData.term);
-    if (mesh && term && !choices.has(term.id)) choices.set(term.id, { term, point: pointOnBone(mesh) });
+    const term = anatomyParts.find(part => part.layer === layer && part.id === mesh?.userData.term);
+    if (mesh && term && !choices.has(term.id)) choices.set(term.id, { term, point: pointOnMesh(mesh) });
+    if (choices.size >= 6) break;
   }
   if (!choices.size) return labels;
 

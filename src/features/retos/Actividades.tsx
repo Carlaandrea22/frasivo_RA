@@ -199,6 +199,13 @@ export function Senalar({ pregunta, respuesta, bloqueado, onSelect }: {
   const marcadoresNumerados = numeradas && grupos > 1
     ? distribuirEtiquetas(visibles.slice(inicioGrupo, inicioGrupo + maxEtiquetasMovil), projection.width, projection.height)
     : markers;
+  const fueraDeVista = numeradas ? projection.points.filter(p => !p.visible) : [];
+  function numero(id: string, style?: CSSProperties) {
+    const number = respuestas.findIndex(opcion => opcion.id === id)+1;
+    return <Button key={id} variant="secondary" className={style ? 'retos-number' : undefined} style={style}
+      disabled={bloqueado} aria-label={`Pieza ${number}`} aria-pressed={respuesta === id}
+      onClick={() => onSelect(id)}>{number}</Button>;
+  }
   return <>
     <div className="retos-viewer" ref={frame}>
       {referencia ? <Suspense fallback={cargando}>
@@ -214,12 +221,7 @@ export function Senalar({ pregunta, respuesta, bloqueado, onSelect }: {
           selectedNodeId={seleccion?.nodeId ?? null}>
           {numeradas && <>
             <Lineas projection={projection} markers={marcadoresNumerados} reach={22}/>
-            {marcadoresNumerados.map(marker => {
-              const numero = respuestas.findIndex(opcion => opcion.id === marker.id)+1;
-              return <Button key={marker.id} variant="secondary" className="retos-number" style={styleMarker(marker)}
-                disabled={bloqueado} aria-label={`Pieza ${numero}`} aria-pressed={respuesta === marker.id}
-                onClick={() => onSelect(marker.id)}>{numero}</Button>;
-            })}
+            {marcadoresNumerados.map(marker => numero(marker.id, styleMarker(marker)))}
           </>}
         </Viewer3D>
       </Suspense> : modeloNoDisponible}
@@ -231,6 +233,10 @@ export function Senalar({ pregunta, respuesta, bloqueado, onSelect }: {
       <Button variant="secondary" aria-pressed={numeradas} onClick={() => setNumeradas(!numeradas)}>Mostrar números para seleccionar</Button>
       {numeradas && grupos > 1 && <Button variant="secondary" onClick={() => setGrupo((grupoActivo+1)%grupos)}>Más piezas ({grupoActivo+1} de {grupos})</Button>}
     </div>
+    {fueraDeVista.length > 0 && <div className="retos-dock" role="group" aria-label="Piezas fuera de vista">
+      <span>Fuera de vista</span>
+      {fueraDeVista.map(point => numero(point.id))}
+    </div>}
   </>;
 }
 

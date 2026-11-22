@@ -6,7 +6,10 @@ export interface BoneTarget {
   y: number;
   centerX?: number;
   source?: string;
+  lateral?: boolean;
 }
+
+export const posteriorBoneLabels = ['scapula', 'spine', 'ribs', 'sacrum', 'pelvis', 'femur'];
 
 type Point = readonly [number, number];
 type Side = 'left' | 'right';
@@ -45,10 +48,9 @@ export function applyBoneTransform([a,b,c,d,tx,ty]: Matrix, [x,y]: Point): Point
   return [a*x+c*y+tx, b*x+d*y+ty];
 }
 
-const centerBones = new Set(['skull', 'mandible', 'ribs', 'spine', 'sternum', 'pelvis']);
+const centerBones = new Set(['skull', 'mandible', 'ribs', 'spine', 'sternum', 'pelvis', 'sacrum']);
 const margin = 8;
 const gap = 6;
-const cardHeight = 62;
 
 function targetSide(target: BoneTarget): Side {
   return target.x < (target.centerX ?? .5) ? 'left' : 'right';
@@ -59,25 +61,28 @@ function room(target: BoneTarget, side: Side) {
 }
 
 export function arrangeBoneLabels(targets: readonly BoneTarget[], ids: readonly string[], selected: string | undefined, size: {
-  width: number; height: number; reservedBottom?: number;
+  width: number; height: number; reservedTop?: number; reservedBottom?: number; cardHeight?: number;
 }) {
-  const { width, height, reservedBottom = height > 440 ? 76 : 10 } = size;
+  const { width, height, reservedBottom = height > 440 ? 76 : 10, cardHeight = 62 } = size;
   if (width <= 0 || height <= 0) return [];
   const cardWidth = Math.min(130, Math.max(86, width*.29));
+  const firstTop = Math.max(margin, size.reservedTop ?? 0);
   const latestTop = height - reservedBottom - cardHeight;
-  if (latestTop < margin) return [];
-  const capacity = Math.min(6, 1 + Math.floor((latestTop - margin) / (cardHeight + gap)));
+  if (latestTop < firstTop) return [];
+  const capacity = Math.min(6, 1 + Math.floor((latestTop - firstTop) / (cardHeight + gap)));
   const columns: Record<Side, BoneTarget[]> = { left: [], right: [] };
   const visibleBottom = height - (size.reservedBottom ?? 0);
   const visible = targets.filter(target => target.x >= 0 && target.x <= 1 && target.y >= 0
     && target.y*height <= visibleBottom);
+  const central = new Set(centerBones);
+  for (const target of visible) if (target.lateral) central.delete(target.id);
   // A touched lateral bone keeps the same side. Reserve those slots before
   // using the roomier column for bones around the midline.
   const orderedIds = [...new Set(ids)].slice(0, 6).sort((a, b) =>
-    Number(b === selected) - Number(a === selected) || Number(centerBones.has(a)) - Number(centerBones.has(b)));
+    Number(b === selected) - Number(a === selected) || Number(central.has(a)) - Number(central.has(b)));
   for (const id of orderedIds) {
     const matches = visible.filter(target => target.id === id);
-    const options = (id === selected && !centerBones.has(id) ? matches.slice(0, 1) : matches)
+    const options = (id === selected && !central.has(id) ? matches.slice(0, 1) : matches)
       .map(target => ({ target, side: targetSide(target) }))
       .filter(({side}) => columns[side].length < capacity)
       .sort((a,b) => {
@@ -92,7 +97,7 @@ export function arrangeBoneLabels(targets: readonly BoneTarget[], ids: readonly 
   return (['left', 'right'] as const).flatMap(side => {
     const sort = columns[side].sort((a,b) => a.y - b.y);
     const columnX = side === 'left' ? margin : width-cardWidth-margin;
-    let next = margin;
+    let next = firstTop;
     return sort.map((target, index) => {
       const x = target.x*width, y = target.y*height;
       const edge = side === 'left' ? columnX+cardWidth : columnX;

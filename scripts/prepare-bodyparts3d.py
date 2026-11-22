@@ -2,28 +2,38 @@
 
 Run from the repository:
     Blender --background --factory-startup --python-exit-code 1 --python scripts/prepare-bodyparts3d.py
+Append `-- --soft-tissues-only` to regenerate muscles and organs while retaining
+the existing bone and reference files, or `-- --posterior-bones` to update the
+posterior bone atlas while retaining existing anterior artwork where possible.
 """
 from collections import defaultdict
+from math import cos, pi
 from pathlib import Path
 from statistics import mean
-from zipfile import ZipFile
+from zipfile import ZipFile, is_zipfile
 import json
 import shutil
 import subprocess
+import sys
 
 import bmesh
 import bpy
 from mathutils import Vector
+import numpy as np
 
 ROOT = Path(__file__).resolve().parent.parent
 SOURCE = ROOT / "assets/_fuentes/bodyparts3d-4.0"
 LEGACY = SOURCE.with_name("bodyparts3d-3.0")
 OUTPUT = ROOT / "assets/anatomy/body"
 SPRITES = OUTPUT / "sprites"
+REGIONS = OUTPUT.parent / "regions"
 WORK = ROOT / "assets/_fuentes/bodyparts3d-blender"
 ATTRIBUTION = "BodyParts3D, © The Database Center for Life Science licensed under CC Attribution 4.0 International"
 SPRITES.mkdir(parents=True, exist_ok=True)
+REGIONS.mkdir(parents=True, exist_ok=True)
 WORK.mkdir(parents=True, exist_ok=True)
+soft_tissues_only = "--soft-tissues-only" in sys.argv
+posterior_bones_only = "--posterior-bones" in sys.argv
 
 
 def table(name):
@@ -37,6 +47,10 @@ def table(name):
 isa, partof = table("isa"), table("partof")
 archive = ZipFile(SOURCE / "isa_BP3D_4.0_obj_99.zip")
 members = {Path(name).stem: name for name in archive.namelist() if name.endswith(".obj")}
+legacy_zip = LEGACY / "BodyParts3D_3.0_obj_99.zip"
+legacy_archive = ZipFile(legacy_zip) if is_zipfile(legacy_zip) else None
+legacy_members = ({Path(name.replace("\\", "/")).stem: name for name in legacy_archive.namelist() if name.endswith(".obj")}
+                  if legacy_archive else {})
 raw = {}
 
 
@@ -56,7 +70,14 @@ def geometry(element):
         return raw[element]
     vertices, faces = [], []
     path = LEGACY / (element + ".obj")
-    source = path.read_text() if path.exists() else archive.read(members[element]).decode()
+    if path.exists():
+        source = path.read_text()
+    elif element in members:
+        source = archive.read(members[element]).decode()
+    elif element in legacy_members:
+        source = legacy_archive.read(legacy_members[element]).decode()
+    else:
+        raise KeyError(f"Missing BodyParts3D geometry {element}; see assets/anatomy/FUENTES.md")
     for line in source.splitlines():
         if line.startswith("v "):
             x, y, z = (float(value) * .001 for value in line.split()[1:4])
@@ -93,8 +114,14 @@ for layer in ("bones", "muscles", "organs"):
     scene.collection.children.link(collections[layer])
 
 ivory = material("Warm cortical ivory", (.68, .54, .36))
-muscle = material("Skeletal muscle | red ochre", (.34, .045, .032))
-muscle_dark = material("Skeletal muscle | oxblood", (.24, .021, .019))
+muscle = material("Skeletal muscle | red ochre", (.24, .022, .017))
+muscle_dark = material("Skeletal muscle | oxblood", (.16, .010, .009))
+tendon = material("Tendon | pearl rose", (.48, .26, .21), .58)
+for mat in (muscle, muscle_dark):
+    shader = next(node for node in mat.node_tree.nodes if node.type == "BSDF_PRINCIPLED")
+    fibers = mat.node_tree.nodes.new("ShaderNodeVertexColor")
+    fibers.layer_name = "Muscle fibers"
+    mat.node_tree.links.new(fibers.outputs["Color"], shader.inputs["Base Color"])
 organs = {
     "brain": material("Brain", (.51, .29, .25)),
     "lungs": material("Lungs", (.44, .19, .22), .56),
@@ -104,6 +131,9 @@ organs = {
     "small_intestine": material("Small intestine", (.55, .29, .22), .57),
     "large_intestine": material("Large intestine", (.38, .16, .105), .55),
     "kidneys": material("Kidneys", (.30, .075, .06), .53),
+    "trachea": material("Trachea | cartilage", (.42, .25, .21), .58),
+    "thyroid_gland": material("Thyroid | copper", (.42, .12, .085), .56),
+    "urinary_bladder": material("Urinary bladder", (.43, .24, .19), .53),
 }
 
 # The DBCLS reference is in millimeters, Z up, with anterior pointing along -Y.
@@ -113,7 +143,7 @@ offset = -ground
 records = []
 
 
-def make_part(term, layer, group, mat, source, budget, side=None):
+def make_part(term, layer, group, mat, source, budget, side=None, *, view="front", cut=None):
     id = term if side is None else f"{term}_{side}"
     vertices, faces = [], []
     for element in source:
@@ -128,6 +158,13 @@ def make_part(term, layer, group, mat, source, budget, side=None):
     clean = bmesh.new()
     clean.from_mesh(mesh)
     bmesh.ops.remove_doubles(clean, verts=list(clean.verts), dist=.000012)
+    bmesh.ops.dissolve_degenerate(clean, edges=list(clean.edges), dist=.000002)
+    if cut:
+        point, normal = cut
+        result = bmesh.ops.bisect_plane(clean, geom=list(clean.verts) + list(clean.edges) + list(clean.faces),
+                                       dist=.000003, plane_co=point, plane_no=normal, clear_outer=True)
+        boundaries = [edge for edge in result["geom_cut"] if isinstance(edge, bmesh.types.BMEdge) and edge.is_boundary]
+        bmesh.ops.holes_fill(clean, edges=boundaries)
     bmesh.ops.recalc_face_normals(clean, faces=list(clean.faces))
     for face in clean.faces:
         face.smooth = True
@@ -145,23 +182,72 @@ def make_part(term, layer, group, mat, source, budget, side=None):
         modifier = obj.modifiers.new("Mobile triangle budget", "DECIMATE")
         modifier.ratio = budget / len(mesh.loop_triangles)
         bpy.ops.object.modifier_apply(modifier=modifier.name)
-    records.append({"id": id, "term": term, "layer": layer, "group": group, "source": source})
+    if term == "urinary_bladder":
+        modifier = obj.modifiers.new("Smooth bladder surface", "SUBSURF")
+        modifier.levels = 1
+        bpy.ops.object.modifier_apply(modifier=modifier.name)
+    obj.data.validate()
+    obj.data.update()
+    if mat in (muscle, muscle_dark):
+        paint_fibers(obj, mat.diffuse_color)
+    record = {"id": id, "term": term, "layer": layer, "group": group, "source": source}
+    if view != "front":
+        record["view"] = view
+    records.append(record)
     return obj
+
+
+def paint_fibers(obj, color):
+    mesh = obj.data
+    neighbors = [[] for _ in mesh.vertices]
+    for edge in mesh.edges:
+        a, b = edge.vertices
+        neighbors[a].append(b)
+        neighbors[b].append(a)
+    fibers = mesh.color_attributes.new(name="Muscle fibers", type="BYTE_COLOR", domain="POINT")
+    pending = set(range(len(neighbors)))
+    while pending:
+        seed = pending.pop()
+        component = [seed]
+        for index in component:
+            adjacent = [other for other in neighbors[index] if other in pending]
+            pending.difference_update(adjacent)
+            component.extend(adjacent)
+        center = sum((mesh.vertices[index].co for index in component), Vector()) / len(component)
+        points = [mesh.vertices[index].co - center for index in component]
+        axis = Vector((.23, .38, .89)).normalized()
+        for _ in range(8):
+            moments = sum((point * point.dot(axis) for point in points), Vector())
+            if moments.length_squared > 1e-14:
+                axis = moments.normalized()
+        cross = axis.cross(Vector((0, 1, 0)))
+        if cross.length_squared < .01:
+            cross = axis.cross(Vector((0, 0, 1)))
+        cross.normalize()
+        width = [point.dot(cross) for point in points]
+        span = max(width) - min(width)
+        period = max(.0016, min(.008, span / 10))
+        for index, point, transverse in zip(component, points, width):
+            longitudinal = point.dot(axis)
+            phase = 2*pi * transverse / period + .55*cos(29*longitudinal)
+            tint = .95 + .17*cos(phase) + .065*cos(.37*phase)
+            fibers.data[index].color = (min(1, color[0]*tint), color[1]*tint, color[2]*tint, 1)
 
 
 mandible = elements([52748])
 skull = sorted(set(elements([46565], partof)) - set(mandible))
-make_part("skull", "bones", "head", ivory, skull, 12500)
+make_part("skull", "bones", "head", ivory, skull, 12500, view="both")
 make_part("mandible", "bones", "head", ivory, mandible, 4500)
 make_part("sternum", "bones", "trunk", ivory, elements([7485], partof), 2500)
-# Keep vertebrae and sacrum rather than duplicating intervening discs as bone.
+# Model the sacrum separately so it can be selected on either side of the pelvis.
 vertebrae = defaultdict(list)
 for row in (SOURCE / "partof_parts_list_e.txt").read_text().splitlines()[1:]:
     fma, _, label = row.split("\t")
-    if (label.endswith(" vertebra") or label in {"sacrum", "coccyx"}) and not label.startswith(("anterior", "posterior")):
+    if (label.endswith(" vertebra") or label == "coccyx") and not label.startswith(("anterior", "posterior")):
         vertebrae[int(fma.removeprefix("FMA"))] = label
 spine = sorted(set(elements(list(vertebrae), partof)) & set(elements([13478], partof)))
-make_part("spine", "bones", "abdomen", ivory, spine, 11500)
+make_part("spine", "bones", "abdomen", ivory, spine, 11500, view="both")
+make_part("sacrum", "bones", "pelvis", ivory, elements([16202], partof), 2500, view="both")
 
 bones = [
     ("clavicle", "trunk", 13323, 13322),
@@ -200,14 +286,19 @@ hands_feet = {
     },
 }
 for number, side in enumerate(("left", "right")):
-    make_part("ribs", "bones", "trunk", ivory, elements(ribs[number], partof), 10000, side)
+    make_part("ribs", "bones", "trunk", ivory, elements(ribs[number], partof), 10000, side, view="both")
     for term, group, left, right in bones:
+        view = "front" if term in {"clavicle", "patella"} else "both"
         make_part(term, "bones", "pelvis" if term == "pelvis" else group if group == "trunk" else f"{group}_{side}",
-                  ivory, elements([left if number == 0 else right]), 3700, side)
+                  ivory, elements([left if number == 0 else right]), 3700, side, view=view)
 
     for term in ("carpals", "metacarpals", "hand_phalanges", "tarsals", "metatarsals", "foot_phalanges"):
         segment = "hand" if term in ("carpals", "metacarpals", "hand_phalanges") else "foot"
-        make_part(term, "bones", f"{segment}_{side}", ivory, elements(hands_feet[side][term]), 3500, side)
+        make_part(term, "bones", f"{segment}_{side}", ivory, elements(hands_feet[side][term]), 3500, side, view="both")
+
+# The scapulae sit behind the ribs and are painted on top of both rib sprites.
+for side, concept in (("left", 13396), ("right", 13395)):
+    make_part("scapula", "bones", "trunk", ivory, elements([concept], partof), 3300, side, view="back")
 
 muscles = [
     ("pectoralis_major", "trunk", [34691, 79980, 45875], [34690, 79979, 45874]),
@@ -222,13 +313,77 @@ muscles = [
 ]
 for ix, (term, group, left, right) in enumerate(muscles):
     for side, concepts in (("left", left), ("right", right)):
-        make_part(term, "muscles", group if group == "trunk" else f"{group}_{side}",
-                  muscle if ix % 2 == 0 else muscle_dark, elements(concepts), 4800, side)
+        segment = group if group in {"trunk", "abdomen"} else f"{group}_{side}"
+        make_part(term, "muscles", segment, muscle if ix % 2 == 0 else muscle_dark,
+                  elements(concepts), 3250, side, view="both" if term in {"triceps_brachii", "gastrocnemius"} else "front")
 
 for side, id in (("left", "FMA13378"), ("right", "FMA13377")):
-    if not (LEGACY / f"{id}.obj").is_file():
-        raise FileNotFoundError(f"Missing BodyParts3D 3.0 mesh {id}")
-    make_part("rectus_abdominis", "muscles", "abdomen", muscle, [id], 4200, side)
+    make_part("rectus_abdominis", "muscles", "abdomen", muscle, [id], 3600, side)
+
+
+def joint(concept, top):
+    vertices = [v for element in elements([concept]) for v in geometry(element)[0]]
+    ordered = sorted(vertices, key=lambda vertex: vertex[2], reverse=top)
+    extreme = ordered[:max(5, len(ordered)//24)]
+    x, y, z = map(mean, zip(*extreme))
+    return [x, z + offset, -y]
+
+
+body_detail = [
+    ("serratus_anterior", "trunk", [13399], [13398], "front", 2700),
+    ("trapezius", "trunk", [33583, 33585, 33587], [33581, 33584, 33586], "both", 3300),
+    ("brachioradialis", "forearm", [38487], [38486], "front", 2400),
+    ("adductors", "thigh", [22454, 22457, 22460], [22452, 22456, 22459], "front", 3300),
+    ("gluteus_maximus", "pelvis", [22329], [22328], "back", 3100),
+    ("hamstrings", "thigh", [22359, 22449, 45889], [22358, 22448, 45888], "back", 3500),
+    ("sternocleidomastoid", "head", [13409], [13408], "front", 2100),
+    ("thenar_eminence", "hand", [37387, 65199, 37391], [37386, 65198, 37390], "front", 1900),
+    ("hypothenar_eminence", "hand", [37397, 37399, 37401], [37396, 37398, 37400], "front", 1600),
+    ("dorsal_interossei", "hand", [42405], [42404], "front", 1900),
+]
+for ix, (term, group, left, right, view, budget) in enumerate(body_detail):
+    for side, concepts in (("left", left), ("right", right)):
+        segment = f"{group}_{side}" if group in {"forearm", "thigh", "hand"} else group
+        # The right atlas element also includes a duplicate on the left of the midline.
+        cut = ((0, 0, 0), (1, 0, 0)) if term == "sternocleidomastoid" and side == "right" else None
+        make_part(term, "muscles", segment, muscle if ix % 2 == 0 else muscle_dark,
+                  elements(concepts), budget, side, view=view, cut=cut)
+
+hand_paths = {
+    "flexor": {
+        "left": ([38471, 38480, 38484], [38461, 38464, 38618, 38620]),
+        "right": ([38470, 38479, 38482], [38460, 38463, 38617, 38619]),
+    },
+    "extensor": {
+        "left": ([38502, 38505, 38520, 38523, 38526], [38496, 38499, 38508]),
+        "right": ([38501, 38504, 38519, 38522, 38525], [38495, 38498, 38507]),
+    },
+}
+for side, radius in (("left", 23465), ("right", 23464)):
+    wrist = joint(radius, False)[1]
+    for action, definitions in hand_paths.items():
+        finger_muscles, wrist_muscles = definitions[side]
+        make_part(f"{action}_tendons", "muscles", f"hand_{side}", tendon, elements(finger_muscles),
+                  2000, side, cut=((0, 0, wrist), (0, 0, 1)))
+        make_part(f"forearm_{action}s", "muscles", f"forearm_{side}", muscle_dark,
+                  elements(finger_muscles + wrist_muscles), 3500, side,
+                  view="both" if action == "extensor" else "front", cut=((0, 0, wrist), (0, 0, -1)))
+
+for side, name in (("left", "FMA13359"), ("right", "FMA13358")):
+    make_part("latissimus_dorsi", "muscles", "trunk", muscle, [name], 4100, side, view="back")
+
+facial_muscles = [
+    ("frontalis", [46759, 46760], 2900),
+    ("orbicularis_oculi", [46782, 46783, 46785, 46786], 3200),
+    ("orbicularis_oris", [46841], 2400),
+    ("zygomaticus_major", [46812, 46813], 2100),
+    ("masseter", [49001, 49002, 49004, 49005], 3100),
+    ("temporalis", [49007, 49008], 3300),
+    ("buccinator", [46835, 46836], 2000),
+]
+for ix, (term, concepts, budget) in enumerate(facial_muscles):
+    make_part(term, "muscles", "head", muscle if ix % 2 == 0 else muscle_dark,
+              [f"FMA{concept}" for concept in concepts], budget)
 
 organ_types = [
     ("brain", "head", [50801], 17000),
@@ -238,20 +393,52 @@ organ_types = [
     ("small_intestine", "abdomen", [7200], 13000),
     ("large_intestine", "abdomen", [7201], 10000),
     ("kidneys", "abdomen", [7204, 7205], 6500),
+    ("trachea", "head", [7394], 4200),
+    ("urinary_bladder", "abdomen", [15900], 2100),
 ]
 # 4.0's archive contains the pulmonary trees but lacks the solid lobe surfaces.
 make_part("lungs", "organs", "trunk", organs["lungs"],
           ["FMA7333", "FMA7383", "FMA7337", "FMA7370", "FMA7371"], 18500)
 for term, group, concepts, budget in organ_types:
-    make_part(term, "organs", group, organs[term], elements(concepts, partof), budget)
+    make_part(term, "organs", group, organs[term], elements(concepts, partof), budget,
+              view="back" if term == "kidneys" else "front")
 
 
-def joint(concept, top):
-    vertices = [v for element in elements([concept]) for v in geometry(element)[0]]
-    ordered = sorted(vertices, key=lambda vertex: vertex[2], reverse=top)
-    extreme = ordered[:max(5, len(ordered)//24)]
-    x, y, z = map(mean, zip(*extreme))
-    return [x, z + offset, -y]
+def thyroid_geometry():
+    # The two lobes and isthmus wrap the atlas trachea. This is a schematic
+    # because neither BodyParts3D archive contains a thyroid gland surface.
+    shapes = bpy.data.metaballs.new("Thyroid reference")
+    # Blender clamps the metaball grid to a minimum spacing. Model in
+    # decimeters and return meters to retain the curvature of the lobes.
+    shapes.resolution = .007
+    shapes.threshold = .63
+    obj = bpy.data.objects.new("Thyroid reference", shapes)
+    scene.collection.objects.link(obj)
+    for center, dimensions in (
+        ((-.015, -.107, 1.358), (.014, .013, .034)),
+        ((.016, -.105, 1.359), (.014, .013, .036)),
+        ((0, -.113, 1.350), (.026, .0065, .010)),
+    ):
+        lobe = shapes.elements.new(type="ELLIPSOID")
+        lobe.co = Vector(center) * 10
+        lobe.radius = 1
+        lobe.size_x, lobe.size_y, lobe.size_z = (dimension * 10 for dimension in dimensions)
+        lobe.stiffness = 2
+    bpy.context.view_layer.update()
+    resolved = obj.evaluated_get(bpy.context.evaluated_depsgraph_get())
+    mesh = resolved.to_mesh()
+    vertices = [tuple(vertex.co / 10) for vertex in mesh.vertices]
+    faces = [tuple(face.vertices) for face in mesh.polygons]
+    resolved.to_mesh_clear()
+    bpy.data.objects.remove(obj, do_unlink=True)
+    if not vertices or not faces:
+        raise ValueError("Empty thyroid reference surface")
+    return vertices, faces
+
+
+thyroid_source = "LumAR-thyroid-reference-FMA7394"
+raw[thyroid_source] = thyroid_geometry()
+make_part("thyroid_gland", "organs", "head", organs["thyroid_gland"], [thyroid_source], 2700)
 
 
 anchors = {}
@@ -270,6 +457,7 @@ anchors["eye_left"] = [.034, 1.545 + offset, .165]
 anchors["eye_right"] = [-.034, 1.545 + offset, .165]
 
 FRONT = Vector((0, 1, 0))
+BACK = Vector((0, -1, 0))
 FOOT = Vector((0, 1, -.86)).normalized()
 
 def center(concept):
@@ -294,18 +482,55 @@ for side, definition in hands_feet.items():
 
 anchors["thorax_center"] = [0, 1.225 + offset, .12]
 
-size_limit = 4_000_000
+def export_model(collection, output_file):
+    bpy.ops.export_scene.gltf(filepath=str(output_file), collection=collection.name, export_format="GLB",
+                             export_animations=False, export_texcoords=False, export_normals=True,
+                             export_extras=collection.name != "bones")
+    assert output_file.stat().st_size <= 4_000_000, (output_file, output_file.stat().st_size)
+    print(output_file.name, len(collection.objects), output_file.stat().st_size, flush=True)
+
+
+def export_region(name, layer, objects):
+    collection = bpy.data.collections.new(name)
+    scene.collection.children.link(collection)
+    nodes = [(node, collections[layer].objects[node]) for node in objects]
+    try:
+        for node, obj in nodes:
+            collection.objects.link(obj)
+            if name == "hand-muscles":
+                obj.name = node.removesuffix("_right")
+        export_model(collection, REGIONS / f"{name}.glb")
+    finally:
+        for node, obj in nodes:
+            obj.name = node
+        bpy.data.collections.remove(collection)
+
+
 for layer, collection in collections.items():
-    output_file = OUTPUT / f"{layer}.glb"
-    bpy.ops.export_scene.gltf(filepath=str(output_file), collection=layer, export_format="GLB",
-                             export_animations=False, export_texcoords=False, export_normals=True)
-    assert output_file.stat().st_size < size_limit, (layer, output_file.stat().st_size)
-    print(layer, len(collection.objects), output_file.stat().st_size, flush=True)
+    if (layer == "bones" and soft_tissues_only) or (layer != "bones" and posterior_bones_only):
+        continue
+    export_model(collection, OUTPUT / f"{layer}.glb")
+
+if not posterior_bones_only:
+    export_region("hand-muscles", "muscles", [f"{term}_right" for term in (
+        "thenar_eminence", "hypothenar_eminence", "dorsal_interossei", "flexor_tendons", "extensor_tendons",
+    )])
+    export_region("head-muscles", "muscles", [
+        *(term for term, _, _ in facial_muscles), "sternocleidomastoid_left", "sternocleidomastoid_right",
+    ])
+    export_region("head-organs", "organs", ["brain", "trachea", "thyroid_gland"])
 
 collections["reference"] = bpy.data.collections.new("Demo reference only")
 scene.collection.children.link(collections["reference"])
 skin = make_part("body_reference", "reference", "trunk", ivory, ["FJ2810"], 12000)
 records.pop()
+front_trapezius = {}
+for side, concept in (("left", 33587), ("right", 33586)):
+    key = f"trapezius_{side}"
+    original = collections["muscles"].objects[key]
+    front_trapezius[key] = make_part(f"{key}_superior", "reference", "trunk", original.data.materials[0],
+                                     elements([concept]), 1800)
+    records.pop()
 outline = skin.bound_box
 left, right = min(v[0] for v in outline), max(v[0] for v in outline)
 top, bottom = max(v[2] for v in outline), min(v[2] for v in outline)
@@ -341,20 +566,38 @@ for name, position, energy, size in (
     scene.collection.objects.link(obj)
     lights.append((obj, Vector(position)))
 
-def render_sprite(part, destination, resolution, direction=FRONT):
+def sprite_pixel_anchor(png, mirror):
+    image = bpy.data.images.load(str(png), check_existing=False)
+    width, height = image.size
+    pixels = np.empty((height, width, 4), dtype=np.float32)
+    image.pixels.foreach_get(pixels.ravel())
+    if mirror:
+        pixels = np.ascontiguousarray(pixels[:, ::-1, :])
+        image.pixels.foreach_set(pixels.ravel())
+        image.save()
+    opaque = np.argwhere(pixels[:, :, 3] >= .75)
+    y, x = opaque[np.argmin(np.sum((opaque-opaque.mean(axis=0))**2, axis=1))]
+    bpy.data.images.remove(image)
+    return [float((x + .5) / width), float(1 - (y + .5) / height)]
+
+
+def render_sprite(part, destination, resolution, direction=FRONT, *, label=False):
     for collection in collections.values():
         for obj in collection.objects:
             obj.hide_render = (obj != part)
     coords = part.bound_box
     min_x = min(v[0] for v in coords)
     max_x = max(v[0] for v in coords)
-    up = Vector((0, -direction.z, direction.y))
+    posterior = direction == BACK
+    up = Vector((0, 0, 1)) if posterior else Vector((0, -direction.z, direction.y))
     projected_y = [Vector(v).dot(up) for v in coords]
     min_z, max_z = min(projected_y), max(projected_y)
     center = Vector(((min_x+max_x)/2, 0, 0)) + up * ((min_z+max_z)/2)
     camera.rotation_euler = direction.to_track_quat("-Z", "Y").to_euler()
     camera.location = center - 2 * direction
     for lamp, position in lights:
+        if posterior:
+            position = Vector((-position.x, -position.y, position.z))
         lamp.location = center + position
         lamp.rotation_euler = (-position).to_track_quat("-Z", "Y").to_euler()
     size_x, size_y = max_x-min_x, max_z-min_z
@@ -369,21 +612,55 @@ def render_sprite(part, destination, resolution, direction=FRONT):
     camera_data.ortho_scale = max(size_x/width, size_y/height) * 1.045
     width *= camera_data.ortho_scale
     height *= camera_data.ortho_scale
-    png = WORK / f"{part.name}.png"
+    png = WORK / destination.with_suffix(".png").name
     scene.render.filepath = str(png)
     bpy.ops.render.render(write_still=True)
+    label_point = sprite_pixel_anchor(png, posterior) if label else None
     subprocess.run([shutil.which("cwebp") or "cwebp", "-quiet", "-q", "88", "-alpha_q", "95",
                     str(png), "-o", str(destination)], check=True)
-    return [center.x-width/2, -center.dot(up)-height/2, width, height]
+    return [center.x-width/2, -center.dot(up)-height/2, width, height], label_point
 
 
+existing_atlas = json.loads((OUTPUT / "anchors.json").read_text()) if soft_tissues_only or posterior_bones_only else None
+existing_bones = {}
+if soft_tissues_only:
+    records[:] = [row for row in records if row["layer"] != "bones"]
+if posterior_bones_only:
+    records[:] = [row for row in records if row["layer"] == "bones"]
+    existing_bones = {row["id"]: row for row in existing_atlas["parts"] if row["layer"] == "bones"}
 for record in records:
-    part = collections[record["layer"]].objects[record["id"]]
-    direction = FOOT if record["group"].startswith("foot_") else FRONT
-    record["sprite"] = render_sprite(part, SPRITES / f"{part.name}.webp", 560, direction)
-    if direction == FOOT:
-        record["demoSprite"] = render_sprite(part, SPRITES / f"{part.name}_front.webp", 560)
-context = render_sprite(skin, OUTPUT / "body-reference.webp", 900)
+    part_id = record["id"]
+    part = collections[record["layer"]].objects[part_id]
+    view = record.get("view", "front")
+    direction = FOOT if record["group"].startswith("foot_") else BACK if view == "back" else FRONT
+    anterior = front_trapezius.get(part_id) if direction == FRONT else None
+    previous = existing_bones.get(part_id)
+    if previous and view != "back" and part_id != "spine":
+        for field in ("sprite", "demoSprite", "labelPoint"):
+            if field in previous:
+                record[field] = previous[field]
+    else:
+        resolution = 320 if view == "back" and record["layer"] == "bones" else 560
+        label = record["layer"] != "bones" or view == "back" or part_id == "sacrum"
+        record["sprite"], label_point = render_sprite(anterior or part, SPRITES / f"{part_id}.webp", resolution, direction, label=label)
+        if label_point:
+            record["labelPoint"] = label_point
+        if direction == FOOT:
+            record["demoSprite"], _ = render_sprite(part, SPRITES / f"{part.name}_front.webp", 560)
+    if view == "both":
+        resolution = 320 if record["layer"] == "bones" else 560
+        record["backSprite"], record["backLabelPoint"] = render_sprite(
+            part, SPRITES / f"{part.name}_back.webp", resolution, BACK, label=True,
+        )
+if soft_tissues_only:
+    records[:0] = [row for row in existing_atlas["parts"] if row["layer"] == "bones"]
+if posterior_bones_only:
+    latest = json.loads((OUTPUT / "anchors.json").read_text())
+    records.extend(row for row in latest["parts"] if row["layer"] != "bones")
+if existing_atlas:
+    context = existing_atlas["reference"]
+else:
+    context, _ = render_sprite(skin, OUTPUT / "body-reference.webp", 900)
 
 for collection in collections.values():
     for part in collection.objects:
@@ -397,7 +674,7 @@ def rounded(values):
     return [round(value, 6) for value in values]
 
 for row in records:
-    for field in ("sprite", "demoSprite"):
+    for field in ("sprite", "demoSprite", "backSprite", "labelPoint", "backLabelPoint"):
         if field in row:
             row[field] = rounded(row[field])
 

@@ -1,5 +1,5 @@
 import {
-  Color, DirectionalLight, HemisphereLight, MeshStandardMaterial, PerspectiveCamera,
+  Color, DirectionalLight, HemisphereLight, Matrix4, MeshStandardMaterial, PerspectiveCamera,
   Raycaster, Scene, Sphere, Vector2, Vector3, WebGLRenderer, type Material, type Object3D,
 } from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
@@ -21,6 +21,15 @@ export interface ViewportOptions {
 const zoomStep = .8;
 const rotationStep = Math.PI / 18;
 const initialDirection = new Vector3(.14, .08, 1).normalize();
+
+function sameAnchors(previous?: readonly Viewer3DAnchor[], next?: readonly Viewer3DAnchor[]) {
+  if (previous === next) return true;
+  if (!previous || !next || previous.length !== next.length) return false;
+  return previous.every((anchor, index) => {
+    const other = next[index];
+    return anchor.id === other.id && anchor.nodeId === other.nodeId && anchor.point.every((value, i) => value === other.point[i]);
+  });
+}
 
 function highlight(material: Material, color: Color) {
   const selected = material.clone();
@@ -89,15 +98,27 @@ export function mountViewport(
   let localSelection: string | null = null;
   let selection: string | null = null;
   let lastProjection: readonly Viewer3DProjectedAnchor[] | undefined;
+  let lastInputs: { model?: ModelScene; anchors?: readonly Viewer3DAnchor[]; width: number; height: number; layers: number } | undefined;
+  const lastCamera = new Matrix4();
+  const lastLens = new Matrix4();
 
   function reportProjection() {
     const { anchors, onProject } = options();
     if (!onProject) {
       lastProjection = undefined;
+      lastInputs = undefined;
       return;
     }
-    const points = anchors?.length && model && width && height && !contextLost
-      ? projectAnchors(model, camera, anchors, width, height) : [];
+    const projectedModel = contextLost ? undefined : model;
+    const layers = camera.layers.mask;
+    if (lastInputs && lastInputs.model === projectedModel && sameAnchors(lastInputs.anchors, anchors)
+      && lastInputs.width === width && lastInputs.height === height && lastInputs.layers === layers
+      && lastCamera.equals(camera.matrixWorld) && lastLens.equals(camera.projectionMatrix)) return;
+    lastInputs = { model: projectedModel, anchors, width, height, layers };
+    lastCamera.copy(camera.matrixWorld);
+    lastLens.copy(camera.projectionMatrix);
+    const points = anchors?.length && projectedModel && width && height
+      ? projectAnchors(projectedModel, camera, anchors, width, height) : [];
     if (lastProjection?.length === points.length && points.every((point, index) => {
       const previous = lastProjection![index];
       return previous.id === point.id && previous.x === point.x && previous.y === point.y && previous.visible === point.visible;
@@ -159,8 +180,10 @@ export function mountViewport(
   }
 
   function resize() {
-    width = element.clientWidth;
-    height = element.clientHeight;
+    const nextWidth = element.clientWidth, nextHeight = element.clientHeight;
+    if (width === nextWidth && height === nextHeight) return;
+    width = nextWidth;
+    height = nextHeight;
     if (width && height) {
       renderer.setSize(width, height, false);
       camera.aspect = width / height;

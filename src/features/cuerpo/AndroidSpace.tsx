@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Crosshair, ScanLine, Tags, X } from 'lucide-react';
 import {
@@ -8,17 +8,23 @@ import {
 } from 'three';
 import { Button } from '../../shared/ui/Button';
 import { BoneLabels, type BoneTarget } from './BoneLabels';
+import type { AnatomyLayer } from './anatomy';
 import { projectBones } from './boneProjection';
 import { facingYaw, floorHit, requestAndroidAR, requestPlacementAnchor } from './androidXR';
+import { FixedLayerButtons } from './FixedLayerButtons';
 import './android-space.css';
 
-const unavailable = 'La realidad aumentada requiere Chrome y Servicios de Google Play para RA (ARCore) en un Android compatible. Puedes ver el esqueleto en 3D.';
-const failedSession = 'No se pudo abrir la realidad aumentada. Comprueba el permiso de cámara y que ARCore esté actualizado. Puedes ver el esqueleto en 3D.';
+const unavailable = 'La realidad aumentada requiere Chrome y Servicios de Google Play para RA (ARCore) en un Android compatible. Puedes ver la captura en 3D.';
+const failedSession = 'No se pudo abrir la realidad aumentada. Comprueba el permiso de cámara y que ARCore esté actualizado. Puedes ver la captura en 3D.';
 const placementHint = 'Apunta al piso donde estaba la persona y toca para colocar.';
-const positionHint = 'El esqueleto puede moverse un poco mientras usas la cámara.';
+const positionHint = 'La captura puede moverse un poco mientras usas la cámara.';
 type Mode = 'starting' | 'scanning' | 'anchoring' | 'placed';
 type Props = {
   model: Group;
+  layer: AnatomyLayer;
+  available: readonly AnatomyLayer[];
+  onLayerChange: (layer: AnatomyLayer) => void;
+  onPicked: (id: string, nodeName?: string) => void;
   beforeEnter: () => void;
   onExit: () => void;
   onFallback: (message: string) => void;
@@ -26,7 +32,7 @@ type Props = {
 type SceneUpdates = {
   mode: (mode: Mode) => void;
   message: (message: string) => void;
-  select: (id: string | undefined) => void;
+  select: (id: string | undefined, nodeName?: string) => void;
   targets: (targets: BoneTarget[]) => void;
   showAll: () => boolean;
   onError: () => void;
@@ -59,20 +65,9 @@ function createScene(session: XRSession, overlay: HTMLElement, model: Group, upd
   scene.add(fill, key);
 
   const root = new Group();
-  const bones = model.clone(true);
-  root.add(bones);
   root.visible = false;
   scene.add(root);
   const baseMaterials = new Map<Mesh, { material: MeshStandardMaterial; color: Color; intensity: number }[]>();
-  bones.traverse(object => {
-    if (!(object instanceof Mesh)) return;
-    const clones = (Array.isArray(object.material) ? object.material : [object.material])
-      .map(material => material instanceof MeshStandardMaterial ? material.clone() : material);
-    object.material = Array.isArray(object.material) ? clones : clones[0];
-    baseMaterials.set(object, clones.filter(material => material instanceof MeshStandardMaterial).map(material => ({
-      material, color: material.emissive.clone(), intensity: material.emissiveIntensity,
-    })));
-  });
   const accent = new Color(getComputedStyle(overlay).getPropertyValue('--anatomy-highlight').trim() || '#fff3b0');
   const reticleGeometry = new RingGeometry(.075, .09, 42).rotateX(-Math.PI / 2);
   const reticleMaterial = new MeshBasicMaterial({ color: accent, side: DoubleSide });
@@ -98,6 +93,38 @@ function createScene(session: XRSession, overlay: HTMLElement, model: Group, upd
   let requestedPlacement = false;
   let disposed = false;
   let lastProjection = -Infinity;
+  let activeModel: Group | undefined;
+
+  function clearModel() {
+    root.clear();
+    preferred = undefined;
+    for (const entries of baseMaterials.values()) {
+      for (const { material } of entries) material.dispose();
+    }
+    baseMaterials.clear();
+  }
+
+  function replaceModel(next: Group) {
+    if (next === activeModel || disposed) return;
+    activeModel = next;
+    clearModel();
+    const posed = next.clone();
+    posed.traverse(object => {
+      if (!(object instanceof Mesh)) return;
+      const clones = (Array.isArray(object.material) ? object.material : [object.material])
+        .map(material => material instanceof MeshStandardMaterial ? material.clone() : material);
+      object.material = Array.isArray(object.material) ? clones : clones[0];
+      baseMaterials.set(object, clones.filter(material => material instanceof MeshStandardMaterial).map(material => ({
+        material, color: material.emissive.clone(), intensity: material.emissiveIntensity,
+      })));
+    });
+    root.add(posed);
+    root.updateMatrixWorld(true);
+    lastProjection = -Infinity;
+    updates.select(undefined);
+    updates.targets([]);
+  }
+  replaceModel(model);
 
   function setMode(mode: Mode) {
     state = mode;
@@ -115,11 +142,11 @@ function createScene(session: XRSession, overlay: HTMLElement, model: Group, upd
       material.emissiveIntensity = .48;
     }
     lastProjection = -Infinity;
-    updates.select(preferred?.userData.term);
+    updates.select(preferred?.userData.term, preferred?.name);
   }
 
   function rayHit() {
-    return ray.intersectObject(bones, true).find(({ object }) => object.userData.term);
+    return ray.intersectObject(root, true).find(({ object }) => object.userData.term);
   }
 
   function select(event: XRInputSourceEvent) {
@@ -231,7 +258,7 @@ function createScene(session: XRSession, overlay: HTMLElement, model: Group, upd
         const showAll = updates.showAll();
         const selected = preferred?.userData.term;
         if (root.visible && view && (selected || showAll)) {
-          const projected = projectBones(bones, view, preferred);
+          const projected = projectBones(root, view, preferred);
           updates.targets(showAll ? projected : projected.filter(target => target.id === selected));
         } else {
           updates.targets([]);
@@ -247,6 +274,7 @@ function createScene(session: XRSession, overlay: HTMLElement, model: Group, upd
   overlay.addEventListener('beforexrselect', overlaySelect);
 
   return {
+    replaceModel,
     async start() {
       const viewerSpace = await session.requestReferenceSpace('viewer');
       if (disposed) return;
@@ -280,9 +308,7 @@ function createScene(session: XRSession, overlay: HTMLElement, model: Group, upd
       try { hitTest?.cancel(); } catch {}
       deleteAnchor(anchor);
       renderer.setAnimationLoop(null);
-      for (const entries of baseMaterials.values()) {
-        for (const { material } of entries) material.dispose();
-      }
+      clearModel();
       reticleGeometry.dispose();
       reticleMaterial.dispose();
       renderer.dispose();
@@ -292,17 +318,35 @@ function createScene(session: XRSession, overlay: HTMLElement, model: Group, upd
   };
 }
 
-export function AndroidSpace({ model, beforeEnter, onExit, onFallback }: Props) {
+export function AndroidSpace({ model, layer, available, onLayerChange, onPicked, beforeEnter, onExit, onFallback }: Props) {
   const overlay = useRef<HTMLDivElement>(null);
-  const attempt = useRef<{ exit: () => void; cancel: () => void; move: () => void } | null>(null);
+  const toolbar = useRef<HTMLDivElement>(null);
+  const attempt = useRef<{
+    exit: () => void; cancel: () => void; move: () => void; replaceModel: (model: Group) => void;
+  } | null>(null);
+  const currentModel = useRef(model);
   const showAll = useRef(false);
   const [labels, setLabels] = useState(false);
   const [mode, setMode] = useState<Mode | null>(null);
   const [message, setMessage] = useState('');
-  const [selected, setSelected] = useState<string>();
+  const [selection, setSelection] = useState<{ id: string }>();
   const [targets, setTargets] = useState<BoneTarget[]>([]);
+  const [reservedTop, setReservedTop] = useState(0);
 
   useEffect(() => () => attempt.current?.cancel(), []);
+  useLayoutEffect(() => {
+    currentModel.current = model;
+    attempt.current?.replaceModel(model);
+  }, [model]);
+  useLayoutEffect(() => {
+    const controls = toolbar.current;
+    if (!controls) return;
+    const measure = () => setReservedTop(controls.getBoundingClientRect().bottom + 8);
+    const observer = new ResizeObserver(measure);
+    observer.observe(controls);
+    measure();
+    return () => observer.disconnect();
+  }, [mode]);
 
   function enter() {
     if (attempt.current || !overlay.current) return;
@@ -324,7 +368,7 @@ export function AndroidSpace({ model, beforeEnter, onExit, onFallback }: Props) 
       setLabels(false);
       setMode(null);
       setMessage('');
-      setSelected(undefined);
+      setSelection(undefined);
       setTargets([]);
       onExit();
       if (fallback) onFallback(fallback);
@@ -343,7 +387,12 @@ export function AndroidSpace({ model, beforeEnter, onExit, onFallback }: Props) 
       void session.end().catch(ended);
     }
 
-    const active = { exit, cancel: () => { cancelled = true; exit(); }, move: () => scene?.move() };
+    const active = {
+      exit,
+      cancel: () => { cancelled = true; exit(); },
+      move: () => scene?.move(),
+      replaceModel: (next: Group) => scene?.replaceModel(next),
+    };
     attempt.current = active;
     setMode('starting');
     void (async () => {
@@ -352,8 +401,12 @@ export function AndroidSpace({ model, beforeEnter, onExit, onFallback }: Props) 
         session = await requestAndroidAR(xr, controls, beforeEnter);
         session.addEventListener('end', ended, { once: true });
         if (cancelled) { exit(); return; }
-        scene = createScene(session, controls, model, {
-          mode: setMode, message: setMessage, select: setSelected,
+        scene = createScene(session, controls, currentModel.current, {
+          mode: setMode, message: setMessage,
+          select(id, name) {
+            setSelection(id ? { id } : undefined);
+            if (id) onPicked(id, name);
+          },
           targets(next) { setTargets(previous => next.length || previous.length ? next : previous); },
           showAll: () => showAll.current,
           onError() { fallback = failedSession; exit(); },
@@ -369,7 +422,7 @@ export function AndroidSpace({ model, beforeEnter, onExit, onFallback }: Props) 
   }
 
   const placed = mode === 'placed';
-  const guidance = message || (mode === 'scanning' ? placementHint : mode === 'anchoring' ? 'Anclando esqueleto…' : '');
+  const guidance = message || (mode === 'scanning' ? placementHint : mode === 'anchoring' ? 'Anclando captura…' : '');
   return <>
     <Button disabled={mode !== null} onClick={enter}>
       <ScanLine size={17} aria-hidden="true"/> {mode === 'starting' ? 'Abriendo AR…' : 'Ver en mi espacio'}
@@ -377,7 +430,8 @@ export function AndroidSpace({ model, beforeEnter, onExit, onFallback }: Props) 
     {createPortal(
       <div ref={overlay} className="anatomy-android-space">
         {mode && <>
-          <div className="anatomy-android-space-controls">
+          <div className="anatomy-android-space-controls" ref={toolbar}>
+            <FixedLayerButtons layer={layer} available={available} onChange={onLayerChange}/>
             {placed && <>
               <Button variant="secondary" onClick={() => attempt.current?.move()}>
                 <Crosshair size={18} aria-hidden="true"/> Mover
@@ -394,7 +448,8 @@ export function AndroidSpace({ model, beforeEnter, onExit, onFallback }: Props) 
             </Button>
           </div>
           {guidance && <p className="anatomy-android-space-hint" role="status">{guidance}</p>}
-          {placed && <BoneLabels targets={targets} selected={selected} showAll={labels}/>}
+          {placed && <BoneLabels layer={layer} targets={targets} selected={selection?.id} showAll={labels}
+            reservedTop={reservedTop} detailRequest={layer === 'bones' ? undefined : selection}/>}
         </>}
       </div>,
       document.body,
