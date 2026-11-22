@@ -437,7 +437,7 @@ test('la cámara dibuja piezas distales y mantiene el cerebro por encima de los 
   await photograph('organos');
 });
 
-test('una flecha sigue el hueso y muestra la ficha con enlace solo si existe en el catálogo', async ({ page }, testInfo) => {
+test('una flecha sigue el hueso y enlaza su ficha del catálogo', async ({ page }, testInfo) => {
   await useBodyFixture(page);
   await page.goto('/?debug=1');
   await activateBodyCamera(page);
@@ -468,5 +468,5 @@ test('una flecha sigue el hueso y muestra la ficha con enlace solo si existe en 
   await page.getByRole('button', { name: 'Ver ficha de Cráneo' }).press('Enter');
   const skull = page.getByRole('dialog', { name: 'Cráneo' });
   await expect(skull).toBeVisible();
-  await expect(skull.getByRole('link', { name: 'Ver en Explorar 3D' })).toHaveCount(0);
+  await expect(skull.getByRole('link', { name: 'Ver en Explorar 3D' })).toHaveAttribute('href', '#explorar/estructura/skull');
 });

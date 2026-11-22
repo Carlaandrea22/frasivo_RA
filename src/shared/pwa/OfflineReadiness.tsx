@@ -7,6 +7,7 @@ const resources = [
   ['base', 'Interfaz, Huesos y Pose Lite'],
   ['muscles', 'Músculos'],
   ['organs', 'Órganos'],
+  ['explore', 'Modelos de Explorar 3D'],
   ['full', 'Pose Full para fijar el cuerpo'],
   ['hand', 'Seguimiento de manos'],
   ['face', 'Seguimiento facial'],

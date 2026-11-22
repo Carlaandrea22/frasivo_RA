@@ -11,7 +11,8 @@ test('agrupa las variantes de Ubica las partes y permite elegir un modelo o empe
   await page.getByRole('button', { name: 'Empezar reto' }).click();
   await expect(page.getByRole('region', { name: 'Modelo 3D de Pulmones' })).toHaveAttribute('data-viewer-state', 'ready');
   await expect(page.getByRole('button', { name: /^Pista/ })).toHaveCount(0);
-  await expect(page.locator('.retos-drop--overlay')).toHaveCount(5);
+  await expect(page.locator('.retos-drop')).toHaveCount(5);
+  await expect(page.getByRole('group', { name: 'Recuadros fuera de vista' })).toBeVisible();
   const verResultado = page.getByRole('button', { name: 'Ver resultado', exact: true });
   await expect(verResultado).toBeDisabled();
   await expect(verResultado).toHaveAccessibleDescription('Coloca todas las etiquetas de este modelo para continuar.');
@@ -71,6 +72,7 @@ test('un modelo elegido en Señala guarda su resultado y se puede repetir', asyn
   await page.getByRole('button', { name: 'Evaluación', exact: true }).click();
   await page.getByRole('button', { name: 'Empezar reto' }).click();
   await page.getByRole('button', { name: 'Mostrar números para seleccionar' }).click();
+  await expect(page.getByRole('group', { name: 'Piezas fuera de vista' })).toBeVisible();
   for (let i = 1; i <= 5; i++) {
     await page.getByRole('button', { name: `Pieza ${i}`, exact: true }).click();
     await page.getByRole('button', { name: i < 5 ? 'Siguiente' : 'Ver resultado', exact: true }).click();
@@ -177,7 +179,8 @@ test('coloca etiquetas por arrastre y por toques en el modelo', async ({ page })
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/#practicar/retos/partes-femur');
   await page.getByRole('button', { name: 'Empezar reto' }).click();
-  await expect(page.locator('.retos-drop--overlay')).toHaveCount(3);
+  await expect(page.locator('.retos-drop')).toHaveCount(3);
+  await expect(page.locator('.retos-drop--overlay').first()).toBeVisible();
   const ficha = (name: string) => page.getByRole('group', { name: 'Etiquetas de partes' }).getByRole('button', { name });
   const recuadro = (number: number) => page.getByRole('button', { name: new RegExp(`^Recuadro ${number},`) });
   await ficha('Cabeza del fémur').dragTo(recuadro(1));
@@ -360,7 +363,7 @@ test.describe('Ubica las partes con varios modelos', () => {
     for (const [index, [modelo, ...partes]] of modelos.entries()) {
       await expect(page.getByText(`Modelo ${index+1} de ${modelos.length}`, { exact: true })).toBeVisible();
       await expect(page.getByRole('region', { name: `Modelo 3D de ${modelo}`, exact: true })).toHaveAttribute('data-viewer-state', 'ready');
-      await expect(page.locator('.retos-drop--overlay')).toHaveCount(partes.length);
+      await expect(page.locator('.retos-drop')).toHaveCount(partes.length);
       const accionEvaluacion = index === modelos.length-1 ? 'Ver resultado' : 'Siguiente modelo';
       const avanzar = page.getByRole('button', { name: entrenamiento ? 'Comprobar' : accionEvaluacion, exact: true });
       await expect(avanzar).toBeDisabled();

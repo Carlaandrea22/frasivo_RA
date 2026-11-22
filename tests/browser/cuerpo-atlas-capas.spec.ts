@@ -132,8 +132,8 @@ test('la ventana conserva el tórax sin inventar el abdomen y abre el corazón e
   const sheet = page.getByRole('dialog', { name: 'Corazón' });
   await expect(sheet.getByText('Ubicación')).toBeVisible();
   await expect(sheet.getByText('Función')).toBeVisible();
-  await sheet.getByRole('button', { name: 'Ver corazón en 3D' }).click();
-  await expect(sheet.getByRole('region', { name: 'Corazón en corte 3D' })).toHaveAttribute('data-viewer-state', 'ready');
+  await sheet.getByRole('link', { name: 'Ver corazón en 3D' }).click();
+  await expect(page.getByRole('region', { name: 'Modelo 3D de Corazón' })).toHaveAttribute('data-viewer-state', 'ready');
   expect(await page.evaluate(() => Object.values(localStorage).some(value => value.includes('"itemId":"heart"')))).toBe(true);
 });
 

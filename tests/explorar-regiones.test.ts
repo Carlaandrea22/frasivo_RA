@@ -1,7 +1,11 @@
+import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { estructuras } from '../src/content/anatomy/catalogo';
 import { anotaciones } from '../src/content/anotaciones/anatomia';
+import baseline from './fixtures/explorar-atlas-source.json';
+
+const digest = (text: string) => createHash('sha256').update(text).digest('hex');
 
 function glb(path: string) {
   const bytes = readFileSync(path);
@@ -40,12 +44,10 @@ describe('regiones seleccionables del atlas', () => {
     }
   });
   it.each(atlases)('separa triángulos de $output sin duplicarlos ni perder superficie', ({ source, output, ids }) => {
-    const original = glb(`assets/anatomy/body/${source}.glb`);
     const regions = glb(`src/content/anatomy/modelos/${output}-regiones.glb`);
     const additions: Record<string, { asset: ReturnType<typeof glb>; nodeName: string }> = {};
     if (source === 'bones') {
       const vertebrae = glb('src/content/anatomy/modelos/vertebras-adicionales.glb');
-      additions.skull__mandibula = { asset: original, nodeName: 'mandible' };
       additions.spine__atlas = { asset: vertebrae, nodeName: 'atlas' };
       additions.spine__axis = { asset: vertebrae, nodeName: 'axis' };
     }
@@ -53,8 +55,8 @@ describe('regiones seleccionables del atlas', () => {
       const item = estructuras.find(i => i.id === id);
       if (!item) throw new Error(`Falta la ficha ${id}`);
       const nodeId = item.modelo?.nodeId;
-      const oldNode = original.data.nodes.find((n: { name: string }) => n.name === nodeId);
-      const expected = original.indices(original.data.meshes[oldNode.mesh].primitives[0]);
+      // Explorar's GLBs were derived from the pinned atlas before Cuerpo updated its models.
+      const { indexCount, sha256 } = baseline.triangles[nodeId as keyof typeof baseline.triangles];
       const parent = regions.data.nodes.find((n: { name: string }) => n.name === nodeId);
       const pieces = parent.children.map((index: number) => regions.data.nodes[index]);
       const notes = anotaciones.filter(a => a.estructuraId === id);
@@ -65,17 +67,22 @@ describe('regiones seleccionables del atlas', () => {
       for (const piece of pieces) {
         const indices = regions.indices(regions.data.meshes[piece.mesh].primitives[0]);
         expect(indices.length).toBeGreaterThan(0);
+        if (piece.name === 'skull__mandibula') {
+          expect(digest(indices.join(','))).toBe(baseline.mandibleIndices);
+          continue;
+        }
         const addition = additions[piece.name];
         if (addition) {
           const sourceNode = addition.asset.data.nodes.find((n: { name: string }) => n.name === addition.nodeName);
           expect(indices).toEqual(addition.asset.indices(addition.asset.data.meshes[sourceNode.mesh].primitives[0]));
           continue;
         }
-        expect(indices.length).toBeLessThan(expected.length);
+        expect(indices.length).toBeLessThan(indexCount);
         actual.push(...indices);
       }
       const triangles = (indices: number[]) => Array.from({ length: indices.length/3 }, (_, i) => indices.slice(i*3,i*3+3).join(',')).sort();
-      expect(triangles(actual)).toEqual(triangles(expected));
+      expect(actual).toHaveLength(indexCount);
+      expect(digest(triangles(actual).join('\n'))).toBe(sha256);
     }
   });
 });

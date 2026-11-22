@@ -1,0 +1,98 @@
+{
+  "sourceRevision": "a9768a32ef354965e9d391e637f5f2a2269dd0fc",
+  "triangles": {
+    "femur_left": {
+      "indexCount": 9612,
+      "sha256": "d75261376ea2634416a9386fd1569118e2bcf0efe4fa706c98443244b099471b"
+    },
+    "tibia_left": {
+      "indexCount": 5076,
+      "sha256": "c2bfb478e04cf57eaf246bfe24f4c19d311a26eeeb937fe6044c44d18420ff71"
+    },
+    "humerus_left": {
+      "indexCount": 11100,
+      "sha256": "45fd2b0825772d6ee09ee6dea366e9a8795004da0ca3ed4b41147f704755e56f"
+    },
+    "radius_left": {
+      "indexCount": 1896,
+      "sha256": "23a8ee7d85816063847e38c4297e7abce6c7ce675f43fdd3397494458873bb6e"
+    },
+    "pelvis_left": {
+      "indexCount": 6996,
+      "sha256": "63a6e81da489cd639760f407b50ed5a529d1953b4097207043d1c87b28dd7685"
+    },
+    "patella_left": {
+      "indexCount": 930,
+      "sha256": "8c948d15f631dc968bb36b29f5768e2a405c23ffb396ca816c4d1ff8550cb208"
+    },
+    "ulna_left": {
+      "indexCount": 2472,
+      "sha256": "55cad20334fe604b58366ff48893413d396e65ee4956e5a4a1b7f83bd377afa7"
+    },
+    "fibula_left": {
+      "indexCount": 3372,
+      "sha256": "2aee4cb98ab18572b1e430f733c9abf00bf9f83a33566005e198cdceab0051ba"
+    },
+    "sternum": {
+      "indexCount": 7497,
+      "sha256": "11f5b9497f1246a32c44cc21924c95f849cb12dcf6a73552973e2836602d484d"
+    },
+    "skull": {
+      "indexCount": 37431,
+      "sha256": "cc3519937893c083cfee4ad16d890bc25aecc3422aaaa9ca8a4299f2a2e82daa"
+    },
+    "spine": {
+      "indexCount": 34464,
+      "sha256": "59792bfdda54d40365e1c7bdb0482767cb27646c6e7bb9e5782065ae5a0e519d"
+    },
+    "biceps_brachii_left": {
+      "indexCount": 9798,
+      "sha256": "f2029354dab9f44ff9d6ed286c61f77ce93b083c23a79afc58d060120d4b7c46"
+    },
+    "quadriceps_femoris_left": {
+      "indexCount": 14391,
+      "sha256": "de0f0c039c47e9b41a8a6b0f6f9a807dd4c64b5b5e3e239afa3cc616514a8354"
+    },
+    "deltoid_left": {
+      "indexCount": 14391,
+      "sha256": "d595854e84190024ae1f7619d908bcc82e7fc497b5540d7c863533e8e4fbf308"
+    },
+    "triceps_brachii_left": {
+      "indexCount": 14400,
+      "sha256": "80f312551bbf1391ccfef2f53cdf92bf183e85a137950707c0c692c3673aaca1"
+    },
+    "gastrocnemius_left": {
+      "indexCount": 14400,
+      "sha256": "3057ba5fe4e070175b855abadbdf15877a72c1c70fbac36a90ba2bf7151844e8"
+    },
+    "kidneys": {
+      "indexCount": 15876,
+      "sha256": "637ca3fedf4dfd91d327f4bb327665923d2ceb034f44199e8f926ba66c3df592"
+    },
+    "stomach": {
+      "indexCount": 5430,
+      "sha256": "718e81866bf125c782e05101787c5c31f19e4c5fd56bae766a5c5f954a826057"
+    },
+    "brain": {
+      "indexCount": 50973,
+      "sha256": "526d3c450423e35384c2856ea61808743d864e3925407af312c6f7af0f2f4a2a"
+    },
+    "liver": {
+      "indexCount": 31452,
+      "sha256": "d6cf08c98a1678fcce00a3a174f535c79ee278acef3611291117db96d7dab0d6"
+    },
+    "small_intestine": {
+      "indexCount": 39000,
+      "sha256": "a08e89b71d2ed9e52bd17067729a468b8ae65980a49c02e62dc89b73ed61f843"
+    },
+    "large_intestine": {
+      "indexCount": 29850,
+      "sha256": "966fc4c29a871b299accf1d514539a678cbd15fc85482bcb396a092bfd048582"
+    },
+    "lungs": {
+      "indexCount": 55491,
+      "sha256": "1ce28a5df1a3026d7437b683df00de3914ae9ee210f4b4ffe7b616c275e582e3"
+    }
+  },
+  "mandibleIndices": "432f9d41cbaa7ef1fb2490d4645ee56ebb832b12a90f602a22062fc8cb21a7d5"
+}

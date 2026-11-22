@@ -53,8 +53,10 @@ const geometryLayers = {
   bones: new Set(['bones', 'hand', 'head', 'foot']),
   muscles: new Set(['muscles', 'hand-muscles', 'head-muscles']),
   organs: new Set(['organs', 'head-organs', 'heart-cutaway']),
+  explore: new Set((await readdir('src/content/anatomy/modelos'))
+    .filter(name => name.endsWith('.glb')).map(name => name.slice(0, -4))),
 };
-const layers = { muscles: [], organs: [] };
+const layers = { muscles: [], organs: [], explore: [] };
 for (const url of urls) {
   const asset = /^\/assets\/(.+)-[\w-]{8}\.(glb|webp)$/.exec(url);
   if (!asset) continue;
@@ -62,7 +64,7 @@ for (const url of urls) {
   const layer = format === 'webp' ? spriteLayers.get(name) :
     Object.keys(geometryLayers).find(key => geometryLayers[key].has(name));
   if (format === 'glb' && !layer) throw new Error(`No se asignó una capa a ${url}.`);
-  if (layer === 'muscles' || layer === 'organs') layers[layer].push(url);
+  if (layer === 'muscles' || layer === 'organs' || layer === 'explore') layers[layer].push(url);
 }
 
 const optional = new Set([simd, ...nosimd, ...Object.values(tracking).map(([url]) => url), ...Object.values(layers).flat()]);

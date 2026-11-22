@@ -3,6 +3,7 @@ export interface OfflineStatus {
   camera: boolean;
   muscles: boolean;
   organs: boolean;
+  explore: boolean;
   full: boolean;
   hand: boolean;
   face: boolean;

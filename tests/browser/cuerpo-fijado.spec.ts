@@ -144,7 +144,7 @@ for (const { layer, name } of layers.slice(1)) {
       await page.mouse.click(tip.x, tip.y);
       const detail = page.getByRole('dialog', { name: 'Corazón' });
       await expect(detail.getByText('Función')).toBeVisible();
-      await expect(detail.getByRole('button', { name: 'Ver corazón en 3D' })).toBeVisible();
+      await expect(detail.getByRole('link', { name: 'Ver corazón en 3D' })).toHaveAttribute('href', '#explorar/estructura/heart');
       expect(await page.evaluate(() => Object.keys(localStorage).some(key => key.startsWith('lumar.progress:v1:event:')))).toBe(true);
     }
   });
