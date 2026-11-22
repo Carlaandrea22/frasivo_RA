@@ -1,4 +1,5 @@
 import { FaceLandmarker, FilesetResolver, HandLandmarker, PoseLandmarker } from '@mediapipe/tasks-vision';
+import type { PoseEngine } from './bodyDiagnostic';
 import type { FaceRegion, HandRegion, Specialist } from './regionalDetection';
 
 const paths = {
@@ -13,17 +14,15 @@ const cachesByModel = {
   face: 'body-face-landmarker-v1',
 };
 
-type PoseModel = 'lite' | 'full';
-type Delegate = 'GPU' | 'CPU';
-interface PoseDetector {
-  model: PoseModel;
-  delegate: Delegate;
+interface PoseDetector extends PoseEngine {
   landmarker: PoseLandmarker;
 }
 
 let pose: PoseDetector | undefined;
 let lite: PoseDetector | undefined;
 let live = false;
+let adaptive = false;
+let reportEngine = false;
 let prepareFull = false;
 let candidate: PoseDetector | undefined;
 let warmupFrames = 0;
@@ -77,7 +76,7 @@ function hardwareWebGL() {
   }
 }
 
-async function createPose(model: PoseModel, delegate: Delegate, fullModel?: Uint8Array): Promise<PoseDetector> {
+async function createPose(model: PoseEngine['model'], delegate: PoseEngine['delegate'], fullModel?: Uint8Array): Promise<PoseDetector> {
   const vision = await wasm();
   const source = fullModel ? { modelAssetBuffer: fullModel } : {
     modelAssetPath: new URL('/body-tracking/pose_landmarker_lite.task', scope.location.origin).href,
@@ -95,10 +94,15 @@ function closePose(detector: PoseDetector) {
   try { detector.landmarker.close(); } catch { /* The graph may already have lost its context. */ }
 }
 
-function useLite() {
+function engineChanged(reason: string) {
+  if (reportEngine && pose) scope.postMessage({ type: 'pose-engine', model: pose.model, delegate: pose.delegate, reason });
+}
+
+function useLite(reason: string) {
   if (pose && lite && pose !== lite) {
     closePose(pose);
     pose = lite;
+    engineChanged(reason);
   }
 }
 
@@ -111,16 +115,19 @@ async function detectPose(frame: ImageBitmap, time: number) {
       if (warmupFrames >= 3 && first.landmarks.length) {
         pose = candidate;
         candidate = undefined;
+        engineChanged('full-activo');
         return first;
       }
       first.close();
       if (warmupFrames >= 6) {
         closePose(candidate);
         candidate = undefined;
+        engineChanged('full-sin-pose-en-calentamiento');
       }
     } catch {
       if (candidate) closePose(candidate);
       candidate = undefined;
+      engineChanged('full-fallo-en-calentamiento');
     }
   }
   try {
@@ -128,13 +135,14 @@ async function detectPose(frame: ImageBitmap, time: number) {
   } catch (error) {
     if (!live) throw error;
     if (pose.model === 'full') {
-      useLite();
+      useLite('full-fallo-inferencia');
       try { return pose.landmarker.detectForVideo(frame, time); } catch { /* Retry using CPU below. */ }
     }
     if (pose.delegate === 'CPU') throw error;
     const failed = pose;
     pose = lite = await createPose('lite', 'CPU');
     closePose(failed);
+    engineChanged('gpu-fallo-inferencia');
     return pose.landmarker.detectForVideo(frame, time);
   }
 }
@@ -162,30 +170,41 @@ async function prepareSpecialist(kind: Specialist) {
 async function process(data: MessageEvent['data']) {
   if (data.type === 'init') {
     if (typeof OffscreenCanvas === 'undefined') throw new Error('Este navegador necesita una versión compatible con OffscreenCanvas.');
-    const model: PoseModel = data.model === 'full' ? 'full' : 'lite';
+    const model = data.model === 'full' ? 'full' : 'lite';
     live = model === 'lite';
-    if (live && hardwareWebGL()) {
-      try { pose = await createPose('lite', 'GPU'); } catch { /* CPU remains available. */ }
+    adaptive = live && data.adaptive !== false;
+    reportEngine = data.diagnostics === true;
+    let reason = data.delegate === 'CPU' || !live ? 'cpu-solicitada' : 'webgl-sin-aceleracion';
+    if (live && data.delegate !== 'CPU' && hardwareWebGL()) {
+      try {
+        pose = await createPose('lite', 'GPU');
+        reason = 'inicio-gpu';
+      } catch {
+        reason = 'inicio-gpu-fallido';
+      }
     }
     pose ??= await createPose(model, 'CPU', model === 'full' ? await loadModel('full') : undefined);
     if (live) lite = pose;
-    scope.postMessage({ type: 'ready' });
+    engineChanged(reason);
+    scope.postMessage({ type: 'ready', model: pose.model, delegate: pose.delegate, adaptive });
     return;
   }
 
-  if (data.type === 'try-full' && live && lite && !prepareFull) {
+  if (data.type === 'try-full' && adaptive && lite && !prepareFull) {
     prepareFull = true;
     try {
       const fullModel = await loadModel('full');
       candidate = await createPose('full', lite.delegate, fullModel);
+      scope.postMessage({ type: 'pose-model-prepared', model: 'full' });
     } catch {
-      // A failed download or unsupported graph leaves the live Lite graph running.
+      engineChanged('full-no-disponible');
     }
     return;
   }
 
   if (data.type === 'use-lite') {
-    useLite();
+    useLite(data.reason === 'full-sin-pose' ? 'full-sin-pose'
+      : data.reason === 'full-inferencia-lenta' ? 'full-inferencia-lenta' : 'full-fps-bajos');
     return;
   }
 

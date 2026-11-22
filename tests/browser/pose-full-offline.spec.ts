@@ -1,4 +1,4 @@
-import { activateBodyCamera } from './body-camera';
+import { activateBodyCamera, expectLiveLiteCpu } from './body-camera';
 import { readFile } from 'node:fs/promises';
 import { expect, test } from '@playwright/test';
 
@@ -12,14 +12,6 @@ test('Fijar descarga Pose Full del mismo origen y lo reutiliza sin conexión', a
   await page.setViewportSize({ width: 375, height: 812 });
   const fixture = `data:image/jpeg;base64,${(await readFile('tests/fixtures/pose-front.jpg')).toString('base64')}`;
   await page.addInitScript(url => {
-    const fullWorkers = new WeakSet<Worker>();
-    const post = Worker.prototype.postMessage;
-    Worker.prototype.postMessage = function (this: Worker, message, ...options: unknown[]) {
-      if (message.type === 'init' && message.model === 'full') fullWorkers.add(this);
-      const send = () => Reflect.apply(post, this, [message, ...options]);
-      if (message.type === 'frame' && fullWorkers.has(this)) setTimeout(send, 550);
-      else send();
-    };
     Object.defineProperty(navigator.mediaDevices, 'getUserMedia', {
       value: async () => {
         const photo = new Image();
@@ -55,13 +47,14 @@ test('Fijar descarga Pose Full del mismo origen y lo reutiliza sin conexión', a
 
   const takePose = async () => {
     await activateBodyCamera(page);
+    await expectLiveLiteCpu(page);
     await page.getByRole('button', { name: 'Fijar esqueleto' }).click();
     await expect(page.getByRole('button', { name: 'Ver en 3D' })).toBeEnabled({ timeout: 15_000 });
     await expect(page.getByText('Esqueleto fijado', { exact: true })).toBeVisible();
   };
 
   await takePose();
-  expect(await cached()).toBe(true);
+  await expect.poll(cached).toBe(true);
   expect(modelRequests.length).toBeGreaterThan(0);
   expect(modelRequests.every(url => url === new URL(fullModel, page.url()).href)).toBe(true);
   const onlineRequests = modelRequests.length;

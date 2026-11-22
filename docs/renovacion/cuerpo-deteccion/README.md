@@ -47,3 +47,20 @@ Los retratos frontales se toman de la foto de dominio público ya incluida en la
 Los registros [antes](cuadros-antes.json.gz) y [después](cuadros-despues.json.gz) contienen el tiempo, visibilidad y coordenadas `[x, y, z, visibilidad]` de los 33 puntos, el conjunto dibujado y los descartes `[hueso, etapa, motivo]`. El registro anterior conserva los mensajes y el resultado del navegador. Sus motivos por hueso se reconstruyen sobre los puntos archivados con las reglas originales de Pose y se apoyan en los mensajes originales para los casos con intervención de un especialista. El registro nuevo obtiene los motivos directamente en `?debug=1`.
 
 Para repetir la medición, ejecuta `npm run build`, sirve `npm run preview -- --port 4177 --strictPort` y ejecuta `node tests/cuerpo-deteccion-benchmark.mjs medicion`. Se puede añadir el nombre de una escena y usar `BODY_CPU_ONLY=1` para desactivar la GPU. Los datos crudos se guardan en `.superpowers/cuerpo-deteccion/`.
+
+## Diagnóstico en el celular
+
+1. Abre Cuerpo desde el navegador del celular. [Vista previa con diagnóstico activado](https://luis-cuerpo-deteccion.frasivo-ra.pages.dev/?debug=1#cuerpo).
+2. Activa la cámara en la capa **Huesos** y encuadra a la persona de frente, de cabeza a pies. Mantén la cámara activa unos 15 segundos y reproduce el fallo si aparece.
+3. Toca **Compartir diagnóstico**. Elige dónde enviarlo o guarda el archivo si el navegador lo descarga. Puedes tocar el botón también después de detener la cámara.
+4. Envía `lumar-diagnostico.json` al equipo. El archivo contiene visibilidades, huesos, regiones, motivos de descarte, FPS y cambios de modelo. La cámara aporta puntuaciones numéricas al informe, sin imágenes, vídeo ni coordenadas.
+
+Para resumir el archivo, ejecuta `node tests/cuerpo-diagnostico-analizar.mjs /ruta/lumar-diagnostico.json` desde el repositorio. El porcentaje usa los cuadros registrados mientras estaba activa la capa Huesos, incluidos los que no devolvieron detección. El registro conserva los últimos 15 segundos de cuadros de Pose de esa sesión y los eventos de selección del motor desde que se activó la cámara. La opción de compartir el archivo depende de la Web Share API. [Especificación Web Share](https://www.w3.org/TR/web-share/).
+
+## Estabilidad de las pruebas de cámara
+
+- En Linux con dos workers, las pruebas exigían más de 20 o 24 FPS para validar vistas de anatomía. Hubo pruebas que recibieron entre 0 y 18 FPS con SwiftShader. En Fijar, algunos casos vencieron esperando un canvas. La captura de esa versión solo aceptaba tres muestras dentro de un segundo. La base actual ya admite reunir las tres muestras en la duración medida y una prueba unitaria conserva ese caso lento. [Ejecución 44974741751](https://github.com/Carlaandrea22/frasivo_RA/actions/runs/44974741751).
+- La evidencia de mano abierta muestra la ficha con el título correcto y sin la marca «Provisional». El cambio `f13802c` ya presente en la base pasó el origen regional a la ficha. En un fallo posterior de la palma muscular, la tarjeta sí estaba visible y el diálogo no se abrió al pulsar Enter. La prueba ahora activa el botón de la tarjeta y el clic sobre flechas calcula la coordenada y la usa en la misma tarea del navegador. [Ejecución 44975731309](https://github.com/Carlaandrea22/frasivo_RA/actions/runs/44975731309) · [Ejecución 45023670131](https://github.com/Carlaandrea22/frasivo_RA/actions/runs/45023670131).
+- Las pruebas de cámara común piden Lite/CPU al worker y desactivan su promoción automática mediante el protocolo de inicio. Esperan atributos de motor, región, proyección o resultado emitido. Una prueba separada carga los modelos reales, calienta Full, comprueba el cambio y confirma el retorno a Lite. Los casos sin conexión esperan la presencia del modelo en la caché y la captura lista.
+
+La repetición local de la base también reprodujo una caída a «Buscando…» mientras se medía la proyección muscular. La prueba intentó acceder a la matriz de un segmento ausente. La comprobación ahora espera a que estén disponibles los segmentos y sus puntos de referencia y conserva el margen geométrico de 15 px.

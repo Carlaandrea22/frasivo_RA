@@ -129,6 +129,11 @@
   pointer-events: none;
 }
 
+.anatomy-share-diagnostic {
+  margin-block-start: 4px;
+  pointer-events: auto;
+}
+
 .anatomy-fps {
   padding: 6px 9px;
   border-radius: var(--radius-soft);

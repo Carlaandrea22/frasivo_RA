@@ -1,4 +1,4 @@
-import { activateBodyCamera } from './body-camera';
+import { activateBodyCamera, expectLiveLiteCpu } from './body-camera';
 import { readFile } from 'node:fs/promises';
 import { expect, test, type Page } from '@playwright/test';
 
@@ -6,16 +6,6 @@ async function cameraPhoto(page: Page, file: string, crop?: [number, number, num
   const source = `data:image/jpeg;base64,${(await readFile(`tests/fixtures/${file}.jpg`)).toString('base64')}`;
   await page.setViewportSize({ width: 375, height: 812 });
   await page.addInitScript(({ source, crop, body, shadow }) => {
-    const results = { pose: 0, hand: 0, face: 0 };
-    Object.assign(window, { regionTestResults: results });
-    window.Worker = class extends Worker {
-      constructor(url: string | URL, options?: WorkerOptions) {
-        super(url, options);
-        this.addEventListener('message', ({ data }) => {
-          if (data.type === 'pose' || data.type === 'hand' || data.type === 'face') results[data.type as keyof typeof results]++;
-        });
-      }
-    };
     Object.defineProperty(navigator.mediaDevices, 'getUserMedia', {
       value: async () => {
         const photo = new Image();
@@ -68,12 +58,13 @@ const scenes = [
 for (const scene of scenes) {
   test(`Huesos muestra la región visible en ${scene.key}`, async ({ page }, testInfo) => {
     await cameraPhoto(page, scene.file, scene.crop);
-    await page.goto('/#cuerpo');
+    await page.goto(scene.key === 'pie' ? '/?debug=1#cuerpo' : '/#cuerpo');
     await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller));
     await activateBodyCamera(page);
+    await expectLiveLiteCpu(page);
     await page.getByRole('button', { name: 'Minimizar controles' }).click();
     await page.getByRole('button', { name: 'Etiquetas', exact: true }).click();
-    await expect(page.locator('.anatomy-status')).toHaveText(scene.status, { timeout: 20000 });
+    await expect(page.locator('.anatomy-stage')).toHaveAttribute('data-body-region', scene.status, { timeout: 20000 });
     const atlas = page.locator('.anatomy-sprites');
     const regional = page.locator('[data-regional-bones]');
     if (scene.label) await expect(page.locator(`[data-bone-label=${scene.label}]`)).toBeVisible();
@@ -87,10 +78,13 @@ for (const scene of scenes) {
       testInfo.annotations.push({ type: 'error de proyección', description: `${await regional.getAttribute(attribute)} px` });
     }
     if (scene.key === 'pie') {
-      await page.waitForFunction(() => {
-        const { pose, hand, face } = (window as unknown as { regionTestResults: Record<string, number> }).regionTestResults;
-        return pose >= 3 && hand >= 2 && face >= 2;
-      }, undefined, { timeout: 15000 });
+      for (const [detector, minimum] of [['pose', 3], ['hand', 2], ['face', 2]] as const) {
+        const metrics = page.locator(`[data-detector=${detector}]`);
+        await expect(metrics).toHaveAttribute('data-detector-state', 'ready');
+        await expect.poll(async () => Number(await metrics.getAttribute('data-detector-frames')), { timeout: 15000 })
+          .toBeGreaterThanOrEqual(minimum);
+      }
+      await expect(page.locator('.anatomy-stage')).toHaveAttribute('data-body-region', scene.status);
       const footLabel = page.locator('[data-bone-label=calcaneus]');
       await expect(footLabel.or(page.getByText('Encuadra a la persona dentro de la silueta'))).toBeVisible();
       await expect(page.getByText('Incluye el tobillo y parte de la pierna para ver los huesos del pie.')).toHaveCount(0);
@@ -112,12 +106,16 @@ for (const scene of scenes) {
     }
     await page.screenshot({ path: testInfo.outputPath(`${scene.key}.png`) });
     if (scene.key === 'mano-abierta') {
-      const tip = await page.locator('line[data-bone-arrow=hand_phalanges]').evaluate(node => {
+      const arrow = page.locator('line[data-bone-arrow=hand_phalanges]');
+      await expect(arrow).toHaveAttribute('data-bone-source', 'phalanx_index_proximal');
+      // A horizontal line can have no layout height. Use its projected tip and click in one browser task.
+      await arrow.evaluate(node => {
         const line = node as SVGLineElement;
-        const point = new DOMPoint(line.x2.baseVal.value, line.y2.baseVal.value).matrixTransform(line.getScreenCTM()!);
-        return { x: point.x, y: point.y };
+        const tip = new DOMPoint(line.x2.baseVal.value, line.y2.baseVal.value).matrixTransform(line.getScreenCTM()!);
+        const hit = document.elementFromPoint(tip.x, tip.y);
+        if (!hit) throw new Error('La flecha termina fuera del área visible.');
+        hit.dispatchEvent(new MouseEvent('click', { bubbles: true, clientX: tip.x, clientY: tip.y }));
       });
-      await page.mouse.click(tip.x, tip.y);
       const detail = page.getByRole('dialog', { name: 'Falange proximal del índice' });
       await expect(detail.getByText('Provisional')).toBeVisible();
       await expect(detail.getByRole('link', { name: 'Ver en Explorar 3D' })).toHaveCount(0);
@@ -131,7 +129,8 @@ test('el atlas conserva ambas piernas y pies con el torso iluminado y las pierna
   await cameraPhoto(page, 'pose-front', [140, 65, 550, 925], true);
   await page.goto('/?debug=1#cuerpo');
   await activateBodyCamera(page);
-  await expect(page.locator('.anatomy-status')).toHaveText('Cuerpo completo', { timeout: 20000 });
+  await expectLiveLiteCpu(page);
+  await expect(page.locator('.anatomy-stage')).toHaveAttribute('data-body-region', 'Cuerpo completo', { timeout: 20000 });
   for (const side of ['left', 'right']) {
     for (const bone of ['humerus', 'radius', 'ulna', 'femur', 'tibia', 'fibula']) {
       await expect(page.locator(`image[data-part=${bone}_${side}]`)).toBeVisible();
@@ -146,10 +145,10 @@ test('una persona sentada mantiene el torso y evita prolongar rodillas flexionad
   await cameraPhoto(page, 'pose-seated');
   await page.goto('/?debug=1#cuerpo');
   await activateBodyCamera(page);
+  await expectLiveLiteCpu(page);
   await expect(page.locator('image[data-part=spine]')).toBeVisible({ timeout: 20000 });
-  const inferredKnee = await page.locator('.anatomy-debug').evaluate(node => {
+  await expect.poll(() => page.locator('.anatomy-debug').evaluate(node => {
     const support: [number, string][] = JSON.parse(node.getAttribute('data-pose-support') ?? '[]');
     return support.some(([index, source]) => (index === 25 || index === 26) && source === 'inferred');
-  });
-  expect(inferredKnee).toBe(false);
+  })).toBe(false);
 });

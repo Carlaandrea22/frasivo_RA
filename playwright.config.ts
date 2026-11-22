@@ -11,7 +11,8 @@ export default defineConfig({
     channel: 'chrome',
     trace: process.env.CI ? 'off' : 'retain-on-failure',
     screenshot: 'only-on-failure',
-    launchOptions: process.platform === 'linux' ? { args: ['--enable-unsafe-swiftshader'] } : undefined,
+    launchOptions: process.platform === 'linux' || process.env.CI
+      ? { args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] } : undefined,
   },
   webServer: {
     command: `npm run preview -- --port ${port} --strictPort`,

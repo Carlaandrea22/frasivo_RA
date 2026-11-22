@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import type { BodyDiagnostic, PoseEngine } from './bodyDiagnostic';
 import { stabilizeLivePose, type LivePose } from './livePose';
 import { useBodyCamera } from './useBodyCamera';
 import { captureWindow, type PoseSample } from './poseCapture';
@@ -12,14 +13,14 @@ const emptyHands: HandRegion[] = [];
 const emptySamples: PoseSample[] = [];
 const emptyPoints: PoseSample['points'] = [];
 const emptyStats = (): Record<DetectorKind, DetectorStat> => ({
-  pose: { fps: 0, ms: null, status: 'idle' },
-  hand: { fps: 0, ms: null, status: 'idle' },
-  face: { fps: 0, ms: null, status: 'idle' },
+  pose: { frames: 0, fps: 0, ms: null, status: 'idle' },
+  hand: { frames: 0, fps: 0, ms: null, status: 'idle' },
+  face: { frames: 0, fps: 0, ms: null, status: 'idle' },
 });
 
 export function usePoseCamera(
   viewportAspect: number, onDetection?: (time: number) => void, detailed = false,
-  regionalHint?: { current: RegionalHint }, paused = false,
+  regionalHint?: { current: RegionalHint }, paused = false, diagnostic?: BodyDiagnostic,
 ) {
   const camera = useBodyCamera(detailed);
   const viewport = useRef(viewportAspect);
@@ -40,17 +41,19 @@ export function usePoseCamera(
   const [face, setFace] = useState<FaceRegion | null>(null);
   const [handChecked, setHandChecked] = useState(false);
   const [detectorStats, setDetectorStats] = useState(emptyStats);
-  const [poseEngine, setPoseEngine] = useState('');
+  const [poseEngine, setPoseEngine] = useState<PoseEngine>();
+  const [poseTime, setPoseTime] = useState<number>();
 
   useEffect(() => {
     if (status !== 'active') return;
     let disposed = false, busy = false, lastVideoTime = -1, started = 0, lastPoseResult = 0;
     let poseFrames = 0, fullLosses = 0;
-    let engine = '', triedFull = false, fullTrial = true;
+    let engine = '', adaptive = true, triedFull = false, fullTrial = true;
     const rates: { time: number; inference: number }[] = [];
     let worker: Worker | undefined;
     const states: Record<DetectorKind, DetectorState> = { pose: 'loading', hand: 'idle', face: 'idle' };
     const last: Record<DetectorKind, number> = { pose: -Infinity, hand: -Infinity, face: -Infinity };
+    const frameCounts: Record<DetectorKind, number> = { pose: 0, hand: 0, face: 0 };
     const times: Record<DetectorKind, number[]> = { pose: [], hand: [], face: [] };
     const lastSeen: Record<Specialist, number> = { hand: 0, face: 0 };
     const missed: Record<Specialist, number> = { hand: 0, face: 0 };
@@ -62,7 +65,9 @@ export function usePoseCamera(
     setHands(emptyHands);
     setFace(null);
     setHandChecked(false);
-    setPoseEngine('');
+    setPoseEngine(undefined);
+    setPoseTime(undefined);
+    diagnostic?.reset(performance.now());
     setTracking('loading');
 
     function updateStats() {
@@ -72,7 +77,7 @@ export function usePoseCamera(
         times[detector] = times[detector].filter(time => time >= cutoff);
         const samples = times[detector];
         const elapsed = samples.length > 1 ? samples.at(-1)! - samples[0] : 0;
-        next[detector] = { fps: elapsed > 170 ? Math.round((samples.length-1)*1000 / elapsed*10)/10 : 0,
+        next[detector] = { frames: frameCounts[detector], fps: elapsed > 170 ? Math.round((samples.length-1)*1000 / elapsed*10)/10 : 0,
           ms: durations[detector], status: states[detector] };
       }
       setDetectorStats(next);
@@ -97,7 +102,11 @@ export function usePoseCamera(
         if (data.type === 'ready') {
           clearTimeout(startup);
           states.pose = 'ready';
+          adaptive = data.adaptive;
+          setPoseEngine({ model: data.model, delegate: data.delegate });
           setTracking('searching');
+        } else if (data.type === 'pose-engine') {
+          diagnostic?.engine(performance.now(), { model: data.model, delegate: data.delegate }, data.reason);
         } else if (data.type === 'detector-ready' || data.type === 'detector-unavailable') {
           const kind: Specialist = data.kind;
           states[kind] = data.type === 'detector-ready' ? 'ready' : 'unavailable';
@@ -108,6 +117,7 @@ export function usePoseCamera(
           const kind: DetectorKind = data.type;
           const arrived = performance.now();
           if (onDetection) {
+            frameCounts[kind]++;
             times[kind].push(arrived);
             durations[kind] = Math.round(data.ms*10)/10;
           }
@@ -119,17 +129,21 @@ export function usePoseCamera(
             if (engine !== currentEngine) {
               engine = currentEngine;
               rates.length = 0;
-              if (onDetection) setPoseEngine(engine);
+              setPoseEngine({ model: data.model, delegate: data.delegate });
+            }
+            if (diagnostic) {
+              diagnostic.frame(data.time, arrived, { model: data.model, delegate: data.delegate }, data.points);
+              setPoseTime(data.time);
             }
             const wholeBody = hints.current?.current.fullBody;
             if (data.model === 'full' && fullTrial) {
               fullLosses = wholeBody && data.points.length ? 0 : fullLosses+1;
               if (fullLosses >= 3) {
                 fullTrial = false;
-                worker!.postMessage({ type: 'use-lite' });
+                worker!.postMessage({ type: 'use-lite', reason: 'full-sin-pose' });
               }
             }
-            if (highDetail.current && wholeBody) {
+            if (adaptive && highDetail.current && wholeBody) {
               rates.push({ time: arrived, inference: data.ms });
               if (rates.length > 9) rates.shift();
               if (rates.length === 9) {
@@ -137,11 +151,12 @@ export function usePoseCamera(
                 const mean = rates.reduce((sum, item) => sum+item.inference, 0)/rates.length;
                 if (data.model === 'lite' && !triedFull && fps >= 9 && mean < 45) {
                   triedFull = true;
+                  diagnostic?.engine(arrived, { model: 'lite', delegate: data.delegate }, 'full-prueba-fps-suficientes');
                   worker!.postMessage({ type: 'try-full' });
                 } else if (data.model === 'full') {
                   fullTrial = false;
                   if (fps < 9 || mean > 75) {
-                    worker!.postMessage({ type: 'use-lite' });
+                    worker!.postMessage({ type: 'use-lite', reason: fps < 9 ? 'full-fps-bajos' : 'full-inferencia-lenta' });
                     rates.length = 0;
                   }
                 }
@@ -175,7 +190,7 @@ export function usePoseCamera(
         }
       };
       worker.onerror = () => fail('No se pudo cargar el seguimiento corporal. Comprueba la conexión y reintenta.');
-      worker.postMessage({ type: 'init' });
+      worker.postMessage({ type: 'init', diagnostics: Boolean(diagnostic) });
     } catch { fail('El seguimiento corporal no está disponible en este navegador. Puedes explorar la demostración.'); }
 
     const timer = window.setInterval(async () => {
@@ -186,6 +201,7 @@ export function usePoseCamera(
         lastPoseResult = 0;
         setHistory(previous => previous.length ? [] : previous);
         setLivePose(undefined);
+        setPoseTime(undefined);
         setTracking('searching');
       }
       for (const kind of ['hand', 'face'] as const) {
@@ -237,7 +253,7 @@ export function usePoseCamera(
       clearTimeout(startup);
       worker?.terminate();
     };
-  }, [status, stop, videoRef, onDetection]);
+  }, [status, stop, videoRef, onDetection, diagnostic]);
 
   const startCamera = camera.start;
   const start = useCallback(() => {
@@ -254,6 +270,6 @@ export function usePoseCamera(
     hands: status === 'active' && detailed ? hands : emptyHands,
     face: status === 'active' && detailed ? face : null,
     handChecked,
-    detectorStats, poseEngine,
+    detectorStats, poseEngine, poseTime,
   };
 }

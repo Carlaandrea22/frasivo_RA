@@ -38,6 +38,7 @@ interface Props {
   onSelect: (id: string) => void;
   onTargets: (targets: BoneTarget[]) => void;
   onFrame?: (now: number) => void;
+  diagnostic?: boolean;
 }
 
 const assets = {
@@ -505,12 +506,18 @@ export default function RegionalBones(props: Props) {
       renderer.render(scene, camera);
       const next: BoneTarget[] = [];
       const partIds = new Set<string>();
+      const diagnosticBones = view.diagnostic && layer === 'bones' ? new Set<string>() : undefined;
       let count = 0, faceDeformation = 0;
-      for (const { instances } of models.values()) for (const instance of instances) {
+      for (const [kind, { instances }] of models) for (const [instanceIndex, instance] of instances.entries()) {
         if (!instance.group.visible) continue;
         for (const { mesh, skin, anchors } of instance.parts) if (mesh.visible) {
           count++;
-          partIds.add(mesh.userData.term as string);
+          const term = mesh.userData.term as string;
+          partIds.add(term);
+          if (diagnosticBones) {
+            const region = kind === 'foot' || kind === 'hand' ? `${kind}_${instanceIndex === 0 ? 'left' : 'right'}` : 'head';
+            diagnosticBones.add(`${region}:${term}`);
+          }
           if (skin && anchors && instance.faceMotion.size) for (const index of anchors) {
             pixel.fromBufferAttribute(skin.positions, index).applyMatrix4(mesh.matrixWorld);
             restPixel.fromArray(skin.rest, index*3).applyMatrix4(mesh.matrixWorld);
@@ -537,6 +544,7 @@ export default function RegionalBones(props: Props) {
       element.dataset.regionalLayer = layer;
       element.dataset.regionalParts = String(count);
       element.dataset.regionalPartIds = [...partIds].join(' ');
+      if (diagnosticBones) element.dataset.diagnosticBones = [...diagnosticBones].join(' ');
       if (!partIds.has('brain')) delete element.dataset.brainRimClearancePx;
       element.dataset.regionalFeet = String(models.get('foot')?.instances.filter(instance =>
         instance.group.visible && instance.parts.some(part => part.mesh.visible)).length ?? 0);

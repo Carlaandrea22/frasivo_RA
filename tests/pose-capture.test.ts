@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { demoPose } from '../src/features/cuerpo/anatomy';
-import { averagePose, averagePrecisePose, captureIssue, type PoseSample } from '../src/features/cuerpo/poseCapture';
+import { averagePose, averagePreciseCapture, averagePrecisePose, captureIssue, type PoseSample } from '../src/features/cuerpo/poseCapture';
 
 const points = demoPose.map(point => ({ ...point, z: 0 }));
 points[2] = { x: .525, y: .105, z: 0, visibility: 1 };
@@ -66,5 +66,11 @@ describe('captura precisa', () => {
     expect(averagePrecisePose(history.slice(0, 3), 1000, .8, .8)).toBeNull();
     expect(averagePrecisePose(history.map(frame =>
       frame.time === 1400 ? { ...frame, points: [] } : frame), 1000, .8, .8)).toBeNull();
+  });
+
+  it('acepta la captura lenta al reunir tres muestras repartidas en la duración medida', () => {
+    const history = [sample(1060, .01), sample(1620, .03), sample(2180, .05)];
+    expect(averagePreciseCapture(history, 1000, .8, .8)).toBeNull();
+    expect(averagePreciseCapture(history, 1000, .8, .8, 1180)?.world[11].x).toBeCloseTo(.65);
   });
 });

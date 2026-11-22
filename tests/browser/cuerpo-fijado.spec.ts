@@ -1,4 +1,4 @@
-import { activateBodyCamera } from './body-camera';
+import { activateBodyCamera, expectLiveLiteCpu } from './body-camera';
 import { spawnSync } from 'node:child_process';
 import { readFile, writeFile } from 'node:fs/promises';
 import { expect, test, type Page } from '@playwright/test';
@@ -42,7 +42,8 @@ async function capturedBody(page: Page, quickLook = false) {
   }, { source, quickLook });
   await page.goto('/#cuerpo');
   await activateBodyCamera(page);
-  await expect(page.locator('.anatomy-status')).toHaveText('Cuerpo completo', { timeout: 30_000 });
+  await expectLiveLiteCpu(page);
+  await expect(page.locator('.anatomy-stage')).toHaveAttribute('data-body-region', 'Cuerpo completo', { timeout: 30_000 });
 }
 
 const layers = [
@@ -69,8 +70,7 @@ test('cambia de capa con la pose fijada sobre la cámara, en el visor y en el US
   await capturedBody(page, true);
   await page.getByRole('button', { name: /^Fijar/ }).click();
   const camera = page.locator('.anatomy-camera-skeleton');
-  await expect(camera.locator('canvas')).toBeVisible({ timeout: 30_000 });
-  await expect(camera).toHaveAttribute('data-calibration-max-px', /^\d/);
+  await expect(camera).toHaveAttribute('data-calibration-max-px', /^\d/, { timeout: 30_000 });
   const error = await camera.getAttribute('data-calibration-max-px');
   expect(Number(error)).toBeLessThan(24);
   testInfo.annotations.push({ type: 'error de proyección fijada', description: `${error} px en las tres capas` });
@@ -143,17 +143,18 @@ for (const { layer, name } of layers.slice(1)) {
     await capturedBody(page);
     await page.getByRole('group', { name: 'Capa anatómica' }).getByRole('button', { name }).click();
     await page.getByRole('button', { name: /^Fijar/ }).click();
-    await expect(page.locator('.anatomy-camera-skeleton').locator('canvas')).toBeVisible({ timeout: 30_000 });
+    await expect(page.locator('.anatomy-camera-skeleton')).toHaveAttribute('data-calibration-max-px', /^\d/, { timeout: 30_000 });
     await expect(page.locator('.anatomy-camera-skeleton')).toHaveAttribute('data-layer', layer);
     if (layer === 'organs') {
       await page.getByRole('button', { name: 'Etiquetas', exact: true }).click();
       const arrow = page.locator('line[data-bone-arrow=heart]');
-      await expect(arrow).toBeVisible();
+      await expect(arrow).toHaveAttribute('x2', /^\d/);
       const tip = await arrow.evaluate(node => {
         const line = node as SVGLineElement;
         const point = new DOMPoint(line.x2.baseVal.value, line.y2.baseVal.value).matrixTransform(line.getScreenCTM()!);
         return { x: point.x, y: point.y };
       });
+      // The fixed canvas selects on pointer down/up instead of the click event.
       await page.mouse.click(tip.x, tip.y);
       const detail = page.getByRole('dialog', { name: 'Corazón' });
       await expect(detail.getByText('Función')).toBeVisible();
@@ -235,7 +236,7 @@ test('cambia la capa en AR de Android y mantiene la sesión y su anclaje', async
   const reminder = page.getByRole('complementary', { name: 'Tu racha de hoy' });
   await expect(reminder).toHaveCount(0);
   await page.getByRole('button', { name: /^Fijar/ }).click();
-  await expect(page.locator('.anatomy-camera-skeleton canvas')).toBeVisible();
+  await expect(page.locator('.anatomy-camera-skeleton')).toHaveAttribute('data-calibration-max-px', /^\d/);
   await expect(reminder).toHaveCount(0);
   await page.getByRole('button', { name: 'Ver en mi espacio' }).click();
   const overlay = page.locator('.anatomy-android-space');
