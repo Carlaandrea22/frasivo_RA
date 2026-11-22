@@ -5,6 +5,7 @@ import corazon from '../../../assets/anatomy/cardiovascular/heart-cutaway.glb?ur
 import regiones from './modelos/huesos-regiones.glb?url';
 import regionesMusculos from './modelos/musculos-regiones.glb?url';
 import regionesPulmones from './modelos/pulmones-regiones.glb?url';
+import regionesOrganos from './modelos/organos-regiones.glb?url';
 
 export const modelos: Readonly<Record<string, string>> = {
   'body-bones': huesos,
@@ -14,4 +15,5 @@ export const modelos: Readonly<Record<string, string>> = {
   'body-bones-regions': regiones,
   'muscle-regions': regionesMusculos,
   'lung-regions': regionesPulmones,
+  'organ-regions': regionesOrganos,
 };

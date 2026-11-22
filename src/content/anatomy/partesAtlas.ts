@@ -29,4 +29,43 @@ export const partesAtlas = {
     { id: 'superior_izquierdo', nombreEs: 'Lóbulo superior izquierdo', terminoEn: 'Left upper lobe', ubicacion: 'Parte alta del pulmón izquierdo. Incluye la língula.', funcion: 'Participa en el intercambio de oxígeno y dióxido de carbono.' },
     { id: 'inferior_izquierdo', nombreEs: 'Lóbulo inferior izquierdo', terminoEn: 'Left lower lobe', ubicacion: 'Parte inferior y posterior izquierda, por debajo de la fisura oblicua.', funcion: 'Participa en el intercambio de gases y descansa sobre el diafragma.' },
   ],
+  ulna: [
+    { id: 'olecranon', nombreEs: 'Olécranon', terminoEn: 'Olecranon', ubicacion: 'Prominencia posterior del extremo cercano al codo.', funcion: 'Recibe el tendón del tríceps y encaja en la fosa olecraniana del húmero al extender el codo.' },
+    { id: 'cuerpo', nombreEs: 'Cuerpo del cúbito', terminoEn: 'Ulnar shaft', ubicacion: 'Porción larga, entre el codo y la muñeca.', funcion: 'Da inserción a músculos y a la membrana interósea que une el cúbito y el radio.' },
+    { id: 'cabeza', nombreEs: 'Cabeza del cúbito', terminoEn: 'Head of the ulna', ubicacion: 'Extremo redondeado cerca de la muñeca.', funcion: 'Se articula con el radio y participa en la rotación del antebrazo.' },
+  ],
+  fibula: [
+    { id: 'cabeza', nombreEs: 'Cabeza del peroné', terminoEn: 'Head of the fibula', ubicacion: 'Extremo superior, en el lado externo de la rodilla.', funcion: 'Se articula con la tibia y recibe el tendón del bíceps femoral.' },
+    { id: 'cuerpo', nombreEs: 'Cuerpo del peroné', terminoEn: 'Fibular shaft', ubicacion: 'Porción larga en el lado externo de la pierna.', funcion: 'Da inserción a músculos que mueven el pie y a la membrana interósea de la pierna.' },
+    { id: 'maleolo', nombreEs: 'Maléolo lateral', terminoEn: 'Lateral malleolus', ubicacion: 'Prominencia ósea en el lado externo del tobillo.', funcion: 'Se articula con el astrágalo y contribuye a la estabilidad del tobillo.' },
+  ],
+  sternum: [
+    { id: 'manubrio', nombreEs: 'Manubrio', terminoEn: 'Manubrium', ubicacion: 'Porción superior y ancha del esternón.', funcion: 'Se articula con las clavículas y recibe los primeros cartílagos costales.' },
+    { id: 'cuerpo', nombreEs: 'Cuerpo del esternón', terminoEn: 'Body of the sternum', ubicacion: 'Porción larga entre el manubrio y la apófisis xifoides.', funcion: 'Sirve de unión a varios cartílagos costales en la parte anterior del tórax.' },
+    { id: 'xifoides', nombreEs: 'Apófisis xifoides', terminoEn: 'Xiphoid process', ubicacion: 'Pequeño extremo inferior del esternón.', funcion: 'Da inserción a fibras del diafragma y a tejidos de la pared abdominal.' },
+  ],
+  deltoid: [
+    { id: 'clavicular', nombreEs: 'Porción clavicular', terminoEn: 'Clavicular part of the deltoid', ubicacion: 'Por delante del hombro, nace en la clavícula.', funcion: 'Ayuda a llevar el brazo hacia delante y a girarlo hacia dentro.' },
+    { id: 'acromial', nombreEs: 'Porción acromial', terminoEn: 'Acromial part of the deltoid', ubicacion: 'En el lado del hombro, nace en el acromion.', funcion: 'Eleva el brazo hacia el lado, alejándolo del tronco.' },
+    { id: 'espinal', nombreEs: 'Porción espinal', terminoEn: 'Spinal part of the deltoid', ubicacion: 'Por detrás del hombro, nace en la espina de la escápula.', funcion: 'Ayuda a llevar el brazo hacia atrás y a girarlo hacia fuera.' },
+  ],
+  triceps_brachii: [
+    { id: 'cabeza_larga', nombreEs: 'Cabeza larga', terminoEn: 'Long head of the triceps', ubicacion: 'Porción posterior que nace en la escápula y cruza el hombro.', funcion: 'Extiende el codo y ayuda a llevar el brazo hacia atrás.' },
+    { id: 'cabeza_lateral', nombreEs: 'Cabeza lateral', terminoEn: 'Lateral head of the triceps', ubicacion: 'Porción superficial externa, nace en la cara posterior del húmero.', funcion: 'Contribuye a extender el codo.' },
+    { id: 'cabeza_medial', nombreEs: 'Cabeza medial', terminoEn: 'Medial head of the triceps', ubicacion: 'Porción profunda, visible cerca del codo.', funcion: 'Contribuye a extender el codo.' },
+  ],
+  gastrocnemius: [
+    { id: 'cabeza_medial', nombreEs: 'Cabeza medial', terminoEn: 'Medial head of the gastrocnemius', ubicacion: 'En el lado interno de la pantorrilla, nace detrás del cóndilo medial del fémur.', funcion: 'Ayuda a levantar el talón y a flexionar la rodilla.' },
+    { id: 'cabeza_lateral', nombreEs: 'Cabeza lateral', terminoEn: 'Lateral head of the gastrocnemius', ubicacion: 'En el lado externo de la pantorrilla, nace detrás del cóndilo lateral del fémur.', funcion: 'Ayuda a levantar el talón y a flexionar la rodilla.' },
+  ],
+  stomach: [
+    { id: 'cardias', nombreEs: 'Cardias', terminoEn: 'Cardia', ubicacion: 'Región de entrada, donde el esófago se une al estómago.', funcion: 'Recibe el alimento que llega desde el esófago.' },
+    { id: 'fondo', nombreEs: 'Fondo gástrico', terminoEn: 'Gastric fundus', ubicacion: 'Cúpula del estómago, arriba y a la izquierda del cardias.', funcion: 'Se distiende para alojar parte del alimento ingerido.' },
+    { id: 'cuerpo', nombreEs: 'Cuerpo gástrico', terminoEn: 'Body of the stomach', ubicacion: 'Porción central y más amplia, debajo del fondo.', funcion: 'Mezcla el alimento con el jugo gástrico.' },
+    { id: 'pilorica', nombreEs: 'Región pilórica', terminoEn: 'Pyloric region', ubicacion: 'Porción final y estrecha que conduce al duodeno.', funcion: 'Ayuda a triturar el contenido y regula su salida hacia el intestino delgado.' },
+  ],
+  kidneys: [
+    { id: 'derecho', nombreEs: 'Riñón derecho', terminoEn: 'Right kidney', ubicacion: 'A la derecha de la columna, suele quedar un poco más bajo por la presencia del hígado.', funcion: 'Filtra la sangre y produce orina, que pasa al uréter derecho.' },
+    { id: 'izquierdo', nombreEs: 'Riñón izquierdo', terminoEn: 'Left kidney', ubicacion: 'A la izquierda de la columna, en la parte posterior del abdomen.', funcion: 'Filtra la sangre y produce orina, que pasa al uréter izquierdo.' },
+  ],
 } satisfies Record<string, readonly ParteAnatomica[]>;

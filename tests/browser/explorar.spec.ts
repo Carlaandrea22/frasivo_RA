@@ -9,7 +9,7 @@ for (const width of [375, 1440]) test(`Explorar: catálogo y corazón a ${width}
   await search.fill('no-existe');
   await expect(page.getByRole('button', { name: 'Limpiar búsqueda' })).toBeVisible();
   await page.getByRole('button', { name: 'Limpiar búsqueda' }).click();
-  await expect(page.locator('.explorar-grid > article')).toHaveCount(2);
+  await expect(page.locator('.explorar-grid > article')).toHaveCount(4);
   await expect(page.locator('.explorar-grid').getByText('Provisional', { exact: true })).toHaveCount(0);
   await page.screenshot({ path: `docs/capturas/carla/catalogo-organos-${width}.png`, fullPage: true });
   await page.getByRole('link', { name: /Ver corazón/i }).click();
@@ -66,6 +66,28 @@ test('las fichas ampliadas muestran sus partes y reproducen el audio del atlas',
   const response = page.waitForResponse(r => /left-lower-lobe.*\.mp3/.test(r.url()) && r.ok());
   await page.getByRole('button', { name: 'Escuchar Left lower lobe' }).click();
   expect((await response).headers()['content-type']).toContain('audio/');
+});
+
+test('las fichas nuevas se encuentran en el catálogo y se conectan al selector de práctica', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 900 });
+  const fichas = [
+    ['huesos', 'cubito', 'Cúbito', 3], ['huesos', 'fibula', 'Peroné', 3], ['huesos', 'sternum', 'Esternón', 3],
+    ['musculos', 'deltoid', 'Deltoides', 3], ['musculos', 'triceps', 'Tríceps braquial', 3], ['musculos', 'gastrocnemius', 'Gastrocnemio', 2],
+    ['organos', 'stomach', 'Estómago', 4], ['organos', 'kidneys', 'Riñones', 2],
+  ] as const;
+  for (const [categoria, termino, nombre, partes] of fichas) {
+    await page.goto(`/#explorar/${categoria}`);
+    await page.getByRole('searchbox', { name: 'Busca en español o inglés' }).fill(termino);
+    await page.getByRole('link', { name: `Ver ${nombre.toLowerCase()}`, exact: true }).click();
+    await expect(page.locator('[data-viewer-state="ready"]')).toBeVisible();
+    const botones = page.getByRole('group', { name: 'Seleccionar parte anatómica' }).getByRole('button');
+    await expect(botones).toHaveCount(partes);
+    await botones.first().click();
+    await expect(page.getByRole('region', { name: 'Parte seleccionada' })).toBeVisible();
+    await page.getByRole('link', { name: 'Practicar esta estructura' }).click();
+    await expect(page.getByRole('link', { name: 'Elegir práctica' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Elegir modelo' })).toBeVisible();
+  }
 });
 
 test('cada ficha del catálogo abre su nodo GLB y ofrece salida ante un ID desconocido', async ({ page }) => {

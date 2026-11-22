@@ -81,6 +81,22 @@ profesional. El catálogo muestra las miniaturas y los nombres.
 Los 55 términos de Explorar incluyen [audio sintetizado con voz femenina en
 inglés estadounidense](../../src/content/anatomy/pronunciacion/README.md).
 
+## Ampliación de Explorar 3D
+
+El catálogo pasa de diez a dieciocho fichas. Se añadieron el cúbito, el peroné,
+el esternón, el deltoides, el tríceps braquial, el gastrocnemio, el estómago y
+los riñones. Se reutilizaron los modelos de BodyParts3D que ya estaban en el
+repositorio. Las ocho fichas incluyen 23 partes o regiones seleccionables y
+31 clips de pronunciación nuevos en inglés estadounidense.
+
+Las ocho estructuras se pueden elegir en «Ubica las partes» y «Señala la
+estructura». La cabeza medial del tríceps queda disponible para explorar y
+ubicar con etiquetas porque su posición profunda dificulta tocarla en el
+modelo. El modelo de los riñones muestra ambos órganos por fuera. Los
+límites del cúbito, el peroné y el estómago son orientativos.
+
+- [Estómago a 375 px](../capturas/carla/atlas-ampliado-estomago-375.png) y [catálogo de órganos en escritorio](../capturas/carla/atlas-ampliado-organos-1440.png).
+
 ## Retos de anatomía · etapa 2
 
 El catálogo de retos incluye cuatro tipos de actividad sobre huesos, corazón y

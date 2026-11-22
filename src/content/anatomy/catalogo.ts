@@ -1,6 +1,7 @@
 import type { CategoriaAnatomica, Estructura, Revision } from '../types';
 import { partesCorazon, revisionCorazon } from './corazon';
 import { partesAtlas } from './partesAtlas';
+import { ampliacionAtlas } from './ampliacionAtlas';
 
 const thumbnails = import.meta.glob('./miniaturas/*.webp', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
 const thumbnail = (id: string) => thumbnails[`./miniaturas/${id}.webp`];
@@ -63,9 +64,9 @@ export const estructuras: readonly Estructura[] = [{
   relacionadas: ['pelvis', 'tibia', 'patella'],
   revision: revisionFemur,
 }, ...([
-  ['tibia', 'Tibia', 'Tibia', 'tibia_left', 'Hueso medial de la pierna.', 'Entre la rodilla y el tobillo.', 'Soporta gran parte del peso en la pierna.', ['femur', 'patella']],
+  ['tibia', 'Tibia', 'Tibia', 'tibia_left', 'Hueso medial de la pierna.', 'Entre la rodilla y el tobillo.', 'Soporta gran parte del peso en la pierna.', ['femur', 'patella', 'fibula']],
   ['humerus', 'Húmero', 'Humerus', 'humerus_left', 'Hueso largo del brazo.', 'Entre el hombro y el codo.', 'Actúa como palanca para los movimientos del brazo.', ['radius']],
-  ['radius', 'Radio', 'Radius', 'radius_left', 'Hueso del antebrazo del lado del pulgar.', 'Entre el codo y la muñeca.', 'Participa en la pronación y supinación del antebrazo.', ['humerus']],
+  ['radius', 'Radio', 'Radius', 'radius_left', 'Hueso del antebrazo del lado del pulgar.', 'Entre el codo y la muñeca.', 'Participa en la pronación y supinación del antebrazo.', ['humerus', 'ulna']],
   ['pelvis', 'Hueso coxal', 'Hip bone', 'pelvis_left', 'Hueso de la cintura pélvica.', 'En la pelvis, articulado con el sacro y el fémur.', 'Transmite cargas al miembro inferior y protege órganos pélvicos.', ['femur']],
   ['patella', 'Rótula', 'Patella', 'patella_left', 'Hueso sesamoideo de la rodilla.', 'En el tendón del cuádriceps, delante de la rodilla.', 'Mejora la palanca del cuádriceps al extender la rodilla.', ['femur', 'tibia']],
 ] as const).map(([id, nombreEs, terminoEn, nodeId, definicion, ubicacion, funcion, relacionadas]): Estructura => ({
@@ -87,10 +88,10 @@ export const estructuras: readonly Estructura[] = [{
   modelo: { assetId: 'lung-regions', nodeId: 'lungs' }, miniatura: thumbnail('lungs'), partes: partesAtlas.lungs, relacionadas: ['heart'],
   revision: { estado: 'provisional', fuentes: [{ titulo: 'OpenStax · The Lungs', url: 'https://openstax.org/books/anatomy-and-physiology-2e/pages/22-2-the-lungs' }] },
 }, ...([
-  ['biceps_brachii', 'Bíceps braquial', 'Biceps brachii', 'biceps_brachii_left', 'Músculo anterior del brazo con dos cabezas.', 'En la cara anterior del brazo.', 'Flexiona el codo y supina el antebrazo.', ['humerus', 'radius']],
+  ['biceps_brachii', 'Bíceps braquial', 'Biceps brachii', 'biceps_brachii_left', 'Músculo anterior del brazo con dos cabezas.', 'En la cara anterior del brazo.', 'Flexiona el codo y supina el antebrazo.', ['humerus', 'radius', 'triceps_brachii']],
   ['quadriceps_femoris', 'Cuádriceps femoral', 'Quadriceps femoris', 'quadriceps_femoris_left', 'Grupo muscular anterior del muslo.', 'En la cara anterior del muslo.', 'Extiende la rodilla; el recto femoral también flexiona la cadera.', ['femur', 'patella']],
 ] as const).map(([id, nombreEs, terminoEn, nodeId, definicion, ubicacion, funcion, relacionadas]): Estructura => ({
   id, categoria: 'musculos', nombreEs, terminoEn, definicion, ubicacion, funcion, relacionadas,
   modelo: { assetId: 'muscle-regions', nodeId }, miniatura: thumbnail(nodeId), partes: partesAtlas[id],
   revision: { estado: 'provisional', fuentes: [{ titulo: 'OpenStax · Appendicular muscles', url: `https://openstax.org/books/anatomy-and-physiology-2e/pages/${id === 'biceps_brachii' ? '11-5-muscles-of-the-pectoral-girdle-and-upper-limbs' : '11-6-appendicular-muscles-of-the-pelvic-girdle-and-lower-limbs'}` }] },
-}))];
+})), ...ampliacionAtlas.map(item => ({ ...item, miniatura: thumbnail(item.modelo.nodeId) }))];

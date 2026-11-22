@@ -11,13 +11,14 @@ from piper import PiperVoice, SynthesisConfig
 
 parser = argparse.ArgumentParser()
 parser.add_argument('model', type=Path, help='Path to en_US-ljspeech-medium.onnx')
+parser.add_argument('--missing-only', action='store_true', help='Keep existing catalog clips')
 args = parser.parse_args()
 catalog = Path(__file__).resolve().parent.parent / 'src/content/anatomy'
 output = catalog / 'pronunciacion'
 output.mkdir(exist_ok=True)
 
 terms = set()
-for filename in ('catalogo.ts', 'partesAtlas.ts', 'corazon.ts'):
+for filename in ('catalogo.ts', 'partesAtlas.ts', 'corazon.ts', 'ampliacionAtlas.ts'):
     content = (catalog / filename).read_text(encoding='utf-8')
     terms.update(re.findall(r"terminoEn: '([^']+)'", content))
     if filename == 'catalogo.ts':
@@ -25,14 +26,19 @@ for filename in ('catalogo.ts', 'partesAtlas.ts', 'corazon.ts'):
 
 voice = PiperVoice.load(args.model)
 config = SynthesisConfig(length_scale=1.12)
+generated = 0
 with tempfile.TemporaryDirectory() as directory:
     wav = Path(directory) / 'term.wav'
     for term in sorted(terms):
         name = re.sub(r'[^a-z0-9]+', '-', term.lower()).strip('-')
+        clip = output / (name + '.mp3')
+        if args.missing_only and clip.exists():
+            continue
         with wave.open(str(wav), 'wb') as stream:
             voice.synthesize_wav(term + '.', stream, syn_config=config)
         subprocess.run([
             get_ffmpeg_exe(), '-hide_banner', '-loglevel', 'error', '-y', '-i', str(wav),
-            '-codec:a', 'libmp3lame', '-b:a', '48k', str(output / (name + '.mp3')),
+            '-codec:a', 'libmp3lame', '-b:a', '48k', str(clip),
         ], check=True)
-print(f'{len(terms)} pronunciaciones generadas.')
+        generated += 1
+print(f'{generated} pronunciaciones generadas.')

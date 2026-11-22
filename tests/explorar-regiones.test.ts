@@ -17,10 +17,11 @@ function glb(path: string) {
 }
 
 const atlases = [
-  ['bones', 'huesos', 'femur', 'tibia', 'humerus', 'radius', 'pelvis', 'patella'],
-  ['muscles', 'musculos', 'biceps_brachii', 'quadriceps_femoris'],
-  ['organs', 'pulmones', 'lungs'],
-] as const;
+  { source: 'bones', output: 'huesos', ids: ['femur', 'tibia', 'humerus', 'radius', 'pelvis', 'patella', 'ulna', 'fibula', 'sternum'] },
+  { source: 'muscles', output: 'musculos', ids: ['biceps_brachii', 'quadriceps_femoris', 'deltoid', 'triceps_brachii', 'gastrocnemius'] },
+  { source: 'organs', output: 'pulmones', ids: ['lungs'] },
+  { source: 'organs', output: 'organos', ids: ['stomach', 'kidneys'] },
+];
 
 describe('regiones seleccionables del atlas', () => {
   it('cada parte apunta a su propia malla y mantiene el ID de la estructura', () => {
@@ -32,11 +33,12 @@ describe('regiones seleccionables del atlas', () => {
       expect(notes.every(a => a.nodeId.startsWith(`${item.modelo?.nodeId}__`))).toBe(true);
     }
   });
-  it.each(atlases)('separa triángulos de %s sin duplicarlos ni perder superficie', (source, output, ...ids) => {
+  it.each(atlases)('separa triángulos de $output sin duplicarlos ni perder superficie', ({ source, output, ids }) => {
     const original = glb(`assets/anatomy/body/${source}.glb`);
     const regions = glb(`src/content/anatomy/modelos/${output}-regiones.glb`);
     for (const id of ids) {
-      const item = estructuras.find(i => i.id === id)!;
+      const item = estructuras.find(i => i.id === id);
+      if (!item) throw new Error(`Falta la ficha ${id}`);
       const nodeId = item.modelo?.nodeId;
       const oldNode = original.data.nodes.find((n: { name: string }) => n.name === nodeId);
       const expected = original.indices(original.data.meshes[oldNode.mesh].primitives[0]);

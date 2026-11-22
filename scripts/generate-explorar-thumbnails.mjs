@@ -10,9 +10,9 @@ import { chromium } from '@playwright/test';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const output = new URL('../src/content/anatomy/miniaturas/', import.meta.url);
 const targets = [
-  ['body/bones', ['femur_left','tibia_left','humerus_left','radius_left','pelvis_left','patella_left']],
-  ['body/muscles', ['biceps_brachii_left','quadriceps_femoris_left']],
-  ['body/organs', ['lungs']],
+  ['body/bones', ['femur_left','tibia_left','humerus_left','radius_left','pelvis_left','patella_left','ulna_left','fibula_left','sternum']],
+  ['body/muscles', ['biceps_brachii_left','quadriceps_femoris_left','deltoid_left','triceps_brachii_left','gastrocnemius_left']],
+  ['body/organs', ['lungs','stomach','kidneys']],
   ['cardiovascular/heart-cutaway', [null]],
 ];
 const server = await createServer({ root, server: { host: '127.0.0.1', port: 4186, strictPort: true } });

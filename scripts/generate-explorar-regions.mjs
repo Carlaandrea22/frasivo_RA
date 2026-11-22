@@ -21,6 +21,16 @@ const boneMasks = {
     vertice: ([,y]) => y < .377,
     cara_articular: ([,y,z]) => y > .38 && z < .110,
   },
+  ulna_left: {
+    olecranon: ([,y,z]) => y > 1.042 && z < .092,
+    cuerpo: ([,y]) => y < 1.015 && y > .838,
+    cabeza: ([,y]) => y < .832,
+  },
+  fibula_left: {
+    cabeza: ([,y]) => y > .337,
+    cuerpo: ([,y]) => y > .032 && y < .322,
+    maleolo: ([,y]) => y < .023,
+  },
 };
 
 // Group the disconnected surfaces already present in the mesh. Blender may
@@ -58,14 +68,29 @@ function byComponent(positions, triangles, names, split) {
 const generatedPoints = {};
 const output = new URL('../src/content/anatomy/modelos/', import.meta.url);
 await mkdir(output,{ recursive:true });
-await generate('bones', 'huesos-regiones.glb', Object.fromEntries(Object.entries(boneMasks).map(([id,masks]) => [id, () => center => Object.entries(masks).find(([,mask]) => mask(center))?.[0] ?? 'base'])));
+await generate('bones', 'huesos-regiones.glb', {
+  ...Object.fromEntries(Object.entries(boneMasks).map(([id,masks]) => [id, () => center => Object.entries(masks).find(([,mask]) => mask(center))?.[0] ?? 'base'])),
+  sternum: (points,triangles) => byComponent(points,triangles,['cuerpo','manubrio','xifoides']),
+});
 await generate('muscles', 'musculos-regiones.glb', {
   biceps_brachii_left: (points,triangles) => byComponent(points,triangles,['cabeza_corta','cabeza_larga']),
   quadriceps_femoris_left: (points,triangles) => byComponent(points,triangles,['vasto_lateral','recto_femoral','vasto_medial','vasto_intermedio']),
+  deltoid_left: (points,triangles) => byComponent(points,triangles,['clavicular','espinal','acromial']),
+  triceps_brachii_left: (points,triangles) => byComponent(points,triangles,['cabeza_lateral','cabeza_larga','cabeza_medial']),
+  gastrocnemius_left: (points,triangles) => byComponent(points,triangles,['cabeza_medial','cabeza_lateral']),
 });
 await generate('organs', 'pulmones-regiones.glb', {
   lungs: (points,triangles) => byComponent(points,triangles,['inferior_derecho','superior_derecho','inferior_izquierdo','superior_izquierdo'],
     (name,[,y,z]) => name === 'superior_derecho' && y < 1.259 && z > .115 ? 'medio_derecho' : name),
+});
+await generate('organs', 'organos-regiones.glb', {
+  kidneys: () => ([x]) => x > 0 ? 'izquierdo' : 'derecho',
+  stomach: () => ([x,y]) => {
+    if (x < .017 && y > 1.113) return 'cardias';
+    if (x < .020 && y < 1.089) return 'pilorica';
+    if (y > 1.135) return 'fondo';
+    return 'cuerpo';
+  },
 });
 await writeFile(new URL('../src/content/anotaciones/puntos-regiones.json',import.meta.url),JSON.stringify(generatedPoints,null,2)+'\n');
 

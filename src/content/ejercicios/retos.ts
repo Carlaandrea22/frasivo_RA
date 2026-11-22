@@ -104,13 +104,21 @@ function preguntasDeSenalar(estructuraId: string): readonly PreguntaReto[] {
   const estructura = estructuras.find(item => item.id === estructuraId)!;
   const notas = anotaciones.filter(note => note.estructuraId === estructuraId);
   const respuestas = notas.map(note => ({ id: note.parteId, texto: note.etiquetaEs, nodeId: note.nodeId }));
-  // The intermedius lies under rectus femoris and can't reliably be tapped directly.
-  return estructura.partes.filter(parte => parte.id !== 'vasto_intermedio').map(parte => ({
+  // The deep heads can be studied with labels but are difficult to tap directly.
+  const partesTocables = estructura.partes.filter(parte => parte.id !== 'vasto_intermedio'
+    && !(estructuraId === 'triceps_brachii' && parte.id === 'cabeza_medial'));
+  return partesTocables.map(parte => ({
     id: `toca-${estructuraId}-${parte.id}`, enunciado: `Toca: ${parte.nombreEs} · ${parte.terminoEn}`,
     estructuraId, respuestas, correctaId: parte.id, pistas: [parte.ubicacion],
     feedbackError: `${parte.ubicacion} ${parte.funcion}`,
   }));
 }
+
+const recorridosAmpliacion = [
+  { id: 'huesos-ampliacion', titulo: 'Cúbito, peroné y esternón', modelos: ['ulna', 'fibula', 'sternum'] },
+  { id: 'musculos-ampliacion', titulo: 'Deltoides, tríceps y gastrocnemio', modelos: ['deltoid', 'triceps_brachii', 'gastrocnemius'] },
+  { id: 'organos-ampliacion', titulo: 'Estómago y riñones', modelos: ['stomach', 'kidneys'] },
+] as const;
 
 export const retos: readonly Reto[] = [
   {
@@ -246,6 +254,10 @@ export const retos: readonly Reto[] = [
   retoDeModelos('senala-huesos', 'Señala partes de los huesos', 'senala-estructura', ['femur', 'tibia', 'humerus', 'radius', 'pelvis', 'patella'], preguntasDeSenalar),
   retoDeModelos('senala-musculos', 'Señala partes del bíceps y el cuádriceps', 'senala-estructura', ['biceps_brachii', 'quadriceps_femoris'], preguntasDeSenalar),
   retoDeModelos('senala-organos', 'Señala partes del corazón y los pulmones', 'senala-estructura', ['heart', 'lungs'], preguntasDeSenalar),
+  ...recorridosAmpliacion.flatMap(({ id, titulo, modelos }) => [
+    retoDeUbicar(`partes-${id}`, titulo, modelos),
+    retoDeModelos(`senala-${id}`, titulo, 'senala-estructura', modelos, preguntasDeSenalar),
+  ]),
   retoDeFunciones('funcion-huesos', 'Cadera, brazo y antebrazo', ['pelvis', 'humerus', 'radius']),
   retoDeFunciones('funcion-musculos', 'Bíceps y cuádriceps', ['biceps_brachii', 'quadriceps_femoris']),
   retoDeFunciones('funcion-organos', 'Corazón y pulmones', ['heart', 'lungs']),
