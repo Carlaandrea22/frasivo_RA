@@ -1,6 +1,6 @@
 import { estructuras } from '../../content/anatomy/catalogo';
-import type { ModoReto, PreguntaReto, Reto } from '../../content/types';
-import { getProgress, recordDemonstration, recordPractice } from '../../shared/progreso';
+import { retoTypeLabels, type ModoReto, type PreguntaReto, type Reto } from '../../content/types';
+import { getProgress, recordDemonstration, recordPractice, type PracticeEvent } from '../../shared/progreso';
 
 export type Respuestas = Readonly<Record<string, string>>;
 export interface Correccion {
@@ -23,6 +23,18 @@ export const rutaReto = (id: string) => `${rutaRetos}/${id}`;
 export const rutaResultado = (reto: string, intento: string) => `${rutaReto(reto)}/resultado/${encodeURIComponent(intento)}`;
 export const rutaFicha = (id: string) => `#explorar/estructura/${id}`;
 export const nombreEstructura = (id: string) => estructuras.find(item => item.id === id)?.nombreEs ?? id;
+
+export function modeloDelResultado(reto: Reto, registro: PracticeEvent) {
+  return (reto.tipo === 'ubica-partes' || reto.tipo === 'senala-estructura') &&
+    registro.correct + registro.errors < reto.preguntas.length &&
+    reto.preguntas.some(pregunta => pregunta.estructuraId === registro.itemId) ? registro.itemId : undefined;
+}
+
+export function tituloResultadoReto(reto: Reto, registro: PracticeEvent) {
+  const modeloId = modeloDelResultado(reto, registro);
+  return modeloId && reto.estructurasRelacionadas.length > 1
+    ? `${retoTypeLabels[reto.tipo]} · ${nombreEstructura(modeloId)}` : reto.titulo;
+}
 
 export function asignar(respuestas: Respuestas, pregunta: string, opcion: string): Respuestas {
   // A label or function can be in only one slot, even when it is moved directly.
@@ -57,6 +69,7 @@ export function guardarResultado(reto: Reto, resultado: Resultado) {
   const target = { areaId: 'anatomy', groupId: estructura?.categoria, itemId: estructura?.id ?? reto.id, activityId: reto.id };
   const intento = recordPractice({
     ...target, correct, errors: resultado.correcciones.length - correct, hints: resultado.totalPistas,
+    retried: resultado.correcciones.some(row => row.erroresPrevios.length > 0),
     context: { kind: 'reto', mode: resultado.modo },
   });
   const key = claves + intento.id;
@@ -71,21 +84,29 @@ export function ultimoIntento(reto: Reto) {
     event.activityId === reto.id).at(-1);
 }
 
+function leerCorrecciones(reto: Reto, id: string): Correccion[] {
+  const key = claves + id;
+  let raw = memoria.get(key);
+  try { raw = localStorage.getItem(key) ?? raw; } catch { /* Use the in-memory copy if storage is unavailable. */ }
+  if (!raw) return [];
+  try {
+    const rows: unknown = JSON.parse(raw);
+    if (!Array.isArray(rows)) return [];
+    return rows.filter((row): row is Correccion =>
+      row && reto.preguntas.some(p => p.id === row.preguntaId && p.respuestas.some(r => r.id === row.respuestaId))
+      && typeof row.acierto === 'boolean' && Array.isArray(row.erroresPrevios)
+      && row.erroresPrevios.every((answer: unknown) => typeof answer === 'string'));
+  } catch { return []; }
+}
+
+export function retoTuvoReintentos(reto: Reto, registro: PracticeEvent) {
+  return registro.retried ?? (registro.context?.kind === 'reto' && registro.context.mode === 'entrenamiento' &&
+    leerCorrecciones(reto, registro.id).some(row => row.erroresPrevios.length > 0));
+}
+
 export function leerResultado(reto: Reto, id: string) {
   const registro = getProgress().events.find(event => event.kind === 'practice' && event.context?.kind === 'reto' &&
     event.activityId === reto.id && event.id === id);
   if (registro?.kind !== 'practice' || registro.context?.kind !== 'reto') return;
-  let correcciones: Correccion[] = [];
-  try {
-    const key = claves + id;
-    const rows: unknown = JSON.parse(localStorage.getItem(key) ?? memoria.get(key) ?? '[]');
-    if (Array.isArray(rows)) correcciones = rows.filter((row): row is Correccion =>
-      row && reto.preguntas.some(p => p.id === row.preguntaId && p.respuestas.some(r => r.id === row.respuestaId))
-      && typeof row.acierto === 'boolean' && Array.isArray(row.erroresPrevios)
-      && row.erroresPrevios.every((answer: unknown) => typeof answer === 'string'));
-  } catch {
-    const raw = memoria.get(claves + id);
-    if (raw) correcciones = JSON.parse(raw);
-  }
-  return { registro, correcciones, modo: registro.context.mode };
+  return { registro, correcciones: leerCorrecciones(reto, id), modo: registro.context.mode };
 }

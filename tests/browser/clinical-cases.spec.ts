@@ -164,7 +164,7 @@ test('completa los cuatro modos en cinco casos y muestra los resultados al final
   await expect(page.getByText('Meta de hoy completada')).toBeVisible();
   await expect(page.getByRole('heading', { name: '1 día de racha' })).toBeVisible();
   await expect(page.getByText('Casos clínicos realizados')).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Casos por tipo de ejercicio' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Prácticas por tipo de ejercicio' })).toBeVisible();
 });
 
 test('permite practicar un modo y mantiene visible la tarjeta durante el arrastre', async ({ page }) => {

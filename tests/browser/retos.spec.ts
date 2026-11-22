@@ -126,6 +126,20 @@ test('Entrenamiento permite usar una pista, corregir la respuesta y repasar el e
   await page.reload();
   await page.getByRole('button', { name: 'Repasar errores' }).click();
   await expect(page.getByRole('link', { name: 'Ver en Explorar 3D' })).toHaveAttribute('href', '#explorar/estructura/biceps_brachii');
+  await page.getByRole('button', { name: 'Mi progreso' }).click();
+  await expect(page.getByRole('list', { name: 'Mi actividad' })).toContainText(/0%\s*Calificaciones perfectas/);
+  await page.evaluate(() => {
+    for (const [key, value] of Object.entries(localStorage)) {
+      if (!key.startsWith('lumar.progress:v1:event:')) continue;
+      const event = JSON.parse(value);
+      if (event.kind !== 'practice' || event.activityId !== 'repaso-musculos') continue;
+      delete event.retried;
+      localStorage.setItem(key, JSON.stringify(event));
+    }
+  });
+  await page.reload();
+  await expect(page.getByText('Incluye respuestas reintentadas')).toBeVisible();
+  await expect(page.getByRole('list', { name: 'Mi actividad' })).toContainText(/0%\s*Calificaciones perfectas/);
 });
 
 test('Repaso breve permite elegir huesos, músculos u órganos y empezar al azar', async ({ page }) => {
@@ -314,7 +328,13 @@ test('Evaluación del corazón selecciona en 3D y guarda la corrección al termi
   await page.getByRole('link', { name: 'Otro reto' }).click();
   await expect(page.getByRole('link', { name: /Último resultado:/ })).toHaveCount(1);
   await page.getByRole('button', { name: 'Mi progreso' }).click();
-  await expect(page.getByText('Prácticas realizadas · 1')).toBeVisible();
+  await expect(page.getByRole('list', { name: 'Mi actividad' })).toContainText(/1\s*Retos de anatomía realizados/);
+  await expect(page.getByRole('list', { name: 'Distribución de prácticas' })).toContainText(/Señala la estructura\s*1/);
+  await page.getByRole('link', { name: 'Mis prácticas' }).click();
+  const entry = page.getByRole('article').filter({ hasText: 'Explora el corazón en corte' });
+  await expect(entry.getByText('Evaluación')).toBeVisible();
+  await entry.getByRole('link', { name: 'Ver resultado del reto' }).click();
+  await expect(page.getByRole('heading', { name: 'Resultado del reto' })).toBeVisible();
 });
 
 test.describe('Ubica las partes con varios modelos', () => {

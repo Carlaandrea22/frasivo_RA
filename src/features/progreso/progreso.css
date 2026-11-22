@@ -17,7 +17,7 @@
 .progress-page .progress-stats li + li, .progress-page .progress-metrics li + li { margin: 0; }
 .progress-stats {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: clamp(6px, 2vw, 14px);
 }
 .progress-stats li {
@@ -43,6 +43,8 @@
 .progress-entry-heading h2 { font-size: clamp(1.1rem, 3.5vw, 1.5rem); }
 .progress-entry-heading time { color: var(--muted); font-size: .82rem; }
 .progress-caption { display: flex; align-items: center; gap: 6px; color: var(--forest); font-weight: 750; font-size: .83rem; }
+.progress-entry-type { color: var(--muted); font-size: .82rem; }
+.progress-result-link { display: inline-flex; gap: 6px; align-items: center; font-size: .86rem; font-weight: 750; text-underline-offset: 3px; }
 .progress-metrics { display: flex; flex-wrap: wrap; gap: 6px; }
 .progress-metrics li {
   padding: 5px 9px;
@@ -126,10 +128,23 @@
 .progress-recommendation .progress-practice-link { align-self: center; }
 .progress-history-heading { display: grid; justify-items: start; gap: var(--space-1); }
 .progress-history-heading .button { margin-inline-start: -12px; box-shadow: none; border-color: transparent; background: transparent; }
+.lumar-card.progress-history-controls { display: grid; gap: 8px; }
+.progress-history-controls label { color: var(--forest); font-weight: 750; }
+.progress-history-controls .lumar-search { width: 100%; min-height: 44px; padding-inline: 12px; }
+.progress-history-controls .lumar-segmented { margin-top: 4px; }
+.progress-history-count { color: var(--muted); font-size: .88rem; scroll-margin-top: var(--space-4); }
+.progress-history-month { display: grid; gap: 8px; }
+.progress-history-month > h2 { color: var(--forest); font-size: 1rem; }
+.progress-history-month > h2::first-letter { text-transform: uppercase; }
+.lumar-card.progress-history-entry { gap: 7px; padding: clamp(12px, 3vw, 16px); }
+.progress-history-entry h3 { font-size: clamp(.97rem, 3vw, 1.14rem); }
+.progress-history-entry .progress-entry-heading { gap: 3px 10px; }
+.progress-pagination { display: flex; justify-content: center; align-items: center; gap: 12px; color: var(--muted); font-size: .9rem; }
 .progreso-ficha dt { margin-top: var(--space-2); font-weight: 700; }
 .progreso-ficha dd { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
 
 @media (max-width: 620px) {
+  .progress-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .progress-recommendation { grid-template-columns: auto minmax(0, 1fr); }
   .progress-recommendation .progress-practice-link { grid-column: 2; }
 }

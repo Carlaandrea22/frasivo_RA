@@ -1,67 +1,20 @@
 import { useSyncExternalStore } from 'react';
-import { ArrowLeft, ArrowRight, BookOpen, ClipboardList, History, Trophy } from 'lucide-react';
+import { ArrowRight, BookOpen, ClipboardList, History, Target, Trophy } from 'lucide-react';
 import { estructuras } from '../../content/anatomy/catalogo';
-import { casos } from '../../content/casos/rodilla';
-import { clinicalCases } from '../../content/casos/session';
-import { retos } from '../../content/ejercicios/retos';
-import { getProgress, subscribeProgress, type PracticeEvent, type ReasoningText } from '../../shared/progreso';
+import { getProgress, subscribeProgress } from '../../shared/progreso';
 import { useRacha } from '../../shared/progreso/useRacha';
 import { Card } from '../../shared/ui/Card';
 import { ContentState } from '../../shared/ui/ContentState';
 import { MascotaProgreso } from './mascota/MascotaProgreso';
-import { ClinicalActivity } from './ClinicalActivity';
-import { clinicalCatalog, clinicalProgress } from './clinicalProgress';
+import { PracticeActivity } from './PracticeActivity';
+import { PracticeSummary } from './PracticeSummary';
+import { practiceProgress } from './practiceProgress';
 import './progreso.css';
-
-const fecha = new Intl.DateTimeFormat('es', { dateStyle: 'medium' });
-const practiceCatalog = new Map([
-  ...retos.map(item => ({ id: item.id, title: item.titulo })),
-  ...casos.map(item => ({ id: item.id, title: item.titulo })),
-  ...clinicalCases.map(item => ({ id: item.id, title: item.titleEs })),
-].map(item => [item.id, item.title]));
-const dateOf = (timestamp: string) => fecha.format(new Date(timestamp));
-
-function PracticeMetrics({ correct, errors, hints, assisted = 0 }: {
-  correct: number;
-  errors: number;
-  hints: number;
-  assisted?: number;
-}) {
-  return <ul className="progress-metrics" aria-label="Resultado">
-    <li data-tone="good"><strong>{correct + assisted}</strong> {correct + assisted === 1 ? 'acierto' : 'aciertos'}</li>
-    {assisted > 0 && <li data-tone="assist"><strong>{assisted}</strong> {assisted === 1 ? 'asistida' : 'asistidas'}</li>}
-    <li data-tone={errors ? 'review' : undefined}><strong>{errors}</strong> para revisar</li>
-    {hints > 0 && <li><strong>{hints}</strong> {hints === 1 ? 'pista' : 'pistas'}</li>}
-  </ul>;
-}
-
-function PracticeSummary({ event }: { event: PracticeEvent }) {
-  const id = event.activityId ?? event.itemId;
-  const item = clinicalCatalog.get(id);
-  const route = item?.kind === 'investigation' && event.context?.kind === 'caso' ? event.context : undefined;
-
-  return <>
-    <div className="progress-entry-heading">
-      <h2>{practiceCatalog.get(id) ?? 'Actividad registrada'}</h2>
-      <time dateTime={event.timestamp}>{dateOf(event.timestamp)}</time>
-    </div>
-    <PracticeMetrics {...event}/>
-    {event.retried && <p className="progress-caption">{event.errors ? 'Se volvió a intentar' : 'Resuelto en un reintento'}</p>}
-    {item?.kind === 'investigation' && route && <details>
-      <summary>Ruta de investigación</summary>
-      <ol>{route.questionIds.map(questionId => {
-        const node = item.nodes.find(question => question.id === questionId);
-        return node && <li key={node.id}><strong>{node.promptEs}</strong><p>{node.patientEs}</p></li>;
-      })}</ol>
-      <p>Hipótesis elegida · {item.hypotheses.find(option => option.id === route.hypothesisId)?.textEs ?? route.hypothesisId}</p>
-    </details>}
-  </>;
-}
 
 export function Progreso() {
   const { events, legacy } = useSyncExternalStore(subscribeProgress, getProgress);
   const racha = useRacha(events);
-  const clinicalStats = clinicalProgress(events);
+  const statsSummary = practiceProgress(events);
   const consulted = new Set(events.filter(event => event.kind === 'consultation').map(event => event.itemId));
   const practices = events.filter(event => event.kind === 'practice');
   const available = estructuras.filter(item => consulted.has(item.id));
@@ -69,9 +22,10 @@ export function Progreso() {
   const last = practices.at(-1);
   const stats = [
     { label: 'Estructuras consultadas', value: consulted.size, Icon: BookOpen },
-    { label: 'Casos clínicos realizados', value: clinicalStats.completed, Icon: ClipboardList },
-    { label: 'Calificaciones perfectas', value: `${clinicalStats.perfectRate}%`, Icon: Trophy,
-      detail: `${clinicalStats.perfect} de ${clinicalStats.completed} al primer intento` },
+    { label: 'Casos clínicos realizados', value: statsSummary.clinical, Icon: ClipboardList },
+    { label: 'Retos de anatomía realizados', value: statsSummary.challenge, Icon: Target },
+    { label: 'Calificaciones perfectas', value: `${statsSummary.perfectRate}%`, Icon: Trophy,
+      detail: `${statsSummary.perfect} de ${statsSummary.completed} prácticas al primer intento` },
   ];
 
   return <section className="lumar-page progress-page">
@@ -95,7 +49,7 @@ export function Progreso() {
       <p className="progress-caption"><History size={16} aria-hidden="true"/> Última práctica registrada</p>
       <PracticeSummary event={last}/>
     </Card>}
-    <ClinicalActivity modes={clinicalStats.modes} recommendation={clinicalStats.recommendation}/>
+    <PracticeActivity modes={statsSummary.modes} recommendation={statsSummary.recommendation}/>
     {available.length ? <Card className="progress-entry">
       <h2>Estructuras consultadas</h2>
       <div className="progress-consulted">{available.map(item => <a key={item.id} href={`#explorar/estructura/${item.id}`}>{item.nombreEs}<ArrowRight size={14}/></a>)}</div>
@@ -107,47 +61,5 @@ export function Progreso() {
       <p>{legacy.points} puntos y {legacyTerms} {legacyTerms === 1 ? 'término' : 'términos'} con historial.</p>
     </Card>}
     <div><a className="button button--text lumar-link" href="#progreso/creditos">Créditos</a></div>
-  </section>;
-}
-
-function Reasoning({ text }: { text: ReasoningText }) {
-  const hypothesis = casos.flatMap(item => [item.hipotesis.correcta, ...item.hipotesis.alternativas])
-    .find(item => item.id === text.hypothesisId)?.texto ?? text.hypothesisId;
-  return <dl className="progreso-ficha">
-    <dt>Resumen</dt><dd>{text.summary}</dd>
-    <dt>Hipótesis</dt><dd>{hypothesis}</dd>
-    <dt>Hallazgos</dt><dd>{text.evidence}</dd>
-    <dt>Información por investigar</dt><dd>{text.missingInformation}</dd>
-  </dl>;
-}
-
-export function Practicas() {
-  const { events } = useSyncExternalStore(subscribeProgress, getProgress);
-  const practices = events.filter(event => event.kind === 'practice').sort((a, b) => b.timestamp.localeCompare(a.timestamp));
-  return <section className="lumar-page progress-page">
-    <header className="progress-history-heading">
-      <a className="button button--text lumar-link" href="#progreso"><ArrowLeft size={16}/> Mi progreso</a>
-      <h1>Mis prácticas</h1>
-    </header>
-    {practices.length ? practices.map(event => {
-      return <Card key={event.id} className="progress-entry">
-        <PracticeSummary event={event}/>
-        {event.reasoning && <details>
-          <summary>Ficha de razonamiento</summary>
-          <h3>Texto inicial del estudiante</h3>
-          <Reasoning text={event.reasoning.original}/>
-          {event.reasoning.suggestions.length > 0 && <>
-            <h3>Sugerencias del tutor</h3>
-            <ul>{event.reasoning.suggestions.map((text, i) => <li key={i}>{text}</li>)}</ul>
-          </>}
-          {event.reasoning.revised && <>
-            <h3>Revisión del estudiante</h3>
-            <Reasoning text={event.reasoning.revised}/>
-          </>}
-        </details>}
-      </Card>;
-    }) : <ContentState state="empty" title="Todavía no tienes prácticas registradas">
-      <p><a href="#practicar">Ir a Practicar</a></p>
-    </ContentState>}
   </section>;
 }

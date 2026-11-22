@@ -87,7 +87,7 @@ test('LumAR conserva la preferencia de Cuerpo y recupera el historial de Frasivo
   await expect(page.getByRole('heading', { name: 'Mi progreso' })).toBeVisible();
   await expect(page.getByText('6 puntos y 1 término con historial.')).toBeVisible();
   await expect(page.getByRole('list', { name: 'Mi actividad' })).toContainText(/0\s*Estructuras consultadas/);
-  await expect(page.getByRole('list', { name: 'Mi actividad' })).toContainText(/0\s*Desempeños demostrados/);
+  await expect(page.getByRole('list', { name: 'Mi actividad' })).toContainText(/0%\s*Calificaciones perfectas/);
   const metadata = await page.evaluate(() => JSON.parse(localStorage.getItem('lumar.progress:v1')!));
   expect(metadata.legacy.words.femur).toEqual({ attempts: 2, correct: 1 });
 });

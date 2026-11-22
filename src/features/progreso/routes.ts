@@ -1,5 +1,6 @@
 import type { RouteDefinition } from '../../shared/navegacion';
-import { Progreso, Practicas } from './Progreso';
+import { Progreso } from './Progreso';
+import { Practicas } from './PracticeHistory';
 import { PushTest } from './PushTest';
 
 export const routes = [

@@ -9,7 +9,7 @@ import {
   recordPractice,
   type ProgressStorage,
 } from '../src/shared/progreso';
-import { clinicalProgress } from '../src/features/progreso/clinicalProgress';
+import { practiceProgress, practiceTitle } from '../src/features/progreso/practiceProgress';
 
 class LocalStorage implements ProgressStorage {
   private items = new Map<string, string>();
@@ -31,8 +31,8 @@ it('calcula porcentajes clínicos con el historial anterior y excluye los reinte
   recordPractice({ ...clinical, itemId: 'knee-conversation', correct: 3, errors: 0, retried: true }, storage);
   recordPractice({ ...clinical, itemId: 'primary-assessment-order', correct: 2, errors: 0, assisted: 3, hints: 3 }, storage);
 
-  const stats = clinicalProgress(getProgress(storage).events);
-  expect(stats).toMatchObject({ completed: 3, perfect: 1, perfectRate: 33 });
+  const stats = practiceProgress(getProgress(storage).events);
+  expect(stats).toMatchObject({ clinical: 3, challenge: 0, completed: 3, perfect: 1, perfectRate: 33 });
   expect(stats.modes.find(mode => mode.kind === 'interview')).toMatchObject({ count: 2, accuracy: 67 });
   expect(stats.recommendation).toMatchObject({ kind: 'interview', reason: 'accuracy' });
 });
@@ -40,8 +40,24 @@ it('calcula porcentajes clínicos con el historial anterior y excluye los reinte
 it('sugiere un modo menos practicado cuando el desempeño es bueno', () => {
   const storage = new LocalStorage();
   recordPractice({ areaId: 'anatomy', groupId: 'clinical-cases', itemId: 'knee-conversation', correct: 3, errors: 0, hints: 0 }, storage);
-  expect(clinicalProgress(getProgress(storage).events).recommendation).toMatchObject({ count: 0, reason: 'frequency' });
-  expect(clinicalProgress([]).recommendation).toBeUndefined();
+  expect(practiceProgress(getProgress(storage).events).recommendation).toMatchObject({ count: 0, reason: 'frequency' });
+  expect(practiceProgress([]).recommendation).toBeUndefined();
+});
+
+it('suma un intento por reto y usa su tipo para el gráfico y la recomendación', () => {
+  const storage = new LocalStorage();
+  const target = { areaId: 'anatomy', groupId: 'organos', itemId: 'heart', activityId: 'corazon-3d' };
+  const challenge = recordPractice({ ...target, correct: 1, errors: 2, hints: 0, context: { kind: 'reto', mode: 'evaluacion' } }, storage);
+  recordDemonstration({ ...target, practiceEventId: challenge.id }, storage);
+  recordPractice({ areaId: 'anatomy', groupId: 'clinical-cases', itemId: 'knee-conversation', correct: 3, errors: 0, hints: 0 }, storage);
+  recordPractice({ ...target, activityId: 'reto-anterior', correct: 3, errors: 0, hints: 0, retried: true,
+    context: { kind: 'reto', mode: 'entrenamiento' } }, storage);
+  const stats = practiceProgress(getProgress(storage).events);
+  expect(stats).toMatchObject({ clinical: 1, challenge: 2, completed: 3, perfect: 1, perfectRate: 33 });
+  expect(stats.modes.find(mode => mode.kind === 'senala-estructura')).toMatchObject({ count: 1, accuracy: 33 });
+  expect(stats.modes.reduce((sum, mode) => sum + mode.count, 0)).toBe(3);
+  expect(stats.recommendation).toMatchObject({ group: 'challenge', kind: 'senala-estructura', reason: 'accuracy' });
+  expect(practiceTitle(challenge)).toBe('Explora el corazón en corte');
 });
 
 describe('progreso local', () => {

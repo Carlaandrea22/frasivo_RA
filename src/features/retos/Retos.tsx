@@ -2,7 +2,7 @@ import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, Box, CheckCircle2, CircleHelp, Layers, Link2, ListChecks, LogOut } from 'lucide-react';
 import { categorias, estructuras } from '../../content/anatomy/catalogo';
 import { retos } from '../../content/ejercicios/retos';
-import type { CategoriaAnatomica, ModoReto, PreguntaReto, Reto, TipoReto } from '../../content/types';
+import { retoModeLabels, retoTypeLabels, type CategoriaAnatomica, type ModoReto, type PreguntaReto, type Reto, type TipoReto } from '../../content/types';
 import type { RouteProps } from '../../shared/navegacion';
 import { PracticeTabs } from '../../shared/navegacion/PracticarHome';
 import { BottomSheet } from '../../shared/ui/BottomSheet';
@@ -12,22 +12,22 @@ import { ContentState } from '../../shared/ui/ContentState';
 import { Segmented } from '../../shared/ui/Segmented';
 import { Relacionar, Repasar, Senalar, Ubicar } from './Actividades';
 import {
-  asignar, corregir, emparejar, explicacion, guardarResultado, leerResultado, nombreEstructura,
-  rutaFicha, rutaResultado, rutaReto, rutaRetos, ultimoIntento,
+  asignar, corregir, emparejar, explicacion, guardarResultado, leerResultado, modeloDelResultado, nombreEstructura,
+  rutaFicha, rutaResultado, rutaReto, rutaRetos, tituloResultadoReto, ultimoIntento,
   type Correccion, type Respuestas,
 } from './intentos';
 import './retos.css';
 
 const tipos = {
-  'ubica-partes': { nombre: 'Ubica las partes', icon: Layers, minutos: 2, objetivo: 'Coloca cada etiqueta en el recuadro que señala su parte. Arrastra la ficha o tócala y luego toca el recuadro.' },
-  'senala-estructura': { nombre: 'Señala la estructura', icon: Box, minutos: 3, objetivo: 'Gira el modelo, toca la pieza que indica la consigna y confirma tu elección.' },
-  'relaciona-funcion': { nombre: 'Relaciona estructura y función', icon: Link2, minutos: 2, objetivo: 'Elige la función de cada estructura. Puedes editar tus parejas antes de confirmar.' },
-  'repaso-breve': { nombre: 'Repaso breve', icon: ListChecks, minutos: 1, objetivo: 'Elige la respuesta que mejor contesta cada pregunta.' },
+  'ubica-partes': { nombre: retoTypeLabels['ubica-partes'], icon: Layers, minutos: 2, objetivo: 'Coloca cada etiqueta en el recuadro que señala su parte. Arrastra la ficha o tócala y luego toca el recuadro.' },
+  'senala-estructura': { nombre: retoTypeLabels['senala-estructura'], icon: Box, minutos: 3, objetivo: 'Gira el modelo, toca la pieza que indica la consigna y confirma tu elección.' },
+  'relaciona-funcion': { nombre: retoTypeLabels['relaciona-funcion'], icon: Link2, minutos: 2, objetivo: 'Elige la función de cada estructura. Puedes editar tus parejas antes de confirmar.' },
+  'repaso-breve': { nombre: retoTypeLabels['repaso-breve'], icon: ListChecks, minutos: 1, objetivo: 'Elige la respuesta que mejor contesta cada pregunta.' },
 } satisfies Record<TipoReto, { nombre: string; icon: typeof Box; minutos: number; objetivo: string }>;
 
 const modos: Record<ModoReto, { label: string; descripcion: string }> = {
-  entrenamiento: { label: 'Entrenamiento', descripcion: 'Con pistas, reintentos y respuesta inmediata' },
-  evaluacion: { label: 'Evaluación', descripcion: 'Sin ayuda y con la corrección al final' },
+  entrenamiento: { label: retoModeLabels.entrenamiento, descripcion: 'Con pistas, reintentos y respuesta inmediata' },
+  evaluacion: { label: retoModeLabels.evaluacion, descripcion: 'Sin ayuda y con la corrección al final' },
 };
 
 type TipoConModelo = 'ubica-partes' | 'senala-estructura';
@@ -392,15 +392,14 @@ function Resultados({ reto, intento }: { reto: Reto; intento: string }) {
   </ContentState></section>;
 
   const { registro, correcciones, modo } = resultado;
-  const tipoModelo = usaModelo(reto.tipo) && registro.correct + registro.errors < reto.preguntas.length ? reto.tipo : undefined;
-  const tituloResultado = tipoModelo ? retoParaModelo(reto, registro.itemId).titulo : reto.titulo;
-  const repetir = tipoModelo ? rutaSelector(tipoModelo, registro.itemId) : rutaReto(reto.id);
+  const modeloId = modeloDelResultado(reto, registro);
+  const repetir = modeloId ? rutaSelector(reto.tipo, modeloId) : rutaReto(reto.id);
   const errores = correcciones.filter(row => !row.acierto || row.erroresPrevios.length > 0);
   const filas = soloErrores ? errores : correcciones;
   return <section className="lumar-page retos-page">
     <header><p className="retos-meta">{modos[modo].label}</p><h1 tabIndex={-1} ref={titulo}>Resultado del reto</h1></header>
     <Card className="retos-score">
-      <h2>{tituloResultado}</h2>
+      <h2>{tituloResultadoReto(reto, registro)}</h2>
       <p className="retos-score-value">{registro.correct} de {registro.correct+registro.errors}</p>
       <p>{registro.errors} {registro.errors === 1 ? 'error final' : 'errores finales'} · {registro.hints} {registro.hints === 1 ? 'pista usada' : 'pistas usadas'}</p>
     </Card>
