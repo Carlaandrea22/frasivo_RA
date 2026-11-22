@@ -94,7 +94,7 @@ function Ficha({ item }: { item: Estructura }) {
   return <section className="lumar-page explorar-page">
     <header className="explorar-heading">
       <a className="explorar-back" href={`#explorar/${item.categoria}`} aria-label="Atrás a Explorar 3D"><ArrowLeft size={22}/></a>
-      <h1>{item.nombreEs}</h1><Provisional item={item}/>
+      <h1>{item.nombreEs}</h1>
     </header>
     <div className="explorar-detail">
       <div className="explorar-view" ref={frame} onPointerUpCapture={event => {
