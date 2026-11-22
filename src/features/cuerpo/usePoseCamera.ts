@@ -16,12 +16,16 @@ const emptyStats = (): Record<DetectorKind, DetectorStat> => ({
   face: { fps: 0, ms: null, status: 'idle' },
 });
 
-export function usePoseCamera(onDetection?: (time: number) => void, detailed = false, regionalHint?: { current: RegionalHint }) {
+export function usePoseCamera(
+  onDetection?: (time: number) => void, detailed = false, regionalHint?: { current: RegionalHint }, paused = false,
+) {
   const camera = useBodyCamera(detailed);
   const highDetail = useRef(detailed);
   const hints = useRef(regionalHint);
+  const pauseInference = useRef(paused);
   highDetail.current = detailed;
   hints.current = regionalHint;
+  pauseInference.current = paused;
   const { status, stop, videoRef } = camera;
   const [history, setHistory] = useState<PoseSample[]>([]);
   const [tracking, setTracking] = useState<'loading' | 'searching' | 'tracking'>('loading');
@@ -127,7 +131,7 @@ export function usePoseCamera(onDetection?: (time: number) => void, detailed = f
     } catch { fail('El seguimiento corporal no está disponible en este navegador. Puedes explorar la demostración.'); }
 
     const timer = window.setInterval(async () => {
-      if (disposed) return;
+      if (disposed || pauseInference.current) return;
       const now = performance.now();
       const hint = highDetail.current ? hints.current?.current : undefined;
       if (lastPoseResult && now - lastPoseResult > 720) {

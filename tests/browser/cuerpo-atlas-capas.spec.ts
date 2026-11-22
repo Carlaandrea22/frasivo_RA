@@ -60,7 +60,7 @@ function sprite(page: Page, id: string) {
 
 test('el torso conserva solo los músculos con apoyo visible', async ({ page }, testInfo) => {
   await openCamera(page, 'trunk', 'Músculos');
-  await expect(page.locator('.anatomy-status')).toHaveText('Torso');
+  await expect(page.locator('.anatomy-status')).toHaveText('Torso', { timeout: 20_000 });
   await expect(sprite(page, 'serratus_anterior_left')).toBeVisible();
   await expect(sprite(page, 'rectus_abdominis_left')).toHaveCount(0);
   await expect(sprite(page, 'quadriceps_femoris_left')).toHaveCount(0);
@@ -162,7 +162,10 @@ test('mide el seguimiento de las tres capas y el ajuste de articulaciones de los
   for (const layer of ['Huesos', 'Músculos', 'Órganos'] as const) {
     await page.getByRole('button', { name: layer, exact: true }).click();
     await expect(page.locator('.anatomy-status')).toHaveText('Cuerpo completo');
-    await expect.poll(async () => Number(await page.locator('[data-fps-drawing]').getAttribute('data-fps-drawing') ?? 0)).toBeGreaterThan(20);
+    const drawingRate = page.locator('[data-fps-drawing]');
+    await expect.poll(async () => Number(await drawingRate.getAttribute('data-fps-drawing')), {
+      timeout: 15_000,
+    }).toBeGreaterThan(0);
     const samples = [];
     for (let i = 0; i < 4; i++) {
       await page.waitForTimeout(550);

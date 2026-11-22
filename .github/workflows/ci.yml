@@ -29,11 +29,12 @@ jobs:
           PLAYWRIGHT_HTML_OPEN: never
       - name: Guardar evidencia de Playwright
         if: failure()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-evidence
           path: |
             playwright-report/
-            test-results/
+            test-results/**/test-failed-*.png
+            test-results/**/error-context.md
           if-no-files-found: ignore
           retention-days: 7

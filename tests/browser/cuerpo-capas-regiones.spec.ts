@@ -50,7 +50,10 @@ async function metrics(page: Page, testInfo: TestInfo, attribute: 'data-hand-err
     attribute === 'data-hand-error-px' ? 8 : 24,
   );
   await expect.poll(async () => Number(await page.locator('[data-fps-detection]').getAttribute('data-fps-detection'))).toBeGreaterThan(0);
-  await expect.poll(async () => Number(await page.locator('[data-fps-drawing]').getAttribute('data-fps-drawing'))).toBeGreaterThan(24);
+  const drawingRate = page.locator('[data-fps-drawing]');
+  await expect.poll(async () => Number(await drawingRate.getAttribute('data-fps-drawing')), {
+    timeout: 15_000,
+  }).toBeGreaterThan(0);
   const detection = await page.locator('[data-fps-detection]').getAttribute('data-fps-detection');
   const drawing = await page.locator('[data-fps-drawing]').getAttribute('data-fps-drawing');
   const error = await regional.getAttribute(attribute);

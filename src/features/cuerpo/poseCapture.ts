@@ -15,6 +15,7 @@ export interface PrecisePose {
 
 export const captureWindow = 520;
 export const preciseCaptureDuration = 1000;
+export const preciseCaptureEdgeTolerance = 350;
 
 const torso = [landmark.shoulder_left, landmark.shoulder_right, landmark.hip_left, landmark.hip_right];
 const knees = [landmark.knee_left, landmark.knee_right];
@@ -70,10 +71,13 @@ export function averagePrecisePose(history: PoseSample[], start: number, aspect:
   return averagePreciseCapture(history, start, aspect, viewportAspect)?.world ?? null;
 }
 
-export function averagePreciseCapture(history: PoseSample[], start: number, aspect: number, viewportAspect: number): PrecisePose | null {
-  const end = start + preciseCaptureDuration;
+export function averagePreciseCapture(
+  history: PoseSample[], start: number, aspect: number, viewportAspect: number, duration = preciseCaptureDuration,
+): PrecisePose | null {
+  const end = start + duration;
   const frames = history.filter(frame => frame.time >= start && frame.time <= end);
-  if (frames.length < 3 || frames[0].time > start + 350 || frames.at(-1)!.time < end - 350) return null;
+  if (frames.length < 3 || frames[0].time > start + preciseCaptureEdgeTolerance ||
+    frames.at(-1)!.time < end - preciseCaptureEdgeTolerance) return null;
   if (frames.some(frame => captureIssue(frame, aspect, viewportAspect))) return null;
   return {
     world: averageWorldLandmarks(frames, aspect, viewportAspect),

@@ -89,7 +89,7 @@ export default function MedicineExplorer() {
   const regionalHint = useRef<RegionalHint>({ fullBody: false, detailedHands: false });
   const [regionalTargets, setRegionalTargets] = useState<BoneTarget[]>(emptyTargets);
   const [detailRequest, setDetailRequest] = useState<{ id: string }>();
-  const camera = usePoseCamera(diagnostics ? recordDetection : undefined, true, regionalHint);
+  const camera = usePoseCamera(diagnostics ? recordDetection : undefined, true, regionalHint, captureProgress !== null);
   const live = camera.status === 'active';
   const waiting = camera.status === 'permission';
   const aspect = live ? camera.aspect : .8;
@@ -419,7 +419,8 @@ export default function MedicineExplorer() {
             <circle cx="24" cy="24" r="20" fill="none" stroke="currentColor" strokeWidth="4" pathLength="1"
               strokeDasharray={`${captureProgress} 1`} transform="rotate(-90 24 24)"/>
           </svg>}
-          {captureProgress < 0 ? 'Preparando captura precisa…' : 'Quédate quieto 1 segundo'}
+          {captureProgress < 0 ? 'Preparando captura precisa…'
+            : captureProgress < 1 ? 'Quédate quieto 1 segundo' : 'Mantén la pose un momento'}
         </div>}
         {captureError && <p className="anatomy-capture-ring" role="alert">{captureError}</p>}
         {!fixedPose && (hint || !live && term && layer !== 'bones') && <div className="anatomy-stage-hint">
