@@ -129,9 +129,9 @@ test('desde la ficha del fémur se elige un reto y se forman tres parejas', asyn
   await page.setViewportSize({ width: 375, height: 900 });
   await page.goto('/#explorar/estructura/femur');
   await page.getByRole('link', { name: 'Practicar esta estructura' }).click();
-  await expect(page.getByRole('link', { name: /^Abrir reto:/ })).toHaveCount(1);
   await expect(page.getByRole('link', { name: 'Elegir práctica' })).toHaveAttribute('href', '#practicar/retos/ubicar/estructura/femur');
-  await page.getByRole('link', { name: 'Abrir reto: El fémur en movimiento' }).click();
+  await page.getByRole('link', { name: 'Elegir tema para Relaciona estructura y función' }).click();
+  await expect(page.getByRole('combobox', { name: 'Tema', exact: true })).toHaveValue('femur-funcion');
   await page.getByRole('button', { name: 'Empezar reto' }).click();
   await page.getByRole('button', { name: 'Salir', exact: true }).click();
   await expect(page.getByRole('dialog', { name: '¿Salir del reto?' })).toBeVisible();
@@ -145,6 +145,41 @@ test('desde la ficha del fémur se elige un reto y se forman tres parejas', asyn
   await page.getByRole('button', { name: 'Comprobar' }).click();
   await page.getByRole('button', { name: 'Ver resultado' }).click();
   await expect(page.getByText('3 de 3', { exact: true })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(375);
+});
+
+test('Relaciona permite escoger temas de las tres categorías o empezar al azar', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 900 });
+  await page.goto('/#practicar/retos');
+  await expect(page.locator('.retos-page article')).toHaveCount(4);
+  const abrir = page.getByRole('link', { name: 'Elegir tema para Relaciona estructura y función' });
+  await abrir.click();
+  const tema = page.getByRole('combobox', { name: 'Tema', exact: true });
+  await expect(tema.locator('optgroup')).toHaveCount(3);
+
+  const ejemplos = [
+    ['funcion-huesos', [['Hueso coxal', /Transmite cargas al miembro inferior/], ['Húmero', /palanca para los movimientos del brazo/], ['Radio', /pronación y supinación del antebrazo/]]],
+    ['funcion-musculos', [['Bíceps braquial', /Flexiona el codo/], ['Cuádriceps femoral', /Extiende la rodilla/]]],
+    ['funcion-organos', [['Corazón', /Mantiene la circulación pulmonar y sistémica/], ['Pulmones', /intercambiar oxígeno y dióxido de carbono/]]],
+  ] as const;
+  for (const [id, parejas] of ejemplos) {
+    await tema.selectOption(id);
+    await page.getByRole('button', { name: 'Evaluación', exact: true }).click();
+    await page.getByRole('button', { name: 'Empezar reto' }).click();
+    for (const [estructura, funcion] of parejas) {
+      await page.getByRole('group', { name: 'Estructuras' }).getByRole('button', { name: estructura, exact: true }).click();
+      await page.getByRole('group', { name: 'Funciones' }).getByRole('button', { name: funcion }).click();
+    }
+    await page.getByRole('button', { name: 'Comprobar' }).click();
+    await expect(page.getByText(`${parejas.length} de ${parejas.length}`, { exact: true })).toBeVisible();
+    await page.getByRole('link', { name: 'Otro reto' }).click();
+    await abrir.click();
+  }
+
+  await page.getByRole('button', { name: 'Aleatorio', exact: true }).click();
+  await expect(tema).toHaveCount(0);
+  await page.getByRole('button', { name: 'Empezar reto' }).click();
+  await expect(page.getByRole('group', { name: 'Estructuras' })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(375);
 });
 

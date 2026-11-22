@@ -40,11 +40,12 @@ test('LumAR recorre sus secciones y subrutas a 375 px', async ({ page }, testInf
   await shot('practicar');
   await page.getByRole('link', { name: 'Retos de anatomía', exact: true }).click();
   await expect(page).toHaveURL(/#practicar\/retos$/);
-  await page.getByRole('link', { name: 'Abrir reto: El fémur en movimiento' }).click();
+  await page.getByRole('link', { name: 'Elegir tema para Relaciona estructura y función' }).click();
   await expect(page).toHaveURL(/#practicar\/retos\//);
   await expect(page.getByRole('button', { name: 'Empezar reto' })).toBeVisible();
   await shot('retos');
 
+  await page.getByRole('link', { name: 'Volver a los retos' }).click();
   await page.getByRole('link', { name: 'Casos clínicos', exact: true }).click();
   await expect(page).toHaveURL(/#practicar\/casos$/);
   await page.getByRole('link', { name: 'Ver caso de muestra' }).click();

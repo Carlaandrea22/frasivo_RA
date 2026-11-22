@@ -128,3 +128,11 @@ Las consignas del cuádriceps se limitan a las porciones accesibles al
 tocar el modelo. El vasto intermedio queda disponible en «Ubica las partes».
 
 - Selector de «Señala la estructura» a [375 px](../capturas/carla/retos-senala-selector-375.png) y en [escritorio](../capturas/carla/retos-senala-selector-1440.png).
+
+### Ampliación de «Relaciona estructura y función»
+
+La tarjeta abre un selector de temas de huesos, músculos y órganos. La
+opción «Aleatorio» elige un tema al empezar. Las parejas usan las funciones
+de las fichas del atlas. Se conserva el reto original del fémur y su enlace.
+
+- Selector de «Relaciona estructura y función» a [375 px](../capturas/carla/retos-relaciona-selector-375.png) y en [escritorio](../capturas/carla/retos-relaciona-selector-1440.png).

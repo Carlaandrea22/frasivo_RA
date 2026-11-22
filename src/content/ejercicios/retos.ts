@@ -46,7 +46,7 @@ function preguntasDePartes(estructuraId: string, ids?: readonly string[]) {
 }
 
 function retoDeModelos(
-  id: string, titulo: string, tipo: 'ubica-partes' | 'senala-estructura',
+  id: string, titulo: string, tipo: 'ubica-partes' | 'senala-estructura' | 'relaciona-funcion',
   modelos: readonly [string, ...string[]], preguntasPorModelo: (estructuraId: string) => readonly PreguntaReto[],
 ): Reto {
   const [primera, ...otras] = modelos.flatMap(preguntasPorModelo);
@@ -60,6 +60,21 @@ function retoDeModelos(
     id, titulo, tipo, modos, estructurasRelacionadas: modelos,
     preguntas: [primera, ...otras], revision: { estado: 'provisional', fuentes: [fuente, ...porUrl.values()] },
   };
+}
+
+function retoDeFunciones(id: string, titulo: string, modelos: readonly [string, ...string[]]) {
+  const opciones = modelos.map(estructuraId => {
+    const { funcion } = estructuras.find(item => item.id === estructuraId)!;
+    return { id: estructuraId, texto: funcion };
+  }).reverse();
+  return retoDeModelos(id, titulo, 'relaciona-funcion', modelos, estructuraId => {
+    const { nombreEs, ubicacion, funcion } = estructuras.find(item => item.id === estructuraId)!;
+    return [{
+      id: `funcion-${estructuraId}`, enunciado: `¿Qué función cumple ${nombreEs.toLocaleLowerCase('es')}?`,
+      estructuraId, respuestas: opciones, correctaId: estructuraId,
+      pistas: [ubicacion], feedbackError: `${ubicacion} ${funcion}`,
+    }];
+  });
 }
 
 function retoDeUbicar(id: string, titulo: string, modelos: readonly [string, ...string[]]) {
@@ -171,4 +186,7 @@ export const retos: readonly Reto[] = [
   retoDeModelos('senala-huesos', 'Señala partes de los huesos', 'senala-estructura', ['femur', 'tibia', 'humerus', 'radius', 'pelvis', 'patella'], preguntasDeSenalar),
   retoDeModelos('senala-musculos', 'Señala partes del bíceps y el cuádriceps', 'senala-estructura', ['biceps_brachii', 'quadriceps_femoris'], preguntasDeSenalar),
   retoDeModelos('senala-organos', 'Señala partes del corazón y los pulmones', 'senala-estructura', ['heart', 'lungs'], preguntasDeSenalar),
+  retoDeFunciones('funcion-huesos', 'Cadera, brazo y antebrazo', ['pelvis', 'humerus', 'radius']),
+  retoDeFunciones('funcion-musculos', 'Bíceps y cuádriceps', ['biceps_brachii', 'quadriceps_femoris']),
+  retoDeFunciones('funcion-organos', 'Corazón y pulmones', ['heart', 'lungs']),
 ];
