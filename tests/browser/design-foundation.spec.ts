@@ -20,7 +20,7 @@ test('la navegación de móvil abre las cuatro secciones y llega a Créditos des
   await nav.getByRole('button', { name: 'Practicar' }).click();
   await expect(page.getByRole('heading', { name: 'Practicar' })).toBeVisible();
   await nav.getByRole('button', { name: 'Mi progreso' }).click();
-  await page.getByRole('button', { name: 'Créditos' }).click();
+  await page.getByRole('link', { name: 'Créditos' }).click();
   await expect(page.getByRole('heading', { name: 'Créditos' })).toBeVisible();
   await page.goBack();
   await expect(page.getByRole('heading', { name: 'Mi progreso' })).toBeVisible();

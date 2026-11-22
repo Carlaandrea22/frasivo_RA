@@ -1,4 +1,5 @@
 import type { Revision } from '../types';
+import { investigationCases } from './investigations';
 import type { ClinicalCase, ClinicalTriple, InterviewNode } from './sessionTypes';
 
 type Pair = readonly [english: string, spanish: string];
@@ -89,8 +90,9 @@ const interviewRevision = {
 export const clinicalCases: readonly ClinicalCase[] = [{
   id: 'knee-conversation', kind: 'interview', titleEs: 'Entrevista · Dolor de rodilla',
   summaryEs: 'Habla con Alex y recuerda los detalles que te cuente.',
-  instructionsEs: 'Elige una pregunta en inglés en cada turno. Al final responderás sobre lo que escuchaste.',
+  instructionsEs: 'Elige una pregunta en cada turno. Al final responderás sobre lo que leíste.',
   patientName: 'Alex', openingEn: 'My right knee hurts whenever I squat.',
+  openingEs: 'Me duele la rodilla derecha cada vez que me pongo en cuclillas.',
   roots: ['k-onset', 'k-location', 'k-trigger'], nodes: kneeNodes,
   structuresRelated: ['femur', 'patella'], revision: interviewRevision,
 }, {
@@ -98,6 +100,7 @@ export const clinicalCases: readonly ClinicalCase[] = [{
   summaryEs: 'Pregunta a Sam por su molestia y comprueba cuánto entendiste.',
   instructionsEs: 'Completa tres turnos de conversación y luego responde las preguntas de comprensión.',
   patientName: 'Sam', openingEn: 'My right shoulder has been bothering me when I move my arm.',
+  openingEs: 'Me molesta el hombro derecho cuando muevo el brazo.',
   roots: ['s-onset', 's-location', 's-movement'], nodes: shoulderNodes,
   structuresRelated: [], revision: interviewRevision,
 }, {
@@ -145,4 +148,4 @@ export const clinicalCases: readonly ClinicalCase[] = [{
   explanationEn: 'Intramuscular adrenaline is the first-line treatment for anaphylaxis. Emergency help and continued assessment are also required.',
   structuresRelated: [],
   revision: { estado: 'provisional', fuentes: [{ titulo: 'Resuscitation Council UK · Emergency treatment of anaphylaxis', url: 'https://www.resus.org.uk/library/additional-guidance/guidance-anaphylaxis/emergency-treatment-anaphylactic-reactions' }] },
-}];
+}, ...investigationCases];

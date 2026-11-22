@@ -1,6 +1,5 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import {
-  AlertCircle,
   ArrowLeft,
   Check,
   Circle,
@@ -10,12 +9,10 @@ import {
   Lightbulb,
   LockKeyhole,
   RotateCcw,
-  UserRound,
 } from 'lucide-react';
 import { clinicalCases } from '../../content/casos/session';
 import type {
   ClinicalCase,
-  InterviewCase,
   MultipleChoiceCase,
   OrderingCase,
 } from '../../content/casos/sessionTypes';
@@ -24,160 +21,33 @@ import { Button } from '../../shared/ui/Button';
 import { Card } from '../../shared/ui/Card';
 import {
   applyOrderingHint,
-  buildCaseSession,
-  createInterviewExchange,
   discardIncorrectChoice,
-  getInterviewChoices,
   moveItem,
   performanceLevel,
   scoreMultipleChoice,
   scoreOrderedActions,
-  type InterviewExchange,
   type PerformanceLevel,
 } from './clinicalEngine';
-
-interface Score {
-  correct: number;
-  errors: number;
-  hints?: number;
-  assisted?: number;
-}
+import { InterviewCaseView, InvestigationCaseView } from './ClinicalConversationCase';
+import { NextCaseButton, ResultCard, type Score } from './ClinicalResult';
 
 interface CaseViewProps<T extends ClinicalCase> {
   item: T;
   onComplete: (score: Score) => void;
 }
 
-function NextCaseButton({ onComplete, score }: { onComplete: (score: Score) => void; score: Score }) {
-  return <Button onClick={() => onComplete(score)}>Siguiente caso</Button>;
-}
-
-function InterviewCaseView({ item, onComplete }: CaseViewProps<InterviewCase>) {
-  const [exchanges, setExchanges] = useState<InterviewExchange[]>([]);
-  const [path, setPath] = useState<string[]>([]);
-  const [pending, setPending] = useState<InterviewExchange>();
-  const [phase, setPhase] = useState<'conversation' | 'recall' | 'result'>('conversation');
-  const [recallIndex, setRecallIndex] = useState(0);
-  const [correct, setCorrect] = useState(0);
-  const [conversationHints, setConversationHints] = useState<Set<number>>(() => new Set());
-  const [recallHints, setRecallHints] = useState<Set<number>>(() => new Set());
-  const typingRef = useRef(false);
-  const typingTimeout = useRef<number | undefined>(undefined);
-  const chatEnd = useRef<HTMLDivElement>(null);
-
-  const available = getInterviewChoices(item, path);
-  const showConversationTranslation = conversationHints.has(path.length);
-  const hintsUsed = conversationHints.size + recallHints.size;
-
-  useEffect(() => () => {
-    if (typingTimeout.current) window.clearTimeout(typingTimeout.current);
-  }, []);
-
-  useEffect(() => {
-    chatEnd.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }, [exchanges, pending]);
-
-  const ask = (prompt: (typeof available)[number]) => {
-    if (typingRef.current) return;
-    typingRef.current = true;
-    const exchange = createInterviewExchange(prompt);
-    setPending(exchange);
-    typingTimeout.current = window.setTimeout(() => {
-      setExchanges(previous => [...previous, exchange]);
-      setPath(previous => [...previous, prompt.id]);
-      setPending(undefined);
-      typingRef.current = false;
-    }, 500);
-  };
-
-  if (phase === 'recall') {
-    const question = exchanges[recallIndex].recall;
-    const showTranslation = recallHints.has(recallIndex);
-    const answer = (id: string) => {
-      const nextCorrect = correct + Number(id === question.correctId);
-      setCorrect(nextCorrect);
-      if (recallIndex === exchanges.length - 1) setPhase('result');
-      else setRecallIndex(index => index + 1);
-    };
-    return <div className="clinical-case-body">
-      <header>
-        <p className="lumar-eyebrow">Comprensión · {recallIndex + 1} de {exchanges.length}</p>
-        <h2>Comprueba lo que entendiste</h2>
-      </header>
-      <Card className="clinical-question-card">
-        <h3 lang="en">{question.promptEn}</h3>
-        {showTranslation && <p className="clinical-translation" lang="es">{question.promptEs}</p>}
-        <div className="clinical-answer-list">
-          {question.options.map(option => <Button key={option.id} variant="answer" onClick={() => answer(option.id)}>
-            <span className="clinical-bilingual-option">
-              <span lang="en">{option.textEn}</span>
-              {showTranslation && <small lang="es">{option.textEs}</small>}
-            </span>
-          </Button>)}
-        </div>
-        <div className="clinical-hint-row">
-          <Button variant="secondary" disabled={showTranslation} onClick={() => setRecallHints(previous => new Set(previous).add(recallIndex))}>
-            <Lightbulb size={17}/> Pista
-          </Button>
-          <span>{recallHints.size} de 3 traducciones usadas</span>
-        </div>
-      </Card>
-    </div>;
-  }
-
-  if (phase === 'result') {
-    const score = { correct, errors: exchanges.length - correct, hints: hintsUsed };
-    return <ResultCard title={`${correct} de ${exchanges.length} respuestas correctas`} level={performanceLevel(score)}>
-      <p>La puntuación corresponde a lo que recordaste de esta conversación.</p>
-      <p className="clinical-result-meta">{hintsUsed} {hintsUsed === 1 ? 'pista utilizada' : 'pistas utilizadas'}</p>
-      <NextCaseButton score={score} onComplete={onComplete}/>
-    </ResultCard>;
-  }
-
-  return <div className="clinical-case-body">
-    <Card className="clinical-chat" aria-label={`Conversación con ${item.patientName}`}>
-      <div className="clinical-message clinical-message--patient">
-        <div className="clinical-message-head"><span className="clinical-avatar"><UserRound size={16}/></span><strong>{item.patientName}</strong></div>
-        <p lang="en">{item.openingEn}</p>
-      </div>
-      {exchanges.map(exchange => <div key={exchange.prompt.id} className="clinical-exchange">
-        <div className="clinical-message clinical-message--student"><strong>Tú</strong><p lang="en">{exchange.prompt.promptEn}</p></div>
-        <div className="clinical-message clinical-message--patient">
-          <div className="clinical-message-head"><span className="clinical-avatar"><UserRound size={16}/></span><strong>{item.patientName}</strong></div>
-          <p lang="en">{exchange.response.patientEn}</p>
-        </div>
-      </div>)}
-      {pending && <div className="clinical-exchange clinical-exchange--pending">
-        <div className="clinical-message clinical-message--student"><strong>Tú</strong><p lang="en">{pending.prompt.promptEn}</p></div>
-        <div className="clinical-message clinical-message--patient clinical-typing" role="status" aria-label={`${item.patientName} está escribiendo`}>
-          <div className="clinical-message-head"><span className="clinical-avatar"><UserRound size={16}/></span><strong>{item.patientName}</strong></div>
-          <span className="clinical-typing-dots" aria-hidden="true"><i/><i/><i/></span>
-        </div>
-      </div>}
-      <div ref={chatEnd}/>
-    </Card>
-
-    {path.length < 3 ? <section className="clinical-options" aria-labelledby="clinical-question-options">
-      <p id="clinical-question-options" className="lumar-card-meta">Elige tu pregunta · Turno {exchanges.length + 1} de 3</p>
-      {available.map(prompt => <Button key={prompt.id} variant="answer" disabled={!!pending} onClick={() => ask(prompt)}>
-        <span className="clinical-bilingual-option">
-          <span lang="en">{prompt.promptEn}</span>
-          {showConversationTranslation && <small lang="es">{prompt.promptEs}</small>}
-        </span>
-      </Button>)}
-      <div className="clinical-hint-row">
-        <Button variant="secondary" disabled={showConversationTranslation || !!pending}
-          onClick={() => setConversationHints(previous => new Set(previous).add(path.length))}>
-          <Lightbulb size={17}/> Pista
-        </Button>
-        <span>{conversationHints.size} de 3 traducciones usadas</span>
-      </div>
-    </section> : <Card className="clinical-ready">
-      <p>Ya tienes tres respuestas de {item.patientName}. Ahora comprueba qué detalles entendiste.</p>
-      <Button onClick={() => setPhase('recall')}>Comenzar preguntas de comprensión</Button>
-    </Card>}
-  </div>;
-}
+const casesById = new Map(clinicalCases.map(item => [item.id, item]));
+const sessionLabels = {
+  interview: 'Conversación y comprensión',
+  investigation: 'Investigación clínica',
+  ordering: 'Orden clínico',
+  'multiple-choice': 'Decisión clínica',
+};
+const levelLabels = {
+  strong: 'con buen dominio',
+  partial: 'en progreso',
+  review: 'para repasar',
+} satisfies Record<PerformanceLevel, string>;
 
 function OrderingCaseView({ item, onComplete }: CaseViewProps<OrderingCase>) {
   const actionMap = useMemo(() => new Map(item.actions.map(action => [action.id, action])), [item]);
@@ -266,7 +136,7 @@ function OrderingCaseView({ item, onComplete }: CaseViewProps<OrderingCase>) {
     setDrag(undefined);
   };
 
-  if (score) return <ResultCard title={`${score.correct + score.assisted} de ${item.actions.length} posiciones correctas`} level={performanceLevel(score)}>
+  if (score) return <ResultCard title={`${score.correct + score.assisted} de ${item.actions.length} posiciones correctas`} score={score}>
     <p lang="en">{item.explanationEn}</p>
     <p className="clinical-result-meta">
       {score.correct} sin ayuda · {score.assisted} {score.assisted === 1 ? 'con pista' : 'con pistas'} · {score.errors} para revisar
@@ -330,7 +200,7 @@ function MultipleChoiceCaseView({ item, onComplete }: CaseViewProps<MultipleChoi
   const [hintUsed, setHintUsed] = useState(false);
   const [score, setScore] = useState<Score | null>(null);
 
-  if (score) return <ResultCard title={score.correct ? 'Respuesta correcta' : 'Respuesta para revisar'} level={performanceLevel(score)}>
+  if (score) return <ResultCard title={score.correct ? 'Respuesta correcta' : 'Respuesta para revisar'} score={score}>
     <p lang="en">{item.explanationEn}</p>
     <p className="clinical-result-meta">{hintUsed ? '1 pista utilizada' : 'Sin pistas'}</p>
     <NextCaseButton score={score} onComplete={onComplete}/>
@@ -367,43 +237,47 @@ function MultipleChoiceCaseView({ item, onComplete }: CaseViewProps<MultipleChoi
   </div>;
 }
 
-function ResultCard({ title, children, level = 'strong' }: { title: string; children: ReactNode; level?: PerformanceLevel }) {
-  return <Card className="clinical-result" data-level={level}>
-    <span className="clinical-result-icon" aria-hidden="true">
-      {level === 'strong' ? <Check size={24}/> : <AlertCircle size={24}/>} 
-    </span>
-    <h2>{title}</h2>
-    {children}
-  </Card>;
-}
-
 function CaseView({ item, onComplete }: CaseViewProps<ClinicalCase>) {
   if (item.kind === 'interview') return <InterviewCaseView item={item} onComplete={onComplete}/>;
+  if (item.kind === 'investigation') return <InvestigationCaseView item={item} onComplete={onComplete}/>;
   if (item.kind === 'ordering') return <OrderingCaseView item={item} onComplete={onComplete}/>;
   return <MultipleChoiceCaseView item={item} onComplete={onComplete}/>;
 }
 
-export function ClinicalSession({ caseIds, onExit }: { caseIds: readonly string[]; onExit: () => void }) {
-  const sessionIds = useMemo(() => buildCaseSession(caseIds), [caseIds]);
-  const caseMap = useMemo(() => new Map(clinicalCases.map(item => [item.id, item])), []);
+export function ClinicalSession({ caseIds: sessionIds, onExit }: { caseIds: readonly string[]; onExit: () => void }) {
   const [index, setIndex] = useState(0);
   const [total, setTotal] = useState<Score>({ correct: 0, errors: 0, hints: 0, assisted: 0 });
   const [levels, setLevels] = useState<Record<PerformanceLevel, number>>({ strong: 0, partial: 0, review: 0 });
-  const item = caseMap.get(sessionIds[index]);
+  const item = casesById.get(sessionIds[index]);
+  const lastRecordedId = useRef<string | undefined>(undefined);
 
-  if (!item) return <section className="lumar-page clinical-session clinical-complete">
-    <p className="lumar-eyebrow">Sesión terminada</p>
-    <h1>{sessionIds.length === 5 ? 'Completaste los cinco casos' : 'Completaste la práctica'}</h1>
-    <p>{total.correct} respuestas o posiciones correctas · {total.assisted ?? 0} asistidas · {total.errors} para revisar · {total.hints ?? 0} pistas</p>
-    <ul className="clinical-level-summary" aria-label="Distribución del desempeño">
-      <li className="clinical-level-card" data-level="strong" style={{ flexGrow: levels.strong + 1 }}><strong>{levels.strong}</strong><span>con buen dominio</span></li>
-      <li className="clinical-level-card" data-level="partial" style={{ flexGrow: levels.partial + 1 }}><strong>{levels.partial}</strong><span>en progreso</span></li>
-      <li className="clinical-level-card" data-level="review" style={{ flexGrow: levels.review + 1 }}><strong>{levels.review}</strong><span>para repasar</span></li>
-    </ul>
-    <Button onClick={onExit}>Volver a Casos clínicos</Button>
-  </section>;
+  useEffect(() => { window.scrollTo(0, 0); }, [index]);
+
+  if (!item) {
+    const tiles = (Object.keys(levelLabels) as PerformanceLevel[]).sort((a, b) => levels[b] - levels[a]);
+    return <section className="lumar-page clinical-session clinical-complete">
+      <header>
+        <p className="lumar-eyebrow">Sesión terminada</p>
+        <h1>{sessionIds.length === 5 ? 'Completaste los cinco casos' : 'Completaste la práctica'}</h1>
+        <p className="lumar-subtitle">Así te fue en esta sesión.</p>
+      </header>
+      <ul className="clinical-level-summary" aria-label="Distribución del desempeño">
+        {tiles.map(level => <li key={level} className="clinical-level-card" data-level={level}
+          style={{ '--cases': levels[level] } as CSSProperties}>
+          <strong>{levels[level]}</strong><span>{levelLabels[level]}</span>
+        </li>)}
+      </ul>
+      <p className="clinical-session-totals">{total.correct} aciertos · {total.assisted ?? 0} asistidas · {total.errors} para revisar · {total.hints ?? 0} pistas</p>
+      <div className="clinical-result-actions">
+        <Button onClick={onExit}>Volver a Casos clínicos</Button>
+        <a className="button button--secondary lumar-link" href="#progreso/practicas">Ver mis prácticas</a>
+      </div>
+    </section>;
+  }
 
   const complete = (score: Score) => {
+    if (lastRecordedId.current === item.id) return;
+    lastRecordedId.current = item.id;
     recordPractice({
       areaId: 'anatomy',
       groupId: 'clinical-cases',
@@ -413,6 +287,7 @@ export function ClinicalSession({ caseIds, onExit }: { caseIds: readonly string[
       errors: score.errors,
       hints: score.hints ?? 0,
       assisted: score.assisted,
+      context: score.investigation && { kind: 'caso', ...score.investigation },
     });
     setTotal(previous => ({
       correct: previous.correct + score.correct,
@@ -434,7 +309,7 @@ export function ClinicalSession({ caseIds, onExit }: { caseIds: readonly string[
       <span style={{ width: `${((index + 1) / sessionIds.length) * 100}%` }}/>
     </div>
     <header>
-      <p className="lumar-eyebrow">{item.kind === 'interview' ? 'Conversación clínica' : item.kind === 'ordering' ? 'Orden clínico' : 'Decisión clínica'}</p>
+      <p className="lumar-eyebrow">{sessionLabels[item.kind]}</p>
       <h1>{item.titleEs}</h1>
       <p className="lumar-subtitle">{item.instructionsEs}</p>
     </header>

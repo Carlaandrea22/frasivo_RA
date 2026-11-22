@@ -13,17 +13,18 @@ export interface InterviewRecallOption {
 
 export type ClinicalTriple<T> = readonly [T, T, T];
 
-export interface InterviewNode {
+export interface ConversationNode extends InterviewResponse {
   id: string;
   promptEn: string;
   promptEs: string;
-  patientEn: string;
-  patientEs: string;
+  nextIds?: ClinicalTriple<string>;
+}
+
+export interface InterviewNode extends ConversationNode {
   recallPromptEn: string;
   recallPromptEs: string;
   recallCorrectId: string;
   recallOptions: ClinicalTriple<InterviewRecallOption>;
-  nextIds?: ClinicalTriple<string>;
 }
 
 interface ClinicalCaseBase {
@@ -35,12 +36,29 @@ interface ClinicalCaseBase {
   revision: Revision;
 }
 
-export interface InterviewCase extends ClinicalCaseBase {
-  kind: 'interview';
+interface ConversationCaseBase<Node extends ConversationNode> extends ClinicalCaseBase {
   patientName: string;
   openingEn: string;
+  openingEs: string;
   roots: ClinicalTriple<string>;
-  nodes: readonly InterviewNode[];
+  nodes: readonly Node[];
+}
+
+export interface InterviewCase extends ConversationCaseBase<InterviewNode> {
+  kind: 'interview';
+}
+
+export interface InvestigationNode extends ConversationNode {
+  findingId?: string;
+}
+
+export interface InvestigationCase extends ConversationCaseBase<InvestigationNode> {
+  kind: 'investigation';
+  findings: readonly [InterviewRecallOption, InterviewRecallOption];
+  hypotheses: ClinicalTriple<InterviewRecallOption>;
+  preferredHypothesisId: string;
+  debriefEs: string;
+  debriefEn: string;
 }
 
 export interface OrderedAction {
@@ -69,4 +87,4 @@ export interface MultipleChoiceCase extends ClinicalCaseBase {
   explanationEn: string;
 }
 
-export type ClinicalCase = InterviewCase | OrderingCase | MultipleChoiceCase;
+export type ClinicalCase = InterviewCase | InvestigationCase | OrderingCase | MultipleChoiceCase;

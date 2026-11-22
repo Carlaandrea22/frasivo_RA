@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CircleHelp, ListOrdered, MessagesSquare, Stethoscope } from 'lucide-react';
+import { ArrowRight, CircleHelp, ListOrdered, MessagesSquare, Search, Stethoscope } from 'lucide-react';
 import { clinicalCases } from '../../content/casos/session';
 import type { ClinicalCase } from '../../content/casos/sessionTypes';
 import type { RouteProps } from '../../shared/navegacion';
@@ -7,16 +7,19 @@ import { PracticeTabs } from '../../shared/navegacion/PracticarHome';
 import { Button } from '../../shared/ui/Button';
 import { Card } from '../../shared/ui/Card';
 import { ClinicalSession } from './ClinicalSession';
+import { buildCaseSession, buildMixedCaseSession } from './clinicalEngine';
 import './casos.css';
 
 const kindLabel = {
   interview: 'Conversación y comprensión',
+  investigation: 'Investigación clínica',
   ordering: 'Ordenar actuaciones',
   'multiple-choice': 'Selección múltiple',
 } as const;
 
 const kindIcon = {
   interview: MessagesSquare,
+  investigation: Search,
   ordering: ListOrdered,
   'multiple-choice': CircleHelp,
 } as const;
@@ -26,33 +29,29 @@ export function Casos(_props: RouteProps) {
 
   if (sessionCaseIds) return <ClinicalSession caseIds={sessionCaseIds} onExit={() => setSessionCaseIds(null)}/>;
 
-  const startMixedSession = () => setSessionCaseIds(clinicalCases.map(item => item.id));
+  const startMixedSession = () => setSessionCaseIds(buildMixedCaseSession(clinicalCases));
   const startModeSession = (kind: ClinicalCase['kind']) => {
-    setSessionCaseIds(clinicalCases.filter(item => item.kind === kind).map(item => item.id));
+    setSessionCaseIds(buildCaseSession(clinicalCases.filter(item => item.kind === kind).map(item => item.id)));
   };
 
   return <section className="lumar-page clinical-home">
     <header>
-      <p className="lumar-eyebrow">Práctica guiada en inglés</p>
       <h1>Casos clínicos</h1>
-      <p className="lumar-subtitle">Completa cinco situaciones seguidas y guarda tu resultado en Mi progreso.</p>
+      <p className="lumar-subtitle">Practica con pacientes simulados y revisa tus resultados en Mi progreso.</p>
     </header>
     <PracticeTabs active="casos"/>
 
     <Card className="clinical-intro">
-      <span className="section-icon" aria-hidden="true"><Stethoscope size={22}/></span>
+      <span className="clinical-intro-icon" aria-hidden="true"><Stethoscope size={26}/></span>
       <div>
-        <h2>Una sesión, cinco casos</h2>
-        <p>Practicarás conversaciones, orden de actuaciones y decisiones breves. El contenido clínico aparece en inglés y las instrucciones en español.</p>
+        <h2>Sesión mixta</h2>
+        <p>Cinco casos que combinan lectura, investigación, orden y selección múltiple.</p>
       </div>
-      <Button onClick={startMixedSession}>Empezar sesión de 5 casos</Button>
+      <Button onClick={startMixedSession}>Empezar sesión de 5 casos <ArrowRight size={17}/></Button>
     </Card>
 
     <section className="clinical-mode-section" aria-labelledby="clinical-mode-title">
-      <div>
-        <p className="lumar-eyebrow">Práctica por modo</p>
-        <h2 id="clinical-mode-title">Elige un solo tipo de ejercicio</h2>
-      </div>
+      <h2 id="clinical-mode-title">Practica por modo</h2>
       <div className="clinical-mode-grid">
         {(Object.keys(kindLabel) as ClinicalCase['kind'][]).map(kind => {
           const Icon = kindIcon[kind];
@@ -60,13 +59,16 @@ export function Casos(_props: RouteProps) {
           return <Button key={kind} variant="answer" className="clinical-mode-button"
             aria-label={`Practicar solo ${kindLabel[kind]}`} onClick={() => startModeSession(kind)}>
             <span className="clinical-kind-icon" aria-hidden="true"><Icon size={19}/></span>
-            <span><strong>{kindLabel[kind]}</strong><small>{available} {available === 1 ? 'caso disponible' : 'casos disponibles'}</small></span>
+            <span className="clinical-mode-copy"><strong>{kindLabel[kind]}</strong><small>{available} {available === 1 ? 'caso disponible' : 'casos disponibles'}</small></span>
+            <ArrowRight className="clinical-mode-arrow" size={16} aria-hidden="true"/>
           </Button>;
         })}
       </div>
     </section>
 
-    <div className="clinical-preview" aria-label="Contenido de la sesión">
+    <details className="lumar-card clinical-catalog">
+      <summary>Ver catálogo de casos</summary>
+      <div className="clinical-preview" aria-label="Catálogo de casos">
       {clinicalCases.map(item => {
         const Icon = kindIcon[item.kind];
         return <Card key={item.id}>
@@ -74,11 +76,12 @@ export function Casos(_props: RouteProps) {
             <span className="clinical-kind-icon" aria-hidden="true"><Icon size={19}/></span>
             <span className="lumar-card-meta">{kindLabel[item.kind]}</span>
           </div>
-          <h2>{item.titleEs}</h2>
+          <h3>{item.titleEs}</h3>
           <p>{item.summaryEs}</p>
         </Card>;
       })}
-    </div>
+      </div>
+    </details>
     <p className="clinical-disclaimer">Material educativo provisional. No sustituye formación clínica supervisada.</p>
   </section>;
 }

@@ -2,11 +2,13 @@ import { describe, expect, it } from 'vitest';
 import {
   applyOrderingHint,
   buildCaseSession,
+  buildMixedCaseSession,
   createInterviewExchange,
   discardIncorrectChoice,
   getInterviewChoices,
   moveItem,
   performanceLevel,
+  scoreInvestigation,
   scoreMultipleChoice,
   scoreOrderedActions,
   validateInterviewGraph,
@@ -37,12 +39,13 @@ function countPaths(item: InterviewCase, path: readonly string[] = []): number {
 }
 
 describe('sesión de casos clínicos', () => {
-  it('ofrece dos entrevistas, dos secuencias y una selección múltiple en inglés', () => {
-    expect(clinicalCases).toHaveLength(5);
+  it('ofrece siete casos en cuatro modos, con conversaciones bilingües', () => {
+    expect(clinicalCases).toHaveLength(7);
     expect(clinicalCases.filter(item => item.kind === 'interview')).toHaveLength(2);
+    expect(clinicalCases.filter(item => item.kind === 'investigation')).toHaveLength(2);
     expect(clinicalCases.filter(item => item.kind === 'ordering')).toHaveLength(2);
     expect(clinicalCases.filter(item => item.kind === 'multiple-choice')).toHaveLength(1);
-    expect(new Set(clinicalCases.map(item => item.id)).size).toBe(5);
+    expect(new Set(clinicalCases.map(item => item.id)).size).toBe(clinicalCases.length);
 
     for (const item of clinicalCases) {
       expect(item.revision.estado).toBe('provisional');
@@ -53,6 +56,32 @@ describe('sesión de casos clínicos', () => {
         expect(getInterviewChoices(item, [])).toHaveLength(3);
         expect(item.nodes.every(question => question.promptEs && question.patientEs)).toBe(true);
       }
+      if (item.kind === 'interview' || item.kind === 'investigation') {
+        expect(item.openingEs && item.openingEn).toBeTruthy();
+      }
+    }
+  });
+
+  it('incluye los cuatro modos dentro de cada sesión mixta de cinco casos', () => {
+    for (const seed of [0, .25, .5, .75, .99]) {
+      const ids = buildMixedCaseSession(clinicalCases, () => seed);
+      expect(new Set(ids).size).toBe(5);
+      const kinds = clinicalCases.filter(item => ids.includes(item.id)).map(item => item.kind);
+      expect(new Set(kinds)).toEqual(new Set(['interview', 'investigation', 'ordering', 'multiple-choice']));
+    }
+  });
+
+  it('ofrece 27 rutas por investigación y distingue una hipótesis con evidencia de una adivinanza', () => {
+    for (const item of clinicalCases) {
+      if (item.kind !== 'investigation') continue;
+      expect(validateInterviewGraph(item)).toEqual({ valid: true, pathCount: 27, errors: [] });
+      const scores = getInterviewChoices(item, []).flatMap(first =>
+        getInterviewChoices(item, [first.id]).flatMap(second =>
+          getInterviewChoices(item, [first.id, second.id]).map(third =>
+            scoreInvestigation(item, [first.id, second.id, third.id], item.preferredHypothesisId))));
+      expect(scores).toHaveLength(27);
+      expect(scores).toContainEqual(expect.objectContaining({ correct: 0, errors: 3, hypothesisSupported: false }));
+      expect(scores).toContainEqual(expect.objectContaining({ correct: 3, errors: 0, hypothesisSupported: true }));
     }
   });
 

@@ -1,6 +1,8 @@
 import type {
   ChoiceOption,
-  InterviewCase,
+  ClinicalCase,
+  ConversationNode,
+  InvestigationCase,
   InterviewNode,
   InterviewRecallOption,
   InterviewResponse,
@@ -23,6 +25,17 @@ function shuffled<T>(items: readonly T[], random: RandomSource): T[] {
 
 export function buildCaseSession(ids: readonly string[], random: RandomSource = Math.random): string[] {
   return shuffled([...new Set(ids)], random).slice(0, 5);
+}
+
+export function buildMixedCaseSession(cases: readonly ClinicalCase[], random: RandomSource = Math.random): string[] {
+  const pool = shuffled(cases, random);
+  const firstByKind = new Map<ClinicalCase['kind'], string>();
+  for (const item of pool) {
+    if (!firstByKind.has(item.kind)) firstByKind.set(item.kind, item.id);
+  }
+  const required = [...firstByKind.values()];
+  const extras = pool.filter(item => firstByKind.get(item.kind) !== item.id).slice(0, 5 - required.length);
+  return buildCaseSession([...required, ...extras.map(item => item.id)], random);
 }
 
 export interface RecallQuestion {
@@ -56,7 +69,10 @@ export function createInterviewExchange(
   };
 }
 
-export function getInterviewChoices(item: InterviewCase, path: readonly string[]): InterviewNode[] {
+export function getInterviewChoices<Node extends ConversationNode>(
+  item: { nodes: readonly Node[]; roots: readonly string[] },
+  path: readonly string[],
+): Node[] {
   if (path.length >= 3) return [];
   const nodeMap = new Map(item.nodes.map(node => [node.id, node]));
   let choiceIds: readonly string[] = item.roots;
@@ -66,10 +82,10 @@ export function getInterviewChoices(item: InterviewCase, path: readonly string[]
     if (!selected?.nextIds) return [];
     choiceIds = selected.nextIds;
   }
-  return choiceIds.map(id => nodeMap.get(id)).filter((node): node is InterviewNode => !!node);
+  return choiceIds.map(id => nodeMap.get(id)).filter((node): node is Node => !!node);
 }
 
-export function validateInterviewGraph(item: InterviewCase) {
+export function validateInterviewGraph(item: { roots: readonly string[]; nodes: readonly ConversationNode[] }) {
   const errors: string[] = [];
   const ids = item.nodes.map(node => node.id);
   if (new Set(ids).size !== ids.length) errors.push('duplicate-node-id');
@@ -77,7 +93,7 @@ export function validateInterviewGraph(item: InterviewCase) {
 
   const visit = (path: readonly string[]) => {
     const choices = getInterviewChoices(item, path);
-    if (choices.length !== 3) {
+    if (choices.length !== 3 || new Set(choices.map(choice => choice.id)).size !== 3 || choices.some(choice => path.includes(choice.id))) {
       errors.push(`turn-${path.length + 1}:${path.join('/') || 'root'}:${choices.length}`);
       return;
     }
@@ -90,6 +106,14 @@ export function validateInterviewGraph(item: InterviewCase) {
 
   visit([]);
   return { valid: errors.length === 0 && pathCount === 27, pathCount, errors };
+}
+
+export function scoreInvestigation(item: InvestigationCase, path: readonly string[], hypothesisId: string) {
+  const foundIds = new Set(path.map(id => item.nodes.find(node => node.id === id)?.findingId));
+  const findings = item.findings.filter(finding => foundIds.has(finding.id));
+  const hypothesisSupported = findings.length > 0 && hypothesisId === item.preferredHypothesisId;
+  const correct = findings.length + Number(hypothesisSupported);
+  return { findings, hypothesisSupported, correct, errors: item.findings.length + 1 - correct };
 }
 
 export type PerformanceLevel = 'strong' | 'partial' | 'review';
