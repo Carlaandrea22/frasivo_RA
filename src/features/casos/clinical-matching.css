@@ -9,6 +9,8 @@
   background: var(--paper);
 }
 .clinical-match-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.clinical-match-item { position: relative; display: grid; min-width: 0; }
+.clinical-match-item > .lumar-english-button { position: absolute; z-index: 2; inset: 8px 8px auto auto; }
 .clinical-match-row .clinical-match-node {
   position: relative;
   z-index: 1;
@@ -17,7 +19,7 @@
   min-width: 0;
   width: 100%;
   gap: 6px;
-  padding: 12px;
+  padding: 12px 60px 12px 12px;
   text-align: start;
   white-space: normal;
   overflow-wrap: anywhere;

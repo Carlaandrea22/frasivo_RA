@@ -52,7 +52,7 @@ test('Mi progreso abre un resultado clínico nuevo y otro guardado con el format
   await page.getByRole('button', { name: 'Evaluación', exact: true }).click();
   await start(page);
   await expect(page.getByRole('button', { name: 'Descartar una opción' })).toHaveCount(0);
-  await page.getByRole('button', { name: 'Intramuscular adrenaline' }).click();
+  await page.getByRole('button', { name: /^Adrenalina intramuscular/ }).click();
   await page.getByRole('button', { name: 'Comprobar respuesta' }).click();
   await page.getByRole('button', { name: 'Ver resultados' }).click();
   await expect(page.locator('.evaluation-summary-mascot')).toHaveAttribute('data-animacion', 'celebracion');
@@ -80,7 +80,7 @@ async function finishChallenge(page: Page, correct: number) {
   await answers.getByRole('button', { name: correct > 0 ? 'Bíceps braquial' : 'Cuádriceps femoral', exact: true }).click();
   await page.getByRole('button', { name: 'Siguiente', exact: true }).click();
   if (correct === 2) await answers.getByRole('button', { name: 'Recto femoral', exact: true }).click();
-  else await answers.getByRole('button').filter({ hasNotText: 'Recto femoral' }).first().click();
+  else await answers.getByRole('button', { name: 'Vasto medial', exact: true }).click();
   await page.getByRole('button', { name: 'Ver resultado', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Resultado del reto' })).toBeVisible();
 }

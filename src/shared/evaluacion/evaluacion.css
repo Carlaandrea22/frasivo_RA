@@ -98,3 +98,16 @@
 @media (prefers-reduced-motion: reduce) {
   .evaluation-confetti { display: none; }
 }
+
+.evaluation-option-with-audio {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  gap: var(--space-2);
+}
+.evaluation-option-with-audio > .evaluation-option {
+  min-width: 0;
+  width: 100%;
+  overflow-wrap: anywhere;
+}

@@ -16,6 +16,7 @@ import type {
 } from '../../content/casos/sessionTypes';
 import { recordPractice, type PracticeSessionMode } from '../../shared/progreso';
 import { EvaluationOption } from '../../shared/evaluacion/EvaluationOption';
+import { useEvaluationPronunciation } from '../../shared/evaluacion/useEvaluationPronunciation';
 import { Button } from '../../shared/ui/Button';
 import { Card } from '../../shared/ui/Card';
 import {
@@ -59,6 +60,7 @@ function OrderingCaseView({ item, ...step }: CaseStepProps<OrderingCase>) {
   const [lockedIds, setLockedIds] = useState<string[]>([]);
   const [drag, setDrag] = useState<{ id: string; pointerId: number; originX: number; originY: number; x: number; y: number; targetId: string }>();
   const [score, setScore] = useState<ReturnType<typeof scoreOrderedActions> | null>(null);
+  useEvaluationPronunciation(score ? 'result' : 'order');
   const hintLimit = Math.min(3, item.actions.length - 1);
 
   const reorder = (fromIndex: number, toIndex: number) => {
@@ -100,7 +102,7 @@ function OrderingCaseView({ item, ...step }: CaseStepProps<OrderingCase>) {
     if (locked) return;
     const target = event.target as HTMLElement;
     const usedHandle = !!target.closest('[data-drag-handle]');
-    if (target.closest('.clinical-order-moves') || (event.pointerType !== 'mouse' && !usedHandle)) return;
+    if (target.closest('.clinical-order-moves, .button--sound') || (event.pointerType !== 'mouse' && !usedHandle)) return;
     event.currentTarget.setPointerCapture(event.pointerId);
     setDrag({ id, pointerId: event.pointerId, originX: event.clientX, originY: event.clientY, x: 0, y: 0, targetId: id });
   };
@@ -204,6 +206,7 @@ function MultipleChoiceCaseView({ item, ...step }: CaseStepProps<MultipleChoiceC
   const [hintUsed, setHintUsed] = useState(false);
   const [score, setScore] = useState<Score | null>(null);
   const allowHints = step.mode === 'entrenamiento';
+  useEvaluationPronunciation(score ? 'result' : 'choice');
 
   if (score) {
     const chosen = item.options.find(option => option.id === selected);
@@ -226,10 +229,10 @@ function MultipleChoiceCaseView({ item, ...step }: CaseStepProps<MultipleChoiceC
         {item.options.map(option => {
           const isSelected = selected === option.id;
           const isDiscarded = discarded === option.id;
-          return <EvaluationOption key={option.id} disabled={isDiscarded}
+          return <EvaluationOption key={option.id} pronunciation={option.textEn} disabled={isDiscarded}
             aria-pressed={isSelected} data-discarded={isDiscarded || undefined}
             onClick={() => setSelected(option.id)}>
-            <Bilingual es={option.textEs} en={option.textEn}/>
+            <Bilingual es={option.textEs} en={option.textEn} audio={false}/>
             {isDiscarded && <small lang="es">Opción descartada</small>}
           </EvaluationOption>;
         })}
@@ -279,6 +282,7 @@ function ClinicalAttempt({ caseIds: sessionIds, onExit, finishTimed, mode = 'ent
   const [levels, setLevels] = useState<Record<PerformanceLevel, number>>({ strong: 0, partial: 0, review: 0 });
   const item = casesById.get(sessionIds[index]);
   const lastRecordedId = useRef<string | undefined>(undefined);
+  useEvaluationPronunciation(index);
 
   useEffect(() => { window.scrollTo(0, 0); }, [index]);
 

@@ -83,7 +83,7 @@
 .clinical-message--patient { border: 1px solid var(--line); border-bottom-left-radius: 5px; background: var(--white); }
 .clinical-message--student { justify-self: end; border-bottom-right-radius: 5px; background: #d3ebdd; }
 .clinical-options, .clinical-answer-list { display: grid; gap: var(--space-2); }
-.clinical-options .button, .clinical-answer-list .button { width: 100%; text-align: left; align-items: flex-start; }
+.clinical-options .button--answer, .clinical-answer-list .button--answer { width: 100%; text-align: left; align-items: flex-start; }
 .clinical-bilingual { flex: 1; min-width: 0; }
 .clinical-bilingual { display: grid; gap: 4px; line-height: 1.4; }
 .clinical-bilingual small {
@@ -93,7 +93,8 @@
   line-height: 1.4;
   font-weight: 500;
 }
-.clinical-options .button, .clinical-answer-list .button:has(.clinical-bilingual) { padding-block: 11px; }
+.clinical-bilingual .lumar-english--compact > small { flex: 1 1 8ch; }
+.clinical-options .button--answer, .clinical-answer-list .button--answer:has(.clinical-bilingual) { padding-block: 11px; }
 .clinical-prompt-heading {
   display: flex;
   flex-wrap: wrap;

@@ -5,12 +5,14 @@ import { retos } from '../../content/ejercicios/retos';
 import { retoModeLabels, retoTypeLabels, type CategoriaAnatomica, type ModoReto, type PreguntaReto, type Reto, type TipoReto } from '../../content/types';
 import { EvaluationMode } from '../../shared/evaluacion/EvaluationMode';
 import { EvaluationHistoryLink, EvaluationSummary } from '../../shared/evaluacion/EvaluationSummary';
+import { useEvaluationPronunciation } from '../../shared/evaluacion/useEvaluationPronunciation';
 import type { RouteProps } from '../../shared/navegacion';
 import { PracticeTabs } from '../../shared/navegacion/PracticarHome';
 import { BottomSheet } from '../../shared/ui/BottomSheet';
 import { Button } from '../../shared/ui/Button';
 import { Card } from '../../shared/ui/Card';
 import { ContentState } from '../../shared/ui/ContentState';
+import { EnglishTerm } from '../../shared/ui/EnglishTerm';
 import { Segmented } from '../../shared/ui/Segmented';
 import { Relacionar, Repasar, Senalar, Ubicar } from './Actividades';
 import {
@@ -18,6 +20,7 @@ import {
   rutaFicha, rutaResultado, rutaReto, rutaRetos, tituloResultadoReto, tituloRetoParaEstructura, ultimoIntento,
   type Correccion, type Respuestas,
 } from './intentos';
+import { consignaPronunciable, terminoRespuesta } from './terminos';
 import './retos.css';
 
 const tipos = {
@@ -262,6 +265,7 @@ export function Juego({ reto, modo, quick }: {
   const ayudaId = useId();
   const preguntas = rondas[paso];
   const pregunta = preguntas[0];
+  const consigna = consignaPronunciable(pregunta, reto.tipo);
   const pistas = preguntas.flatMap(p => p.pistas);
   const completas = preguntas.every(p => respuestas[p.id]);
   const ultima = paso === rondas.length-1;
@@ -275,6 +279,7 @@ export function Juego({ reto, modo, quick }: {
   }[reto.tipo];
 
   useEffect(() => heading.current?.focus(), [paso]);
+  useEvaluationPronunciation(`${paso}:${Boolean(correccion)}:${intentoRapido ?? ''}`);
 
   function seleccionar(id?: string) {
     setRespuestas(id ? { [pregunta.id]: id } : {});
@@ -342,7 +347,8 @@ export function Juego({ reto, modo, quick }: {
       {!entrenamiento && <p className="retos-meta">Verás los aciertos y la corrección al terminar.</p>}
     </div>
     <Card className="retos-card">
-      <h2 tabIndex={-1} ref={heading}>{ubicar && rondas.length > 1 ? nombreEstructura(pregunta.estructuraId) : tablero ? tipos[reto.tipo].nombre : pregunta.enunciado}</h2>
+      <h2 tabIndex={-1} ref={heading}>{ubicar && rondas.length > 1 ? nombreEstructura(pregunta.estructuraId) : tablero ? tipos[reto.tipo].nombre : consigna.texto}</h2>
+      {!tablero && consigna.terminoEn && <EnglishTerm key={consigna.terminoEn} term={consigna.terminoEn} variant="compact"/>}
       {ubicar && <p>{tipos[reto.tipo].objetivo}</p>}
       {ubicar && <Ubicar key={paso} {...tableroProps}/>}
       {reto.tipo === 'relaciona-funcion' && <Relacionar {...tableroProps}/>}
@@ -359,8 +365,11 @@ export function Juego({ reto, modo, quick }: {
         <strong>{fallo ? 'Vuelve a intentarlo' : '¡Correcto!'}</strong>
         {correccion.filter(row => !row.acierto).map(row => {
           const p = preguntas.find(item => item.id === row.preguntaId)!;
+          const correcta = p.respuestas.find(opcion => opcion.id === p.correctaId);
+          const termino = correcta && terminoRespuesta(p.estructuraId, correcta.texto);
           return <div key={p.id}>
             <p>{explicacion(p,row.respuestaId)}</p>
+            {termino && termino !== consigna.terminoEn && <EnglishTerm term={termino} variant="compact"/>}
             <a href={rutaFicha(p.estructuraId)} target="_blank" rel="noopener">Ver en Explorar 3D</a>
           </div>;
         })}
@@ -384,6 +393,7 @@ function Resultados({ reto, intento, quickExit }: { reto: Reto; intento: string;
   const resultado = leerResultado(reto,intento);
   const [soloErrores, setSoloErrores] = useState(false);
   const lista = useRef<HTMLHeadingElement>(null);
+  useEvaluationPronunciation(`${intento}:${soloErrores}`);
   if (!resultado) return <section className="lumar-page"><ContentState state="unavailable" title="Resultado no disponible en este dispositivo">
     <a href={rutaReto(reto.id)}>Abrir el reto</a>
   </ContentState></section>;
@@ -413,16 +423,26 @@ function Resultados({ reto, intento, quickExit }: { reto: Reto; intento: string;
         const p = reto.preguntas.find(item => item.id === row.preguntaId)!;
         const respuesta = p.respuestas.find(item => item.id === row.respuestaId);
         const correcta = p.respuestas.find(item => item.id === p.correctaId);
+        const consigna = consignaPronunciable(p, reto.tipo);
+        const terminoElegido = respuesta && terminoRespuesta(p.estructuraId, respuesta.texto);
+        const terminoCorrecto = correcta && terminoRespuesta(p.estructuraId, correcta.texto);
+        const previas = [...new Set(row.erroresPrevios)].flatMap(id => p.respuestas.find(item => item.id === id) ?? []);
+        const terminosPrevios = [...new Set(previas.map(item => terminoRespuesta(p.estructuraId, item.texto)))]
+          .filter((term): term is string => Boolean(term) && term !== terminoElegido && term !== terminoCorrecto);
         const paraRepasar = !row.acierto || row.erroresPrevios.length > 0;
         return <Card className="retos-result-card" key={row.preguntaId} data-ok={row.acierto}>
           <p className="retos-result-status">{row.acierto && <CheckCircle2 size={16} aria-hidden="true"/>}
             {row.acierto ? row.erroresPrevios.length ? 'Acierto tras reintentar' : 'Acierto' : 'Error'}
           </p>
-          <h3>{p.enunciado}</h3>
+          <h3>{consigna.texto}</h3>
+          {consigna.terminoEn && <EnglishTerm term={consigna.terminoEn} variant="compact"/>}
           <p>Tu respuesta: <strong>{respuesta?.texto}</strong></p>
+          {terminoElegido && terminoElegido !== consigna.terminoEn && <EnglishTerm term={terminoElegido} variant="compact"/>}
           {paraRepasar && <>
             {!row.acierto && <p>Respuesta correcta: <strong>{correcta?.texto}</strong></p>}
-            {row.erroresPrevios.length > 0 && <p>Intentos anteriores: {[...new Set(row.erroresPrevios)].map(id => p.respuestas.find(item => item.id === id)?.texto).filter(Boolean).join(', ')}</p>}
+            {!row.acierto && terminoCorrecto && terminoCorrecto !== consigna.terminoEn && <EnglishTerm term={terminoCorrecto} variant="compact"/>}
+            {previas.length > 0 && <p>Intentos anteriores: {previas.map(item => item.texto).join(', ')}</p>}
+            {terminosPrevios.map(term => <EnglishTerm key={term} term={term} variant="compact"/>)}
             <p>{explicacion(p,row.acierto ? row.erroresPrevios[0] : row.respuestaId)}</p>
             <a href={rutaFicha(p.estructuraId)}>Ver en Explorar 3D</a>
           </>}

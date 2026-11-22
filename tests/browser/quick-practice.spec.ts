@@ -35,7 +35,7 @@ test('el reloj empieza al aceptar y para al registrar el caso de selección múl
   await accept(page).click();
   await expect(timer(page)).toContainText('15 s');
   await expect(page.getByText('Caso 1 de 1')).toBeVisible();
-  await page.getByRole('button', { name: /Intramuscular adrenaline/ }).click();
+  await page.getByRole('button', { name: /^Adrenalina intramuscular/ }).click();
   await page.getByRole('button', { name: 'Comprobar respuesta' }).click();
   await expect(page.getByText('Respuesta registrada')).toBeVisible();
   await expect(page.locator('.quick-outcome')).toContainText('100%');

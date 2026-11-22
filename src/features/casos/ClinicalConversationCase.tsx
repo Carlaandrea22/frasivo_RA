@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ArrowRight, RotateCcw, UserRound } from 'lucide-react';
 import type { ConversationNode, InterviewCase, InvestigationCase, InvestigationNode } from '../../content/casos/sessionTypes';
 import { EvaluationOption } from '../../shared/evaluacion/EvaluationOption';
+import { useEvaluationPronunciation } from '../../shared/evaluacion/useEvaluationPronunciation';
 import { Button } from '../../shared/ui/Button';
 import { Card } from '../../shared/ui/Card';
 import { createInterviewExchange, getInterviewChoices, scoreInvestigation } from './clinicalEngine';
@@ -59,6 +60,7 @@ function Conversation<Node extends ConversationNode>({ item, finishLabel, onFini
   const [pending, setPending] = useState<Node>();
   const timeout = useRef<number | undefined>(undefined);
   const choices = getInterviewChoices(item, path.map(node => node.id));
+  useEvaluationPronunciation(pending?.id ?? path.length);
 
   useEffect(() => () => window.clearTimeout(timeout.current), []);
 
@@ -79,8 +81,8 @@ function Conversation<Node extends ConversationNode>({ item, finishLabel, onFini
         <h2 id="clinical-question-options">Elige tu pregunta</h2>
         <span>Turno {path.length + 1} de 3</span>
       </div>
-      {choices.map(node => <EvaluationOption key={node.id} disabled={!!pending} onClick={() => ask(node)}>
-        <Bilingual es={node.promptEs} en={node.promptEn}/>
+      {choices.map(node => <EvaluationOption key={node.id} pronunciation={node.promptEn} disabled={!!pending} onClick={() => ask(node)}>
+        <Bilingual es={node.promptEs} en={node.promptEn} audio={false}/>
       </EvaluationOption>)}
     </section> : <Button className="clinical-finish-dialogue" onClick={() => onFinish(path)}>{finishLabel}<ArrowRight size={17}/></Button>}
   </div>;
@@ -90,6 +92,7 @@ export function InterviewCaseView({ item, ...step }: CaseStepProps<InterviewCase
   const [recall, setRecall] = useState<ReturnType<typeof createInterviewExchange>[]>([]);
   const [answers, setAnswers] = useState<string[]>([]);
   const exchange = recall[answers.length];
+  useEvaluationPronunciation(`${recall.length}:${answers.length}`);
   const grade = (values: readonly string[]) => {
     const correct = recall.filter(({ recall: question }, index) => question.correctId === values[index]).length;
     return { correct, errors: recall.length - correct };
@@ -127,12 +130,12 @@ export function InterviewCaseView({ item, ...step }: CaseStepProps<InterviewCase
         <h3><Bilingual es={prompt.promptEs} en={prompt.promptEn}/></h3>
       </div>
       <div className="clinical-answer-list" key={answers.length}>
-        {question.options.map(option => <EvaluationOption key={option.id} onClick={() => {
+        {question.options.map(option => <EvaluationOption key={option.id} pronunciation={option.textEn} onClick={() => {
           const values = [...answers, option.id];
           if (values.length === recall.length && step.submitTimed && !step.submitTimed(grade(values))) return;
           setAnswers(values);
         }}>
-          <Bilingual es={option.textEs} en={option.textEn}/>
+          <Bilingual es={option.textEs} en={option.textEn} audio={false}/>
         </EvaluationOption>)}
       </div>
     </Card>
@@ -142,6 +145,7 @@ export function InterviewCaseView({ item, ...step }: CaseStepProps<InterviewCase
 export function InvestigationCaseView({ item, ...step }: CaseStepProps<InvestigationCase>) {
   const [path, setPath] = useState<InvestigationNode[]>();
   const [hypothesisId, setHypothesisId] = useState<string>();
+  useEvaluationPronunciation(hypothesisId ?? (path ? 'hypothesis' : 'conversation'));
   const retry = () => {
     setHypothesisId(undefined);
     setPath(undefined);
@@ -162,11 +166,11 @@ export function InvestigationCaseView({ item, ...step }: CaseStepProps<Investiga
       <Transcript item={item} path={path}/>
     </details>
     <div className="clinical-answer-list">
-      {item.hypotheses.map(option => <EvaluationOption key={option.id} onClick={() => {
+      {item.hypotheses.map(option => <EvaluationOption key={option.id} pronunciation={option.textEn} onClick={() => {
         if (step.submitTimed && !step.submitTimed(grade(option.id))) return;
         setHypothesisId(option.id);
       }}>
-        <Bilingual es={option.textEs} en={option.textEn}/>
+        <Bilingual es={option.textEs} en={option.textEn} audio={false}/>
       </EvaluationOption>)}
     </div>
     {!step.submitTimed && step.mode === 'entrenamiento' && <Button variant="text" className="clinical-retry" onClick={retry}><RotateCcw size={17}/> Volver al primer turno</Button>}

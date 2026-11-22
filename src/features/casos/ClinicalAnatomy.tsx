@@ -2,6 +2,7 @@ import { lazy, Suspense, useMemo, useState } from 'react';
 import { Box } from 'lucide-react';
 import { modelos } from '../../content/anatomy/modelos';
 import { resolveCaseAnatomy, type CaseAnatomyRegion } from '../../content/casos/caseAnatomy';
+import { useEvaluationPronunciation } from '../../shared/evaluacion/useEvaluationPronunciation';
 import { Button } from '../../shared/ui/Button';
 import type { Viewer3DProjectedAnchor } from '../../shared/visor3d/Viewer3D';
 import { Bilingual } from './Bilingual';
@@ -29,6 +30,7 @@ export function ClinicalAnatomy({ structures }: { structures: readonly CaseAnato
     const anatomy = resolveCaseAnatomy(region);
     return anatomy ? [{ region, anatomy }] : [];
   });
+  useEvaluationPronunciation(selected);
   const active = regions.find(({ region }) => region.structureId === selected) ?? regions[0];
   if (!active) return null;
   const { region, anatomy } = active;

@@ -6,7 +6,9 @@ test.beforeEach(async ({ page }) => {
   await page.goto('/#practicar/casos');
 });
 
-const choose = (page: Page, name: string | RegExp) => page.getByRole('button', { name }).click();
+const action = (page: Page, name: string | RegExp) =>
+  page.getByRole('button', { name }).and(page.locator('button:not(.button--sound)'));
+const choose = (page: Page, name: string | RegExp) => action(page, name).click();
 const next = (page: Page) => choose(page, 'Siguiente caso');
 const start = async (page: Page, kind: string) => {
   await choose(page, kind);
@@ -38,7 +40,7 @@ test('presenta preguntas, respuestas y mensajes en español con el inglés debaj
   await expect(chat.getByText('It began gradually about three weeks ago.')).toBeVisible();
   await expect(chat.locator('.clinical-message--patient [lang="es"]').last()).toContainText(/tres semanas/);
   await expect(chat.locator('.clinical-message--student [lang="es"]')).toHaveText('¿Cuándo empezó el dolor?');
-  await expect(page.getByRole('button', { name: /Where exactly do you feel the pain/ })).toHaveCount(0);
+  await expect(action(page, /Where exactly do you feel the pain/)).toHaveCount(0);
   await choose(page, /Did you fall or twist your knee before it started/);
   await choose(page, /Does your knee ever lock or get stuck/);
   await choose(page, 'Comenzar preguntas de comprensión');
@@ -143,7 +145,7 @@ test('completa los cinco modos y muestra los resultados al finalizar', async ({ 
   await expect(page.locator('.evaluation-confetti span').first()).toHaveCSS('animation-name', 'evaluation-confetti-fall');
   await next(page);
 
-  const wrongChoice = page.getByRole('button', { name: 'An oral antibiotic' });
+  const wrongChoice = action(page, 'An oral antibiotic');
   await wrongChoice.click();
   await expect(wrongChoice).toHaveAttribute('aria-pressed', 'true');
   await choose(page, 'Descartar una opción');
@@ -273,7 +275,7 @@ test('permite revisar las respuestas que se fallaron en comprensión', async ({ 
   await choose(page, /Did you fall or twist your knee before it started/);
   await choose(page, /Does your knee ever lock or get stuck/);
   await choose(page, 'Comenzar preguntas de comprensión');
-  await page.locator('.clinical-answer-list .button').nth(1).click();
+  await page.locator('.clinical-answer-list .button--answer').nth(1).click();
   await choose(page, /There was no fall or sudden twist/);
   await choose(page, /He could bend and straighten it/);
   await expect(page.getByRole('heading', { name: '2 de 3 respuestas correctas' })).toBeVisible();
@@ -297,7 +299,7 @@ test('revela la respuesta de selección múltiple y permite terminar con un resu
 
 test('usa un indicador compacto en la selección múltiple', async ({ page }) => {
   await start(page, 'Practicar solo Selección múltiple');
-  const option = page.getByRole('button', { name: 'Intramuscular adrenaline' });
+  const option = action(page, 'Intramuscular adrenaline');
   await expect(option.locator('[lang="es"]')).toHaveText('Adrenalina intramuscular');
   await expect(option.locator('[lang="en"]')).toHaveText('Intramuscular adrenaline');
   await expect(page.getByRole('heading', { name: /qué medicamento es el tratamiento.*first-line treatment/i })).toBeVisible();

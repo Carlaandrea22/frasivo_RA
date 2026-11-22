@@ -82,3 +82,15 @@
   .retos-feedback[data-ok="true"] { animation: retos-correcto .17s ease-out; }
 }
 @keyframes retos-correcto { from { opacity: .72; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
+
+.retos-token-with-audio {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+  padding: 5px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-soft);
+  background: var(--paper);
+}
+.retos-token-with-audio .retos-token { text-align: start; }
+.retos-token-with-audio .lumar-english--compact { padding-inline: 4px; justify-content: space-between; }

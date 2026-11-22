@@ -42,3 +42,15 @@ E2E_PORT=4176 npm run test:e2e -- --workers=1
 ```
 
 [Vista previa de luis-evaluacion](https://luis-evaluacion.frasivo-ra.pages.dev)
+
+## Audio en Retos y Casos clínicos
+
+El altavoz reproduce el término o la frase en inglés al tocarlo. Puedes escucharlo sin seleccionar la opción ni conectar tarjetas. En Repaso breve, las opciones aparecen con audio cuando todas tienen un término equivalente en el atlas. En Señala, el altavoz lee la consigna y las piezas numeradas conservan el número como única etiqueta. Las respuestas de referencia se pueden escuchar al abrir la corrección.
+
+LumAR usa los clips Piper existentes cuando encuentra el término y recurre a la voz inglesa del dispositivo para el resto. Al cambiar de pregunta o salir, se detiene la reproducción. [Lista completa de términos y frases sin clip propio](audio/sin-clip.md)
+
+| Capturas a 375 px de Retos | Capturas a 375 px de Casos |
+| --- | --- |
+| [Consigna de Señala](audio/retos-consigna.png) | [Entrevista](audio/casos-entrevista.png) |
+| [Opciones de Repaso breve](audio/retos-opciones.png) | [Emparejamiento](audio/casos-emparejamiento.png) |
+| [Repaso del resultado](audio/retos-repaso.png) | [Corrección del caso](audio/casos-correccion.png) |

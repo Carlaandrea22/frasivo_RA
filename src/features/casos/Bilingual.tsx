@@ -1,6 +1,8 @@
-export function Bilingual({ es, en }: { es: string; en: string }) {
+import { EnglishTerm } from '../../shared/ui/EnglishTerm';
+
+export function Bilingual({ es, en, audio = true }: { es: string; en: string; audio?: boolean }) {
   return <span className="clinical-bilingual">
     <span lang="es">{es}</span>
-    <small lang="en">{en}</small>
+    {audio ? <EnglishTerm key={en} term={en} variant="compact"/> : <small lang="en">{en}</small>}
   </span>;
 }

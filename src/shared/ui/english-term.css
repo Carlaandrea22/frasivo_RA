@@ -1,0 +1,28 @@
+.lumar-english--compact {
+  display: inline-flex;
+  max-width: 100%;
+  gap: 4px var(--space-2);
+  font: 500 .8rem/1.4 var(--font-text);
+  vertical-align: middle;
+}
+.lumar-english--compact > small {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font: inherit;
+}
+.lumar-english--compact > [role="status"] { flex-basis: 100%; }
+.lumar-english-button { position: relative; display: inline-flex; align-self: start; }
+.lumar-english-button > [role="status"] {
+  position: absolute;
+  z-index: 6;
+  inset-block-start: calc(100% + 4px);
+  inset-inline-end: 0;
+  width: max-content;
+  max-width: 13rem;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-soft);
+  background: var(--paper);
+  color: var(--ink);
+  font: 500 .8rem/1.4 var(--font-text);
+}
