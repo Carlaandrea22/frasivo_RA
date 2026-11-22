@@ -353,3 +353,15 @@
   .anatomy-sheet .anatomy-vocabulary { margin-top: var(--space-3); padding-top: var(--space-3); }
   .anatomy-sheet .anatomy-note { margin-top: var(--space-3); }
 }
+
+.body-explorer--bones .anatomy-status { white-space: nowrap; flex-shrink: 0; }
+.body-explorer--bones .anatomy-fps { white-space: nowrap; }
+.anatomy-frozen-preview { position: absolute; inset: 0; pointer-events: none; }
+.anatomy-frozen-preview .anatomy-sprites,
+.anatomy-frozen-preview .anatomy-sprites image { pointer-events: none; }
+
+@media (max-width: 380px) {
+  .body-explorer--bones .anatomy-stage-header { gap: 4px; }
+  .body-explorer--bones .anatomy-status { gap: 4px; padding-inline: 5px; font-size: .75rem; }
+  .body-explorer--bones .anatomy-fps { padding-inline: 3px; font-size: .62rem; }
+}

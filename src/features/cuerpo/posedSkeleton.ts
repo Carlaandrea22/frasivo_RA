@@ -190,6 +190,16 @@ export function poseSkeleton(model: Group, points: BodyPoint[]) {
   const origin = between(at('ankle_left'), at('ankle_right'));
   skeleton.position.set(-origin.x, -feet.min.y, -origin.z);
   skeleton.updateMatrixWorld(true);
+  const measured: [number, number, number][] = points.map(point => [
+    point.x + skeleton.position.x, -point.y + skeleton.position.y, -(point.z ?? 0) + skeleton.position.z,
+  ]);
+  // Calibrate against joints used by the rig, with the eye/ear midpoint attached to the fitted skull.
+  const fittedHead = restHead.clone().applyMatrix4(matrices.get('head')!).add(skeleton.position);
+  skeleton.userData.calibrationJoints = {
+    measured,
+    face,
+    head: fittedHead.toArray() as [number, number, number],
+  };
   return skeleton;
 }
 

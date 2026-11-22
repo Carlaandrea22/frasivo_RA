@@ -1,5 +1,4 @@
-import type { BodyPoint } from './anatomy';
-import { averagePrecisePose, captureIssue, preciseCaptureDuration, type PoseSample } from './poseCapture';
+import { averagePreciseCapture, captureIssue, preciseCaptureDuration, type PoseSample, type PrecisePose } from './poseCapture';
 import workerUrl from '../../generated/pose.worker.js?url';
 
 const modelError = 'No se pudo cargar el modelo de captura precisa. Comprueba la conexión e inténtalo de nuevo.';
@@ -11,7 +10,7 @@ export function capturePrecisePose(
   viewportAspect: number,
   onProgress: (progress: number) => void,
   signal: AbortSignal,
-): Promise<BodyPoint[]> {
+): Promise<PrecisePose> {
   return new Promise((resolve, reject) => {
     if (signal.aborted) { reject(signal.reason); return; }
     let worker: Worker;
@@ -77,7 +76,7 @@ export function capturePrecisePose(
       } else if (!busy) {
         const aspect = video.videoWidth / video.videoHeight;
         const issue = samples.map(sample => captureIssue(sample, aspect, viewportAspect)).find(Boolean);
-        const pose = averagePrecisePose(samples, start, aspect, viewportAspect);
+        const pose = averagePreciseCapture(samples, start, aspect, viewportAspect);
         if (!pose) { fail(issue || captureError); return; }
         cleanup();
         resolve(pose);

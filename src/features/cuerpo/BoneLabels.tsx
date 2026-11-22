@@ -5,9 +5,10 @@ import { EnglishTerm } from '../../shared/ui/EnglishTerm';
 import { recordConsultation } from '../../shared/progreso';
 import { estructuras } from '../../content/anatomy/catalogo';
 import { anatomyParts } from './anatomy';
+import { arrangeBoneLabels, type BoneTarget } from './boneLabelPlacement';
 import './boneLabels.css';
 
-export interface BoneTarget { id: string; x: number; y: number }
+export type { BoneTarget } from './boneLabelPlacement';
 
 export const mainBoneIds = ['skull', 'humerus', 'ribs', 'pelvis', 'femur', 'tibia'];
 const names = new Map(anatomyParts.filter(part => part.layer === 'bones').map(part => [part.id, part]));
@@ -53,51 +54,30 @@ export function BoneLabels({ targets, selected, showAll = false, reservedBottom 
   const catalog = estructuras.find(item => item.id === detail);
   const featured = (showAll ? mainBoneIds.filter(id => id !== selected).slice(0, selected ? 5 : 6) : []);
   const ids = selected ? [selected, ...featured] : featured;
-  const cardWidth = Math.min(130, Math.max(98, size.width*.36));
-  const cardHeight = 62;
-  const labels = ids.flatMap(id => {
-    const target = targets.find(item => item.id === id);
-    const bone = names.get(id);
-    if (!target || !bone || target.x < 0 || target.x > 1 || target.y < 0 || target.y > 1) return [];
-    const x = target.x*size.width, y = target.y*size.height;
-    return [{ ...bone, x, y, left: x >= size.width*.5 }];
-  }).sort((a, b) => a.y - b.y);
-  const bottom = Math.max(8, size.height - cardHeight - (reservedBottom ?? (size.height > 440 ? 76 : 10)));
-  const capacity = Math.max(1, 1+Math.floor((bottom-8)/(cardHeight+5)));
-  const columns: [typeof labels, typeof labels] = [[], []];
-  for (const label of labels) {
-    const column = label.left ? 0 : 1;
-    if (columns[column].length < capacity) columns[column].push(label);
-    else if (columns[1-column].length < capacity) columns[1-column].push(label);
-  }
-  const positioned = columns.flatMap((column, side) => {
-    let next = 8;
-    const x = side === 0 ? 8 : size.width-cardWidth-8;
-    return column.map((label, i) => {
-      const top = Math.max(next, Math.min(bottom - (column.length-1-i)*(cardHeight+5), label.y-cardHeight/2));
-      next = top + cardHeight + 5;
-      return { ...label, top, edge: side === 0 ? x+cardWidth : x, columnX: x };
-    });
+  const positioned = arrangeBoneLabels(targets, ids, selected, { ...size, reservedBottom }).flatMap(label => {
+    const bone = names.get(label.id);
+    return bone ? [{ ...label, bone }] : [];
   });
 
   return <div className="bone-labels" ref={host}>
     <svg className="bone-label-lines" width={size.width} height={size.height} aria-hidden="true">
-      <defs><marker id={marker} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <defs><marker id={marker} viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
         <path d="M 0 0 L 10 5 L 0 10 z" fill="#ffe9a2"/>
       </marker></defs>
       {positioned.map(label => (
-        <line key={label.id} x1={label.edge} y1={label.top+cardHeight/2} x2={label.x} y2={label.y}
-          stroke="#ffe9a2" strokeWidth="2" markerEnd={`url(#${marker})`} data-bone-arrow={label.id}/>
+        <line key={label.id} x1={label.edge} y1={label.edgeY} x2={label.x} y2={label.y}
+          stroke="#ffe9a2" strokeWidth="2" markerEnd={`url(#${marker})`} data-bone-arrow={label.id}
+          data-bone-source={label.source} data-label-side={label.side} data-body-center={label.centerX ?? .5}/>
       ))}
     </svg>
     {positioned.map(label => (
-      <div key={label.id} className="bone-label-card" style={{ top: label.top, width: cardWidth, left: label.columnX }}>
-        <button type="button" className="bone-label-open" aria-label={`Ver ficha de ${label.es}`} onClick={() => {
+      <div key={label.id} className="bone-label-card" style={{ top: label.top, width: label.cardWidth, left: label.columnX }} data-label-side={label.side} data-bone-label={label.id}>
+        <button type="button" className="bone-label-open" aria-label={`Ver ficha de ${label.bone.es}`} onClick={() => {
           setDetail(label.id);
           recordConsultation({ areaId: 'anatomy', groupId: 'huesos', itemId: label.id });
           sheet.current?.showModal();
-        }}>{label.es}</button>
-        <EnglishTerm term={label.en}/>
+        }}>{label.bone.es}</button>
+        <EnglishTerm term={label.bone.en}/>
       </div>
     ))}
     <dialog ref={sheet} className="lumar-sheet bone-detail" aria-label={opened?.es ?? 'Ficha del hueso'}

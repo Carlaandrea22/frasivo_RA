@@ -1,16 +1,26 @@
 import { FilesetResolver, PoseLandmarker } from '@mediapipe/tasks-vision';
-const fullModelUrl = 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/1/pose_landmarker_full.task';
+const fullModelUrl = '/body-tracking/pose_landmarker_full.task';
 const fullModelCache = 'pose-landmarker-full-v1';
 let detector: PoseLandmarker | undefined;
+
+function isFullArchive(bytes: Uint8Array) {
+  // The pinned MediaPipe task starts with two padding bytes and a ZIP local header.
+  return bytes.length >= 8_000_000 && bytes[2] === 0x50 && bytes[3] === 0x4b && bytes[4] === 3 && bytes[5] === 4;
+}
 
 async function loadFullModel() {
   // Keep the versioned model available across app and service worker updates.
   const cache = await globalThis.caches?.open(fullModelCache).catch(() => undefined);
   const cached = await cache?.match(fullModelUrl).catch(() => undefined);
-  if (cached) return new Uint8Array(await cached.arrayBuffer());
+  if (cached) {
+    const bytes = new Uint8Array(await cached.arrayBuffer());
+    if (isFullArchive(bytes)) return bytes;
+    await cache?.delete(fullModelUrl).catch(() => {});
+  }
   const response = await fetch(fullModelUrl);
   if (!response.ok) throw new Error('No se pudo descargar el modelo de captura precisa.');
   const bytes = new Uint8Array(await response.clone().arrayBuffer());
+  if (!isFullArchive(bytes)) throw new Error('El archivo de captura precisa no es un modelo válido.');
   await cache?.put(fullModelUrl, response).catch(() => { /* The downloaded model can still run. */ });
   return bytes;
 }

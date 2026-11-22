@@ -199,7 +199,8 @@ test('las tres capas muestran WebP y el vocabulario en inglés y español', asyn
   await expect(page.locator('canvas')).toHaveCount(0);
   await page.getByText('Vocabulario de la capa', { exact: true }).click();
   await page.getByRole('button', { name: 'Mandible Mandíbula', exact: true }).click();
-  await expect(page.locator('.anatomy-active-term')).toHaveText('Mandible');
+  await expect(page.getByRole('button', { name: 'Ver ficha de Mandíbula' })).toBeVisible();
+  await expect(page.locator('.anatomy-active-term')).toHaveCount(0);
   await expect(page.locator('image[data-part="mandible"]')).toHaveClass('selected');
   await page.getByRole('button', { name: 'Órganos', exact: true }).click();
   await page.getByRole('button', { name: 'Kidneys Riñones', exact: true }).click();
@@ -256,6 +257,7 @@ test('Pose dibuja tórax frontal sin caderas, retira selección y pide girar de 
   await page.goto('/?fps=1');
   await page.getByRole('button', { name: 'Activar cámara' }).click();
   await expect(page.getByRole('status')).toHaveText('Persona detectada');
+  await expect(page.getByRole('status')).toHaveCSS('white-space', 'nowrap');
   await expect(page.locator('image[data-part=fibula_right]')).toBeVisible();
   await expect(page.locator('[data-fps-detection]')).toBeVisible();
   await expect(page.locator('[data-fps-drawing]')).toBeVisible();
@@ -263,7 +265,9 @@ test('Pose dibuja tórax frontal sin caderas, retira selección y pide girar de 
   const fibula = page.getByRole('button', { name: 'Fibula Peroné' });
   await fibula.click();
   await page.getByRole('button', { name: 'Cerrar vocabulario' }).click();
-  await expect(page.locator('.anatomy-active-term')).toHaveText('Fibula');
+  await page.getByRole('button', { name: 'Minimizar controles' }).click();
+  await expect(page.getByRole('button', { name: 'Ver ficha de Peroné' })).toBeVisible();
+  await expect(page.locator('.anatomy-active-term')).toHaveCount(0);
   await page.evaluate(() => { (window as unknown as { bodyCameraTest: { shot: string } }).bodyCameraTest.shot = 'torso'; });
   await expect(page.getByText('Aléjate para ver el cuerpo completo')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Fijar esqueleto' })).toBeDisabled();
@@ -272,6 +276,7 @@ test('Pose dibuja tórax frontal sin caderas, retira selección y pide girar de 
   await expect(page.locator('image[data-part=pelvis_left]')).toHaveCount(0);
   await expect(page.locator('image[data-part=sternum]')).toBeVisible();
   await expect(page.locator('.anatomy-active-term')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Expandir controles' }).click();
   await page.getByRole('button', { name: 'Vocabulario de la capa' }).click();
   await expect(fibula).toBeDisabled();
   await page.getByRole('button', { name: 'Cerrar vocabulario' }).click();
@@ -305,6 +310,7 @@ test('fija la pose de cuerpo completo, muestra el visor y vuelve a la cámara al
   const space = page.getByRole('button', { name: 'Ver en mi espacio' });
   await expect(space).toBeEnabled();
   await expect(page.getByRole('button', { name: 'Ver en 3D' })).toBeEnabled();
+  await expect(page.locator('canvas[aria-label="Esqueleto 3D sobre la cámara"]')).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath('pose-fijada.png') });
   const camera = page.locator('video');
   expect(await camera.evaluate((video: HTMLVideoElement) => (video.srcObject as MediaStream).active)).toBe(true);
@@ -346,6 +352,12 @@ test('iPhone recibe un enlace Quick Look con un USDZ de la pose y Soltar libera 
   await page.getByRole('button', { name: 'Fijar esqueleto' }).click();
   const canvas = page.locator('canvas[aria-label="Esqueleto 3D sobre la cámara"]');
   await expect(canvas).toBeVisible({ timeout: 20000 });
+  const calibrated = page.locator('.anatomy-camera-skeleton');
+  await expect(calibrated).toHaveAttribute('data-calibration-points', '9');
+  const maximum = Number(await calibrated.getAttribute('data-calibration-max-px'));
+  await writeFile(testInfo.outputPath('error-proyeccion-px.txt'), String(maximum));
+  expect(maximum).toBeLessThan(15);
+  await expect(page.locator('.anatomy-fps')).toHaveCount(0);
   expect(await page.locator('video').evaluate((video: HTMLVideoElement) => (video.srcObject as MediaStream).active)).toBe(true);
   const picker = page.getByLabel('Etiquetas para el visor de Apple');
   await picker.selectOption('main');

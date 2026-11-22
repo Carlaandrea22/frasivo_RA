@@ -9,12 +9,13 @@ import {
 import { Button } from '../../shared/ui/Button';
 import { BoneLabels, type BoneTarget } from './BoneLabels';
 import { projectBones } from './boneProjection';
-import { facingYaw, floorHit, requestAndroidAR } from './androidXR';
+import { facingYaw, floorHit, requestAndroidAR, requestPlacementAnchor } from './androidXR';
 import './android-space.css';
 
 const unavailable = 'La realidad aumentada requiere Chrome y Servicios de Google Play para RA (ARCore) en un Android compatible. Puedes ver el esqueleto en 3D.';
 const failedSession = 'No se pudo abrir la realidad aumentada. Comprueba el permiso de cámara y que ARCore esté actualizado. Puedes ver el esqueleto en 3D.';
 const placementHint = 'Apunta al piso donde estaba la persona y toca para colocar.';
+const positionHint = 'El esqueleto puede moverse un poco mientras usas la cámara.';
 type Mode = 'starting' | 'scanning' | 'anchoring' | 'placed';
 type Props = {
   model: Group;
@@ -160,26 +161,26 @@ function createScene(session: XRSession, overlay: HTMLElement, model: Group, upd
   }
 
   function place(frame: XRFrame, hit: XRHitTestResult, pose: XRPose, space: XRReferenceSpace) {
-    setMode('anchoring');
     const { position, orientation } = pose.transform;
     root.position.set(position.x, position.y, position.z);
     root.quaternion.setFromAxisAngle(up, facingYaw(root.position, viewAtStart, initialYaw));
     const hitRotation = new Quaternion(orientation.x, orientation.y, orientation.z, orientation.w);
     anchorToModel.copy(hitRotation).invert().multiply(root.quaternion);
-    // A hit result is valid only within the animation callback that generated it.
-    // Prefer a plane-attached anchor. Some implementations expose only XRFrame.createAnchor.
-    const request = hit.createAnchor?.() ?? frame.createAnchor?.(pose.transform, space);
-    if (!request) throw new Error('El dispositivo no permite anclar la pose.');
-    void request.then(next => {
+    const request = requestPlacementAnchor(session, frame, hit, pose.transform, space);
+
+    function finishPlacement(next?: XRAnchor) {
       if (disposed) { deleteAnchor(next); return; }
       anchor = next;
-      updates.message('');
+      updates.message(next ? '' : positionHint);
       setMode('placed');
-    }).catch(() => {
-      if (disposed) return;
-      updates.message('No se pudo anclar el esqueleto. Busca otro punto del piso.');
-      setMode('scanning');
-    });
+    }
+
+    if (request) {
+      setMode('anchoring');
+      void request.then(finishPlacement);
+    } else {
+      finishPlacement();
+    }
   }
 
   function draw(time: number, frame?: XRFrame) {
@@ -215,7 +216,7 @@ function createScene(session: XRSession, overlay: HTMLElement, model: Group, upd
       }
       requestedPlacement = false;
       const anchorPose = anchor ? frame.getPose(anchor.anchorSpace, space) : undefined;
-      root.visible = Boolean(anchorPose && viewer);
+      root.visible = state === 'placed' && Boolean(viewer && (!anchor || anchorPose));
       if (anchorPose) {
         const { position, orientation } = anchorPose.transform;
         root.position.set(position.x, position.y, position.z);

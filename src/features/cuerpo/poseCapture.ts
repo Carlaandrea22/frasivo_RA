@@ -7,6 +7,12 @@ export interface PoseSample {
   world: BodyPoint[];
 }
 
+export interface PrecisePose {
+  world: BodyPoint[];
+  image: BodyPoint[];
+  aspect: number;
+}
+
 export const captureWindow = 520;
 export const preciseCaptureDuration = 1000;
 
@@ -61,25 +67,34 @@ export function averagePose(history: PoseSample[], now: number, aspect: number, 
 }
 
 export function averagePrecisePose(history: PoseSample[], start: number, aspect: number, viewportAspect: number) {
+  return averagePreciseCapture(history, start, aspect, viewportAspect)?.world ?? null;
+}
+
+export function averagePreciseCapture(history: PoseSample[], start: number, aspect: number, viewportAspect: number): PrecisePose | null {
   const end = start + preciseCaptureDuration;
   const frames = history.filter(frame => frame.time >= start && frame.time <= end);
   if (frames.length < 3 || frames[0].time > start + 350 || frames.at(-1)!.time < end - 350) return null;
   if (frames.some(frame => captureIssue(frame, aspect, viewportAspect))) return null;
-  return averageWorldLandmarks(frames, aspect, viewportAspect);
+  return {
+    world: averageWorldLandmarks(frames, aspect, viewportAspect),
+    image: averageWorldLandmarks(frames, aspect, viewportAspect, true),
+    aspect,
+  };
 }
 
-function averageWorldLandmarks(frames: PoseSample[], aspect: number, viewportAspect: number) {
+function averageWorldLandmarks(frames: PoseSample[], aspect: number, viewportAspect: number, image = false) {
   const region = visibleRegion(aspect, viewportAspect);
   return Array.from({ length: 33 }, (_, index) => {
     const sum = { x: 0, y: 0, z: 0, visibility: 0 };
     let count = 0;
     for (const frame of frames) {
-      const point = frame.world[index];
+      const world = frame.world[index];
       const confidence = frame.points[index]?.visibility ?? 0;
-      if (!validWorld(point) || !pointInFrame(frame.points[index], aspect, region, .40)) continue;
+      if (!validWorld(world) || !pointInFrame(frame.points[index], aspect, region, .40)) continue;
+      const point = image ? frame.points[index] : world;
       sum.x += point.x;
       sum.y += point.y;
-      sum.z += point.z!;
+      sum.z += point.z ?? 0;
       sum.visibility += confidence;
       count++;
     }

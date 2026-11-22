@@ -3,6 +3,7 @@ import type { AnatomyLayer, Matrix } from './anatomy';
 import { atlasParts, atlasSprite, referenceFrame, type atlasPlacement, type AtlasPart } from './atlasAlignment';
 import { BoneLabels, type BoneTarget } from './BoneLabels';
 import { OneEuro } from './oneEuro';
+import { applyBoneTransform, boneSpritePoints } from './boneLabelPlacement';
 import reference from '../../../assets/anatomy/body/body-reference.webp?url';
 
 const sprites = import.meta.glob<string>('../../../assets/anatomy/body/sprites/*.webp', {
@@ -32,13 +33,14 @@ interface Props {
   onFrame?: (time: number) => void;
   showLabels?: boolean;
   showSelection?: boolean;
+  reservedBottom?: number;
 }
 
 function mirrored([a, b, c, d]: Matrix) {
   return a*d < b*c;
 }
 
-export function AnatomyOverlay({ placement, live, layer, aspect, opacity, selected, onSelect, onFrame, showLabels, showSelection }: Props) {
+export function AnatomyOverlay({ placement, live, layer, aspect, opacity, selected, onSelect, onFrame, showLabels, showSelection, reservedBottom }: Props) {
   const { matrices, visible, frontFeet } = placement;
   const groups = useRef(new Map<Group, SVGGElement>());
   const current = useRef(new Map<Group, Matrix>());
@@ -84,19 +86,22 @@ export function AnatomyOverlay({ placement, live, layer, aspect, opacity, select
       if (!width || !height) return;
       const scale = (live ? Math.max : Math.min)(width/aspect, height);
       const left = (width-aspect*scale)/2, top = (height-scale)/2;
+      const trunk = current.current.get('trunk') ?? current.current.get('pelvis') ?? current.current.get('head');
+      const centerX = trunk ? (left+scale*applyBoneTransform(trunk, [0, -1.2])[0])/width : .5;
       candidates.current = parts.flatMap(part => {
         const matrix = current.current.get(part.group);
         if (!matrix) return [];
-        const [x, y, w, h] = atlasSprite(part, live, frontFeet);
-        const cx = x+w/2, cy = y+h/2;
-        const [a,b,c,d,tx,ty] = matrix;
-        return [{ id: part.term, key: part.id,
-          x: (left+scale*(a*cx+c*cy+tx))/width,
-          y: (top+scale*(b*cx+d*cy+ty))/height }];
+        const spriteId = part.demoSprite && (!live || frontFeet.has(part.group)) ? `${part.id}_front` : part.id;
+        return boneSpritePoints(spriteId, atlasSprite(part, live, frontFeet)).map(anchor => {
+          const [x, y] = applyBoneTransform(matrix, anchor);
+          return { id: part.term, key: part.id, source: part.id, centerX,
+            x: (left+scale*x)/width, y: (top+scale*y)/height };
+        });
       });
       if (showLabels || showSelection) {
-        const selectedSide = candidates.current.find(item => item.key === preferred);
-        setProjected(selectedSide ? [selectedSide, ...candidates.current] : candidates.current);
+        setProjected(preferred
+          ? [...candidates.current.filter(item => item.key === preferred), ...candidates.current.filter(item => item.key !== preferred)]
+          : candidates.current);
       }
     };
     publish();
@@ -170,6 +175,6 @@ export function AnatomyOverlay({ placement, live, layer, aspect, opacity, select
       ))}
     </svg>
     {layer === 'bones' && (showSelection || showLabels) &&
-      <BoneLabels targets={projected} selected={showSelection ? selected : undefined} showAll={showLabels}/>}
+      <BoneLabels targets={projected} selected={showSelection ? selected : undefined} showAll={showLabels} reservedBottom={reservedBottom}/>}
   </>;
 }

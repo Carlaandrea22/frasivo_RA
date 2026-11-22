@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { Matrix4, Vector3 } from 'three';
-import { floorHit, facingYaw, requestAndroidAR } from '../src/features/cuerpo/androidXR';
+import { floorHit, facingYaw, requestAndroidAR, requestPlacementAnchor } from '../src/features/cuerpo/androidXR';
 
 describe('Android WebXR', () => {
   it('releases the camera and requests the required features within the initiating call', async () => {
@@ -17,11 +17,39 @@ describe('Android WebXR', () => {
       },
     }, overlay, () => { cameraReleased = true; });
     expect(requests).toEqual([{
-      requiredFeatures: ['hit-test', 'anchors', 'dom-overlay'],
-      optionalFeatures: ['local-floor'],
+      requiredFeatures: ['hit-test', 'dom-overlay'],
+      optionalFeatures: ['local-floor', 'anchors'],
       domOverlay: { root: overlay },
     }]);
     await expect(pending).resolves.toBe(session);
+  });
+
+  it('preserves the hit pose when anchors are unavailable or rejected', async () => {
+    const transform = {} as XRRigidTransform;
+    const space = {} as XRSpace;
+    const frame = { createAnchor: undefined };
+    const hit = {
+      createAnchor() {
+        return Promise.reject(new DOMException('Unavailable', 'NotSupportedError'));
+      },
+    };
+    expect(requestPlacementAnchor({ enabledFeatures: ['hit-test'] }, frame, hit, transform, space)).toBeUndefined();
+    expect(requestPlacementAnchor({}, frame, { createAnchor: undefined }, transform, space)).toBeUndefined();
+    await expect(requestPlacementAnchor({}, frame, hit, transform, space)).resolves.toBeUndefined();
+  });
+
+  it('uses the frame anchor with the hit transform when it is the available API', async () => {
+    const transform = {} as XRRigidTransform;
+    const space = {} as XRSpace;
+    const anchor = {} as XRAnchor;
+    const frame = {
+      createAnchor(point: XRRigidTransform, referenceSpace: XRSpace) {
+        expect(point).toBe(transform);
+        expect(referenceSpace).toBe(space);
+        return Promise.resolve(anchor);
+      },
+    };
+    await expect(requestPlacementAnchor({ enabledFeatures: ['anchors'] }, frame, { createAnchor: undefined }, transform, space)).resolves.toBe(anchor);
   });
 
   it('accepts the horizontal floor and skips walls, ceilings and tabletops', () => {

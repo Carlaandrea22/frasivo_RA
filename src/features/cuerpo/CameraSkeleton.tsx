@@ -7,6 +7,8 @@ import {
 import { Button } from '../../shared/ui/Button';
 import { projectBones } from './boneProjection';
 import { deviceRotation, frozenPosition, type CameraFraming } from './cameraFraming';
+import { fitPoseProjection } from './poseProjection';
+import type { PrecisePose } from './poseCapture';
 import './CameraSkeleton.css';
 
 export interface CameraSkeletonPoint {
@@ -27,9 +29,12 @@ interface CameraSkeletonProps {
   onPick: (id: string, x: number, y: number, nodeName?: string) => void;
   onProject?: (points: CameraSkeletonPoint[]) => void;
   trackedIds?: readonly string[];
+  projection?: PrecisePose | null;
+  allowMotion?: boolean;
+  onReady?: () => void;
 }
 
-export default function CameraSkeleton({ model, framing, selected, onPick, onProject, trackedIds }: CameraSkeletonProps) {
+export default function CameraSkeleton({ model, framing, selected, onPick, onProject, trackedIds, projection, allowMotion = true, onReady }: CameraSkeletonProps) {
   const host = useRef<HTMLDivElement>(null);
   const draw = useRef<() => void>(undefined);
   const rotation = useRef(new Quaternion());
@@ -41,6 +46,7 @@ export default function CameraSkeleton({ model, framing, selected, onPick, onPro
     onProject?.(trackedIds ? points.filter(point => trackedIds.includes(point.id)) : points);
   });
   const pick = useEffectEvent(onPick);
+  const ready = useEffectEvent(() => onReady?.());
   const { x, y, height } = framing;
   const trackedKey = trackedIds?.join('|');
 
@@ -64,7 +70,8 @@ export default function CameraSkeleton({ model, framing, selected, onPick, onPro
     const bounds = new Box3().setFromObject(skeleton, true);
     const size = bounds.getSize(new Vector3());
     const pivot = new Group();
-    skeleton.position.sub(bounds.getCenter(new Vector3()));
+    const center = bounds.getCenter(new Vector3());
+    skeleton.position.sub(center);
     pivot.add(skeleton);
     const camera = new PerspectiveCamera(42, 1, .025, 80);
     const scene = new Scene();
@@ -80,7 +87,8 @@ export default function CameraSkeleton({ model, framing, selected, onPick, onPro
     let highlighted: { mesh: Mesh; material: MeshStandardMaterial } | undefined;
     let targets: CameraSkeletonPoint[] = [];
     let zoom = 1, frame = 0, width = 0, viewHeight = 0;
-    let contextLost = false;
+    let contextLost = false, reported = false, measureProjection = false;
+    let calibration: ReturnType<typeof fitPoseProjection> = null;
 
     function updateHighlight(object?: Object3D) {
       if (highlighted?.mesh === object) return;
@@ -102,8 +110,17 @@ export default function CameraSkeleton({ model, framing, selected, onPick, onPro
     function render() {
       frame = 0;
       if (!width || !viewHeight || contextLost) return;
-      camera.quaternion.copy(rotation.current);
-      pivot.position.copy(frozenPosition({ x, y, height }, size, camera, zoom));
+      if (calibration) {
+        const { fit } = calibration;
+        camera.position.fromArray(fit.position).sub(center);
+        camera.quaternion.fromArray(fit.quaternion).multiply(rotation.current);
+        camera.fov = fit.fov;
+        camera.zoom = zoom;
+        camera.updateProjectionMatrix();
+      } else {
+        camera.quaternion.copy(rotation.current);
+        pivot.position.copy(frozenPosition({ x, y, height }, size, camera, zoom));
+      }
       const id = currentSelection();
       const preferred = id
         ? picked?.userData.term === id ? picked : skeleton.getObjectByProperty('name', id)
@@ -111,8 +128,22 @@ export default function CameraSkeleton({ model, framing, selected, onPick, onPro
         : undefined;
       updateHighlight(preferred);
       renderer.render(scene, camera);
+      if (calibration && measureProjection) {
+        const projected = new Vector3();
+        const maximum = Math.max(...calibration.points.map(point => {
+          projected.fromArray(point.position).sub(center).project(camera);
+          return Math.hypot(((projected.x+1)/2-point.x)*width, ((1-projected.y)/2-point.y)*viewHeight);
+        }));
+        root!.dataset.calibrationMaxPx = maximum.toFixed(2);
+        root!.dataset.calibrationPoints = String(calibration.points.length);
+        measureProjection = false;
+      }
       targets = projectBones(skeleton, camera, preferred);
       publish(targets);
+      if (!reported) {
+        reported = true;
+        ready();
+      }
     }
 
     function invalidate() {
@@ -124,6 +155,8 @@ export default function CameraSkeleton({ model, framing, selected, onPick, onPro
       width = root.clientWidth;
       viewHeight = root.clientHeight;
       if (!width || !viewHeight) return;
+      calibration = projection ? fitPoseProjection(model, projection, width, viewHeight) : null;
+      measureProjection = Boolean(calibration);
       camera.aspect = width / viewHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(width, viewHeight, false);
@@ -219,7 +252,7 @@ export default function CameraSkeleton({ model, framing, selected, onPick, onPro
       renderer.forceContextLoss();
       canvas.remove();
     };
-  }, [model, x, y, height]);
+  }, [model, projection, x, y, height]);
 
   useEffect(() => {
     draw.current?.();
@@ -280,7 +313,7 @@ export default function CameraSkeleton({ model, framing, selected, onPick, onPro
   return <>
     <div className="anatomy-camera-skeleton" ref={host}/>
     <div className="anatomy-camera-motion">
-      {!failed && <Button variant="secondary" aria-pressed={motionEnabled} disabled={motion === 'requesting'}
+      {allowMotion && !failed && <Button variant="secondary" aria-pressed={motionEnabled} disabled={motion === 'requesting'}
         onClick={() => { void toggleMotion(); }}>
         <Smartphone size={16} aria-hidden="true"/>
         {motionEnabled ? 'Desactivar giro' : 'Activar giro'}

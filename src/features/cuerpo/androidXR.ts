@@ -7,10 +7,27 @@ export function requestAndroidAR(
 ) {
   releaseCamera();
   return xr.requestSession('immersive-ar', {
-    requiredFeatures: ['hit-test', 'anchors', 'dom-overlay'],
-    optionalFeatures: ['local-floor'],
+    requiredFeatures: ['hit-test', 'dom-overlay'],
+    optionalFeatures: ['local-floor', 'anchors'],
     domOverlay: { root: overlay },
   });
+}
+
+export function requestPlacementAnchor(
+  session: Pick<XRSession, 'enabledFeatures'>,
+  frame: Pick<XRFrame, 'createAnchor'>,
+  hit: Pick<XRHitTestResult, 'createAnchor'>,
+  transform: XRRigidTransform,
+  space: XRSpace,
+) {
+  if (session.enabledFeatures && !session.enabledFeatures.includes('anchors')) return;
+
+  try {
+    // The hit and frame can only create the anchor during the frame callback.
+    return (hit.createAnchor?.() ?? frame.createAnchor?.(transform, space))?.catch(() => undefined);
+  } catch {
+    return undefined;
+  }
 }
 
 export function floorHit(matrix: ArrayLike<number>, y: number, viewerY: number, floorY?: number) {

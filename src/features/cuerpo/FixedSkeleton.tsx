@@ -6,6 +6,7 @@ import { Button } from '../../shared/ui/Button';
 import { BoneLabels, mainBoneIds, type BoneTarget } from './BoneLabels';
 import type { BodyPoint } from './anatomy';
 import type { CameraFraming } from './cameraFraming';
+import type { PrecisePose } from './poseCapture';
 import { chooseSpaceMode } from './spaceMode';
 
 const AndroidSpace = lazy(() => import('./AndroidSpace').then(module => ({ default: module.AndroidSpace })));
@@ -16,9 +17,10 @@ const noXR = 'La realidad aumentada requiere Chrome y Servicios de Google Play p
 
 type LabelChoice = 'none' | 'touched' | 'main';
 
-export default function FixedSkeleton({ pose, framing, cameraHost, touched, onRelease, stopCamera, startCamera }: {
+export default function FixedSkeleton({ pose, framing, cameraHost, touched, onRelease, stopCamera, startCamera, projection, onOverlayReady }: {
   pose: BodyPoint[]; framing: CameraFraming; cameraHost: HTMLDivElement | null; touched: string[];
   onRelease: () => void; stopCamera: () => void; startCamera: () => Promise<void>;
+  projection: PrecisePose | null; onOverlayReady: () => void;
 }) {
   const ios = /iPad|iPhone|iPod/.test(navigator.userAgent)
     || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -41,14 +43,14 @@ export default function FixedSkeleton({ pose, framing, cameraHost, touched, onRe
   const [panelHeight, setPanelHeight] = useState(0);
 
   useEffect(() => {
-    if (mode !== 'camera' || !controls.current) return;
+    if ((!projection && mode !== 'camera') || !controls.current) return;
     const panel = controls.current;
     const observer = new ResizeObserver(() => {
       setPanelHeight(window.matchMedia('(max-width: 760px)').matches ? panel.offsetHeight+12 : 0);
     });
     observer.observe(panel);
     return () => observer.disconnect();
-  }, [mode]);
+  }, [mode, projection]);
 
   useEffect(() => {
     let discarded = false;
@@ -112,9 +114,10 @@ export default function FixedSkeleton({ pose, framing, cameraHost, touched, onRe
 
   const preparingAR = quickLook && !arFailed && !arUrl;
   return <>
-    {mode === 'camera' && model && !viewer && cameraHost && createPortal(
+    {(mode === 'camera' || projection) && model && !viewer && cameraHost && createPortal(
       <Suspense fallback={null}>
-        <CameraSkeleton model={model} framing={framing} selected={selected}
+        <CameraSkeleton model={model} framing={framing} selected={selected} projection={projection}
+          allowMotion={mode === 'camera'} onReady={onOverlayReady}
           onPick={(id, _x, _y, node) => { setSelected(id); remember(id, node); }} onProject={setTargets}/>
         <BoneLabels targets={targets} selected={selected} showAll={showAll} reservedBottom={panelHeight}/>
       </Suspense>, cameraHost,
