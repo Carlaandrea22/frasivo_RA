@@ -69,3 +69,9 @@ Los avisos internos se generan con la actividad local. La notificación en el di
 | C | `src/features/casos/`, `src/features/progreso/` y `src/content/casos/`. |
 
 Los módulos pueden leer los datos de otros módulos e intercambiar identificadores y enlaces. Cada persona edita sus propias carpetas. Coordina con A antes de modificar una interfaz compartida o `src/content/types.ts`, y avisa al otro módulo cuando el cambio afecte su integración. [Guía de contribución](../CONTRIBUTING.md)
+
+## Chatbot
+
+Luis mantiene `src/features/chatbot/`. Su archivo `routes.ts` registra `#chatbot` con `tab: 'chatbot'`. La pantalla muestra «En construcción» mediante `ContentState` y funciona sin conexión.
+
+Un chatbot funcional necesitará un servidor, por ejemplo Cloudflare Pages Functions. Guarda la clave del servicio como secreto en Cloudflare y léela únicamente desde el servidor. La clave debe quedar fuera del código fuente y del navegador.

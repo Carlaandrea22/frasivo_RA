@@ -1,6 +1,6 @@
 import type { ComponentType } from 'react';
 
-export type NavigationTab = 'cuerpo' | 'explorar' | 'practicar' | 'progreso';
+export type NavigationTab = 'cuerpo' | 'explorar' | 'practicar' | 'progreso' | 'chatbot';
 export type RouteProps = { params: Readonly<Record<string, string>> };
 
 export interface RouteDefinition {

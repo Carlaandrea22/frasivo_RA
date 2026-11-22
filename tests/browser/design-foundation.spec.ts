@@ -2,14 +2,14 @@ import { activateBodyCamera } from './body-camera';
 import { readFile, writeFile } from 'node:fs/promises';
 import { expect, test, type Page } from '@playwright/test';
 
-test('la navegación de móvil abre las cuatro secciones y llega a Créditos desde Mi progreso', async ({ page }) => {
+test('la navegación de móvil abre las cinco secciones y llega a Créditos desde Mi progreso', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 });
   await page.goto('/');
   const nav = page.getByRole('navigation', { name: 'Navegación principal' });
   const body = page.getByRole('region', { name: 'Cámara corporal' });
   await expect(body).toBeVisible();
   await expect(nav.getByRole('button', { name: 'Cuerpo' })).toHaveAttribute('aria-current', 'page');
-  await expect(nav.getByRole('button')).toHaveCount(4);
+  await expect(nav.getByRole('button')).toHaveCount(5);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(375);
   const buttons = await page.getByRole('button').evaluateAll(elements =>
     elements.map(element => ({ width: element.getBoundingClientRect().width, height: element.getBoundingClientRect().height })),
@@ -25,7 +25,59 @@ test('la navegación de móvil abre las cuatro secciones y llega a Créditos des
   await expect(page.getByRole('heading', { name: 'Créditos' })).toBeVisible();
   await page.goBack();
   await expect(page.getByRole('heading', { name: 'Mi progreso' })).toBeVisible();
+  await nav.getByRole('button', { name: 'Chatbot' }).click();
+  await expect(page).toHaveURL(/#chatbot$/);
+  await expect(page.getByRole('heading', { name: 'Chatbot' })).toBeVisible();
 });
+
+for (const viewport of [{ width: 375, height: 812 }, { width: 320, height: 568 }]) {
+  test(`Chatbot abre por enlace directo y la barra cabe a ${viewport.width} px`, async ({ page }, testInfo) => {
+    await page.setViewportSize(viewport);
+    await page.goto('/#chatbot');
+    const main = page.getByRole('main');
+    const nav = page.getByRole('navigation', { name: 'Navegación principal' });
+    const buttons = nav.getByRole('button');
+    await expect(main.getByRole('heading', { name: 'Chatbot' })).toBeVisible();
+    await expect(main.getByText('Pronto podrás preguntar sobre anatomía y practicar términos en inglés.')).toBeVisible();
+    await expect(main.getByRole('status')).toHaveText('En construcción');
+    await expect(main.getByRole('textbox')).toHaveCount(0);
+    await expect(nav.getByRole('button', { name: 'Chatbot' })).toHaveAttribute('aria-current', 'page');
+    await expect(buttons).toHaveText(['Cuerpo', 'Explorar 3D', 'Practicar', 'Mi progreso', 'Chatbot']);
+
+    await page.evaluate(() => document.fonts.ready);
+    const targets = await buttons.evaluateAll(elements => elements.map(button => {
+      const bounds = button.getBoundingClientRect();
+      const range = document.createRange();
+      range.selectNodeContents(button.lastChild!);
+      const label = range.getBoundingClientRect();
+      return {
+        width: bounds.width,
+        height: bounds.height,
+        top: bounds.top,
+        labelFits: label.left >= bounds.left && label.right <= bounds.right,
+      };
+    }));
+    expect(new Set(targets.map(target => target.top)).size).toBe(1);
+    for (const target of targets) {
+      expect(target.width).toBeGreaterThanOrEqual(44);
+      expect(target.height).toBeGreaterThanOrEqual(44);
+      expect(target.labelFits).toBe(true);
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(viewport.width);
+    await page.screenshot({ path: testInfo.outputPath(`chatbot-${viewport.width}.png`) });
+
+    await nav.getByRole('button', { name: 'Cuerpo' }).click();
+    const body = main.getByRole('region', { name: 'Cámara corporal' });
+    await expect(body.getByRole('button', { name: 'Activar cámara' })).toBeInViewport();
+    const stage = (await body.locator('.anatomy-stage').boundingBox())!;
+    const controls = (await body.locator('.anatomy-controls').boundingBox())!;
+    const bar = (await nav.boundingBox())!;
+    expect(stage.width).toBe(viewport.width);
+    expect(stage.y + stage.height).toBeCloseTo(bar.y);
+    expect(controls.y + controls.height).toBeLessThanOrEqual(bar.y);
+    expect(bar.y + bar.height).toBeCloseTo(viewport.height);
+  });
+}
 
 test('las capas y la opacidad responden y el botón tiene presión, foco y movimiento reducido', async ({ page }) => {
   await page.goto('/');

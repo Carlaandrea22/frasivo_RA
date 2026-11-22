@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
-import { Activity, BookOpen, Box, ScanLine } from 'lucide-react';
+import { Activity, BookOpen, Box, MessageCircle, ScanLine } from 'lucide-react';
 import { anatomyArea } from './content/anatomy/area';
 import { RecordatorioRacha } from './features/progreso/mascota/RecordatorioRacha';
 import { QuickInvitation, QuickPractice } from './features/practicaRapida/QuickPractice';
@@ -15,6 +15,7 @@ const tabs = [
   { id: 'explorar', label: 'Explorar 3D', icon: Box },
   { id: 'practicar', label: 'Practicar', icon: BookOpen },
   { id: 'progreso', label: 'Mi progreso', icon: Activity },
+  { id: 'chatbot', label: 'Chatbot', icon: MessageCircle },
 ] as const;
 
 const features = import.meta.glob<RouteDefinition[]>('./features/*/routes.ts', { eager: true, import: 'routes' });

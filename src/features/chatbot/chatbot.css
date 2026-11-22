@@ -1,0 +1,22 @@
+.lumar-page.chatbot-page { max-width: 42rem; }
+.chatbot-page .lumar-subtitle { max-width: 48ch; }
+
+.app-navigation .app-navigation-inner {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+@media (max-width: 450px) {
+  .app-shell .app-navigation {
+    padding-inline: max(var(--space-2), env(safe-area-inset-left, 0px))
+      max(var(--space-2), env(safe-area-inset-right, 0px));
+  }
+
+  .app-navigation .app-navigation-inner {
+    grid-template-columns: repeat(5, minmax(min-content, auto));
+  }
+
+  .app-navigation .button--nav {
+    justify-content: flex-start;
+    padding-inline: 2px;
+  }
+}
