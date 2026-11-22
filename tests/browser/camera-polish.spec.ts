@@ -1,3 +1,4 @@
+import { useLiteCpuForCamera, expectLiveLiteCpu } from './body-camera';
 import { readFile } from 'node:fs/promises';
 import { expect, test } from '@playwright/test';
 
@@ -42,6 +43,7 @@ test('muestra la guía de primera vez y retira la silueta al detectar un cuerpo'
   }, source);
 
   await page.goto('/#cuerpo');
+  await useLiteCpuForCamera(page);
   const button = page.getByRole('button', { name: 'Activar cámara' });
   const sheet = page.getByRole('dialog', { name: 'Guía de cámara' });
   await button.click();
@@ -50,7 +52,8 @@ test('muestra la guía de primera vez y retira la silueta al detectar un cuerpo'
   expect(await page.evaluate(() => (window as unknown as { guideTestScene: { requests: number } }).guideTestScene.requests)).toBe(0);
   await page.screenshot({ path: testInfo.outputPath('guia-uso.png') });
   await sheet.getByRole('button', { name: 'Entendido' }).click();
-  await expect(page.locator('.anatomy-status')).toHaveText('Buscando…');
+  await expectLiveLiteCpu(page);
+  await expect(page.locator('.anatomy-stage')).toHaveAttribute('data-body-region', 'Buscando…');
   const framing = page.getByText('Encuadra a la persona dentro de la silueta');
   const footHint = page.getByText('Incluye el tobillo y parte de la pierna para ver los huesos del pie.');
   await expect(framing).toBeVisible();
@@ -77,6 +80,7 @@ test('muestra la guía de primera vez y retira la silueta al detectar un cuerpo'
   await sheet.getByRole('button', { name: 'Entendido' }).click();
   expect(await page.evaluate(() => (window as unknown as { guideTestScene: { requests: number } }).guideTestScene.requests)).toBe(1);
   await page.reload();
+  await useLiteCpuForCamera(page);
   await button.click();
   await expect(page.getByRole('button', { name: 'Detener cámara' })).toBeVisible();
   await expect(sheet).toBeHidden();

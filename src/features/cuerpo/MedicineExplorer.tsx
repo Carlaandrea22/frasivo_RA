@@ -5,7 +5,7 @@ import { canPronounce, playPronunciation, stopPronunciation } from '../../shared
 import { warmAnatomyLayer } from '../../shared/pwa/offline';
 import { AnatomyOverlay } from './AnatomyOverlay';
 import { anatomyParts, type AnatomyLayer, type BodyPoint } from './anatomy';
-import { atlasPlacement, visibleRegion } from './atlasAlignment';
+import { atlasParts, atlasPlacement, landmark, visibleRegion, type ProjectionRejections } from './atlasAlignment';
 import type { AnatomyDetailRequest, BoneTarget } from './BoneLabels';
 import { posteriorBoneLabels } from './boneLabelPlacement';
 import FixedSkeleton from './FixedSkeleton';
@@ -14,6 +14,7 @@ import { capturePrecisePose } from './precisePoseCapture';
 import { captureIssue, type PrecisePose } from './poseCapture';
 import { usePoseCamera } from './usePoseCamera';
 import { useFrameRate } from './useFrameRate';
+import { createBodyDiagnostic, readBodyDrawing, shareBodyDiagnostic } from './bodyDiagnostic';
 import { useBodyRegions } from './useBodyRegions';
 import { regionalBoneTerms, regionalMainTerms } from './regionalBoneTerms';
 import type { RegionalHint } from './regionalDetection';
@@ -84,21 +85,29 @@ export default function MedicineExplorer() {
   const compact = useSyncExternalStore(subscribeViewport, isCompactViewport);
   const vocabularySheet = useRef<HTMLDialogElement>(null);
   const windowRef = useRef<HTMLDivElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const [diagnostic] = useState(() => debug ? createBodyDiagnostic(time => readBodyDrawing(stageRef.current, time)) : undefined);
   const controlsRef = useRef<HTMLDivElement>(null);
   const [reservedBottom, setReservedBottom] = useState(0);
   const [viewportAspect, setViewportAspect] = useState(.8);
   const regionalHint = useRef<RegionalHint>({ fullBody: false, detailedHands: false });
   const [regionalTargets, setRegionalTargets] = useState<BoneTarget[]>(emptyTargets);
   const [detailRequest, setDetailRequest] = useState<AnatomyDetailRequest>();
-  const camera = usePoseCamera(diagnostics ? recordDetection : undefined, true, regionalHint, captureProgress !== null);
+  const camera = usePoseCamera(viewportAspect, diagnostics ? recordDetection : undefined, true, regionalHint, captureProgress !== null, diagnostic);
   const live = camera.status === 'active';
   const waiting = camera.status === 'permission';
   const aspect = live ? camera.aspect : .8;
-  const points = live ? camera.points : null;
-  const atlas = useMemo(() => atlasPlacement(points, aspect, live ? viewportAspect : aspect, true, true),
-    [points, aspect, live, viewportAspect]);
+  const observedPoints = live ? camera.points : null;
+  const livePose = layer === 'bones' ? camera.livePose : undefined;
+  const points = livePose?.points ?? observedPoints;
+  const support = livePose?.support;
+  const { atlas, projectionRejections } = useMemo(() => {
+    const projectionRejections: ProjectionRejections | undefined = debug ? new Map() : undefined;
+    return { atlas: atlasPlacement(points, aspect, live ? viewportAspect : aspect, true, true, support, projectionRejections),
+      projectionRejections };
+  }, [points, aspect, live, viewportAspect, support, debug]);
   const regions = useBodyRegions(live && !fixedPose, points ?? emptyPoints, aspect, viewportAspect,
-    camera.hands, camera.face, atlas.facing, undefined, layer);
+    camera.hands, camera.face, atlas.facing, undefined, layer, support, debug);
   useEffect(() => {
     regionalHint.current = {
       fullBody: Boolean(fixedPose || regions?.fullBody),
@@ -107,7 +116,7 @@ export default function MedicineExplorer() {
     };
   }, [fixedPose, layer, regions]);
   const checkingPartial = Boolean(regions && !regions.fullBody && !camera.handChecked && !regions.hands.length
-    && !regions.face && regions.groups.size && regions.status !== 'Espalda');
+    && !regions.face && regions.groups.size && !regions.groups.has('pelvis') && regions.status !== 'Espalda');
   const placement = useMemo(() => {
     if (!regions) return atlas;
     if (checkingPartial) return { ...atlas, visible: [] };
@@ -125,6 +134,25 @@ export default function MedicineExplorer() {
   // The frontal atlas already handles foreshortening when a full body is far away.
   const regionalFeet = useMemo(() => layer === 'bones' ? regions?.feet.filter(foot => !placement.visible.some(part =>
     part.group === `foot_${foot.side}`)) ?? [] : [], [layer, placement, regions]);
+  const boneRejections = useMemo(() => {
+    if (!debug || layer !== 'bones' || !regions) return [];
+    const found = new Set(placement.visible.map(part => part.id));
+    const projected = new Set(atlas.visible.map(part => part.id));
+    return atlasParts.flatMap(({ id, group, layer, view }) => {
+      if (layer !== 'bones' || (atlas.facing === 'back' ? !view : view === 'back') || found.has(id)
+        || group === 'head' && regions.face
+        || regions.hands.some(hand => group === `hand_${hand.side}`)
+        || regions.feet.some(foot => group === `foot_${foot.side}`)) return [];
+      if (!points?.length) return [[id, 'Pose', 'sin pose']];
+      if (checkingPartial) return [[id, 'regiones', 'confirmación']];
+      const regionReason = regions.rejected?.get(group);
+      if (regionReason) return [[id, 'regiones', regionReason]];
+      if (!projected.has(id)) {
+        return [[id, 'proyección', projectionRejections?.get(group) ?? (atlas.matrices[group] ? 'fuera de cuadro' : 'escala o profundidad')]];
+      }
+      return [[id, 'regiones', 'árbitro regional']];
+    });
+  }, [debug, layer, placement, atlas, points, regions, projectionRejections, checkingPartial]);
   const regional = Boolean(regions && (layer !== 'organs' && regions.hands.length || regionalFeet.length || regions.face));
   useEffect(() => { if (!regional) setRegionalTargets(emptyTargets); }, [regional]);
   const targets = regional ? regionalTargets : emptyTargets;
@@ -145,6 +173,9 @@ export default function MedicineExplorer() {
   const status = fixedPose ? (layer === 'bones' ? 'Esqueleto fijado' : 'Pose fijada') : waiting ? 'Esperando permiso' : !live ? 'Demostración'
     : camera.tracking === 'loading' || checkingPartial ? 'Preparando seguimiento'
     : regions?.status ?? (camera.tracking === 'tracking' ? 'Persona detectada' : 'Buscando una persona');
+  useEffect(() => {
+    diagnostic?.captureDrawing();
+  }, [diagnostic, camera.poseTime, status, placement, boneRejections]);
   const poseIssue = captureIssue(camera.samples.at(-1), aspect, viewportAspect, performance.now());
   const canFix = live && !fixedPose && placement.facing === 'front' && !poseIssue && regions?.fullBody;
   const showFramingGuide = live && !fixedPose && (status === 'Buscando…' || status === 'Preparando seguimiento');
@@ -161,13 +192,17 @@ export default function MedicineExplorer() {
     ? (regions?.status === 'Espalda' ? 'Para fijar, encuadra el cuerpo completo de frente'
       : regions && !regions.fullBody
       ? 'Para fijar, aléjate hasta ver el cuerpo completo'
-      : placement.facing === 'back' || placement.facing === 'side' ? 'Pídele a la persona que se gire de frente' : poseIssue || adjustment)
+      : placement.facing === 'back' || placement.facing === 'side' ? 'Pídele a la persona que se gire de frente' : poseIssue ? 'Mejora la luz y mantén la pose para poder fijarla' : adjustment)
     : '';
+  const framingHint = live && !fixedPose && !showFramingGuide && regions?.groups.has('trunk')
+    && livePose?.framing === 'waist' ? 'Aléjate un poco: se ve solo hasta la cintura'
+    : live && !fixedPose && !showFramingGuide && regions?.groups.has('trunk')
+    && livePose?.framing === 'legs' ? 'Aléjate un poco para que se vean las piernas completas' : '';
   const footGuide = !showFramingGuide && layer === 'bones' && regions?.legsMissingAnkle.length
     ? 'Incluye el tobillo y parte de la pierna para ver los huesos del pie.'
     : '';
   const noOrgans = layer === 'organs' && Boolean(regions && /^(?:Mano |Ambas manos|Brazo |Pierna |Pie |Ambos pies)/.test(regions.status));
-  const hint = noOrgans ? 'En esta parte no hay órganos internos. Prueba la capa Huesos o Músculos' : footGuide || pinReason;
+  const hint = noOrgans ? 'En esta parte no hay órganos internos. Prueba la capa Huesos o Músculos' : framingHint || footGuide || pinReason;
 
   useEffect(() => {
     try { localStorage.setItem(controlsStorageKey, String(minimized)); } catch { /* Storage can be unavailable. */ }
@@ -337,7 +372,11 @@ export default function MedicineExplorer() {
   return (
     <section className={`body-explorer${layer === 'bones' ? ' body-explorer--bones' : ''}${minimized ? ' body-explorer--minimized' : ''}${fixedPose ? ' body-explorer--fixed' : ''}`} aria-label="Cámara corporal">
       <CameraGuide sheet={guide} onUnderstand={acknowledgeGuide} onClose={() => { startAfterGuide.current = false; }}/>
-      <div className={live ? 'anatomy-stage anatomy-stage--live' : 'anatomy-stage'}>
+      <div ref={stageRef} className={live ? 'anatomy-stage anatomy-stage--live' : 'anatomy-stage'}
+        data-pose-state={live ? (camera.tracking === 'loading' ? 'loading' : 'ready') : undefined}
+        data-pose-model={live ? camera.poseEngine?.model : undefined} data-pose-delegate={live ? camera.poseEngine?.delegate : undefined}
+        data-body-region={live && !fixedPose ? status : undefined}
+        data-pose-time={live && !fixedPose ? camera.poseTime : undefined} data-pose-layer={debug ? layer : undefined}>
         <div className="anatomy-stage-header">
           <span className="anatomy-status" role="status"><i aria-hidden="true"/>{status}</span>
           {diagnostics && live && !fixedPose && (
@@ -381,30 +420,48 @@ export default function MedicineExplorer() {
             {regional && regions && !fixedPose && <Suspense fallback={null}>
               <RegionalBones layer={layer} hands={regions.hands} face={regions.face} feet={regionalFeet} neck={regions.neck}
                 aspect={aspect} selected={activeTerm} opacity={opacity / 100}
-                onFrame={diagnostics ? recordDrawing : undefined} onTargets={setRegionalTargets}
+                onFrame={diagnostics ? recordDrawing : undefined} diagnostic={debug} onTargets={setRegionalTargets}
                 onSelect={id => selectPart(id, 'regional')}/>
             </Suspense>}
             {frozenVisible && frozenPlacement && projection && <div className="anatomy-frozen-preview" aria-label="Esqueleto fijado sobre la cámara">
               <AnatomyOverlay placement={frozenPlacement} live layer={layer} aspect={projection.aspect} opacity={opacity / 100} onSelect={() => {}}/>
             </div>}
-            {debug && points && !fixedPose && <svg className="anatomy-landmarks" viewBox={`0 0 ${aspect} 1`}
+            {debug && observedPoints && !fixedPose && <svg className="anatomy-landmarks" viewBox={`0 0 ${aspect} 1`}
               preserveAspectRatio="xMidYMid slice" aria-label="Puntos de diagnóstico de Pose">
-              {points.map((point, i) => <g key={i} data-landmark={i} transform={`translate(${point.x*aspect} ${point.y})`}>
-                <circle r=".005" fill={(point.visibility ?? 0) >= .65 ? '#b3ff9c' : '#ffb56d'}/>
+              {observedPoints.map((point, i) => <g key={i} data-landmark={i} transform={`translate(${point.x*aspect} ${point.y})`}>
+                <circle r=".005" fill={support?.has(i) ? '#b3ff9c' : (point.visibility ?? 0) >= .65 ? '#b3ff9c' : '#ffb56d'}/>
                 <text x=".008" y="-.006" fontSize=".014" fill="#fff" stroke="#102923" strokeWidth=".003"
                   paintOrder="stroke">{i} {(point.visibility ?? 0).toFixed(2)}</text>
               </g>)}
             </svg>}
           </div>
         </div>
-        {debug && regions && !fixedPose && <div className="anatomy-debug" aria-label="Diagnóstico de regiones">
-          <div>{regions.status}</div>
-          {Object.entries(camera.detectorStats).map(([id, { fps, ms, status }]) => <div key={id}
-            data-detector={id} data-detector-fps={fps} data-detector-ms={ms ?? undefined}>
-            {{ pose: 'Pose', hand: 'Mano', face: 'Cara' }[id]} · {fps.toFixed(1)} fps · {ms === null ? '–' : `${ms.toFixed(1)} ms`} ·
-            {' '}{ { idle: 'en espera', loading: 'cargando', ready: 'listo', unavailable: 'no disponible' }[status] }
-          </div>)}
-          {regions.reasons.map(reason => <div key={reason}>{reason}</div>)}
+        {diagnostic && <div className="anatomy-debug" aria-label="Diagnóstico de regiones"
+          data-pose-time={camera.samples.at(-1)?.time} data-diagnostic-region={regions?.status}
+          data-bone-rejections={JSON.stringify(boneRejections)}
+          data-pose-support={JSON.stringify(support ? [...support] : [])}>
+          {regions && !fixedPose && <>
+            <div>{regions.status}</div>
+            {Object.entries(camera.detectorStats).map(([id, { frames, fps, ms, status }]) => <div key={id}
+              data-detector={id} data-detector-state={status} data-detector-frames={frames}
+              data-detector-fps={fps} data-detector-ms={ms ?? undefined}>
+              {{ pose: camera.poseEngine ? `Pose ${camera.poseEngine.model}/${camera.poseEngine.delegate}` : 'Pose', hand: 'Mano', face: 'Cara' }[id]} · {fps.toFixed(1)} fps · {ms === null ? '–' : `${ms.toFixed(1)} ms`} ·
+              {' '}{ { idle: 'en espera', loading: 'cargando', ready: 'listo', unavailable: 'no disponible' }[status] }
+            </div>)}
+            {boneRejections.length > 0 && <div>
+              {Object.entries(boneRejections.reduce<Record<string, number>>((counts, [, , reason]) => {
+                counts[reason] = (counts[reason] ?? 0) + 1;
+                return counts;
+              }, {})).map(([reason, count]) => `${reason} · ${count}`).join(' / ')}
+            </div>}
+            {regions.reasons.map(reason => <div key={reason}>{reason}</div>)}
+            {support && [...support.values()].includes('inferred') && <div>
+              Inferidos · {[...support].flatMap(([index, kind]) => kind === 'inferred'
+                ? Object.keys(landmark).filter(key => landmark[key as keyof typeof landmark] === index) : []).join(', ')}
+            </div>}
+          </>}
+          <Button className="anatomy-share-diagnostic" variant="secondary"
+            onClick={() => void shareBodyDiagnostic(diagnostic)}>Compartir diagnóstico</Button>
         </div>}
         {captureProgress !== null && <div className="anatomy-capture-ring" role="status">
           {captureProgress >= 0 && <svg viewBox="0 0 48 48" aria-hidden="true">

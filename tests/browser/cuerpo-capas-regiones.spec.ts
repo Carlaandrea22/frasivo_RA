@@ -1,4 +1,4 @@
-import { activateBodyCamera } from './body-camera';
+import { activateBodyCamera, expectLiveLiteCpu } from './body-camera';
 import { readFile } from 'node:fs/promises';
 import { expect, test, type Page, type TestInfo } from '@playwright/test';
 
@@ -40,6 +40,7 @@ async function activate(page: Page, name: 'Músculos' | 'Órganos') {
   await page.goto('/?fps=1#cuerpo');
   await page.getByRole('button', { name, exact: true }).click();
   await activateBodyCamera(page);
+  await expectLiveLiteCpu(page);
   await page.getByRole('button', { name: 'Minimizar controles' }).click();
   await page.getByRole('button', { name: 'Etiquetas', exact: true }).click();
 }
@@ -63,7 +64,7 @@ async function metrics(page: Page, testInfo: TestInfo, attribute: 'data-hand-err
 test('Músculos muestra la palma y sus tendones con seguimiento de Hand Landmarker', async ({ page }, testInfo) => {
   await cameraPhoto(page, 'region-hand-open');
   await activate(page, 'Músculos');
-  await expect(page.locator('.anatomy-status')).toHaveText(/^Mano /, { timeout: 20000 });
+  await expect(page.locator('.anatomy-stage')).toHaveAttribute('data-body-region', /^Mano /, { timeout: 20000 });
   const regional = page.locator('[data-regional-layer=muscles]');
   await expect(regional).toHaveAttribute('data-hand-view', 'palmar');
   await expect(regional).toHaveAttribute('data-regional-part-ids', /flexor_tendons.*hypothenar_eminence.*thenar_eminence/);
@@ -72,14 +73,14 @@ test('Músculos muestra la palma y sus tendones con seguimiento de Hand Landmark
   await expect(label).toBeVisible();
   await metrics(page, testInfo, 'data-hand-error-px');
   await page.screenshot({ path: testInfo.outputPath('musculos-mano.png') });
-  await label.getByRole('button', { name: 'Ver ficha de Eminencia tenar' }).press('Enter');
+  await label.getByRole('button', { name: 'Ver ficha de Eminencia tenar' }).click();
   await expect(page.getByRole('dialog', { name: 'Eminencia tenar' }).getByText('Provisional')).toBeVisible();
 });
 
 test('Músculos muestra interóseos y extensores con el dorso de la mano visible', async ({ page }, testInfo) => {
   await cameraPhoto(page, 'region-hand-dorsal');
   await activate(page, 'Músculos');
-  await expect(page.locator('.anatomy-status')).toHaveText(/^Mano /, { timeout: 20000 });
+  await expect(page.locator('.anatomy-stage')).toHaveAttribute('data-body-region', /^Mano /, { timeout: 20000 });
   const regional = page.locator('[data-regional-layer=muscles]');
   await expect(regional).toHaveAttribute('data-hand-view', 'dorsal');
   await expect(regional).toHaveAttribute('data-regional-part-ids', 'dorsal_interossei extensor_tendons');
@@ -91,7 +92,7 @@ test('Músculos muestra interóseos y extensores con el dorso de la mano visible
 test('Músculos deforma la cara sonriente según los puntos de Face Landmarker', async ({ page }, testInfo) => {
   await cameraPhoto(page, 'region-face-front', [35, 0, 332, 350]);
   await activate(page, 'Músculos');
-  await expect(page.locator('.anatomy-status')).toHaveText('Cabeza', { timeout: 20000 });
+  await expect(page.locator('.anatomy-stage')).toHaveAttribute('data-body-region', 'Cabeza', { timeout: 20000 });
   const regional = page.locator('[data-regional-layer=muscles]');
   await expect(regional).toHaveAttribute('data-regional-part-ids', /frontalis.*orbicularis_oris.*zygomaticus_major/);
   await expect(regional).not.toHaveAttribute('data-regional-part-ids', /sternocleidomastoid/);
@@ -104,7 +105,7 @@ test('Músculos deforma la cara sonriente según los puntos de Face Landmarker',
 test('Órganos proyecta el cerebro de la cabeza, con el cuello fuera de cuadro', async ({ page }, testInfo) => {
   await cameraPhoto(page, 'region-face-front', [35, 0, 332, 350]);
   await activate(page, 'Órganos');
-  await expect(page.locator('.anatomy-status')).toHaveText('Cabeza', { timeout: 20000 });
+  await expect(page.locator('.anatomy-stage')).toHaveAttribute('data-body-region', 'Cabeza', { timeout: 20000 });
   const regional = page.locator('[data-regional-layer=organs]');
   await expect(regional).toHaveAttribute('data-regional-part-ids', 'brain');
   await expect.poll(async () => Number(await regional.getAttribute('data-brain-rim-clearance-px'))).toBeGreaterThan(2);
@@ -114,14 +115,14 @@ test('Órganos proyecta el cerebro de la cabeza, con el cuello fuera de cuadro',
   await metrics(page, testInfo, 'data-face-error-px');
   await expect(regional).toHaveAttribute('data-regional-part-ids', 'brain');
   await page.screenshot({ path: testInfo.outputPath('organos-cabeza.png') });
-  await label.getByRole('button', { name: 'Ver ficha de Cerebro' }).press('Enter');
+  await label.getByRole('button', { name: 'Ver ficha de Cerebro' }).click();
   await expect(page.getByRole('dialog', { name: 'Cerebro' }).getByText('Provisional')).toBeVisible();
 });
 
 test('Órganos explica la mano sin órganos internos y cambia de capa', async ({ page }, testInfo) => {
   await cameraPhoto(page, 'region-hand-open');
   await activate(page, 'Órganos');
-  await expect(page.locator('.anatomy-status')).toHaveText(/^Mano /, { timeout: 20000 });
+  await expect(page.locator('.anatomy-stage')).toHaveAttribute('data-body-region', /^Mano /, { timeout: 20000 });
   await expect(page.getByText('En esta parte no hay órganos internos. Prueba la capa Huesos o Músculos')).toBeVisible();
   await expect(page.locator('.anatomy-sprites')).toHaveAttribute('data-visible-parts', '0');
   await expect(page.locator('[data-regional-layer=organs]')).toHaveCount(0);

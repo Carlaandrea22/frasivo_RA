@@ -308,7 +308,7 @@ test('Pose retira regiones fuera del encuadre y pasa del tórax frontal a la esp
   await expect(page.getByRole('button', { name: 'Ver ficha de Peroné' })).toBeVisible();
   await expect(page.locator('.anatomy-active-term')).toHaveCount(0);
   await page.evaluate(() => { (window as unknown as { bodyCameraTest: { shot: string } }).bodyCameraTest.shot = 'torso'; });
-  await expect(page.getByText('Para fijar, aléjate hasta ver el cuerpo completo')).toBeVisible();
+  await expect(page.getByText('Aléjate un poco: se ve solo hasta la cintura')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Fijar esqueleto' })).toBeDisabled();
   await expect(page.getByRole('status')).toHaveText('Torso');
   await expect(page.locator('image[data-part=fibula_right]')).toHaveCount(0);

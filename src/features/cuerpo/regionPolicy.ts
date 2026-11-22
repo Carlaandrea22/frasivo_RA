@@ -1,5 +1,6 @@
 import type { AnatomyLayer, BodyPoint } from './anatomy';
-import { atlasPlacement, landmark, limbJoints, pointInFrame, sides, visibleRegion, type AtlasPart, type Joint } from './atlasAlignment';
+import { atlasPlacement, landmark, landmarkRejection, limbJoints, pointInFrame, sides, visibleRegion, type AtlasPart, type Joint, type ProjectionRejections } from './atlasAlignment';
+import type { PoseSupport } from './livePose';
 import type { FaceRegion, HandRegion } from './regionalDetection';
 import type { RegionalFoot, RegionalNeck } from './regionalTransforms';
 
@@ -20,13 +21,14 @@ function span(points: readonly BodyPoint[], aspect: number) {
 
 export function chooseRegions(points: BodyPoint[], aspect: number, viewportAspect: number,
   hands: readonly HandRegion[], face: FaceRegion | null, facing: ReturnType<typeof atlasPlacement>['facing'],
-  confirmed: ReadonlySet<string> = new Set(), layer: AnatomyLayer = 'bones') {
+  confirmed: ReadonlySet<string> = new Set(), layer: AnatomyLayer = 'bones', support?: PoseSupport, debug = false) {
   const [left, top, width, height] = visibleRegion(aspect, viewportAspect);
   const margin = .01 * Math.min(width, height);
   const inside = (point: BodyPoint, border = margin) => Number.isFinite(point.x) && Number.isFinite(point.y)
     && point.x*aspect >= left+border && point.x*aspect <= left+width-border && point.y >= top+border && point.y <= top+height-border;
   const bounds: [number, number, number, number] = [left+margin, top+margin, width-2*margin, height-2*margin];
-  const at = (joint: Joint, confidence = .65) => pointInFrame(points[landmark[joint]], aspect, bounds, confidence);
+  const at = (joint: Joint, confidence = .65, useSupport = false) =>
+    pointInFrame(points[landmark[joint]], aspect, bounds, useSupport && support?.has(landmark[joint]) ? 0 : confidence);
   const value = (joint: Joint) => points[landmark[joint]];
   const acceptedHands = hands.filter(hand => hand.confidence >= (confirmed.has(`detail_hand_${hand.side}`) ? .46 : .5) && hand.landmarks.length === 21
     && [0,5,9,13,17].every(index => inside(hand.landmarks[index]))
@@ -64,6 +66,11 @@ export function chooseRegions(points: BodyPoint[], aspect: number, viewportAspec
   const groups = new Set<Group>();
   const reasons: string[] = [];
   const feet: RegionalFoot[] = [];
+  const rejected: ProjectionRejections | undefined = debug ? new Map() : undefined;
+  const reject = (group: Group, joints: Joint[], confidence: number, useSupport = false) => {
+    if (rejected) rejected.set(group, landmarkRejection(points, joints.map(joint => landmark[joint]), aspect, bounds,
+      confidence, useSupport ? support : undefined));
+  };
   const eyeLeft = at('eye_left'), eyeRight = at('eye_right');
   const earLeft = at('ear_left', .55), earRight = at('ear_right', .55);
   const poseHead = torso && shoulders && eyeLeft && eyeRight && earLeft && earRight
@@ -82,11 +89,22 @@ export function chooseRegions(points: BodyPoint[], aspect: number, viewportAspec
     if (torso && (facing === 'front' || back)) {
       groups.add('trunk');
       if (hips) { groups.add('pelvis'); groups.add('abdomen'); }
-    } else reasons.push('Hombros fuera del encuadre o torso desproporcionado');
+      else if (rejected) {
+        reject('pelvis', ['hip_left', 'hip_right'], .65);
+        reject('abdomen', ['hip_left', 'hip_right'], .65);
+      }
+    } else {
+      reasons.push('Hombros fuera del encuadre o torso desproporcionado');
+      if (rejected) reject('trunk', ['shoulder_left', 'shoulder_right'], .65);
+    }
     if (!back && (!acceptedFace || layer !== 'bones') && poseHead) groups.add('head');
     if (back && layer === 'bones' && earLeft && earRight) groups.add('head');
+    if (rejected && !groups.has('head') && !visibleFace) {
+      if (!earLeft || !earRight) reject('head', ['ear_left', 'ear_right'], .55);
+      else if (!back) reject('head', ['eye_left', 'eye_right'], .65);
+    }
     for (const side of sides) {
-      const supported = (joint: string, threshold?: number) => at(`${joint}_${side}` as Joint, threshold);
+      const supported = (joint: string, threshold?: number) => at(`${joint}_${side}` as Joint, threshold, torso && facing === 'front');
       const chain = [
         ['shoulder','elbow','wrist'],
         ['hip','knee','ankle'],
@@ -102,11 +120,16 @@ export function chooseRegions(points: BodyPoint[], aspect: number, viewportAspec
         const name = `${limbNames[limb]} ${sideName(side, limb === 'shin')}`;
         if (!from || !to || (!torso && !chain[Number(leg)])) {
           missing.push(name);
+          if (rejected) {
+            if (from && to) rejected.set(group, 'árbitro regional');
+            else reject(group, [`${a}_${side}`, `${b}_${side}`] as Joint[], confidence, torso && facing === 'front');
+          }
           continue;
         }
         const length = separation(from, to);
         if (length < height*.035 || (torsoScale && (length < torsoScale*.27 || length > torsoScale*2.5))) {
           disproportionate.push(name);
+          rejected?.set(group, 'escala o profundidad');
           continue;
         }
         groups.add(group);
@@ -114,16 +137,30 @@ export function chooseRegions(points: BodyPoint[], aspect: number, viewportAspec
       if (torso && !visibleHands.some(hand => hand.side === side) && supported('wrist')
         && supported('index', .55) && supported('pinky', .55) && supported('thumb', .55)) groups.add(`hand_${side}`);
 
+      if (rejected && !groups.has(`hand_${side}`) && !visibleHands.some(hand => hand.side === side)) {
+        if (!supported('wrist')) reject(`hand_${side}`, [`wrist_${side}`], .65);
+        else reject(`hand_${side}`, [`index_${side}`, `pinky_${side}`, `thumb_${side}`], .55);
+      }
+
       const ankle = supported('ankle', .59), heel = supported('heel', .40), toe = supported('toe', .56);
       const knee = supported('knee', .62);
       if (ankle && heel && toe && (torso || knee)) {
         const length = separation(heel, toe);
-        const support = knee ? separation(knee, ankle) : shoulderWidth;
-        if (length >= height*.013 && support > height*.055 && length < support*.95
+        const shinLength = knee ? separation(knee, ankle) : shoulderWidth;
+        const supportedFoot = support?.has(landmark[`heel_${side}`]) && support.has(landmark[`toe_${side}`]);
+        if (length >= height*(supportedFoot ? .009 : .013) && shinLength > height*.055 && length < shinLength*.95
           && separation(heel, ankle) < length*1.25) {
           if (back) groups.add(`foot_${side}`);
           else feet.push({ side, ankle: value(`ankle_${side}`), heel: value(`heel_${side}`), toe: value(`toe_${side}`) });
         }
+      }
+      const foot = `foot_${side}` as const;
+      if (rejected && !groups.has(foot) && !feet.some(entry => entry.side === side)) {
+        const useSupport = torso && facing === 'front';
+        if (!ankle) reject(foot, [`ankle_${side}`], .59, useSupport);
+        else if (!heel) reject(foot, [`heel_${side}`], .40, useSupport);
+        else if (!toe) reject(foot, [`toe_${side}`], .56, useSupport);
+        else rejected.set(foot, torso || knee ? 'escala o profundidad' : 'árbitro regional');
       }
     }
     if (missing.length) reasons.push(`Extremos fuera de cuadro o sin apoyo: ${missing.join(', ')}`);
@@ -158,9 +195,9 @@ export function chooseRegions(points: BodyPoint[], aspect: number, viewportAspec
   if (!feet.length) reasons.push('Faltan puntos coherentes de tobillo, talón y punta');
   if (fullBody && poseHead) groups.add('head');
   const legsMissingAnkle = sides.filter(side => groups.has(`thigh_${side}`) && !groups.has(`shin_${side}`)
-    && !at(`ankle_${side}`, .59));
+    && !at(`ankle_${side}`, .59, torso && facing === 'front'));
   return { groups, hands: visibleHands, face: fullBody && poseHead && layer === 'bones' ? null : visibleFace,
-    feet, neck, status, reasons, fullBody, detailedHands, detailedFace, legsMissingAnkle };
+    feet, neck, status, reasons, rejected, fullBody, detailedHands, detailedFace, legsMissingAnkle };
 }
 
 // Only acquire a region after two consecutive observations. Invalidated

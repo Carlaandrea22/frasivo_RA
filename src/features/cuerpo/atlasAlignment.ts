@@ -1,5 +1,6 @@
 import type { AnatomyLayer, BodyPoint, Matrix } from './anatomy';
 import anchors from '../../../assets/anatomy/body/anchors.json';
+import type { PoseSupport } from './livePose';
 import { fittedOrganSprite } from './organFit';
 
 type Vec2 = readonly [number, number];
@@ -7,6 +8,8 @@ type SpriteBounds = [number, number, number, number];
 type Side = 'left' | 'right';
 type Limb = 'upper_arm' | 'forearm' | 'thigh' | 'shin' | 'hand' | 'foot';
 type Group = 'trunk' | 'abdomen' | 'head' | 'pelvis' | `${Limb}_${Side}`;
+export type PoseRejection = 'visibilidad' | 'fuera de cuadro' | 'escala o profundidad' | 'árbitro regional' | 'confirmación' | 'sin pose';
+export type ProjectionRejections = Map<Group, PoseRejection>;
 export type Facing = 'front' | 'back' | 'side' | 'unknown';
 
 export const landmark = {
@@ -58,6 +61,16 @@ export function pointInFrame(point: BodyPoint | undefined, aspect: number, regio
   const [left, top, width, height] = region;
   const x = point.x * aspect, y = point.y;
   return x >= left && x <= left + width && y >= top && y <= top + height ? [x, y] : null;
+}
+
+export function landmarkRejection(points: BodyPoint[], indices: number[], aspect: number,
+  frame: SpriteBounds, minimum: number, support?: PoseSupport): PoseRejection {
+  if (indices.some(index => {
+    const point = points[index];
+    return point && Number.isFinite(point.x) && Number.isFinite(point.y) && !pointInFrame(point, aspect, frame, 0);
+  })) return 'fuera de cuadro';
+  return indices.some(index => !support?.has(index) && !((points[index]?.visibility ?? 0) >= minimum))
+    ? 'visibilidad' : 'escala o profundidad';
 }
 
 export function atlasSpriteId(part: AtlasPart, live: boolean, frontFeet: ReadonlySet<Group>, facing?: Facing) {
@@ -121,7 +134,7 @@ function overlapsVisibleFrame(matrix: Matrix, bounds: readonly number[], region:
     && projectedY + halfHeight > top && projectedY - halfHeight < top + visibleHeight;
 }
 
-export function atlasPlacement(points: BodyPoint[] | null, aspect: number, viewportAspect = aspect, bones = false, allowBack = false) {
+export function atlasPlacement(points: BodyPoint[] | null, aspect: number, viewportAspect = aspect, bones = false, allowBack = false, support?: PoseSupport, rejected?: ProjectionRejections) {
   const region = visibleRegion(aspect, viewportAspect);
   const [minX, minY, width, height] = anchors.bounds;
   const demoScale = Math.min(aspect * .88 / width, .94 / height);
@@ -137,10 +150,13 @@ export function atlasPlacement(points: BodyPoint[] | null, aspect: number, viewp
   if (!points) return { matrices, frontFeet, facing: 'front' as Facing, complete: true, visible: inFrame(atlasParts) };
 
   function observed(index: number, confidence = .65): Vec2 | null {
-    return pointInFrame(points?.[index], aspect, region, confidence);
+    return pointInFrame(points?.[index], aspect, region, support?.has(index) ? 0 : confidence);
   }
 
   const locate = (joint: Joint, confidence?: number) => observed(landmark[joint], confidence);
+  const reject = (group: Group, joints: Joint[], minimum = .65) => {
+    if (rejected) rejected.set(group, landmarkRejection(points, joints.map(joint => landmark[joint]), aspect, region, minimum, support));
+  };
   const left = locate('shoulder_left'), right = locate('shoulder_right');
   const leftHip = locate('hip_left'), rightHip = locate('hip_right');
   const eyeLeft = locate('eye_left'), eyeRight = locate('eye_right');
@@ -234,20 +250,30 @@ export function atlasPlacement(points: BodyPoint[] | null, aspect: number, viewp
     for (const limb of Object.keys(limbJoints) as (keyof typeof limbJoints)[]) {
       const leg = limb === 'thigh' || limb === 'shin';
       if (leg && !bones && (!leftHip || !rightHip)) continue;
-      if (bones && leg && kneeProgress !== null && (kneeProgress < .07 || kneeProgress > .96)) continue;
+      const group = `${limb}_${side}` as const;
+      if (bones && leg && kneeProgress !== null && (kneeProgress < .07 || kneeProgress > .96)) {
+        rejected?.set(group, 'escala o profundidad');
+        continue;
+      }
       const [from, to] = limbJoints[limb];
       const a = `${from}_${side}` as Joint, b = `${to}_${side}` as Joint;
       const confidence = leg ? (legSupported ? .52 : .65) : (armSupported ? .52 : .65);
       const actualA = locate(a, confidence), actualB = locate(b, confidence);
-      if (!actualA || !actualB) continue;
+      if (!actualA || !actualB) {
+        reject(group, [a, b], confidence);
+        continue;
+      }
       const projected = distance(actualA, actualB);
       const expected = distance(rest(a), rest(b)) * scale;
       const plausibleLength = projected >= Math.max(.018, expected*.44) && (!scale || projected <= expected*1.9);
       // Depth can be noisy under loose clothing. Trust a well-sized 2D segment when both ends are supported.
-      const supported = leg ? limb === 'shin' && legSupported : armSupported;
+      const supported = leg
+        ? (limb === 'shin' && legSupported) || Boolean(support?.has(landmark[a]) && support.has(landmark[b]))
+        : armSupported;
       if (plausibleLength && (!foreshortened(a, b, projected, .018) || (supported && scale > 0 && projected >= expected*.72))) {
-        matrices[`${limb}_${side}`] = fitSegment(rest(a), rest(b), actualA, actualB, back);
+        matrices[group] = fitSegment(rest(a), rest(b), actualA, actualB, back);
       }
+      if (!matrices[group]) rejected?.set(group, 'escala o profundidad');
     }
     const wrist = `wrist_${side}` as const, index = `index_${side}` as const;
     const pinky = `pinky_${side}` as const, thumb = `thumb_${side}` as const;
@@ -260,11 +286,16 @@ export function atlasPlacement(points: BodyPoint[] | null, aspect: number, viewp
         matrices[`hand_${side}`] = fitSegment(rest(wrist), restEnd, w, end, reflect);
       }
     }
+    if (rejected && !matrices[`hand_${side}`]) {
+      reject(`hand_${side}`, [wrist]);
+      if (w) reject(`hand_${side}`, [index, pinky, thumb], .52);
+    }
     const k = locate(ankle, legSupported ? .52 : .65);
+    const foot = `foot_${side}` as const;
     if (legSupported && h && f && k) {
       const span = distance(h, f), reach = distance(k, f);
       if (distance(k, h) < Math.max(.013, reach*.7) && reach < Math.max(.035, scale*.27)) {
-        const group = `foot_${side}` as const;
+        const group = foot;
         if (!foreshortened(heel, toe, span, Math.max(.015, scale*.065))) {
           if (back) {
             matrices[group] = fitSegment(rest(heel), rest(toe), h, f, true);
@@ -281,8 +312,25 @@ export function atlasPlacement(points: BodyPoint[] | null, aspect: number, viewp
         }
       }
     }
+    if (rejected && !matrices[foot]) {
+      const failed = !h ? [heel, .40] as const : !f ? [toe, bones ? .53 : .65] as const : [ankle, legSupported ? .52 : .65] as const;
+      reject(foot, [failed[0]], failed[1]);
+    }
   }
 
+  if (rejected) {
+    const shoulders: Joint[] = ['shoulder_left', 'shoulder_right'];
+    const hips: Joint[] = ['hip_left', 'hip_right'];
+    if (!matrices.trunk) reject('trunk', shoulders);
+    if (!matrices.pelvis) reject('pelvis', hips);
+    if (!matrices.abdomen) reject('abdomen', [...shoulders, ...hips]);
+    if (!matrices.head) {
+      reject('head', back ? ['ear_left', 'ear_right', ...shoulders] : ['eye_left', 'eye_right']);
+      if (!back && eyeLeft && eyeRight && !nose) {
+        rejected.set('head', landmarkRejection(points, [0], aspect, region, .65));
+      }
+    }
+  }
   const complete = Boolean((nose || earLeft || earRight) && left && right && leftHip && rightHip
     && sides.every(side => locate(`knee_${side}`) && locate(`ankle_${side}`)));
   return { matrices, frontFeet, facing, complete, visible: inFrame(atlasParts, facing) };

@@ -1,4 +1,5 @@
 import { FaceLandmarker, FilesetResolver, HandLandmarker, PoseLandmarker } from '@mediapipe/tasks-vision';
+import type { PoseEngine } from './bodyDiagnostic';
 import type { FaceRegion, HandRegion, Specialist } from './regionalDetection';
 
 const paths = {
@@ -13,7 +14,18 @@ const cachesByModel = {
   face: 'body-face-landmarker-v1',
 };
 
-let pose: PoseLandmarker | undefined;
+interface PoseDetector extends PoseEngine {
+  landmarker: PoseLandmarker;
+}
+
+let pose: PoseDetector | undefined;
+let lite: PoseDetector | undefined;
+let live = false;
+let adaptive = false;
+let reportEngine = false;
+let prepareFull = false;
+let candidate: PoseDetector | undefined;
+let warmupFrames = 0;
 let hand: HandLandmarker | undefined;
 let face: FaceLandmarker | undefined;
 let fileset: ReturnType<typeof FilesetResolver.forVisionTasks> | undefined;
@@ -51,6 +63,90 @@ async function loadModel(model: keyof typeof paths) {
   return bytes;
 }
 
+function hardwareWebGL() {
+  try {
+    const context = new OffscreenCanvas(1, 1).getContext('webgl2', { failIfMajorPerformanceCaveat: true });
+    if (!context) return false;
+    const extension = context.getExtension('WEBGL_debug_renderer_info');
+    const renderer = extension ? String(context.getParameter(extension.UNMASKED_RENDERER_WEBGL)) : '';
+    context.getExtension('WEBGL_lose_context')?.loseContext();
+    return !/swiftshader|llvmpipe|software/i.test(renderer);
+  } catch {
+    return false;
+  }
+}
+
+async function createPose(model: PoseEngine['model'], delegate: PoseEngine['delegate'], fullModel?: Uint8Array): Promise<PoseDetector> {
+  const vision = await wasm();
+  const source = fullModel ? { modelAssetBuffer: fullModel } : {
+    modelAssetPath: new URL('/body-tracking/pose_landmarker_lite.task', scope.location.origin).href,
+  };
+  const landmarker = await PoseLandmarker.createFromOptions(vision, {
+    baseOptions: { ...source, delegate },
+    canvas: new OffscreenCanvas(1, 1), runningMode: 'VIDEO', numPoses: 1,
+    minPoseDetectionConfidence: .6, minPosePresenceConfidence: .6, minTrackingConfidence: .6,
+    outputSegmentationMasks: false,
+  });
+  return { model, delegate, landmarker };
+}
+
+function closePose(detector: PoseDetector) {
+  try { detector.landmarker.close(); } catch { /* The graph may already have lost its context. */ }
+}
+
+function engineChanged(reason: string) {
+  if (reportEngine && pose) scope.postMessage({ type: 'pose-engine', model: pose.model, delegate: pose.delegate, reason });
+}
+
+function useLite(reason: string) {
+  if (pose && lite && pose !== lite) {
+    closePose(pose);
+    pose = lite;
+    engineChanged(reason);
+  }
+}
+
+async function detectPose(frame: ImageBitmap, time: number) {
+  if (!pose) throw new Error('El seguimiento no está listo.');
+  if (candidate) {
+    try {
+      const first = candidate.landmarker.detectForVideo(frame, time);
+      warmupFrames++;
+      if (warmupFrames >= 3 && first.landmarks.length) {
+        pose = candidate;
+        candidate = undefined;
+        engineChanged('full-activo');
+        return first;
+      }
+      first.close();
+      if (warmupFrames >= 6) {
+        closePose(candidate);
+        candidate = undefined;
+        engineChanged('full-sin-pose-en-calentamiento');
+      }
+    } catch {
+      if (candidate) closePose(candidate);
+      candidate = undefined;
+      engineChanged('full-fallo-en-calentamiento');
+    }
+  }
+  try {
+    return pose.landmarker.detectForVideo(frame, time);
+  } catch (error) {
+    if (!live) throw error;
+    if (pose.model === 'full') {
+      useLite('full-fallo-inferencia');
+      try { return pose.landmarker.detectForVideo(frame, time); } catch { /* Retry using CPU below. */ }
+    }
+    if (pose.delegate === 'CPU') throw error;
+    const failed = pose;
+    pose = lite = await createPose('lite', 'CPU');
+    closePose(failed);
+    engineChanged('gpu-fallo-inferencia');
+    return pose.landmarker.detectForVideo(frame, time);
+  }
+}
+
 async function prepareSpecialist(kind: Specialist) {
   const [vision, modelAssetBuffer] = await Promise.all([wasm(), loadModel(kind)]);
   const common = {
@@ -74,16 +170,41 @@ async function prepareSpecialist(kind: Specialist) {
 async function process(data: MessageEvent['data']) {
   if (data.type === 'init') {
     if (typeof OffscreenCanvas === 'undefined') throw new Error('Este navegador necesita una versión compatible con OffscreenCanvas.');
-    const [vision, fullModel] = await Promise.all([wasm(), data.model === 'full' ? loadModel('full') : undefined]);
-    pose = await PoseLandmarker.createFromOptions(vision, {
-      baseOptions: fullModel ? { modelAssetBuffer: fullModel, delegate: 'CPU' } : {
-        modelAssetPath: new URL('/body-tracking/pose_landmarker_lite.task', scope.location.origin).href, delegate: 'CPU',
-      },
-      canvas: new OffscreenCanvas(1, 1), runningMode: 'VIDEO', numPoses: 1,
-      minPoseDetectionConfidence: .6, minPosePresenceConfidence: .6, minTrackingConfidence: .6,
-      outputSegmentationMasks: false,
-    });
-    scope.postMessage({ type: 'ready' });
+    const model = data.model === 'full' ? 'full' : 'lite';
+    live = model === 'lite';
+    adaptive = live && data.adaptive !== false;
+    reportEngine = data.diagnostics === true;
+    let reason = data.delegate === 'CPU' || !live ? 'cpu-solicitada' : 'webgl-sin-aceleracion';
+    if (live && data.delegate !== 'CPU' && hardwareWebGL()) {
+      try {
+        pose = await createPose('lite', 'GPU');
+        reason = 'inicio-gpu';
+      } catch {
+        reason = 'inicio-gpu-fallido';
+      }
+    }
+    pose ??= await createPose(model, 'CPU', model === 'full' ? await loadModel('full') : undefined);
+    if (live) lite = pose;
+    engineChanged(reason);
+    scope.postMessage({ type: 'ready', model: pose.model, delegate: pose.delegate, adaptive });
+    return;
+  }
+
+  if (data.type === 'try-full' && adaptive && lite && !prepareFull) {
+    prepareFull = true;
+    try {
+      const fullModel = await loadModel('full');
+      candidate = await createPose('full', lite.delegate, fullModel);
+      scope.postMessage({ type: 'pose-model-prepared', model: 'full' });
+    } catch {
+      engineChanged('full-no-disponible');
+    }
+    return;
+  }
+
+  if (data.type === 'use-lite') {
+    useLite(data.reason === 'full-sin-pose' ? 'full-sin-pose'
+      : data.reason === 'full-inferencia-lenta' ? 'full-inferencia-lenta' : 'full-fps-bajos');
     return;
   }
 
@@ -125,9 +246,9 @@ async function process(data: MessageEvent['data']) {
       } : null;
       scope.postMessage({ type: 'face', time, ms: performance.now()-started, face: region });
     } else {
-      if (!pose) throw new Error('El seguimiento no está listo.');
-      const result = pose.detectForVideo(frame, time);
-      scope.postMessage({ type: 'pose', time, ms: performance.now()-started, points: result.landmarks[0] ?? [], world: result.worldLandmarks[0] ?? [] });
+      const result = await detectPose(frame, time);
+      scope.postMessage({ type: 'pose', time, ms: performance.now()-started,
+        model: pose?.model, delegate: pose?.delegate, points: result.landmarks[0] ?? [], world: result.worldLandmarks[0] ?? [] });
       result.close();
     }
   } finally {

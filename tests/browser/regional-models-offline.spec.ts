@@ -30,7 +30,7 @@ test('los modelos de mano y cara se cargan bajo demanda y funcionan sin conexió
       });
     }
     try {
-      await send({ type: 'init' });
+      await send({ type: 'init', delegate: 'CPU' });
       const [handUrl, faceUrl] = urls;
       const landmarks = [];
       for (const [detector, url] of [['hand', handUrl], ['face', faceUrl]]) {
@@ -51,7 +51,7 @@ test('los modelos de mano y cara se cargan bajo demanda y funcionan sin conexió
   }, photos);
 
   expect(await detectHandsAndFace()).toEqual([21, 21, 478, 16]);
-  expect(await cachedModels()).toEqual([true, true]);
+  await expect.poll(cachedModels).toEqual([true, true]);
   await context.setOffline(true);
   await page.reload();
   expect(await page.evaluate(() => navigator.onLine)).toBe(false);

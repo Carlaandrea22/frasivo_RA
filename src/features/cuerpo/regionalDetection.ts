@@ -25,6 +25,7 @@ export interface RegionalHint {
 }
 
 export interface DetectorStat {
+  frames: number;
   fps: number;
   ms: number | null;
   status: DetectorState;

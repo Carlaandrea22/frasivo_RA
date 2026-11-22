@@ -1,6 +1,6 @@
 import { readFile } from 'node:fs/promises';
 import { expect, test } from '@playwright/test';
-import { activateBodyCamera } from './body-camera';
+import { activateBodyCamera, expectLiveLiteCpu } from './body-camera';
 
 test('la cámara de 375 px muestra los huesos de la espalda con etiquetas bilingües', async ({ page }, testInfo) => {
   const photo = `data:image/jpeg;base64,${(await readFile('tests/fixtures/pose-back.jpg')).toString('base64')}`;
@@ -30,7 +30,8 @@ test('la cámara de 375 px muestra los huesos de la espalda con etiquetas biling
   }, photo);
   await page.goto('/#cuerpo');
   await activateBodyCamera(page);
-  await expect(page.locator('.anatomy-status')).toHaveText('Espalda');
+  await expectLiveLiteCpu(page);
+  await expect(page.locator('.anatomy-stage')).toHaveAttribute('data-body-region', 'Espalda');
   const sprite = (id: string) => page.locator(`[data-rendered=bones] image[data-part="${id}"]`);
   for (const id of ['spine', 'ribs_left', 'ribs_right', 'sacrum', 'pelvis_left', 'pelvis_right']) {
     await expect(sprite(id)).toBeVisible();

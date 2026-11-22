@@ -1,4 +1,4 @@
-import { activateBodyCamera } from './body-camera';
+import { activateBodyCamera, expectLiveLiteCpu } from './body-camera';
 import { readFileSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
 import { expect, test, type Page } from '@playwright/test';
@@ -47,6 +47,7 @@ async function openCamera(page: Page, shot: Shot, layer: Layer, debug = false) {
   await page.goto(debug ? '/?debug=1#cuerpo' : '/#cuerpo');
   await page.getByRole('button', { name: layer, exact: true }).click();
   await activateBodyCamera(page);
+  await expectLiveLiteCpu(page);
 }
 
 async function showLabels(page: Page) {
@@ -60,7 +61,7 @@ function sprite(page: Page, id: string) {
 
 test('el torso conserva solo los músculos con apoyo visible', async ({ page }, testInfo) => {
   await openCamera(page, 'trunk', 'Músculos');
-  await expect(page.locator('.anatomy-status')).toHaveText('Torso', { timeout: 20_000 });
+  await expect(page.locator('.anatomy-stage')).toHaveAttribute('data-body-region', 'Torso', { timeout: 20_000 });
   await expect(sprite(page, 'serratus_anterior_left')).toBeVisible();
   await expect(sprite(page, 'rectus_abdominis_left')).toHaveCount(0);
   await expect(sprite(page, 'quadriceps_femoris_left')).toHaveCount(0);
@@ -130,7 +131,7 @@ test('la ventana de órganos de cuerpo completo conserva el tórax y el abdomen'
 
 test('la ventana conserva el tórax sin inventar el abdomen y abre el corazón en corte', async ({ page }, testInfo) => {
   await openCamera(page, 'trunk', 'Órganos');
-  await expect(page.locator('.anatomy-status')).toHaveText('Torso');
+  await expect(page.locator('.anatomy-stage')).toHaveAttribute('data-body-region', 'Torso');
   await expect(sprite(page, 'heart')).toBeVisible();
   await expect(sprite(page, 'liver')).toBeVisible();
   for (const id of ['small_intestine', 'large_intestine', 'urinary_bladder']) await expect(sprite(page, id)).toHaveCount(0);
@@ -149,7 +150,7 @@ test('la ventana conserva el tórax sin inventar el abdomen y abre el corazón e
 
 test('la vista de espalda muestra músculos posteriores y riñones con sus flechas', async ({ page }, testInfo) => {
   await openCamera(page, 'back', 'Músculos');
-  await expect(page.locator('.anatomy-status')).toHaveText('Espalda');
+  await expect(page.locator('.anatomy-stage')).toHaveAttribute('data-body-region', 'Espalda');
   for (const id of ['trapezius_left', 'latissimus_dorsi_left', 'gluteus_maximus_left']) await expect(sprite(page, id)).toBeVisible();
   await expect(sprite(page, 'pectoralis_major_left')).toHaveCount(0);
   await showLabels(page);
@@ -159,7 +160,7 @@ test('la vista de espalda muestra músculos posteriores y riñones con sus flech
   await page.getByRole('button', { name: 'Expandir controles' }).click();
   await page.getByRole('button', { name: 'Órganos', exact: true }).click();
   await page.getByRole('button', { name: 'Minimizar controles' }).click();
-  await expect(page.locator('.anatomy-status')).toHaveText('Espalda');
+  await expect(page.locator('.anatomy-stage')).toHaveAttribute('data-body-region', 'Espalda');
   await expect(sprite(page, 'kidneys')).toBeVisible();
   await expect(sprite(page, 'heart')).toHaveCount(0);
   await expect(page.locator('[data-anatomy-label=kidneys]')).toBeVisible();
@@ -171,63 +172,68 @@ test('mide el seguimiento de las tres capas y el ajuste de articulaciones de los
   const measurements = {};
   for (const layer of ['Huesos', 'Músculos', 'Órganos'] as const) {
     await page.getByRole('button', { name: layer, exact: true }).click();
-    await expect(page.locator('.anatomy-status')).toHaveText('Cuerpo completo');
+    await expect(page.locator('.anatomy-stage')).toHaveAttribute('data-body-region', 'Cuerpo completo');
+    const rendered = { Huesos: 'bones', Músculos: 'muscles', Órganos: 'organs' }[layer];
+    await expect(page.locator(`svg[data-rendered=${rendered}]`)).toHaveAttribute('data-visible-parts', /^[1-9]/);
     const drawingRate = page.locator('[data-fps-drawing]');
-    await expect.poll(async () => Number(await drawingRate.getAttribute('data-fps-drawing')), {
-      timeout: 15_000,
-    }).toBeGreaterThan(0);
-    const samples = [];
-    for (let i = 0; i < 4; i++) {
-      await page.waitForTimeout(550);
-      samples.push(await page.evaluate(() => ({
-        drawing: Number(document.querySelector<HTMLElement>('[data-fps-drawing]')?.dataset.fpsDrawing),
-        detectors: Object.fromEntries([...document.querySelectorAll<HTMLElement>('[data-detector]')].map(node =>
-          [node.dataset.detector, Number(node.dataset.detectorFps)])),
-      })));
-    }
-    Object.assign(measurements, { [layer]: samples });
+    await expect(drawingRate).toHaveAttribute('data-fps-drawing', /^[1-9]/, { timeout: 15_000 });
+    await expect.poll(async () => Number(await page.locator('[data-detector=pose]').getAttribute('data-detector-fps')))
+      .toBeGreaterThan(0);
+    Object.assign(measurements, { [layer]: await page.evaluate(() => ({
+      drawing: Number(document.querySelector<HTMLElement>('[data-fps-drawing]')?.dataset.fpsDrawing),
+      detectors: Object.fromEntries([...document.querySelectorAll<HTMLElement>('[data-detector]')].map(node =>
+        [node.dataset.detector, Number(node.dataset.detectorFps)])),
+    })) });
     if (layer === 'Músculos') {
       const segments = [
         ['upper_arm_left', anchors.anchors.shoulder_left, 11], ['upper_arm_left', anchors.anchors.elbow_left, 13],
         ['thigh_left', anchors.anchors.hip_left, 23], ['thigh_left', anchors.anchors.knee_left, 25],
         ['shin_left', anchors.anchors.knee_left, 25], ['shin_left', anchors.anchors.ankle_left, 27],
       ] as const;
-      const errors = await page.evaluate(segments => segments.map(([group, [x, y], index]) => {
-        const mesh = document.querySelector<SVGGElement>(`[data-atlas-group=${group}]`)!;
-        const landmark = document.querySelector<SVGGElement>(`[data-landmark="${index}"]`)!;
-        const projected = new DOMPoint(x, -y).matrixTransform(mesh.getScreenCTM()!);
-        const seen = new DOMPoint(0, 0).matrixTransform(landmark.getScreenCTM()!);
-        return Math.hypot(projected.x - seen.x, projected.y - seen.y);
-      }), segments);
-      expect(Math.max(...errors)).toBeLessThan(15);
+      let errors: number[] = [];
+      await expect.poll(async () => {
+        errors = await page.evaluate(segments => segments.map(([group, [x, y], index]) => {
+          const mesh = document.querySelector<SVGGElement>(`[data-atlas-group=${group}]`)?.getScreenCTM();
+          const landmark = document.querySelector<SVGGElement>(`[data-landmark="${index}"]`)?.getScreenCTM();
+          if (!mesh || !landmark) return Infinity;
+          const projected = new DOMPoint(x, -y).matrixTransform(mesh);
+          const seen = new DOMPoint(0, 0).matrixTransform(landmark);
+          return Math.hypot(projected.x - seen.x, projected.y - seen.y);
+        }), segments);
+        return Math.max(...errors);
+      }).toBeLessThan(15);
       Object.assign(measurements, { projectionErrorPx: errors });
     }
     if (layer === 'Órganos') {
-      const ratio = await sprite(page, 'lungs').evaluate(async node => {
-        const lungs = node as unknown as SVGImageElement;
-        const image = new Image();
-        image.src = lungs.href.baseVal;
-        await image.decode();
-        const canvas = document.createElement('canvas');
-        const width = canvas.width = image.naturalWidth;
-        const height = canvas.height = image.naturalHeight;
-        const context = canvas.getContext('2d')!;
-        context.drawImage(image, 0, 0);
-        const pixels = context.getImageData(0, 0, width, height).data;
-        let left = width, right = 0;
-        for (let pixel = 0; pixel < width*height; pixel++) {
-          if (pixels[4*pixel+3] < 192) continue;
-          const x = pixel % width;
-          left = Math.min(left, x);
-          right = Math.max(right, x+1);
-        }
-        const shoulderX = (index: number) =>
-          document.querySelector<SVGGElement>(`[data-landmark="${index}"]`)!.getScreenCTM()!.e;
-        const shoulderSpan = Math.abs(shoulderX(11)-shoulderX(12));
-        return lungs.getBoundingClientRect().width * (right-left)/width / shoulderSpan;
-      });
-      expect(ratio).toBeGreaterThan(.86);
-      expect(ratio).toBeLessThan(.96);
+      let ratio: number | null = null;
+      await expect.poll(async () => {
+        ratio = await page.locator('.anatomy-stage').evaluate(async stage => {
+          const lungs = stage.querySelector<SVGImageElement>('image[data-part=lungs]');
+          if (!lungs) return null;
+          const image = new Image();
+          image.src = lungs.href.baseVal;
+          await image.decode();
+          const canvas = document.createElement('canvas');
+          const width = canvas.width = image.naturalWidth;
+          const height = canvas.height = image.naturalHeight;
+          const context = canvas.getContext('2d')!;
+          context.drawImage(image, 0, 0);
+          const pixels = context.getImageData(0, 0, width, height).data;
+          let left = width, right = 0;
+          for (let pixel = 0; pixel < width*height; pixel++) {
+            if (pixels[4*pixel+3] < 192) continue;
+            const x = pixel % width;
+            left = Math.min(left, x);
+            right = Math.max(right, x+1);
+          }
+          const shoulderX = (index: number) =>
+            stage.querySelector<SVGGElement>(`[data-landmark="${index}"]`)?.getScreenCTM()?.e;
+          const leftShoulder = shoulderX(11), rightShoulder = shoulderX(12);
+          if (!lungs.isConnected || leftShoulder === undefined || rightShoulder === undefined) return null;
+          return lungs.getBoundingClientRect().width * (right-left)/width / Math.abs(leftShoulder-rightShoulder);
+        });
+        return ratio !== null && ratio > .86 && ratio < .96;
+      }).toBe(true);
       Object.assign(measurements, { lungToShoulderWidth: ratio });
     }
   }
