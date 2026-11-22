@@ -1,0 +1,3763 @@
+{
+  "version": 1,
+  "packs": {
+    "bp3d-3.0-obj95": {
+      "version": "3.0",
+      "name": "BodyParts3D_3.0_obj_95.zip",
+      "download": "https://dbarchive.biosciencedbc.jp/data/bodyparts3d/20110915/BodyParts3D_3.0_obj_95.zip",
+      "README": "https://dbarchive.biosciencedbc.jp/data/bodyparts3d/20110915/README_e.html",
+      "catalog": "https://dbarchive.biosciencedbc.jp/data/bodyparts3d/20110915/parts_list_e.txt",
+      "composites": "https://dbarchive.biosciencedbc.jp/data/bodyparts3d/20110915/composite_parts.txt",
+      "polygonReductionPercent": 95,
+      "released": "2011-09-15",
+      "license": "CC-BY-4.0",
+      "licenseUrl": "https://dbarchive.biosciencedbc.jp/en/bodyparts3d/lic.html",
+      "attribution": "BodyParts3D, © The Database Center for Life Science licensed under CC Attribution 4.0 International",
+      "historicalObjNotice": "CC-BY-SA-2.1-JP",
+      "licenseUpdated": "2025-02-27",
+      "checkedOn": "2026-11-22",
+      "coordinates": "BodyParts3D OBJ raw XYZ, millimeters",
+      "archiveVerification": {
+        "method": "Official HTTPS ZIP tail compared byte-for-byte with cache, then CRC32 per OBJ",
+        "archiveBytes": 547270545,
+        "officialTailBytes": 524288,
+        "officialTailSha256": "1b220fdc1e7977a84721a8f77c46ebcc895c2d09d5ed124250dad7aead92b50d"
+      },
+      "metadataSha256": {
+        "parts_list_e.txt": "824a34ed939a53375037d0d68b88ad2b63b1f0ae15a585632af2a63c2ab2e4af",
+        "composite_parts.txt": "17cd3611eb6b46558f983f890273fdb19f93806150ed95f6611acf4b81e90bc2"
+      }
+    },
+    "bp3d-4.0-isa-obj99": {
+      "version": "4.0",
+      "name": "isa_BP3D_4.0_obj_99.zip",
+      "download": "https://dbarchive.biosciencedbc.jp/data/bodyparts3d/LATEST/isa_BP3D_4.0_obj_99.zip",
+      "README": "https://dbarchive.biosciencedbc.jp/data/bodyparts3d/LATEST/README_e.html",
+      "catalog": "https://dbarchive.biosciencedbc.jp/data/bodyparts3d/LATEST/isa_parts_list_e.txt",
+      "elements": "https://dbarchive.biosciencedbc.jp/data/bodyparts3d/LATEST/isa_element_parts.txt",
+      "partOf": "https://dbarchive.biosciencedbc.jp/data/bodyparts3d/LATEST/partof_element_parts.txt",
+      "polygonReductionPercent": 99,
+      "released": "2013-06-19",
+      "license": "CC-BY-4.0",
+      "licenseUrl": "https://dbarchive.biosciencedbc.jp/en/bodyparts3d/lic.html",
+      "attribution": "BodyParts3D, © The Database Center for Life Science licensed under CC Attribution 4.0 International",
+      "historicalObjNotice": "CC-BY-SA-2.1-JP",
+      "licenseUpdated": "2025-02-27",
+      "checkedOn": "2026-11-22",
+      "coordinates": "BodyParts3D OBJ raw XYZ, millimeters",
+      "archiveVerification": {
+        "method": "Official HTTPS ZIP tail compared byte-for-byte with cache, then CRC32 per OBJ",
+        "archiveBytes": 142903898,
+        "officialTailBytes": 524288,
+        "officialTailSha256": "83fadd822296ea4d32da55a1120cc01036396952ff9bdd4c1adbb52614cdde83",
+        "localArchiveSha256": "40665852c49f218326590e204db91064a1ecfc3c6f8cbd7bbbcaac62c7cd409e"
+      },
+      "metadataSha256": {
+        "isa_parts_list_e.txt": "ab7796deedd49205e77f3609a1cb8c53e2bbee14ecb5c9a6ca05227469780513",
+        "isa_element_parts.txt": "a3de74423f943b0d724ae8f59b3a817f87c423a544f8db98113b1980817cbeaf",
+        "partof_element_parts.txt": "3f5f6df1028eb122b30de77c711597b6bb8e5541658e5985859fd228adbf88ea"
+      }
+    }
+  },
+  "fichas": [
+    {
+      "id": "femur",
+      "root": "femur_left",
+      "name": "Fémur",
+      "category": "huesos",
+      "system": "esqueletico",
+      "sources": [
+        {
+          "id": "FMA24475",
+          "filename": "FMA24475.obj",
+          "path": "assets/_fuentes/explorar-fase1/obj95/FMA24475.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": null,
+          "conceptId": "FMA24475",
+          "anatomicalName": "left femur",
+          "sha256": "58937242120ecbca1f7abe927114b475d0922d5786492daee68ec2d70bfb4273",
+          "crc32": "1dbdd1bc",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA24475.obj",
+          "bytes": 834489,
+          "sourceTriangles": 13202,
+          "license": "CC-BY-4.0"
+        }
+      ],
+      "guides": [],
+      "parts": [
+        {
+          "id": "cabeza",
+          "sourceIds": [
+            "FMA24475"
+          ],
+          "method": "estimate"
+        },
+        {
+          "id": "cuerpo",
+          "sourceIds": [
+            "FMA24475"
+          ],
+          "method": "estimate"
+        },
+        {
+          "id": "condilos",
+          "sourceIds": [
+            "FMA24475"
+          ],
+          "method": "estimate"
+        }
+      ],
+      "reason4": null
+    },
+    {
+      "id": "tibia",
+      "root": "tibia_left",
+      "name": "Tibia",
+      "category": "huesos",
+      "system": "esqueletico",
+      "sources": [
+        {
+          "id": "FMA24478",
+          "filename": "FMA24478.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA24478.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": null,
+          "conceptId": "FMA24478",
+          "anatomicalName": "left tibia",
+          "sha256": "1bb89422cf9ec6411683ec9cc2c967bac6122d1fd8f6773566b97cd84b24ed7d",
+          "crc32": "5b39d9fa",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA24478.obj",
+          "bytes": 425271,
+          "sourceTriangles": 6822,
+          "license": "CC-BY-4.0"
+        }
+      ],
+      "guides": [],
+      "parts": [
+        {
+          "id": "condilos",
+          "sourceIds": [
+            "FMA24478"
+          ],
+          "method": "estimate"
+        },
+        {
+          "id": "cuerpo",
+          "sourceIds": [
+            "FMA24478"
+          ],
+          "method": "estimate"
+        },
+        {
+          "id": "maleolo",
+          "sourceIds": [
+            "FMA24478"
+          ],
+          "method": "estimate"
+        }
+      ],
+      "reason4": null
+    },
+    {
+      "id": "humerus",
+      "root": "humerus_left",
+      "name": "Húmero",
+      "category": "huesos",
+      "system": "esqueletico",
+      "sources": [
+        {
+          "id": "FMA23131",
+          "filename": "FMA23131.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA23131.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": null,
+          "conceptId": "FMA23131",
+          "anatomicalName": "left humerus",
+          "sha256": "9590fd15af1bd3ccb73c62ad24dbd92f2337db22ca57c6423f3bd16e1e11976e",
+          "crc32": "4bf3aeee",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA23131.obj",
+          "bytes": 1058641,
+          "sourceTriangles": 16492,
+          "license": "CC-BY-4.0"
+        }
+      ],
+      "guides": [],
+      "parts": [
+        {
+          "id": "cabeza",
+          "sourceIds": [
+            "FMA23131"
+          ],
+          "method": "estimate"
+        },
+        {
+          "id": "cuerpo",
+          "sourceIds": [
+            "FMA23131"
+          ],
+          "method": "estimate"
+        },
+        {
+          "id": "troclea",
+          "sourceIds": [
+            "FMA23131"
+          ],
+          "method": "estimate"
+        }
+      ],
+      "reason4": null
+    },
+    {
+      "id": "radius",
+      "root": "radius_left",
+      "name": "Radio",
+      "category": "huesos",
+      "system": "esqueletico",
+      "sources": [
+        {
+          "id": "FMA23465",
+          "filename": "FMA23465.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA23465.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": null,
+          "conceptId": "FMA23465",
+          "anatomicalName": "left radius",
+          "sha256": "c122b28e2abde87537f9b56a1584f5d1ea3cc8f61844d383682db54d63682b3c",
+          "crc32": "4d51d928",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA23465.obj",
+          "bytes": 162804,
+          "sourceTriangles": 2714,
+          "license": "CC-BY-4.0"
+        }
+      ],
+      "guides": [],
+      "parts": [
+        {
+          "id": "cabeza",
+          "sourceIds": [
+            "FMA23465"
+          ],
+          "method": "estimate"
+        },
+        {
+          "id": "cuerpo",
+          "sourceIds": [
+            "FMA23465"
+          ],
+          "method": "estimate"
+        },
+        {
+          "id": "estiloides",
+          "sourceIds": [
+            "FMA23465"
+          ],
+          "method": "estimate"
+        }
+      ],
+      "reason4": null
+    },
+    {
+      "id": "pelvis",
+      "root": "pelvis_left",
+      "name": "Hueso coxal",
+      "category": "huesos",
+      "system": "esqueletico",
+      "sources": [
+        {
+          "id": "FMA16587",
+          "filename": "FMA16587.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA16587.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": null,
+          "conceptId": "FMA16587",
+          "anatomicalName": "left hip bone",
+          "sha256": "6c97b059e7bad9ab30327b1b71a83b462e2991f8769587dc560f3d6a1b131738",
+          "crc32": "734a92f6",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA16587.obj",
+          "bytes": 598043,
+          "sourceTriangles": 9470,
+          "license": "CC-BY-4.0"
+        }
+      ],
+      "guides": [],
+      "parts": [
+        {
+          "id": "ilion",
+          "sourceIds": [
+            "FMA16587"
+          ],
+          "method": "estimate"
+        },
+        {
+          "id": "isquion",
+          "sourceIds": [
+            "FMA16587"
+          ],
+          "method": "estimate"
+        },
+        {
+          "id": "pubis",
+          "sourceIds": [
+            "FMA16587"
+          ],
+          "method": "estimate"
+        },
+        {
+          "id": "acetabulo",
+          "sourceIds": [
+            "FMA16587"
+          ],
+          "method": "estimate"
+        }
+      ],
+      "reason4": null
+    },
+    {
+      "id": "patella",
+      "root": "patella_left",
+      "name": "Rótula",
+      "category": "huesos",
+      "system": "esqueletico",
+      "sources": [
+        {
+          "id": "FMA24487",
+          "filename": "FMA24487.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA24487.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": null,
+          "conceptId": "FMA24487",
+          "anatomicalName": "left patella",
+          "sha256": "b864149c36f41e145af186a18ca32398db39a36d5ddd706f44ca991ca5522316",
+          "crc32": "85dc17d6",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA24487.obj",
+          "bytes": 77139,
+          "sourceTriangles": 1338,
+          "license": "CC-BY-4.0"
+        }
+      ],
+      "guides": [],
+      "parts": [
+        {
+          "id": "base_superior",
+          "sourceIds": [
+            "FMA24487"
+          ],
+          "method": "estimate"
+        },
+        {
+          "id": "vertice",
+          "sourceIds": [
+            "FMA24487"
+          ],
+          "method": "estimate"
+        },
+        {
+          "id": "cara_articular",
+          "sourceIds": [
+            "FMA24487"
+          ],
+          "method": "estimate"
+        }
+      ],
+      "reason4": null
+    },
+    {
+      "id": "heart",
+      "root": "Heart_|_15_selectable_structures",
+      "name": "Corazón",
+      "category": "organos",
+      "system": "cardiovascular",
+      "sources": [],
+      "guides": [],
+      "parts": [
+        {
+          "id": "right_atrium",
+          "sourceIds": [],
+          "method": "retained"
+        },
+        {
+          "id": "right_ventricle",
+          "sourceIds": [],
+          "method": "retained"
+        },
+        {
+          "id": "left_atrium",
+          "sourceIds": [],
+          "method": "retained"
+        },
+        {
+          "id": "left_ventricle",
+          "sourceIds": [],
+          "method": "retained"
+        },
+        {
+          "id": "tricuspid_valve",
+          "sourceIds": [],
+          "method": "retained"
+        },
+        {
+          "id": "pulmonary_valve",
+          "sourceIds": [],
+          "method": "retained"
+        },
+        {
+          "id": "mitral_valve",
+          "sourceIds": [],
+          "method": "retained"
+        },
+        {
+          "id": "aortic_valve",
+          "sourceIds": [],
+          "method": "retained"
+        },
+        {
+          "id": "aorta",
+          "sourceIds": [],
+          "method": "retained"
+        },
+        {
+          "id": "superior_vena_cava",
+          "sourceIds": [],
+          "method": "retained"
+        },
+        {
+          "id": "inferior_vena_cava",
+          "sourceIds": [],
+          "method": "retained"
+        },
+        {
+          "id": "pulmonary_trunk",
+          "sourceIds": [],
+          "method": "retained"
+        },
+        {
+          "id": "right_pulmonary_artery",
+          "sourceIds": [],
+          "method": "retained"
+        },
+        {
+          "id": "left_pulmonary_artery",
+          "sourceIds": [],
+          "method": "retained"
+        },
+        {
+          "id": "pulmonary_veins",
+          "sourceIds": [],
+          "method": "retained"
+        }
+      ],
+      "reason4": null,
+      "retainedAsset": {
+        "path": "assets/anatomy/cardiovascular/heart-cutaway.glb",
+        "sha256": "33d266ff8b0543e768dff067fb948778383d24451cecbe633993418e2bb7bbf9",
+        "origin": "Esquema en corte de LumAR",
+        "selectableParts": 15
+      },
+      "note": "El corazón exterior queda reservado para otra ficha."
+    },
+    {
+      "id": "lungs",
+      "root": "lungs",
+      "name": "Pulmones",
+      "category": "organos",
+      "system": "respiratorio",
+      "sources": [
+        {
+          "id": "FMA7333",
+          "filename": "FMA7333.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA7333.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "superior_derecho",
+          "conceptId": "FMA7333",
+          "anatomicalName": "upper lobe of right lung",
+          "sha256": "5a6be01caa66eb79ae6091a3b9dace4d8a56748504a7d8a8e419d6bce3c7ed67",
+          "crc32": "e207b786",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA7333.obj",
+          "bytes": 2123906,
+          "sourceTriangles": 30398,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA7383",
+          "filename": "FMA7383.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA7383.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "medio_derecho",
+          "conceptId": "FMA7383",
+          "anatomicalName": "middle lobe of lung",
+          "sha256": "f494cfc1f5ca1c81f95db2273a131b9802017be8161d98887406e28571e9b909",
+          "crc32": "e4eb14fa",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA7383.obj",
+          "bytes": 1722447,
+          "sourceTriangles": 23478,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA7337",
+          "filename": "FMA7337.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA7337.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "inferior_derecho",
+          "conceptId": "FMA7337",
+          "anatomicalName": "lower lobe of right lung",
+          "sha256": "429cdedf4da58e83cb79a25e485d7d8e061e9b7ee9b25d6b5d3daf87fd07e0c1",
+          "crc32": "1d3ca083",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA7337.obj",
+          "bytes": 4610156,
+          "sourceTriangles": 65592,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA7370",
+          "filename": "FMA7370.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA7370.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "superior_izquierdo",
+          "conceptId": "FMA7370",
+          "anatomicalName": "upper lobe of left lung",
+          "sha256": "55d39f962dc527ea146d63f2f36cbb2fd036c6ee5d54320bcc05f1e706054192",
+          "crc32": "7ae8d3bb",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA7370.obj",
+          "bytes": 2857475,
+          "sourceTriangles": 40652,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA7371",
+          "filename": "FMA7371.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA7371.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "inferior_izquierdo",
+          "conceptId": "FMA7371",
+          "anatomicalName": "lower lobe of left lung",
+          "sha256": "266eaf8321c3cf2281c30b979d56acd6cec0e3bf9215b90afda766a91a4dac0a",
+          "crc32": "7b66ae6a",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA7371.obj",
+          "bytes": 3170741,
+          "sourceTriangles": 44288,
+          "license": "CC-BY-4.0"
+        }
+      ],
+      "guides": [],
+      "parts": [
+        {
+          "id": "superior_derecho",
+          "sourceIds": [
+            "FMA7333"
+          ],
+          "method": "mesh"
+        },
+        {
+          "id": "medio_derecho",
+          "sourceIds": [
+            "FMA7383"
+          ],
+          "method": "mesh"
+        },
+        {
+          "id": "inferior_derecho",
+          "sourceIds": [
+            "FMA7337"
+          ],
+          "method": "mesh"
+        },
+        {
+          "id": "superior_izquierdo",
+          "sourceIds": [
+            "FMA7370"
+          ],
+          "method": "mesh"
+        },
+        {
+          "id": "inferior_izquierdo",
+          "sourceIds": [
+            "FMA7371"
+          ],
+          "method": "mesh"
+        }
+      ],
+      "reason4": null
+    },
+    {
+      "id": "biceps_brachii",
+      "root": "biceps_brachii_left",
+      "name": "Bíceps braquial",
+      "category": "musculos",
+      "system": "muscular",
+      "sources": [
+        {
+          "id": "FMA37687",
+          "filename": "FMA37687.obj",
+          "path": "assets/_fuentes/explorar-fase1/obj95/FMA37687.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "cabeza_larga",
+          "conceptId": "FMA37687",
+          "anatomicalName": "long head of left biceps brachii",
+          "sha256": "e4231c882b3bdee2cfc1e5072915547ae9931841e612e214d828296b8f64c61a",
+          "crc32": "e6a8e02b",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA37687.obj",
+          "bytes": 2340183,
+          "sourceTriangles": 32906,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA37685",
+          "filename": "FMA37685.obj",
+          "path": "assets/_fuentes/explorar-fase1/obj95/FMA37685.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "cabeza_corta",
+          "conceptId": "FMA37685",
+          "anatomicalName": "short head of left biceps brachii",
+          "sha256": "1962a76a2ddda835182cf144a221a9c1c7afdb51e4c8ef7d859f83a02e724b38",
+          "crc32": "4d8bcc09",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA37685.obj",
+          "bytes": 2061792,
+          "sourceTriangles": 28708,
+          "license": "CC-BY-4.0"
+        }
+      ],
+      "guides": [],
+      "parts": [
+        {
+          "id": "cabeza_larga",
+          "sourceIds": [
+            "FMA37687"
+          ],
+          "method": "mesh"
+        },
+        {
+          "id": "cabeza_corta",
+          "sourceIds": [
+            "FMA37685"
+          ],
+          "method": "mesh"
+        }
+      ],
+      "reason4": null
+    },
+    {
+      "id": "quadriceps_femoris",
+      "root": "quadriceps_femoris_left",
+      "name": "Cuádriceps femoral",
+      "category": "musculos",
+      "system": "muscular",
+      "sources": [
+        {
+          "id": "FMA38929",
+          "filename": "FMA38929.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA38929.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "recto_femoral",
+          "conceptId": "FMA38929",
+          "anatomicalName": "left rectus femoris",
+          "sha256": "20981d942d01de94f5b714ac4520a9f5c84b2634b7f5ed2bb894d118092ce882",
+          "crc32": "730834b1",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA38929.obj",
+          "bytes": 5841189,
+          "sourceTriangles": 82050,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA38931",
+          "filename": "FMA38931.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA38931.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "vasto_lateral",
+          "conceptId": "FMA38931",
+          "anatomicalName": "left vastus lateralis",
+          "sha256": "ce8d6eb5c13ff1fdab52e67285fd3068f1ee1678016fde74e55ebadca8ccedb6",
+          "crc32": "36dc0a77",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA38931.obj",
+          "bytes": 6730750,
+          "sourceTriangles": 94474,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA38933",
+          "filename": "FMA38933.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA38933.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "vasto_medial",
+          "conceptId": "FMA38933",
+          "anatomicalName": "left vastus medialis",
+          "sha256": "7d1b012a56f50fb44d23c311774431bad03e97dd6fbda76b3509cb1e8b739228",
+          "crc32": "5d32a11e",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA38933.obj",
+          "bytes": 4586808,
+          "sourceTriangles": 64980,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA38935",
+          "filename": "FMA38935.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA38935.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "vasto_intermedio",
+          "conceptId": "FMA38935",
+          "anatomicalName": "left vastus intermedius",
+          "sha256": "4a18e430f71fc9c73f59cc12539b6bbb39df0724462d06bd7a051a134d7f1b43",
+          "crc32": "f41849b8",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA38935.obj",
+          "bytes": 4285643,
+          "sourceTriangles": 61374,
+          "license": "CC-BY-4.0"
+        }
+      ],
+      "guides": [],
+      "parts": [
+        {
+          "id": "recto_femoral",
+          "sourceIds": [
+            "FMA38929"
+          ],
+          "method": "mesh"
+        },
+        {
+          "id": "vasto_lateral",
+          "sourceIds": [
+            "FMA38931"
+          ],
+          "method": "mesh"
+        },
+        {
+          "id": "vasto_medial",
+          "sourceIds": [
+            "FMA38933"
+          ],
+          "method": "mesh"
+        },
+        {
+          "id": "vasto_intermedio",
+          "sourceIds": [
+            "FMA38935"
+          ],
+          "method": "mesh"
+        }
+      ],
+      "reason4": null
+    },
+    {
+      "id": "ulna",
+      "root": "ulna_left",
+      "name": "Cúbito",
+      "category": "huesos",
+      "system": "esqueletico",
+      "sources": [
+        {
+          "id": "FMA23468",
+          "filename": "FMA23468.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA23468.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": null,
+          "conceptId": "FMA23468",
+          "anatomicalName": "left ulna",
+          "sha256": "8f036cfc1c07d3453104305d1d9a3a519f3cf85fce7eb4046920501b86c8410d",
+          "crc32": "ec8f863d",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA23468.obj",
+          "bytes": 218181,
+          "sourceTriangles": 3538,
+          "license": "CC-BY-4.0"
+        }
+      ],
+      "guides": [],
+      "parts": [
+        {
+          "id": "olecranon",
+          "sourceIds": [
+            "FMA23468"
+          ],
+          "method": "estimate"
+        },
+        {
+          "id": "cuerpo",
+          "sourceIds": [
+            "FMA23468"
+          ],
+          "method": "estimate"
+        },
+        {
+          "id": "cabeza",
+          "sourceIds": [
+            "FMA23468"
+          ],
+          "method": "estimate"
+        }
+      ],
+      "reason4": null
+    },
+    {
+      "id": "fibula",
+      "root": "fibula_left",
+      "name": "Peroné",
+      "category": "huesos",
+      "system": "esqueletico",
+      "sources": [
+        {
+          "id": "FMA24481",
+          "filename": "FMA24481.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA24481.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": null,
+          "conceptId": "FMA24481",
+          "anatomicalName": "left fibula",
+          "sha256": "4da2b79759579cc3d60f180f22fbaee492d68311f052959ed8882213db621790",
+          "crc32": "1f35df2d",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA24481.obj",
+          "bytes": 280045,
+          "sourceTriangles": 4544,
+          "license": "CC-BY-4.0"
+        }
+      ],
+      "guides": [],
+      "parts": [
+        {
+          "id": "cabeza",
+          "sourceIds": [
+            "FMA24481"
+          ],
+          "method": "estimate"
+        },
+        {
+          "id": "cuerpo",
+          "sourceIds": [
+            "FMA24481"
+          ],
+          "method": "estimate"
+        },
+        {
+          "id": "maleolo",
+          "sourceIds": [
+            "FMA24481"
+          ],
+          "method": "estimate"
+        }
+      ],
+      "reason4": null
+    },
+    {
+      "id": "sternum",
+      "root": "sternum",
+      "name": "Esternón",
+      "category": "huesos",
+      "system": "esqueletico",
+      "sources": [
+        {
+          "id": "FMA7486",
+          "filename": "FMA7486.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA7486.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "manubrio",
+          "conceptId": "FMA7486",
+          "anatomicalName": "manubrium",
+          "sha256": "0dcde1b9fa1eff8aaf10ffcad196a493a9552df0b9804edacd44d2d625767616",
+          "crc32": "a1b4c5ff",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA7486.obj",
+          "bytes": 787827,
+          "sourceTriangles": 11882,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA7487",
+          "filename": "FMA7487.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA7487.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "cuerpo",
+          "conceptId": "FMA7487",
+          "anatomicalName": "body of sternum",
+          "sha256": "5c46e2cb54c5c1f79e24fbbf921378edeed9b0520eb313d6232e5095fa515d00",
+          "crc32": "80337ba8",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA7487.obj",
+          "bytes": 1390777,
+          "sourceTriangles": 19916,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA7488",
+          "filename": "FMA7488.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA7488.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "xifoides",
+          "conceptId": "FMA7488",
+          "anatomicalName": "xiphoid process",
+          "sha256": "46721dacc48172a768f72df56e9a91f59fb91e8e10b75eec3dd8b3d6d3ed4d6c",
+          "crc32": "dda41171",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA7488.obj",
+          "bytes": 254429,
+          "sourceTriangles": 4086,
+          "license": "CC-BY-4.0"
+        }
+      ],
+      "guides": [],
+      "parts": [
+        {
+          "id": "manubrio",
+          "sourceIds": [
+            "FMA7486"
+          ],
+          "method": "mesh"
+        },
+        {
+          "id": "cuerpo",
+          "sourceIds": [
+            "FMA7487"
+          ],
+          "method": "mesh"
+        },
+        {
+          "id": "xifoides",
+          "sourceIds": [
+            "FMA7488"
+          ],
+          "method": "mesh"
+        }
+      ],
+      "reason4": null
+    },
+    {
+      "id": "deltoid",
+      "root": "deltoid_left",
+      "name": "Deltoides",
+      "category": "musculos",
+      "system": "muscular",
+      "sources": [
+        {
+          "id": "FMA34681",
+          "filename": "FMA34681.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA34681.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "clavicular",
+          "conceptId": "FMA34681",
+          "anatomicalName": "clavicular part of left deltoid",
+          "sha256": "aaa80a6b4b8e5b80766b4ae52e8152bda2af17c65b1984f07d0a5bab15c239bb",
+          "crc32": "87839f51",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA34681.obj",
+          "bytes": 1932740,
+          "sourceTriangles": 28486,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA34683",
+          "filename": "FMA34683.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA34683.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "acromial",
+          "conceptId": "FMA34683",
+          "anatomicalName": "acromial part of left deltoid",
+          "sha256": "8f64e40e2860be6611da72c6d0429b6f8b4260fbe30a2933ce171aacd9a59c14",
+          "crc32": "ff415c4a",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA34683.obj",
+          "bytes": 1975945,
+          "sourceTriangles": 29076,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA34685",
+          "filename": "FMA34685.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA34685.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "espinal",
+          "conceptId": "FMA34685",
+          "anatomicalName": "spinal part of left deltoid",
+          "sha256": "5cd4d4ec6c1d9523cf70badcdb583b0f86a5fc29dcd37ee227cd4e82c34c31ed",
+          "crc32": "3fdcf9e6",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA34685.obj",
+          "bytes": 3084728,
+          "sourceTriangles": 44628,
+          "license": "CC-BY-4.0"
+        }
+      ],
+      "guides": [],
+      "parts": [
+        {
+          "id": "clavicular",
+          "sourceIds": [
+            "FMA34681"
+          ],
+          "method": "mesh"
+        },
+        {
+          "id": "acromial",
+          "sourceIds": [
+            "FMA34683"
+          ],
+          "method": "mesh"
+        },
+        {
+          "id": "espinal",
+          "sourceIds": [
+            "FMA34685"
+          ],
+          "method": "mesh"
+        }
+      ],
+      "reason4": null
+    },
+    {
+      "id": "triceps_brachii",
+      "root": "triceps_brachii_left",
+      "name": "Tríceps braquial",
+      "category": "musculos",
+      "system": "muscular",
+      "sources": [
+        {
+          "id": "FMA37700",
+          "filename": "FMA37700.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA37700.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "cabeza_larga",
+          "conceptId": "FMA37700",
+          "anatomicalName": "long head of left triceps brachii",
+          "sha256": "53d4214ad3b6fe64ea3f45ba1d8f489f6f9d93cfb4ae5f1d4f2cf8df57ace7e5",
+          "crc32": "858513a0",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA37700.obj",
+          "bytes": 2621867,
+          "sourceTriangles": 38128,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA37698",
+          "filename": "FMA37698.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA37698.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "cabeza_lateral",
+          "conceptId": "FMA37698",
+          "anatomicalName": "lateral head of left triceps brachii",
+          "sha256": "a63f47799c2da133234b632b2836d4a3584c585e533d29c857023ad1fe00e63e",
+          "crc32": "6a017bc0",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA37698.obj",
+          "bytes": 2469252,
+          "sourceTriangles": 35974,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA37696",
+          "filename": "FMA37696.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA37696.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "cabeza_medial",
+          "conceptId": "FMA37696",
+          "anatomicalName": "medial head of left triceps brachii",
+          "sha256": "9e0ef66582d69e839db21259b38ff71aa4bdd60b2a286b72701ec9ea6fad17a0",
+          "crc32": "f72a1bed",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA37696.obj",
+          "bytes": 1760421,
+          "sourceTriangles": 26226,
+          "license": "CC-BY-4.0"
+        }
+      ],
+      "guides": [],
+      "parts": [
+        {
+          "id": "cabeza_larga",
+          "sourceIds": [
+            "FMA37700"
+          ],
+          "method": "mesh"
+        },
+        {
+          "id": "cabeza_lateral",
+          "sourceIds": [
+            "FMA37698"
+          ],
+          "method": "mesh"
+        },
+        {
+          "id": "cabeza_medial",
+          "sourceIds": [
+            "FMA37696"
+          ],
+          "method": "mesh"
+        }
+      ],
+      "reason4": null
+    },
+    {
+      "id": "gastrocnemius",
+      "root": "gastrocnemius_left",
+      "name": "Gastrocnemio",
+      "category": "musculos",
+      "system": "muscular",
+      "sources": [
+        {
+          "id": "FMA45958",
+          "filename": "FMA45958.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA45958.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "cabeza_medial",
+          "conceptId": "FMA45958",
+          "anatomicalName": "medial head of left gastrocnemius",
+          "sha256": "1ef7e8c430b341ac13b4dabc3b52d0c664c8a97fdce4b763f0072d0f0d7f1625",
+          "crc32": "977d4906",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA45958.obj",
+          "bytes": 4592499,
+          "sourceTriangles": 65138,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA45961",
+          "filename": "FMA45961.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA45961.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "cabeza_lateral",
+          "conceptId": "FMA45961",
+          "anatomicalName": "lateral head of left gastrocnemius",
+          "sha256": "1a7f3692d8c27a30c84b648627475f0c9274b4d88a9dc003badc6f49a822a7a0",
+          "crc32": "5501baa1",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA45961.obj",
+          "bytes": 3358991,
+          "sourceTriangles": 48710,
+          "license": "CC-BY-4.0"
+        }
+      ],
+      "guides": [],
+      "parts": [
+        {
+          "id": "cabeza_medial",
+          "sourceIds": [
+            "FMA45958"
+          ],
+          "method": "mesh"
+        },
+        {
+          "id": "cabeza_lateral",
+          "sourceIds": [
+            "FMA45961"
+          ],
+          "method": "mesh"
+        }
+      ],
+      "reason4": null
+    },
+    {
+      "id": "stomach",
+      "root": "stomach",
+      "name": "Estómago",
+      "category": "organos",
+      "system": "digestivo",
+      "sources": [
+        {
+          "id": "FMA7148",
+          "filename": "FMA7148.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA7148.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": null,
+          "conceptId": "FMA7148",
+          "anatomicalName": "stomach",
+          "sha256": "91e3ae25e870d0a6754bc58d410d441b31f94948f9df8483dc9cdcb9bda7276b",
+          "crc32": "9ae4a2ba",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA7148.obj",
+          "bytes": 588820,
+          "sourceTriangles": 9384,
+          "license": "CC-BY-4.0"
+        }
+      ],
+      "guides": [],
+      "parts": [
+        {
+          "id": "cardias",
+          "sourceIds": [
+            "FMA7148"
+          ],
+          "method": "estimate"
+        },
+        {
+          "id": "fondo",
+          "sourceIds": [
+            "FMA7148"
+          ],
+          "method": "estimate"
+        },
+        {
+          "id": "cuerpo",
+          "sourceIds": [
+            "FMA7148"
+          ],
+          "method": "estimate"
+        },
+        {
+          "id": "pilorica",
+          "sourceIds": [
+            "FMA7148"
+          ],
+          "method": "estimate"
+        }
+      ],
+      "reason4": null
+    },
+    {
+      "id": "kidneys",
+      "root": "kidneys",
+      "name": "Riñones",
+      "category": "organos",
+      "system": "urinario",
+      "sources": [
+        {
+          "id": "FMA7204",
+          "filename": "FMA7204.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA7204.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "derecho",
+          "conceptId": "FMA7204",
+          "anatomicalName": "right kidney",
+          "sha256": "bb840d337f4b99dad9d8f9c211bdab81ac548a95869e61e3f8bb01734da3781a",
+          "crc32": "26dae51e",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA7204.obj",
+          "bytes": 787727,
+          "sourceTriangles": 12394,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA7205",
+          "filename": "FMA7205.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA7205.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "izquierdo",
+          "conceptId": "FMA7205",
+          "anatomicalName": "left kidney",
+          "sha256": "2cae3ed4f0c8752c52f465482823ce3c6483c466884a41fcfdab2fff6502c1a2",
+          "crc32": "d38f3d76",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA7205.obj",
+          "bytes": 972451,
+          "sourceTriangles": 15358,
+          "license": "CC-BY-4.0"
+        }
+      ],
+      "guides": [],
+      "parts": [
+        {
+          "id": "derecho",
+          "sourceIds": [
+            "FMA7204"
+          ],
+          "method": "mesh"
+        },
+        {
+          "id": "izquierdo",
+          "sourceIds": [
+            "FMA7205"
+          ],
+          "method": "mesh"
+        }
+      ],
+      "reason4": null
+    },
+    {
+      "id": "skull",
+      "root": "skull",
+      "name": "Cráneo",
+      "category": "huesos",
+      "system": "esqueletico",
+      "sources": [
+        {
+          "id": "FMA52734",
+          "filename": "FMA52734.obj",
+          "path": "assets/_fuentes/explorar-fase1/obj95/FMA52734.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "frontal",
+          "conceptId": "FMA52734",
+          "anatomicalName": "frontal bone",
+          "sha256": "fbe4c189c3df47f963110cf7c9a7944f11407e44175bed8d3a949fe88eef51af",
+          "crc32": "664bc7c4",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA52734.obj",
+          "bytes": 2471153,
+          "sourceTriangles": 33062,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA52788",
+          "filename": "FMA52788.obj",
+          "path": "assets/_fuentes/explorar-fase1/obj95/FMA52788.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "parietales",
+          "conceptId": "FMA52788",
+          "anatomicalName": "right parietal bone",
+          "sha256": "822d6f02a8c66e44ad7f0a37f5301e6b9dd16690bb779a575aa7160f9948218d",
+          "crc32": "4fafa36b",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA52788.obj",
+          "bytes": 2349151,
+          "sourceTriangles": 29734,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA52789",
+          "filename": "FMA52789.obj",
+          "path": "assets/_fuentes/explorar-fase1/obj95/FMA52789.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "parietales",
+          "conceptId": "FMA52789",
+          "anatomicalName": "left parietal bone",
+          "sha256": "20a42c5b8f023a9232986d778100f91cbf62a44a1c151fbc46667134ccf01b74",
+          "crc32": "a218b536",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA52789.obj",
+          "bytes": 2390324,
+          "sourceTriangles": 30250,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA52738",
+          "filename": "FMA52738.obj",
+          "path": "assets/_fuentes/explorar-fase1/obj95/FMA52738.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "temporales",
+          "conceptId": "FMA52738",
+          "anatomicalName": "right temporal bone",
+          "sha256": "a309443087e8dd092d05255563beaad6017f4c386ddb1fd9ab033106d57011b9",
+          "crc32": "705c9e11",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA52738.obj",
+          "bytes": 791126,
+          "sourceTriangles": 11274,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA52739",
+          "filename": "FMA52739.obj",
+          "path": "assets/_fuentes/explorar-fase1/obj95/FMA52739.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "temporales",
+          "conceptId": "FMA52739",
+          "anatomicalName": "left temporal bone",
+          "sha256": "bc14372d4b69054395817e48cdcabd76756529efff90e37cde8ba8179c1f59de",
+          "crc32": "c4058483",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA52739.obj",
+          "bytes": 768951,
+          "sourceTriangles": 11208,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA52735",
+          "filename": "FMA52735.obj",
+          "path": "assets/_fuentes/explorar-fase1/obj95/FMA52735.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "occipital",
+          "conceptId": "FMA52735",
+          "anatomicalName": "occipital bone",
+          "sha256": "19627efae3c630f2ef7903eadce5efa8f9cdda7705fbb75cbac9ff4c9e5bbd3a",
+          "crc32": "0a6b7f88",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA52735.obj",
+          "bytes": 2052044,
+          "sourceTriangles": 27812,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA52892",
+          "filename": "FMA52892.obj",
+          "path": "assets/_fuentes/explorar-fase1/obj95/FMA52892.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "cigomaticos",
+          "conceptId": "FMA52892",
+          "anatomicalName": "right zygomatic bone",
+          "sha256": "7ab61a05825d3cb6fe35241106a43a98a883ac18d20d9c98bdafae1dc86157be",
+          "crc32": "ba86df59",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA52892.obj",
+          "bytes": 299329,
+          "sourceTriangles": 4612,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA52893",
+          "filename": "FMA52893.obj",
+          "path": "assets/_fuentes/explorar-fase1/obj95/FMA52893.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "cigomaticos",
+          "conceptId": "FMA52893",
+          "anatomicalName": "left zygomatic bone",
+          "sha256": "613e31cb434b339c18062d1a5238332fc7a7c26675b1a8e5847af54d272fd664",
+          "crc32": "71baf43a",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA52893.obj",
+          "bytes": 303667,
+          "sourceTriangles": 4560,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA53649",
+          "filename": "FMA53649.obj",
+          "path": "assets/_fuentes/explorar-fase1/obj95/FMA53649.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "maxilares",
+          "conceptId": "FMA53649",
+          "anatomicalName": "right maxilla",
+          "sha256": "2846a698036a5da1000772bdd54b0af9ecd3002eac049089fa8f05d6fe44632a",
+          "crc32": "e0a609e7",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA53649.obj",
+          "bytes": 988521,
+          "sourceTriangles": 14148,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA53650",
+          "filename": "FMA53650.obj",
+          "path": "assets/_fuentes/explorar-fase1/obj95/FMA53650.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "maxilares",
+          "conceptId": "FMA53650",
+          "anatomicalName": "left maxilla",
+          "sha256": "78fc992a213a7d0eb360314559cf8fd2b84f718a3caba27cd1ce96b2f2f3dcf7",
+          "crc32": "15a7cfe6",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA53650.obj",
+          "bytes": 1003926,
+          "sourceTriangles": 14506,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA52748",
+          "filename": "FMA52748.obj",
+          "path": "assets/_fuentes/explorar-fase1/obj95/FMA52748.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "mandibula",
+          "conceptId": "FMA52748",
+          "anatomicalName": "mandible",
+          "sha256": "2209451591be74e1e77d0a6a65860a0f30950f08ea112c81140d398d7af5decd",
+          "crc32": "1d9471d0",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA52748.obj",
+          "bytes": 1400413,
+          "sourceTriangles": 21658,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA52736",
+          "filename": "FMA52736.obj",
+          "path": "assets/_fuentes/explorar-fase1/obj95/FMA52736.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "base",
+          "conceptId": "FMA52736",
+          "anatomicalName": "sphenoid bone",
+          "sha256": "6bae3a5f64e164d5fbf804a4845b46f4cc8d3fd4e5d558694f7751b4972e543c",
+          "crc32": "24939803",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA52736.obj",
+          "bytes": 1051052,
+          "sourceTriangles": 15322,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA52740",
+          "filename": "FMA52740.obj",
+          "path": "assets/_fuentes/explorar-fase1/obj95/FMA52740.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "base",
+          "conceptId": "FMA52740",
+          "anatomicalName": "ethmoid",
+          "sha256": "ef1de91b0d174c2e6c8617d2c8db0a237af29da29ebf204b597fa8dcc8e223cc",
+          "crc32": "f87857cc",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA52740.obj",
+          "bytes": 576122,
+          "sourceTriangles": 7774,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA53645",
+          "filename": "FMA53645.obj",
+          "path": "assets/_fuentes/explorar-fase1/obj95/FMA53645.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "base",
+          "conceptId": "FMA53645",
+          "anatomicalName": "right lacrimal bone",
+          "sha256": "8c2e7a8a61cee569e397cc90632ab3565813dcefd47eebdea50ec7bbe63e20a1",
+          "crc32": "3f676574",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA53645.obj",
+          "bytes": 72626,
+          "sourceTriangles": 1114,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA53646",
+          "filename": "FMA53646.obj",
+          "path": "assets/_fuentes/explorar-fase1/obj95/FMA53646.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "base",
+          "conceptId": "FMA53646",
+          "anatomicalName": "left lacrimal bone",
+          "sha256": "57991ec6d3f30e4e792444aa71c1f4e4bccccb2e00a0333003b0e4faf08b03f5",
+          "crc32": "7c72d22a",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA53646.obj",
+          "bytes": 69495,
+          "sourceTriangles": 1152,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA53647",
+          "filename": "FMA53647.obj",
+          "path": "assets/_fuentes/explorar-fase1/obj95/FMA53647.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "base",
+          "conceptId": "FMA53647",
+          "anatomicalName": "right nasal bone",
+          "sha256": "68a6cfc0f9274ca514239a237f8c1c1ca4679530f85d0230796240c31c0692c6",
+          "crc32": "24a103d1",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA53647.obj",
+          "bytes": 68861,
+          "sourceTriangles": 1024,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA53648",
+          "filename": "FMA53648.obj",
+          "path": "assets/_fuentes/explorar-fase1/obj95/FMA53648.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "base",
+          "conceptId": "FMA53648",
+          "anatomicalName": "left nasal bone",
+          "sha256": "54436e99ceab1c72f77004bf25ab095045599a65a44d0be371b845267e2823e9",
+          "crc32": "e7c2237d",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA53648.obj",
+          "bytes": 70136,
+          "sourceTriangles": 1124,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA53655",
+          "filename": "FMA53655.obj",
+          "path": "assets/_fuentes/explorar-fase1/obj95/FMA53655.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "base",
+          "conceptId": "FMA53655",
+          "anatomicalName": "right palatine bone",
+          "sha256": "3da4a24ae935d7babf65ad49c3bf4b276c8df7e9e2c57283432484b826770b5e",
+          "crc32": "3f5ed39d",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA53655.obj",
+          "bytes": 257154,
+          "sourceTriangles": 3592,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA53656",
+          "filename": "FMA53656.obj",
+          "path": "assets/_fuentes/explorar-fase1/obj95/FMA53656.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "base",
+          "conceptId": "FMA53656",
+          "anatomicalName": "left palatine bone",
+          "sha256": "84f234b0a7ae5a8d40a43872fe0c2417da1aa920c881bf434bb38cbf88230672",
+          "crc32": "4a527449",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA53656.obj",
+          "bytes": 264100,
+          "sourceTriangles": 3642,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA54737",
+          "filename": "FMA54737.obj",
+          "path": "assets/_fuentes/explorar-fase1/obj95/FMA54737.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "base",
+          "conceptId": "FMA54737",
+          "anatomicalName": "right inferior nasal concha",
+          "sha256": "8e0fb90c2642d16d9f68d77119d6a462fadc70adeba18d4f1734dc9734e32b4a",
+          "crc32": "4fd2245e",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA54737.obj",
+          "bytes": 113809,
+          "sourceTriangles": 1616,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA54738",
+          "filename": "FMA54738.obj",
+          "path": "assets/_fuentes/explorar-fase1/obj95/FMA54738.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "base",
+          "conceptId": "FMA54738",
+          "anatomicalName": "left inferior nasal concha",
+          "sha256": "6fd76a1157bafc0f9bce661f4114f8540a357bbb7707b802351a4ef4ff813522",
+          "crc32": "ec4382c4",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA54738.obj",
+          "bytes": 100572,
+          "sourceTriangles": 1484,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA9710",
+          "filename": "FMA9710.obj",
+          "path": "assets/_fuentes/explorar-fase1/obj95/FMA9710.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "base",
+          "conceptId": "FMA9710",
+          "anatomicalName": "vomer",
+          "sha256": "ba9d6446777a76bee75799f1fd45c4c95f104abf19a105ba9ed1f32e640754e0",
+          "crc32": "c676e9c2",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA9710.obj",
+          "bytes": 162135,
+          "sourceTriangles": 2422,
+          "license": "CC-BY-4.0"
+        }
+      ],
+      "guides": [],
+      "parts": [
+        {
+          "id": "frontal",
+          "sourceIds": [
+            "FMA52734"
+          ],
+          "method": "mesh"
+        },
+        {
+          "id": "parietales",
+          "sourceIds": [
+            "FMA52788",
+            "FMA52789"
+          ],
+          "method": "mesh"
+        },
+        {
+          "id": "temporales",
+          "sourceIds": [
+            "FMA52738",
+            "FMA52739"
+          ],
+          "method": "mesh"
+        },
+        {
+          "id": "occipital",
+          "sourceIds": [
+            "FMA52735"
+          ],
+          "method": "mesh"
+        },
+        {
+          "id": "cigomaticos",
+          "sourceIds": [
+            "FMA52892",
+            "FMA52893"
+          ],
+          "method": "mesh"
+        },
+        {
+          "id": "maxilares",
+          "sourceIds": [
+            "FMA53649",
+            "FMA53650"
+          ],
+          "method": "mesh"
+        },
+        {
+          "id": "mandibula",
+          "sourceIds": [
+            "FMA52748"
+          ],
+          "method": "mesh"
+        }
+      ],
+      "reason4": null,
+      "compositeId": "FMA46565",
+      "note": "22 huesos del estudio de Fase 1, sin superficies oculares."
+    },
+    {
+      "id": "spine",
+      "root": "spine",
+      "name": "Columna vertebral",
+      "category": "huesos",
+      "system": "esqueletico",
+      "sources": [
+        {
+          "id": "FMA12519",
+          "filename": "FMA12519.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA12519.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "atlas",
+          "conceptId": "FMA12519",
+          "anatomicalName": "atlas",
+          "sha256": "185698482c946666725273899979cc0bc5d2397de7d300d4bc50e0c2e910b0f5",
+          "crc32": "d73e21d2",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA12519.obj",
+          "bytes": 399683,
+          "sourceTriangles": 6172,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA12520",
+          "filename": "FMA12520.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA12520.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "axis",
+          "conceptId": "FMA12520",
+          "anatomicalName": "axis",
+          "sha256": "748512bc7afbb026d4b8fc299523c0cb5ae9e9e3062648110af54b1968b13c27",
+          "crc32": "ca80b2f3",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA12520.obj",
+          "bytes": 448209,
+          "sourceTriangles": 6870,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA12521",
+          "filename": "FMA12521.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA12521.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "cervical",
+          "conceptId": "FMA12521",
+          "anatomicalName": "third cervical vertebra",
+          "sha256": "bfdafad48d8e4af7381940aff293224f39d766b6ff79aec0dc1accf0b196a162",
+          "crc32": "dc283f3c",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA12521.obj",
+          "bytes": 337296,
+          "sourceTriangles": 5278,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA12522",
+          "filename": "FMA12522.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA12522.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "cervical",
+          "conceptId": "FMA12522",
+          "anatomicalName": "fourth cervical vertebra",
+          "sha256": "b3fd1b184a31b92b31a57b5ef4cf8d1768044f0dcb64538ad216b8907191f6e5",
+          "crc32": "c54e0b62",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA12522.obj",
+          "bytes": 283533,
+          "sourceTriangles": 4224,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA12523",
+          "filename": "FMA12523.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA12523.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "cervical",
+          "conceptId": "FMA12523",
+          "anatomicalName": "fifth cervical vertebra",
+          "sha256": "c8755ba3c5f19f5918e81e3fbb114b830cd5183281f70e2a93cbedd069813ef6",
+          "crc32": "f8a39ebf",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA12523.obj",
+          "bytes": 315322,
+          "sourceTriangles": 4754,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA12524",
+          "filename": "FMA12524.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA12524.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "cervical",
+          "conceptId": "FMA12524",
+          "anatomicalName": "sixth cervical vertebra",
+          "sha256": "7d7675cac42cb56ef12e4134d3b0ce21a2b8206b62112bbb9c638cfef4b3b13b",
+          "crc32": "6a9ffdca",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA12524.obj",
+          "bytes": 413851,
+          "sourceTriangles": 6350,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA12525",
+          "filename": "FMA12525.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA12525.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "cervical",
+          "conceptId": "FMA12525",
+          "anatomicalName": "seventh cervical vertebra",
+          "sha256": "f68439bc470746645dd5d030d66f008893d1ae39b3218cc7a8c56ffa331e15f4",
+          "crc32": "ae13cff4",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA12525.obj",
+          "bytes": 345099,
+          "sourceTriangles": 5222,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA9165",
+          "filename": "FMA9165.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA9165.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "toracica",
+          "conceptId": "FMA9165",
+          "anatomicalName": "first thoracic vertebra",
+          "sha256": "fdf9f08838c3efb8a143212212ae24b806d69cbaa6deb660ec87edaaee54d74a",
+          "crc32": "000a1f94",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA9165.obj",
+          "bytes": 360359,
+          "sourceTriangles": 5614,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA9187",
+          "filename": "FMA9187.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA9187.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "toracica",
+          "conceptId": "FMA9187",
+          "anatomicalName": "second thoracic vertebra",
+          "sha256": "600dace8a901e4756633b5f1997ccd35919d50ba83f9773ee9ea2b20e7f2ddf6",
+          "crc32": "9d5254d6",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA9187.obj",
+          "bytes": 536501,
+          "sourceTriangles": 8360,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA9209",
+          "filename": "FMA9209.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA9209.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "toracica",
+          "conceptId": "FMA9209",
+          "anatomicalName": "third thoracic vertebra",
+          "sha256": "ee9ec2d4dddd5f5a6f964809288f17f9a09b3c885c78f1eb40fa48536e9064d3",
+          "crc32": "34423010",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA9209.obj",
+          "bytes": 569096,
+          "sourceTriangles": 8910,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA9248",
+          "filename": "FMA9248.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA9248.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "toracica",
+          "conceptId": "FMA9248",
+          "anatomicalName": "fourth thoracic vertebra",
+          "sha256": "c342080cf16a7b0cdf9cc3e825e3cc29de9571fc1c412d268e410e10f6546c65",
+          "crc32": "2df36d80",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA9248.obj",
+          "bytes": 573282,
+          "sourceTriangles": 8930,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA9922",
+          "filename": "FMA9922.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA9922.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "toracica",
+          "conceptId": "FMA9922",
+          "anatomicalName": "fifth thoracic vertebra",
+          "sha256": "b841ba6adcc3702e1d7bd3140c1dac57d66dc74aea04093d3c7fd2a2961488c6",
+          "crc32": "6b63eba3",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA9922.obj",
+          "bytes": 630205,
+          "sourceTriangles": 9834,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA9945",
+          "filename": "FMA9945.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA9945.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "toracica",
+          "conceptId": "FMA9945",
+          "anatomicalName": "sixth thoracic vertebra",
+          "sha256": "499599bcb946ef4acf76315601131eb95a5b8a3a8bd49bcd9c97dffb268148e3",
+          "crc32": "0d92c4fa",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA9945.obj",
+          "bytes": 319532,
+          "sourceTriangles": 4896,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA9968",
+          "filename": "FMA9968.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA9968.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "toracica",
+          "conceptId": "FMA9968",
+          "anatomicalName": "seventh thoracic vertebra",
+          "sha256": "04668bf1c7a60a153f8024aab2fdf68a80188ae29f35149e3bbd7696a8515326",
+          "crc32": "ff272ecd",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA9968.obj",
+          "bytes": 690750,
+          "sourceTriangles": 10740,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA9991",
+          "filename": "FMA9991.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA9991.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "toracica",
+          "conceptId": "FMA9991",
+          "anatomicalName": "eighth thoracic vertebra",
+          "sha256": "d7b0d8bc861d2108a360576532137f0ffa28a4f057827fb97e637056d74f17e1",
+          "crc32": "cc20d008",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA9991.obj",
+          "bytes": 343482,
+          "sourceTriangles": 5206,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA10014",
+          "filename": "FMA10014.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA10014.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "toracica",
+          "conceptId": "FMA10014",
+          "anatomicalName": "ninth thoracic vertebra",
+          "sha256": "4608e784dacc10dac94eea564bc2c128b928ee0ca590cd1f1ae9d8de2bcad250",
+          "crc32": "7ec61778",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA10014.obj",
+          "bytes": 725497,
+          "sourceTriangles": 11286,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA10037",
+          "filename": "FMA10037.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA10037.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "toracica",
+          "conceptId": "FMA10037",
+          "anatomicalName": "tenth thoracic vertebra",
+          "sha256": "d999a334ce89e38d2d7553e149d57230c93b41d42aef0b4d8103852d2ccae24d",
+          "crc32": "870f4d1b",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA10037.obj",
+          "bytes": 771531,
+          "sourceTriangles": 11928,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA10059",
+          "filename": "FMA10059.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA10059.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "toracica",
+          "conceptId": "FMA10059",
+          "anatomicalName": "eleventh thoracic vertebra",
+          "sha256": "8f414f8ea69bb974615ced600a93e1b69ac0417c7886b6d6660dcd2db6beeb2a",
+          "crc32": "ba9e8aba",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA10059.obj",
+          "bytes": 375832,
+          "sourceTriangles": 5652,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA10081",
+          "filename": "FMA10081.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA10081.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "toracica",
+          "conceptId": "FMA10081",
+          "anatomicalName": "twelfth thoracic vertebra",
+          "sha256": "862ef085f618b6903c734d1faf5dda8f98bcfcf54027aec5245ec6a5ea079386",
+          "crc32": "57c4c199",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA10081.obj",
+          "bytes": 393909,
+          "sourceTriangles": 6038,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA13072",
+          "filename": "FMA13072.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA13072.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "lumbar",
+          "conceptId": "FMA13072",
+          "anatomicalName": "first lumbar vertebra",
+          "sha256": "0b2e85ef14fd9548031ad4364a5295a0007c04c488e6e07bc7cd139831557670",
+          "crc32": "e0868f3b",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA13072.obj",
+          "bytes": 825762,
+          "sourceTriangles": 12946,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA13073",
+          "filename": "FMA13073.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA13073.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "lumbar",
+          "conceptId": "FMA13073",
+          "anatomicalName": "second lumbar vertebra",
+          "sha256": "9ad8513137f36597ce83195d0b68dcc310a549ceb83caa86502b1ff66175966b",
+          "crc32": "fd3bbd47",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA13073.obj",
+          "bytes": 449059,
+          "sourceTriangles": 6946,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA13074",
+          "filename": "FMA13074.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA13074.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "lumbar",
+          "conceptId": "FMA13074",
+          "anatomicalName": "third lumbar vertebra",
+          "sha256": "54ae44cf675f8b1de21077c585e142ea5d7785a033497bf3f3b9ff172cc23bad",
+          "crc32": "e450b1b4",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA13074.obj",
+          "bytes": 942964,
+          "sourceTriangles": 14750,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA13075",
+          "filename": "FMA13075.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA13075.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "lumbar",
+          "conceptId": "FMA13075",
+          "anatomicalName": "fourth lumbar vertebra",
+          "sha256": "8680f9c36745955ba8e822a45a9b0ba68ae63f0b3c5111ef892036989086a168",
+          "crc32": "f8655e76",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA13075.obj",
+          "bytes": 993791,
+          "sourceTriangles": 15426,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA13076",
+          "filename": "FMA13076.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA13076.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "lumbar",
+          "conceptId": "FMA13076",
+          "anatomicalName": "fifth lumbar vertebra",
+          "sha256": "c2a3da3e699174e45a67fcc33a9bf58c3be40e884e3bc29391fd73eae010cba4",
+          "crc32": "847b45a9",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA13076.obj",
+          "bytes": 1106426,
+          "sourceTriangles": 17282,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA16202",
+          "filename": "FMA16202.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA16202.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": null,
+          "conceptId": "FMA16202",
+          "anatomicalName": "sacrum",
+          "sha256": "33f5e9de7be38ed675bffd1e23c5238d22042f1578255a4fa4e8a4fe66abad50",
+          "crc32": "2b29ba44",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA16202.obj",
+          "bytes": 3007082,
+          "sourceTriangles": 44416,
+          "license": "CC-BY-4.0"
+        }
+      ],
+      "guides": [],
+      "parts": [
+        {
+          "id": "atlas",
+          "sourceIds": [
+            "FMA12519"
+          ],
+          "method": "mesh"
+        },
+        {
+          "id": "axis",
+          "sourceIds": [
+            "FMA12520"
+          ],
+          "method": "mesh"
+        },
+        {
+          "id": "cervical",
+          "sourceIds": [
+            "FMA12521",
+            "FMA12522",
+            "FMA12523",
+            "FMA12524",
+            "FMA12525"
+          ],
+          "method": "mesh"
+        },
+        {
+          "id": "toracica",
+          "sourceIds": [
+            "FMA9165",
+            "FMA9187",
+            "FMA9209",
+            "FMA9248",
+            "FMA9922",
+            "FMA9945",
+            "FMA9968",
+            "FMA9991",
+            "FMA10014",
+            "FMA10037",
+            "FMA10059",
+            "FMA10081"
+          ],
+          "method": "mesh"
+        },
+        {
+          "id": "lumbar",
+          "sourceIds": [
+            "FMA13072",
+            "FMA13073",
+            "FMA13074",
+            "FMA13075",
+            "FMA13076"
+          ],
+          "method": "mesh"
+        },
+        {
+          "id": "sacro",
+          "sourceIds": [
+            "FMA16202"
+          ],
+          "method": "estimate"
+        },
+        {
+          "id": "coccix",
+          "sourceIds": [
+            "FMA16202"
+          ],
+          "method": "estimate"
+        }
+      ],
+      "reason4": null,
+      "partition": {
+        "axis": "Z",
+        "cutMm": 823.83,
+        "below": "coccix",
+        "above": "sacro"
+      },
+      "note": "Vértebras sin duplicación. El límite aproximado del cóccix se transfirió por registro de superficies desde el umbral 4.0."
+    },
+    {
+      "id": "brain",
+      "root": "brain",
+      "name": "Cerebro",
+      "category": "organos",
+      "system": "nervioso",
+      "sources": [
+        {
+          "id": "FJ1733",
+          "filename": "FJ1733.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1733.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "hemisferio_derecho",
+          "conceptId": "FMA67292",
+          "anatomicalName": "right cerebral hemisphere",
+          "sha256": "a8e5d63d28890e42861f2b1c4c7b898dba84b169507315d77e9ebeb2433171e9",
+          "crc32": "b44c8b1e",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1733.obj",
+          "bytes": 239530,
+          "sourceTriangles": 3554,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1740",
+          "filename": "FJ1740.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1740.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "hemisferio_derecho",
+          "conceptId": "FMA67292",
+          "anatomicalName": "right cerebral hemisphere",
+          "sha256": "9e8c3b086c0cd15b9f85189b37529c6d044c153cbd3f16c678a5b79d02efb656",
+          "crc32": "382168ca",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1740.obj",
+          "bytes": 151331,
+          "sourceTriangles": 2346,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1745",
+          "filename": "FJ1745.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1745.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "hemisferio_derecho",
+          "conceptId": "FMA67292",
+          "anatomicalName": "right cerebral hemisphere",
+          "sha256": "b3eafbe2d1289be8c24dde82d8a5475f86a13cb6bcc7d5dbc0b4cfcb2d340132",
+          "crc32": "c3432979",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1745.obj",
+          "bytes": 220234,
+          "sourceTriangles": 3292,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1747",
+          "filename": "FJ1747.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1747.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "hemisferio_derecho",
+          "conceptId": "FMA67292",
+          "anatomicalName": "right cerebral hemisphere",
+          "sha256": "dd358cac91394ee511250be17f7a0184defecb23a19b921388fb267e23132195",
+          "crc32": "f6920609",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1747.obj",
+          "bytes": 182921,
+          "sourceTriangles": 2768,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1749",
+          "filename": "FJ1749.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1749.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "hemisferio_derecho",
+          "conceptId": "FMA67292",
+          "anatomicalName": "right cerebral hemisphere",
+          "sha256": "0c8e4e39ba935c4f5b24168b46c99782057ba73379844173de56c60210b45c72",
+          "crc32": "eab1641e",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1749.obj",
+          "bytes": 150490,
+          "sourceTriangles": 2448,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1751",
+          "filename": "FJ1751.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1751.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "hemisferio_derecho",
+          "conceptId": "FMA67292",
+          "anatomicalName": "right cerebral hemisphere",
+          "sha256": "2c96a2ee7fb953e36d1b9508a6a5ae91ced3cd8362ff85bcaed1be7ea6b36996",
+          "crc32": "e1645d8c",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1751.obj",
+          "bytes": 693186,
+          "sourceTriangles": 10742,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1784",
+          "filename": "FJ1784.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1784.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "hemisferio_derecho",
+          "conceptId": "FMA67292",
+          "anatomicalName": "right cerebral hemisphere",
+          "sha256": "ecfd67d495a6f5f3bf391f2455f124edf444122d79299fb8fa0b01493e450f29",
+          "crc32": "69cec1b4",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1784.obj",
+          "bytes": 101913,
+          "sourceTriangles": 1626,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1786",
+          "filename": "FJ1786.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1786.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "hemisferio_derecho",
+          "conceptId": "FMA67292",
+          "anatomicalName": "right cerebral hemisphere",
+          "sha256": "2453959db95754c9f3fe6dbe435bbcff98e79f6bbd77c12f1d063c30941fa05f",
+          "crc32": "488ba816",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1786.obj",
+          "bytes": 54449,
+          "sourceTriangles": 882,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1788",
+          "filename": "FJ1788.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1788.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "hemisferio_derecho",
+          "conceptId": "FMA67292",
+          "anatomicalName": "right cerebral hemisphere",
+          "sha256": "216015b568cc446ae3e7c2ad256f47a352479a6e36c0df025cde311e913fde0c",
+          "crc32": "8515610e",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1788.obj",
+          "bytes": 224095,
+          "sourceTriangles": 3326,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1790",
+          "filename": "FJ1790.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1790.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "hemisferio_derecho",
+          "conceptId": "FMA67292",
+          "anatomicalName": "right cerebral hemisphere",
+          "sha256": "f2c8ba988026b991559d5195a702675a0a222e9a03711dcb127a909f18ae0fb4",
+          "crc32": "a12c3888",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1790.obj",
+          "bytes": 179357,
+          "sourceTriangles": 2754,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1792",
+          "filename": "FJ1792.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1792.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "hemisferio_derecho",
+          "conceptId": "FMA67292",
+          "anatomicalName": "right cerebral hemisphere",
+          "sha256": "e9e4bb82648576fbe6256992771f0ab0917cfea10d15325c86869283573a64ad",
+          "crc32": "c26134e7",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1792.obj",
+          "bytes": 307991,
+          "sourceTriangles": 4564,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1798",
+          "filename": "FJ1798.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1798.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "hemisferio_derecho",
+          "conceptId": "FMA67292",
+          "anatomicalName": "right cerebral hemisphere",
+          "sha256": "ce476b98e79e988bbf2efa1b8593019d0cc64114cf455d00347ed6e95ee5f037",
+          "crc32": "b8cd78ff",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1798.obj",
+          "bytes": 238993,
+          "sourceTriangles": 3604,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1801",
+          "filename": "FJ1801.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1801.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "hemisferio_derecho",
+          "conceptId": "FMA67292",
+          "anatomicalName": "right cerebral hemisphere",
+          "sha256": "89e9017a488f4854ef4daaa5488bbe0bada8aed4cd81352553305beda8caef85",
+          "crc32": "925f8cda",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1801.obj",
+          "bytes": 274741,
+          "sourceTriangles": 4042,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1806",
+          "filename": "FJ1806.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1806.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "hemisferio_derecho",
+          "conceptId": "FMA67292",
+          "anatomicalName": "right cerebral hemisphere",
+          "sha256": "89ef94f2f907f9da109e55c1a6a7a59ef7118555fa0d39e02ef37f1f69c26e98",
+          "crc32": "9388a1ad",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1806.obj",
+          "bytes": 1922977,
+          "sourceTriangles": 26512,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1807",
+          "filename": "FJ1807.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1807.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "hemisferio_derecho",
+          "conceptId": "FMA67292",
+          "anatomicalName": "right cerebral hemisphere",
+          "sha256": "76ef76851cf014d1e090f63328963dad9041cf10f20066eb1e92e4619f700c30",
+          "crc32": "7624c65a",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1807.obj",
+          "bytes": 60478,
+          "sourceTriangles": 1020,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1814",
+          "filename": "FJ1814.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1814.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "hemisferio_derecho",
+          "conceptId": "FMA67292",
+          "anatomicalName": "right cerebral hemisphere",
+          "sha256": "5a0c29cf5c573d35f225df3c96c66cc34eb166fde8e54323b3c22b6f2220248b",
+          "crc32": "b970cb05",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1814.obj",
+          "bytes": 1168390,
+          "sourceTriangles": 18016,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1834",
+          "filename": "FJ1834.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1834.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "hemisferio_derecho",
+          "conceptId": "FMA67292",
+          "anatomicalName": "right cerebral hemisphere",
+          "sha256": "505aff0f5fba6160aa273af517d8ef9f9e4d7bd6ee904e2739ccf41f8d7af441",
+          "crc32": "bbef162b",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1834.obj",
+          "bytes": 437650,
+          "sourceTriangles": 6450,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1836",
+          "filename": "FJ1836.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1836.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "hemisferio_derecho",
+          "conceptId": "FMA67292",
+          "anatomicalName": "right cerebral hemisphere",
+          "sha256": "e3291cc04dcdc3743d8fe67951d2b1589294062d116873515194e0c6c979c770",
+          "crc32": "da261187",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1836.obj",
+          "bytes": 383555,
+          "sourceTriangles": 5640,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1842",
+          "filename": "FJ1842.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1842.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "hemisferio_derecho",
+          "conceptId": "FMA67292",
+          "anatomicalName": "right cerebral hemisphere",
+          "sha256": "374934ec8c016aec1aae2cad47d80b1d2668354cc890b0227a0b102c9b3b4469",
+          "crc32": "c096df8c",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1842.obj",
+          "bytes": 152420,
+          "sourceTriangles": 2314,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1732",
+          "filename": "FJ1732.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1732.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "hemisferio_izquierdo",
+          "conceptId": "FMA61819",
+          "anatomicalName": "left cerebral hemisphere",
+          "sha256": "d24f6c5647b751706d3f7c4dd4b62518fb3e9cd281ed7d2a2437fafbbcd0e1b3",
+          "crc32": "32c0a84f",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1732.obj",
+          "bytes": 236788,
+          "sourceTriangles": 3588,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1739",
+          "filename": "FJ1739.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1739.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "hemisferio_izquierdo",
+          "conceptId": "FMA61819",
+          "anatomicalName": "left cerebral hemisphere",
+          "sha256": "0926a6839371b0179bbf7d0040b3925f338995be63d18fc1b176721db12c82d3",
+          "crc32": "bcba884a",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1739.obj",
+          "bytes": 154389,
+          "sourceTriangles": 2416,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1744",
+          "filename": "FJ1744.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1744.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "hemisferio_izquierdo",
+          "conceptId": "FMA61819",
+          "anatomicalName": "left cerebral hemisphere",
+          "sha256": "3de90fe338da50f60859e591089e5882cf8ce2df2d0e4acbfc5dae7364c184a5",
+          "crc32": "8ca2e6aa",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1744.obj",
+          "bytes": 218647,
+          "sourceTriangles": 3290,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1746",
+          "filename": "FJ1746.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1746.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "hemisferio_izquierdo",
+          "conceptId": "FMA61819",
+          "anatomicalName": "left cerebral hemisphere",
+          "sha256": "aefe572e69d8b7687b29644b0a855ced4e64b255f1cb3ca0e6640cab7292d132",
+          "crc32": "26195051",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1746.obj",
+          "bytes": 177780,
+          "sourceTriangles": 2732,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1748",
+          "filename": "FJ1748.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1748.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "hemisferio_izquierdo",
+          "conceptId": "FMA61819",
+          "anatomicalName": "left cerebral hemisphere",
+          "sha256": "b7553aaa8a282d5882d9d2809f5fedd7b35ef50710773ac103cfa82f9f184245",
+          "crc32": "9a4a2216",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1748.obj",
+          "bytes": 148027,
+          "sourceTriangles": 2448,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1750",
+          "filename": "FJ1750.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1750.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "hemisferio_izquierdo",
+          "conceptId": "FMA61819",
+          "anatomicalName": "left cerebral hemisphere",
+          "sha256": "2c6b332d19defed6c286e58573ee29278e94d1334ef83a2dc671cc063c2c41f1",
+          "crc32": "c0812685",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1750.obj",
+          "bytes": 686435,
+          "sourceTriangles": 10740,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1758",
+          "filename": "FJ1758.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1758.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "hemisferio_izquierdo",
+          "conceptId": "FMA61819",
+          "anatomicalName": "left cerebral hemisphere",
+          "sha256": "eb5e61b574f6962ad949427b11d97055553d6e1175ac926164f7f5402d43e5bc",
+          "crc32": "65160a48",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1758.obj",
+          "bytes": 1837827,
+          "sourceTriangles": 25542,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1759",
+          "filename": "FJ1759.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1759.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "hemisferio_izquierdo",
+          "conceptId": "FMA61819",
+          "anatomicalName": "left cerebral hemisphere",
+          "sha256": "d841b56aabfe6785a3b2892de1af5f2f52d87d13b8928d3d2fdf028b9640994d",
+          "crc32": "b77e5683",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1759.obj",
+          "bytes": 57341,
+          "sourceTriangles": 980,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1767",
+          "filename": "FJ1767.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1767.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "hemisferio_izquierdo",
+          "conceptId": "FMA61819",
+          "anatomicalName": "left cerebral hemisphere",
+          "sha256": "8491961042556b62e2570c8e8dec8fe9269908abb34aa738ba7613489acd7838",
+          "crc32": "9343ff7f",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1767.obj",
+          "bytes": 1158407,
+          "sourceTriangles": 17968,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1783",
+          "filename": "FJ1783.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1783.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "hemisferio_izquierdo",
+          "conceptId": "FMA61819",
+          "anatomicalName": "left cerebral hemisphere",
+          "sha256": "f0cc5fbc23f9846e881e91cb2221e691694895c7584506d560aca48324d079b5",
+          "crc32": "b9636324",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1783.obj",
+          "bytes": 96372,
+          "sourceTriangles": 1550,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1785",
+          "filename": "FJ1785.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1785.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "hemisferio_izquierdo",
+          "conceptId": "FMA61819",
+          "anatomicalName": "left cerebral hemisphere",
+          "sha256": "d328f96770816958f290e2461214dd52c38d3e7395d113eed55ba6065ec76c37",
+          "crc32": "3fde9911",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1785.obj",
+          "bytes": 47143,
+          "sourceTriangles": 740,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1787",
+          "filename": "FJ1787.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1787.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "hemisferio_izquierdo",
+          "conceptId": "FMA61819",
+          "anatomicalName": "left cerebral hemisphere",
+          "sha256": "de3c1098d95fc81060b72603e72a4a2a55529b0fb82063dbd0dfc4f3955d720c",
+          "crc32": "04fc0a21",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1787.obj",
+          "bytes": 226086,
+          "sourceTriangles": 3416,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1789",
+          "filename": "FJ1789.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1789.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "hemisferio_izquierdo",
+          "conceptId": "FMA61819",
+          "anatomicalName": "left cerebral hemisphere",
+          "sha256": "52396a1feaedfb7f8f1a334dd02acb35f2897362b0f1a37658edc4e69556db6d",
+          "crc32": "b69c4cab",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1789.obj",
+          "bytes": 174631,
+          "sourceTriangles": 2710,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1791",
+          "filename": "FJ1791.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1791.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "hemisferio_izquierdo",
+          "conceptId": "FMA61819",
+          "anatomicalName": "left cerebral hemisphere",
+          "sha256": "d504be1cf6f085be1b885b31ac3b1fb1a1fc475855aeda56baa142a600911fe5",
+          "crc32": "2a22f6f8",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1791.obj",
+          "bytes": 293610,
+          "sourceTriangles": 4390,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1797",
+          "filename": "FJ1797.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1797.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "hemisferio_izquierdo",
+          "conceptId": "FMA61819",
+          "anatomicalName": "left cerebral hemisphere",
+          "sha256": "e05f6ec80fa902f5334cc5e8c029359674d39c39a90f86476a6d1d190ca1f30a",
+          "crc32": "40ae3adf",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1797.obj",
+          "bytes": 236182,
+          "sourceTriangles": 3604,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1800",
+          "filename": "FJ1800.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1800.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "hemisferio_izquierdo",
+          "conceptId": "FMA61819",
+          "anatomicalName": "left cerebral hemisphere",
+          "sha256": "9f375219acb0aed075860e5afe3562be19bde6061a007d3096d52f96aa59e944",
+          "crc32": "707ae91d",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1800.obj",
+          "bytes": 270175,
+          "sourceTriangles": 4042,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1833",
+          "filename": "FJ1833.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1833.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "hemisferio_izquierdo",
+          "conceptId": "FMA61819",
+          "anatomicalName": "left cerebral hemisphere",
+          "sha256": "b1705a60646438f5c1bd8d215c738f90e7aed9c9360a8ab94993a1e6b5649851",
+          "crc32": "742006c7",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1833.obj",
+          "bytes": 432276,
+          "sourceTriangles": 6452,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1835",
+          "filename": "FJ1835.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1835.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "hemisferio_izquierdo",
+          "conceptId": "FMA61819",
+          "anatomicalName": "left cerebral hemisphere",
+          "sha256": "6d1cc1963191120c07eb557c728b4cd00ccf63467b3858a408a6b5ba4564719c",
+          "crc32": "56162d99",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1835.obj",
+          "bytes": 366912,
+          "sourceTriangles": 5364,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1841",
+          "filename": "FJ1841.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1841.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "hemisferio_izquierdo",
+          "conceptId": "FMA61819",
+          "anatomicalName": "left cerebral hemisphere",
+          "sha256": "895a1e9e5eaed7443d9fe9544fefede9db219aaf38d30a4674cde778e1bdfb8e",
+          "crc32": "a77affd5",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1841.obj",
+          "bytes": 149885,
+          "sourceTriangles": 2344,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1781",
+          "filename": "FJ1781.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1781.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "cerebelo",
+          "conceptId": "FMA67944",
+          "anatomicalName": "cerebellum",
+          "sha256": "47003d37cf123dc10b108bb79a2b12638a56f0f2616d0d1f58b727af88d1ec53",
+          "crc32": "75054fe4",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1781.obj",
+          "bytes": 1579646,
+          "sourceTriangles": 23818,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1830",
+          "filename": "FJ1830.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1830.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "cerebelo",
+          "conceptId": "FMA67944",
+          "anatomicalName": "cerebellum",
+          "sha256": "585176d67d072ead00bab6b4d0ca42a151ace76bed1c20c1aeed22b8b4c57ac1",
+          "crc32": "4be9e58b",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1830.obj",
+          "bytes": 1598659,
+          "sourceTriangles": 23882,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1738",
+          "filename": "FJ1738.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1738.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "tronco",
+          "conceptId": "FMA79876",
+          "anatomicalName": "brainstem",
+          "sha256": "953032accd04cc408bfdb19ce0127c32043a795e402f5300aafd7259fdabef5b",
+          "crc32": "e1f38a8c",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1738.obj",
+          "bytes": 33446,
+          "sourceTriangles": 518,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1762",
+          "filename": "FJ1762.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1762.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "tronco",
+          "conceptId": "FMA79876",
+          "anatomicalName": "brainstem",
+          "sha256": "cdaf86887af5df7757baa33c54afcb440cf29fd206fe7595e88aa12015757ea5",
+          "crc32": "fe34abed",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1762.obj",
+          "bytes": 9042,
+          "sourceTriangles": 156,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1769",
+          "filename": "FJ1769.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1769.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "tronco",
+          "conceptId": "FMA79876",
+          "anatomicalName": "brainstem",
+          "sha256": "cc1cd37ef3f58fea9ffe8875efa3a33101ee6945dd13bdb28c973303a9986fbd",
+          "crc32": "dda926e7",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1769.obj",
+          "bytes": 392219,
+          "sourceTriangles": 6036,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1770",
+          "filename": "FJ1770.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1770.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "tronco",
+          "conceptId": "FMA79876",
+          "anatomicalName": "brainstem",
+          "sha256": "6e7eb027702dc4097aa0b2abe46efcffcd1f5e108b1665a649b45420b98229e9",
+          "crc32": "1fa819e3",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1770.obj",
+          "bytes": 468005,
+          "sourceTriangles": 6468,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1775",
+          "filename": "FJ1775.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1775.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "tronco",
+          "conceptId": "FMA79876",
+          "anatomicalName": "brainstem",
+          "sha256": "d24253c225545078ce9c4420880dc5652e20fb2576a6305a9fadc18f95fba9dd",
+          "crc32": "617f88d7",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1775.obj",
+          "bytes": 697135,
+          "sourceTriangles": 10304,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1779",
+          "filename": "FJ1779.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1779.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "tronco",
+          "conceptId": "FMA79876",
+          "anatomicalName": "brainstem",
+          "sha256": "ea51306905e78a614e760f45fafae87c988f6e57fc9eeef6aa853b5490f39f14",
+          "crc32": "896151c6",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1779.obj",
+          "bytes": 10340,
+          "sourceTriangles": 180,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1810",
+          "filename": "FJ1810.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1810.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "tronco",
+          "conceptId": "FMA79876",
+          "anatomicalName": "brainstem",
+          "sha256": "af734152040c2d046a83a3163b95cd996c7fd361cbe930088944c984fb0241f4",
+          "crc32": "c168c963",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1810.obj",
+          "bytes": 11681,
+          "sourceTriangles": 204,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1817",
+          "filename": "FJ1817.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1817.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "tronco",
+          "conceptId": "FMA79876",
+          "anatomicalName": "brainstem",
+          "sha256": "b86a8f1ce035a5ec382122a210f86239c581a5478f2b1b5f377b021542981f2e",
+          "crc32": "3c8de195",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1817.obj",
+          "bytes": 461102,
+          "sourceTriangles": 6440,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1822",
+          "filename": "FJ1822.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1822.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "tronco",
+          "conceptId": "FMA79876",
+          "anatomicalName": "brainstem",
+          "sha256": "474dffce10e8506b5f8a7aac5d6ccfc7ef6251490b36b5f04a7fa2676b7fb708",
+          "crc32": "68a35679",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1822.obj",
+          "bytes": 727798,
+          "sourceTriangles": 10346,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1826",
+          "filename": "FJ1826.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1826.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "tronco",
+          "conceptId": "FMA79876",
+          "anatomicalName": "brainstem",
+          "sha256": "6698c53727491bdb63e7a474b201a8c6b8b504de7004567d76028ddec94a67c5",
+          "crc32": "88175d5d",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1826.obj",
+          "bytes": 10171,
+          "sourceTriangles": 176,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1831",
+          "filename": "FJ1831.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1831.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "tronco",
+          "conceptId": "FMA79876",
+          "anatomicalName": "brainstem",
+          "sha256": "7c19ec386aadaafdae3dab8aa99c08d5db47fa063f689e99ee7e9cdf0bdbeda9",
+          "crc32": "4aef6f8a",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1831.obj",
+          "bytes": 401304,
+          "sourceTriangles": 6060,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1730",
+          "filename": "FJ1730.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1730.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "base",
+          "conceptId": "FMA50801",
+          "anatomicalName": "brain",
+          "sha256": "2a682d4918bb85c3bae087e7797ff8051f040cafbfb3c0c864ea3dc9301b629d",
+          "crc32": "45bfdc0c",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1730.obj",
+          "bytes": 245099,
+          "sourceTriangles": 3870,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1731",
+          "filename": "FJ1731.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1731.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "base",
+          "conceptId": "FMA50801",
+          "anatomicalName": "brain",
+          "sha256": "8280c135e11da7f08ef03414797d3b9447e6edcaaa7d60f835831045521b424e",
+          "crc32": "b3e8455a",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1731.obj",
+          "bytes": 447538,
+          "sourceTriangles": 6940,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1743",
+          "filename": "FJ1743.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1743.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "base",
+          "conceptId": "FMA50801",
+          "anatomicalName": "brain",
+          "sha256": "f7c54da9219af0df072a41ebf7d128f2f59535efc5cde6f7356616eddaebf41e",
+          "crc32": "8e1c342d",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1743.obj",
+          "bytes": 27755,
+          "sourceTriangles": 384,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1760",
+          "filename": "FJ1760.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1760.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "base",
+          "conceptId": "FMA50801",
+          "anatomicalName": "brain",
+          "sha256": "aec134edcffcaea082eaebc3a01fe84700893fcc8cba5868b1ade6a721f530bf",
+          "crc32": "6b2307fd",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1760.obj",
+          "bytes": 132131,
+          "sourceTriangles": 2050,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1780",
+          "filename": "FJ1780.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1780.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "base",
+          "conceptId": "FMA50801",
+          "anatomicalName": "brain",
+          "sha256": "4780787c4dcd06ea54fb8e486a563968b29e274069de01baa421cde17b19718c",
+          "crc32": "3d27ff7a",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1780.obj",
+          "bytes": 60641,
+          "sourceTriangles": 804,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1795",
+          "filename": "FJ1795.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1795.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "base",
+          "conceptId": "FMA50801",
+          "anatomicalName": "brain",
+          "sha256": "b424373c89b88a2916e4ec4ef9aef0b273606df7713f107ba8dcf7e5303f1768",
+          "crc32": "c26660a0",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1795.obj",
+          "bytes": 34031,
+          "sourceTriangles": 580,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1808",
+          "filename": "FJ1808.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1808.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "base",
+          "conceptId": "FMA50801",
+          "anatomicalName": "brain",
+          "sha256": "122de5cfac67f779f911876ea1faca1fb9546327b1a1654d395f571f711772f7",
+          "crc32": "34dbc808",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1808.obj",
+          "bytes": 131989,
+          "sourceTriangles": 2028,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ1828",
+          "filename": "FJ1828.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ1828.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "base",
+          "conceptId": "FMA50801",
+          "anatomicalName": "brain",
+          "sha256": "f3053705d7e2ef8a499890e13332163870f063f3908f4a148f070cc7b9c90051",
+          "crc32": "c3a0a967",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ1828.obj",
+          "bytes": 65789,
+          "sourceTriangles": 802,
+          "license": "CC-BY-4.0"
+        }
+      ],
+      "guides": [],
+      "parts": [
+        {
+          "id": "hemisferio_derecho",
+          "sourceIds": [
+            "FJ1733",
+            "FJ1740",
+            "FJ1745",
+            "FJ1747",
+            "FJ1749",
+            "FJ1751",
+            "FJ1784",
+            "FJ1786",
+            "FJ1788",
+            "FJ1790",
+            "FJ1792",
+            "FJ1798",
+            "FJ1801",
+            "FJ1806",
+            "FJ1807",
+            "FJ1814",
+            "FJ1834",
+            "FJ1836",
+            "FJ1842"
+          ],
+          "method": "mesh",
+          "conceptId": "FMA67292"
+        },
+        {
+          "id": "hemisferio_izquierdo",
+          "sourceIds": [
+            "FJ1732",
+            "FJ1739",
+            "FJ1744",
+            "FJ1746",
+            "FJ1748",
+            "FJ1750",
+            "FJ1758",
+            "FJ1759",
+            "FJ1767",
+            "FJ1783",
+            "FJ1785",
+            "FJ1787",
+            "FJ1789",
+            "FJ1791",
+            "FJ1797",
+            "FJ1800",
+            "FJ1833",
+            "FJ1835",
+            "FJ1841"
+          ],
+          "method": "mesh",
+          "conceptId": "FMA61819"
+        },
+        {
+          "id": "cerebelo",
+          "sourceIds": [
+            "FJ1781",
+            "FJ1830"
+          ],
+          "method": "mesh",
+          "conceptId": "FMA67944"
+        },
+        {
+          "id": "tronco",
+          "sourceIds": [
+            "FJ1738",
+            "FJ1762",
+            "FJ1769",
+            "FJ1770",
+            "FJ1775",
+            "FJ1779",
+            "FJ1810",
+            "FJ1817",
+            "FJ1822",
+            "FJ1826",
+            "FJ1831"
+          ],
+          "method": "mesh",
+          "conceptId": "FMA79876"
+        }
+      ],
+      "reason4": "El paquete 3.0 contiene corteza y tronco en numerosas piezas, y no ofrece mallas de hemisferio por lado. La tabla PART-OF 4.0 documenta ambos hemisferios, cerebelo y tronco encefálico en el mismo ensamblaje."
+    },
+    {
+      "id": "liver",
+      "root": "liver",
+      "name": "Hígado",
+      "category": "organos",
+      "system": "digestivo",
+      "sources": [
+        {
+          "id": "FMA7197",
+          "filename": "FMA7197.obj",
+          "path": "assets/_fuentes/explorar-fase1/obj95/FMA7197.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": null,
+          "conceptId": "FMA7197",
+          "anatomicalName": "liver",
+          "sha256": "84d24b042b9284ac8a316bafaaa44222760a971dca2ade1453873a506455c24d",
+          "crc32": "53e0909f",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA7197.obj",
+          "bytes": 1240582,
+          "sourceTriangles": 19416,
+          "license": "CC-BY-4.0"
+        }
+      ],
+      "guides": [
+        {
+          "id": "FJ2409",
+          "filename": "FJ2409.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ2409.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "derecha",
+          "conceptId": "FMA15809",
+          "anatomicalName": "right hemiliver",
+          "sha256": "6d7b0d3d2fc1f1e4255f8b665a61bbbf3ea6712cea85a95246851acbfda0c98f",
+          "crc32": "bce53d5d",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ2409.obj",
+          "bytes": 596944,
+          "sourceTriangles": 8534,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ2821",
+          "filename": "FJ2821.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ2821.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "derecha",
+          "conceptId": "FMA15809",
+          "anatomicalName": "right hemiliver",
+          "sha256": "dcd7f4d1a09b3034cfe4b51a2efe766201ff09bcea53d8c2315219034b0aa3de",
+          "crc32": "a4f59ec3",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ2821.obj",
+          "bytes": 793787,
+          "sourceTriangles": 11442,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ2822",
+          "filename": "FJ2822.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ2822.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "derecha",
+          "conceptId": "FMA15809",
+          "anatomicalName": "right hemiliver",
+          "sha256": "14b4e694857cea1de3897262a83d9aab0a8a05c39eef12e775a2adc58def97a8",
+          "crc32": "6ba44433",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ2822.obj",
+          "bytes": 1282103,
+          "sourceTriangles": 19450,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ2823",
+          "filename": "FJ2823.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ2823.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "derecha",
+          "conceptId": "FMA15809",
+          "anatomicalName": "right hemiliver",
+          "sha256": "9c8659ff030e9e48504c0faccad1af0f45b865220e013fdaafb1ccd2c7168e79",
+          "crc32": "d2dc39d8",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ2823.obj",
+          "bytes": 1284700,
+          "sourceTriangles": 19156,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ2824",
+          "filename": "FJ2824.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ2824.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "derecha",
+          "conceptId": "FMA15809",
+          "anatomicalName": "right hemiliver",
+          "sha256": "f91e3c89b4db356fa5e8b03dbbb38b2dbebe358788ba1eb01d2c6ecc2ac94c2d",
+          "crc32": "dcd098e9",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ2824.obj",
+          "bytes": 1456320,
+          "sourceTriangles": 21592,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ2818",
+          "filename": "FJ2818.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ2818.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "izquierda",
+          "conceptId": "FMA15810",
+          "anatomicalName": "left hemiliver",
+          "sha256": "c1523e137e1466a66e9263161f6155e1bbcf263f74c4cafebec1a5993fd8fde0",
+          "crc32": "580a4f2b",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ2818.obj",
+          "bytes": 936395,
+          "sourceTriangles": 14326,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ2819",
+          "filename": "FJ2819.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ2819.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "izquierda",
+          "conceptId": "FMA15810",
+          "anatomicalName": "left hemiliver",
+          "sha256": "d14abcca7dbd82529eedd830d9ed9c80edd4261b22c32d681b9cb14feffdfa46",
+          "crc32": "55897082",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ2819.obj",
+          "bytes": 677762,
+          "sourceTriangles": 10326,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ2820",
+          "filename": "FJ2820.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ2820.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "izquierda",
+          "conceptId": "FMA15810",
+          "anatomicalName": "left hemiliver",
+          "sha256": "bac2d30a479b0a7765f4a7fe4e25bd44fa7c01cd6a0b24bf4323d270bad75b35",
+          "crc32": "97e3d33c",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ2820.obj",
+          "bytes": 1296045,
+          "sourceTriangles": 17942,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ2816",
+          "filename": "FJ2816.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ2816.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "caudado",
+          "conceptId": "FMA13365",
+          "anatomicalName": "caudate lobe of liver",
+          "sha256": "384a517622b5ae1106a811ee557deb1a1349d5cc94c230c283a1bab9d34f0a79",
+          "crc32": "e3453414",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ2816.obj",
+          "bytes": 317277,
+          "sourceTriangles": 5020,
+          "license": "CC-BY-4.0"
+        }
+      ],
+      "parts": [
+        {
+          "id": "derecha",
+          "sourceIds": [
+            "FMA7197"
+          ],
+          "method": "guides",
+          "guideIds": [
+            "FJ2409",
+            "FJ2821",
+            "FJ2822",
+            "FJ2823",
+            "FJ2824"
+          ],
+          "conceptId": "FMA15809"
+        },
+        {
+          "id": "izquierda",
+          "sourceIds": [
+            "FMA7197"
+          ],
+          "method": "guides",
+          "guideIds": [
+            "FJ2818",
+            "FJ2819",
+            "FJ2820"
+          ],
+          "conceptId": "FMA15810"
+        },
+        {
+          "id": "caudado",
+          "sourceIds": [
+            "FMA7197"
+          ],
+          "method": "guides",
+          "guideIds": [
+            "FJ2816"
+          ],
+          "conceptId": "FMA13365"
+        }
+      ],
+      "reason4": "Los segmentos PART-OF 4.0 delimitan las porciones derecha, izquierda y caudada sobre la superficie continua de FMA7197. Los nueve OBJ 4.0 se usan únicamente para orientar el mapa de triángulos.",
+      "guideRegistration": {
+        "frame": "Raw OBJ XYZ millimeters",
+        "mapping": "p_4 = p_3 @ rotation + translation",
+        "rotation": [
+          [
+            0.991231,
+            -0.087142,
+            -0.099332
+          ],
+          [
+            0.082801,
+            0.995456,
+            -0.047028
+          ],
+          [
+            0.102979,
+            0.038391,
+            0.993942
+          ]
+        ],
+        "translation": [
+          -101.887,
+          -50.661,
+          -18.071
+        ],
+        "rawDistanceP50": 6.04,
+        "fittedDistanceP50": 3.28,
+        "rawDistanceP90": 18.79,
+        "fittedDistanceP90": 9.05,
+        "method": "Rigid ICP with nearest vertices, 75% trimmed fit, no mesh deformation",
+        "evidence": "assets/_fuentes/explorar-fase2/b/registro-coordenadas.json"
+      },
+      "note": "La única malla exportable es la cápsula continua 3.0; los tres IDs son los del catálogo existente.",
+      "guideTransform": {
+        "rotation": [
+          [
+            0.991231,
+            -0.087142,
+            -0.099332
+          ],
+          [
+            0.082801,
+            0.995456,
+            -0.047028
+          ],
+          [
+            0.102979,
+            0.038391,
+            0.993942
+          ]
+        ],
+        "translation": [
+          -101.887,
+          -50.661,
+          -18.071
+        ]
+      }
+    },
+    {
+      "id": "small_intestine",
+      "root": "small_intestine",
+      "name": "Intestino delgado",
+      "category": "organos",
+      "system": "digestivo",
+      "sources": [
+        {
+          "id": "FMA7206",
+          "filename": "FMA7206.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA7206.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "duodeno",
+          "conceptId": "FMA7206",
+          "anatomicalName": "duodenum",
+          "sha256": "9aff425eb20fefc13bc811d42561411c40e07bc765e9c2890e26fde8513e544d",
+          "crc32": "b66dd849",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA7206.obj",
+          "bytes": 758421,
+          "sourceTriangles": 11950,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA7207",
+          "filename": "FMA7207.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA7207.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "yeyuno",
+          "conceptId": "FMA7207",
+          "anatomicalName": "jejunum",
+          "sha256": "f33a1121779c5b8367d4c867b4c2215480dd242b96e63e15184f3d5b4a881200",
+          "crc32": "7f980f50",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA7207.obj",
+          "bytes": 2097812,
+          "sourceTriangles": 31468,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA7208",
+          "filename": "FMA7208.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj95/FMA7208.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "ileon",
+          "conceptId": "FMA7208",
+          "anatomicalName": "ileum",
+          "sha256": "69aaac360a5f4bdba45872a2484c5949de8279e6f2fc8704688e4537bfad1679",
+          "crc32": "3fbae385",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA7208.obj",
+          "bytes": 2088995,
+          "sourceTriangles": 31250,
+          "license": "CC-BY-4.0"
+        }
+      ],
+      "guides": [],
+      "parts": [
+        {
+          "id": "duodeno",
+          "sourceIds": [
+            "FMA7206"
+          ],
+          "method": "mesh"
+        },
+        {
+          "id": "yeyuno",
+          "sourceIds": [
+            "FMA7207"
+          ],
+          "method": "mesh"
+        },
+        {
+          "id": "ileon",
+          "sourceIds": [
+            "FMA7208"
+          ],
+          "method": "mesh"
+        }
+      ],
+      "reason4": null
+    },
+    {
+      "id": "large_intestine",
+      "root": "large_intestine",
+      "name": "Intestino grueso",
+      "category": "organos",
+      "system": "digestivo",
+      "sources": [
+        {
+          "id": "FJ2566",
+          "filename": "FJ2566.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ2566.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": null,
+          "conceptId": "FMA14545",
+          "anatomicalName": "ascending colon",
+          "sha256": "d2aed7015dd89b459e729b369aee74225897040f657f32532451d6e86364c662",
+          "crc32": "a7bec485",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ2566.obj",
+          "bytes": 214378,
+          "sourceTriangles": 3310,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ2599",
+          "filename": "FJ2599.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ2599.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": null,
+          "conceptId": "FMA14541",
+          "anatomicalName": "cecum and distal ileum interface",
+          "sha256": "7b759605d311999dcd8c3ff13f224f9a208f4856ddaf21057d8e31952ee8dff1",
+          "crc32": "31242250",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ2599.obj",
+          "bytes": 17331,
+          "sourceTriangles": 288,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ2572",
+          "filename": "FJ2572.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ2572.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "transverso",
+          "conceptId": "FMA14546",
+          "anatomicalName": "transverse colon",
+          "sha256": "54042e8841ce0437a5f3c07cbbc466c1bdcc14721bedaf16629be24214456f97",
+          "crc32": "476ff2ed",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ2572.obj",
+          "bytes": 225548,
+          "sourceTriangles": 3472,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ2567",
+          "filename": "FJ2567.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ2567.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": null,
+          "conceptId": "FMA14547",
+          "anatomicalName": "descending colon and sigmoid",
+          "sha256": "37f234799588e453631023d3614f35cbe0c6fd1ef7c368fbc777791ebad00196",
+          "crc32": "b2863054",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ2567.obj",
+          "bytes": 365589,
+          "sourceTriangles": 5588,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ2571",
+          "filename": "FJ2571.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ2571.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "recto",
+          "conceptId": "FMA14544",
+          "anatomicalName": "rectum",
+          "sha256": "aaedd56539179e2091b3217d11fd42c298ed01a971463725f6c32372289c6819",
+          "crc32": "8464479a",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ2571.obj",
+          "bytes": 129712,
+          "sourceTriangles": 2118,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ2568",
+          "filename": "FJ2568.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ2568.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "base",
+          "conceptId": "FMA15044",
+          "anatomicalName": "taenia libera",
+          "sha256": "ccc301793c9f0aed6aa66b523bcbaa5e1a058d3d7cfaa4434fe110902d4dcacf",
+          "crc32": "fbc9455e",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ2568.obj",
+          "bytes": 1480715,
+          "sourceTriangles": 15244,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ2569",
+          "filename": "FJ2569.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ2569.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "base",
+          "conceptId": "FMA15042",
+          "anatomicalName": "taenia mesocolica",
+          "sha256": "db764eaee13b6cf4c2b3579bd1dde10c6b7490b68967b5529a61010b1ed2920e",
+          "crc32": "9acc5e82",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ2569.obj",
+          "bytes": 1386109,
+          "sourceTriangles": 13342,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FJ2570",
+          "filename": "FJ2570.obj",
+          "path": "assets/_fuentes/explorar-fase2/b/obj99/FJ2570.obj",
+          "version": "4.0",
+          "pack": "bp3d-4.0-isa-obj99",
+          "partId": "base",
+          "conceptId": "FMA15043",
+          "anatomicalName": "taenia omentalis",
+          "sha256": "e07a7cea110d08bb4852c7ca8abaa1b07ecb9a5d99bb4a1b49d230b8f918f66f",
+          "crc32": "8af301b7",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ2570.obj",
+          "bytes": 1319624,
+          "sourceTriangles": 15922,
+          "license": "CC-BY-4.0"
+        }
+      ],
+      "guides": [],
+      "parts": [
+        {
+          "id": "ciego",
+          "sourceIds": [
+            "FJ2566",
+            "FJ2599"
+          ],
+          "method": "estimate",
+          "conceptId": "FMA14541"
+        },
+        {
+          "id": "ascendente",
+          "sourceIds": [
+            "FJ2566"
+          ],
+          "method": "estimate",
+          "conceptId": "FMA14545"
+        },
+        {
+          "id": "transverso",
+          "sourceIds": [
+            "FJ2572"
+          ],
+          "method": "mesh",
+          "conceptId": "FMA14546"
+        },
+        {
+          "id": "descendente",
+          "sourceIds": [
+            "FJ2567"
+          ],
+          "method": "estimate",
+          "conceptId": "FMA14547"
+        },
+        {
+          "id": "sigmoide",
+          "sourceIds": [
+            "FJ2567"
+          ],
+          "method": "estimate"
+        },
+        {
+          "id": "recto",
+          "sourceIds": [
+            "FJ2571"
+          ],
+          "method": "mesh",
+          "conceptId": "FMA14544"
+        }
+      ],
+      "reason4": "El colon 3.0 FMA14543nsn es una única superficie. Los OBJ 4.0 identifican el colon ascendente, transverso, descendente y recto por separado. El ciego y el sigmoide conservan límites estimados."
+    }
+  ]
+}

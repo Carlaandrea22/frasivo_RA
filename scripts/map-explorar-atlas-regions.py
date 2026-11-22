@@ -1,4 +1,4 @@
-"""Transfer BodyParts3D PART-OF labels to the decimated atlas triangles.
+"""Rebuild the legacy BodyParts3D 4.0 reference masks.
 
 See src/content/anatomy/modelos/README.md for source files and usage.
 """
@@ -123,6 +123,6 @@ if __name__ == '__main__':
     parser.add_argument('partof', type=Path, help='BodyParts3D partof_element_parts.txt')
     parser.add_argument('meshes', type=Path, help='BodyParts3D OBJ archive or directory with extracted OBJ files')
     args = parser.parse_args()
-    destination = ROOT / 'scripts/explorar-atlas-triangle-regions.json'
+    destination = ROOT / 'assets/_fuentes/explorar-atlas-triangle-regions-legacy.json'
     mappings = map_atlas(args.partof, args.meshes)
     destination.write_text(json.dumps(mappings, separators=(',', ':')) + '\n', encoding='utf-8')

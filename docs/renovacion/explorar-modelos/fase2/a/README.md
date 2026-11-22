@@ -134,6 +134,29 @@ Visor listo, partes y primera proyección se miden desde la navegación. PMREM i
 
 Las 24 fichas instalaron la textura y al menos un árbol BVH después del primer dibujo en ambos backends. La primera ficha de cada lote incluye el primer uso de WebGL del proceso de Chrome. [Mediciones por ficha y GPU](arranque-24-fichas.csv)
 
+### Arranque en GitHub Actions
+
+El runner observó la misma aserción de visibilidad de `ready` en el catálogo a 375 × 900 px. Se comparan las nueve fichas con una medición completa en ambas ejecuciones. La mediana bajó de **5.943 a 163 ms**. El clic en «Practicar esta estructura» de Pulmones se completó en **707 ms**, después de haber agotado su límite de 5 s en la ejecución anterior. [Ejecución con la corrección](https://github.com/Carlaandrea22/frasivo_RA/actions/runs/45037799205)
+
+| Ficha | Antes (ms) | Corrección (ms) |
+| --- | ---: | ---: |
+| Cúbito | 6.598 | 660 |
+| Peroné | 5.790 | 115 |
+| Esternón | 5.862 | 110 |
+| Deltoides | 5.930 | 298 |
+| Tríceps braquial | 5.943 | 163 |
+| Gastrocnemio | 5.936 | 140 |
+| Estómago | 5.981 | 145 |
+| Riñones | 5.959 | 268 |
+| Cráneo | 6.226 | 187 |
+| Columna vertebral | — | 156 |
+| Cerebro | — | 219 |
+| Hígado | — | 188 |
+| Intestino delgado | — | 167 |
+| Intestino grueso | — | 343 |
+
+El guion indica que la primera ejecución agotó su tiempo antes de registrar una observación completa de esa ficha. Los tiempos corresponden a la espera de Playwright y a su intervalo de observación.
+
 ### Capturas de la corrección a 375 px
 
 En Cráneo coincidieron las etiquetas visibles, la selección y las coordenadas de los anclajes en ocho estados. La vista inicial produjo el mismo PNG que en la primera ejecución de la etapa A. Se verificaron la selección de Mandíbula desde la etiqueta y al tocar la malla, y la oclusión del Frontal en la vista posterior. [Vista inicial de la etapa A](visor-skull-despues.png)

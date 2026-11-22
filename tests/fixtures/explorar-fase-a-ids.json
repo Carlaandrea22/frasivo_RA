@@ -1,0 +1,247 @@
+{
+  "git": "72c6515cd3b839e38ae7ac479fa565645529cea2",
+  "estructuras": {
+    "femur": {
+      "nodeId": "femur_left",
+      "partes": ["cabeza","cuerpo","condilos"],
+      "anotaciones": [
+        ["femur-cabeza","cabeza","femur_left__cabeza"],
+        ["femur-cuerpo","cuerpo","femur_left__cuerpo"],
+        ["femur-condilos","condilos","femur_left__condilos"]
+      ]
+    },
+    "tibia": {
+      "nodeId": "tibia_left",
+      "partes": ["condilos","cuerpo","maleolo"],
+      "anotaciones": [
+        ["tibia-condilos","condilos","tibia_left__condilos"],
+        ["tibia-cuerpo","cuerpo","tibia_left__cuerpo"],
+        ["tibia-maleolo","maleolo","tibia_left__maleolo"]
+      ]
+    },
+    "humerus": {
+      "nodeId": "humerus_left",
+      "partes": ["cabeza","cuerpo","troclea"],
+      "anotaciones": [
+        ["humerus-cabeza","cabeza","humerus_left__cabeza"],
+        ["humerus-cuerpo","cuerpo","humerus_left__cuerpo"],
+        ["humerus-troclea","troclea","humerus_left__troclea"]
+      ]
+    },
+    "radius": {
+      "nodeId": "radius_left",
+      "partes": ["cabeza","cuerpo","estiloides"],
+      "anotaciones": [
+        ["radius-cabeza","cabeza","radius_left__cabeza"],
+        ["radius-cuerpo","cuerpo","radius_left__cuerpo"],
+        ["radius-estiloides","estiloides","radius_left__estiloides"]
+      ]
+    },
+    "pelvis": {
+      "nodeId": "pelvis_left",
+      "partes": ["ilion","isquion","pubis","acetabulo"],
+      "anotaciones": [
+        ["pelvis-ilion","ilion","pelvis_left__ilion"],
+        ["pelvis-isquion","isquion","pelvis_left__isquion"],
+        ["pelvis-pubis","pubis","pelvis_left__pubis"],
+        ["pelvis-acetabulo","acetabulo","pelvis_left__acetabulo"]
+      ]
+    },
+    "patella": {
+      "nodeId": "patella_left",
+      "partes": ["base_superior","vertice","cara_articular"],
+      "anotaciones": [
+        ["patella-base_superior","base_superior","patella_left__base_superior"],
+        ["patella-vertice","vertice","patella_left__vertice"],
+        ["patella-cara_articular","cara_articular","patella_left__cara_articular"]
+      ]
+    },
+    "heart": {
+      "nodeId": "Heart_|_15_selectable_structures",
+      "partes": ["right_atrium","right_ventricle","left_atrium","left_ventricle","tricuspid_valve","pulmonary_valve","mitral_valve","aortic_valve","aorta","superior_vena_cava","inferior_vena_cava","pulmonary_trunk","right_pulmonary_artery","left_pulmonary_artery","pulmonary_veins"],
+      "anotaciones": [
+        ["heart-right_atrium","right_atrium","right_atrium"],
+        ["heart-right_ventricle","right_ventricle","right_ventricle"],
+        ["heart-left_atrium","left_atrium","left_atrium"],
+        ["heart-left_ventricle","left_ventricle","left_ventricle"],
+        ["heart-tricuspid_valve","tricuspid_valve","tricuspid_valve"],
+        ["heart-pulmonary_valve","pulmonary_valve","pulmonary_valve"],
+        ["heart-mitral_valve","mitral_valve","mitral_valve"],
+        ["heart-aortic_valve","aortic_valve","aortic_valve"],
+        ["heart-aorta","aorta","aorta"],
+        ["heart-superior_vena_cava","superior_vena_cava","superior_vena_cava"],
+        ["heart-inferior_vena_cava","inferior_vena_cava","inferior_vena_cava"],
+        ["heart-pulmonary_trunk","pulmonary_trunk","pulmonary_trunk"],
+        ["heart-right_pulmonary_artery","right_pulmonary_artery","right_pulmonary_artery"],
+        ["heart-left_pulmonary_artery","left_pulmonary_artery","left_pulmonary_artery"],
+        ["heart-pulmonary_veins","pulmonary_veins","pulmonary_veins"]
+      ]
+    },
+    "lungs": {
+      "nodeId": "lungs",
+      "partes": ["superior_derecho","medio_derecho","inferior_derecho","superior_izquierdo","inferior_izquierdo"],
+      "anotaciones": [
+        ["lungs-superior_derecho","superior_derecho","lungs__superior_derecho"],
+        ["lungs-medio_derecho","medio_derecho","lungs__medio_derecho"],
+        ["lungs-inferior_derecho","inferior_derecho","lungs__inferior_derecho"],
+        ["lungs-superior_izquierdo","superior_izquierdo","lungs__superior_izquierdo"],
+        ["lungs-inferior_izquierdo","inferior_izquierdo","lungs__inferior_izquierdo"]
+      ]
+    },
+    "biceps_brachii": {
+      "nodeId": "biceps_brachii_left",
+      "partes": ["cabeza_larga","cabeza_corta"],
+      "anotaciones": [
+        ["biceps_brachii-cabeza_larga","cabeza_larga","biceps_brachii_left__cabeza_larga"],
+        ["biceps_brachii-cabeza_corta","cabeza_corta","biceps_brachii_left__cabeza_corta"]
+      ]
+    },
+    "quadriceps_femoris": {
+      "nodeId": "quadriceps_femoris_left",
+      "partes": ["recto_femoral","vasto_lateral","vasto_medial","vasto_intermedio"],
+      "anotaciones": [
+        ["quadriceps_femoris-recto_femoral","recto_femoral","quadriceps_femoris_left__recto_femoral"],
+        ["quadriceps_femoris-vasto_lateral","vasto_lateral","quadriceps_femoris_left__vasto_lateral"],
+        ["quadriceps_femoris-vasto_medial","vasto_medial","quadriceps_femoris_left__vasto_medial"],
+        ["quadriceps_femoris-vasto_intermedio","vasto_intermedio","quadriceps_femoris_left__vasto_intermedio"]
+      ]
+    },
+    "ulna": {
+      "nodeId": "ulna_left",
+      "partes": ["olecranon","cuerpo","cabeza"],
+      "anotaciones": [
+        ["ulna-olecranon","olecranon","ulna_left__olecranon"],
+        ["ulna-cuerpo","cuerpo","ulna_left__cuerpo"],
+        ["ulna-cabeza","cabeza","ulna_left__cabeza"]
+      ]
+    },
+    "fibula": {
+      "nodeId": "fibula_left",
+      "partes": ["cabeza","cuerpo","maleolo"],
+      "anotaciones": [
+        ["fibula-cabeza","cabeza","fibula_left__cabeza"],
+        ["fibula-cuerpo","cuerpo","fibula_left__cuerpo"],
+        ["fibula-maleolo","maleolo","fibula_left__maleolo"]
+      ]
+    },
+    "sternum": {
+      "nodeId": "sternum",
+      "partes": ["manubrio","cuerpo","xifoides"],
+      "anotaciones": [
+        ["sternum-manubrio","manubrio","sternum__manubrio"],
+        ["sternum-cuerpo","cuerpo","sternum__cuerpo"],
+        ["sternum-xifoides","xifoides","sternum__xifoides"]
+      ]
+    },
+    "deltoid": {
+      "nodeId": "deltoid_left",
+      "partes": ["clavicular","acromial","espinal"],
+      "anotaciones": [
+        ["deltoid-clavicular","clavicular","deltoid_left__clavicular"],
+        ["deltoid-acromial","acromial","deltoid_left__acromial"],
+        ["deltoid-espinal","espinal","deltoid_left__espinal"]
+      ]
+    },
+    "triceps_brachii": {
+      "nodeId": "triceps_brachii_left",
+      "partes": ["cabeza_larga","cabeza_lateral","cabeza_medial"],
+      "anotaciones": [
+        ["triceps_brachii-cabeza_larga","cabeza_larga","triceps_brachii_left__cabeza_larga"],
+        ["triceps_brachii-cabeza_lateral","cabeza_lateral","triceps_brachii_left__cabeza_lateral"],
+        ["triceps_brachii-cabeza_medial","cabeza_medial","triceps_brachii_left__cabeza_medial"]
+      ]
+    },
+    "gastrocnemius": {
+      "nodeId": "gastrocnemius_left",
+      "partes": ["cabeza_medial","cabeza_lateral"],
+      "anotaciones": [
+        ["gastrocnemius-cabeza_medial","cabeza_medial","gastrocnemius_left__cabeza_medial"],
+        ["gastrocnemius-cabeza_lateral","cabeza_lateral","gastrocnemius_left__cabeza_lateral"]
+      ]
+    },
+    "stomach": {
+      "nodeId": "stomach",
+      "partes": ["cardias","fondo","cuerpo","pilorica"],
+      "anotaciones": [
+        ["stomach-cardias","cardias","stomach__cardias"],
+        ["stomach-fondo","fondo","stomach__fondo"],
+        ["stomach-cuerpo","cuerpo","stomach__cuerpo"],
+        ["stomach-pilorica","pilorica","stomach__pilorica"]
+      ]
+    },
+    "kidneys": {
+      "nodeId": "kidneys",
+      "partes": ["derecho","izquierdo"],
+      "anotaciones": [
+        ["kidneys-derecho","derecho","kidneys__derecho"],
+        ["kidneys-izquierdo","izquierdo","kidneys__izquierdo"]
+      ]
+    },
+    "skull": {
+      "nodeId": "skull",
+      "partes": ["frontal","parietales","temporales","occipital","cigomaticos","maxilares","mandibula"],
+      "anotaciones": [
+        ["skull-frontal","frontal","skull__frontal"],
+        ["skull-parietales","parietales","skull__parietales"],
+        ["skull-temporales","temporales","skull__temporales"],
+        ["skull-occipital","occipital","skull__occipital"],
+        ["skull-cigomaticos","cigomaticos","skull__cigomaticos"],
+        ["skull-maxilares","maxilares","skull__maxilares"],
+        ["skull-mandibula","mandibula","skull__mandibula"]
+      ]
+    },
+    "spine": {
+      "nodeId": "spine",
+      "partes": ["atlas","axis","cervical","toracica","lumbar","sacro","coccix"],
+      "anotaciones": [
+        ["spine-atlas","atlas","spine__atlas"],
+        ["spine-axis","axis","spine__axis"],
+        ["spine-cervical","cervical","spine__cervical"],
+        ["spine-toracica","toracica","spine__toracica"],
+        ["spine-lumbar","lumbar","spine__lumbar"],
+        ["spine-sacro","sacro","spine__sacro"],
+        ["spine-coccix","coccix","spine__coccix"]
+      ]
+    },
+    "brain": {
+      "nodeId": "brain",
+      "partes": ["hemisferio_derecho","hemisferio_izquierdo","cerebelo","tronco"],
+      "anotaciones": [
+        ["brain-hemisferio_derecho","hemisferio_derecho","brain__hemisferio_derecho"],
+        ["brain-hemisferio_izquierdo","hemisferio_izquierdo","brain__hemisferio_izquierdo"],
+        ["brain-cerebelo","cerebelo","brain__cerebelo"],
+        ["brain-tronco","tronco","brain__tronco"]
+      ]
+    },
+    "liver": {
+      "nodeId": "liver",
+      "partes": ["derecha","izquierda","caudado"],
+      "anotaciones": [
+        ["liver-derecha","derecha","liver__derecha"],
+        ["liver-izquierda","izquierda","liver__izquierda"],
+        ["liver-caudado","caudado","liver__caudado"]
+      ]
+    },
+    "small_intestine": {
+      "nodeId": "small_intestine",
+      "partes": ["duodeno","yeyuno","ileon"],
+      "anotaciones": [
+        ["small_intestine-duodeno","duodeno","small_intestine__duodeno"],
+        ["small_intestine-yeyuno","yeyuno","small_intestine__yeyuno"],
+        ["small_intestine-ileon","ileon","small_intestine__ileon"]
+      ]
+    },
+    "large_intestine": {
+      "nodeId": "large_intestine",
+      "partes": ["ciego","ascendente","transverso","descendente","sigmoide","recto"],
+      "anotaciones": [
+        ["large_intestine-ciego","ciego","large_intestine__ciego"],
+        ["large_intestine-ascendente","ascendente","large_intestine__ascendente"],
+        ["large_intestine-transverso","transverso","large_intestine__transverso"],
+        ["large_intestine-descendente","descendente","large_intestine__descendente"],
+        ["large_intestine-sigmoide","sigmoide","large_intestine__sigmoide"],
+        ["large_intestine-recto","recto","large_intestine__recto"]
+      ]
+    }
+  }
+}
