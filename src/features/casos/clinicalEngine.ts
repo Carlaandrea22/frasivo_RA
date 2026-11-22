@@ -118,10 +118,20 @@ export function scoreInvestigation(item: InvestigationCase, path: readonly strin
 
 export type PerformanceLevel = 'strong' | 'partial' | 'review';
 
-export function performanceLevel(score: { correct: number; errors: number; assisted?: number }): PerformanceLevel {
-  const total = score.correct + score.errors + (score.assisted ?? 0);
-  if (!total) return 'review';
-  const ratio = score.correct / total;
+type GradedScore = { correct: number; errors: number; assisted?: number; hints?: number };
+
+export function scoreRatio(score: GradedScore) {
+  const correct = score.correct + (score.assisted ?? 0);
+  const total = correct + score.errors;
+  return total > 0 ? correct / total : 0;
+}
+
+export function isPerfectWithoutHints(score: GradedScore) {
+  return score.correct > 0 && score.errors === 0 && !score.assisted && !score.hints;
+}
+
+export function performanceLevel(score: GradedScore): PerformanceLevel {
+  const ratio = scoreRatio(score);
   if (ratio >= .8) return 'strong';
   if (ratio >= .5) return 'partial';
   return 'review';
@@ -150,12 +160,11 @@ export function applyOrderingHint(
   const limit = Math.min(3, Math.max(0, expected.length - 1));
   if (lockedIds.length >= limit) return { order: [...order], lockedIds: [...lockedIds] };
   const locked = new Set(lockedIds);
-  const incorrectIndexes = expected
-    .map((id, index) => ({ id, index }))
-    .filter(({ id, index }) => !locked.has(id) && order[index] !== id)
-    .map(({ index }) => index);
-  if (!incorrectIndexes.length) return { order: [...order], lockedIds: [...lockedIds] };
-  const targetIndex = incorrectIndexes[randomIndex(incorrectIndexes.length, random)];
+  const unlockedIndexes = expected.flatMap((id, index) => locked.has(id) ? [] : [index]);
+  const incorrectIndexes = unlockedIndexes.filter(index => order[index] !== expected[index]);
+  const candidates = incorrectIndexes.length ? incorrectIndexes : unlockedIndexes;
+  if (!candidates.length) return { order: [...order], lockedIds: [...lockedIds] };
+  const targetIndex = candidates[randomIndex(candidates.length, random)];
   const hintedId = expected[targetIndex];
   const fromIndex = order.indexOf(hintedId);
   if (fromIndex < 0 || locked.has(order[targetIndex])) return { order: [...order], lockedIds: [...lockedIds] };
@@ -195,7 +204,7 @@ export function scoreMultipleChoice(selectedId: string, correctId: string) {
 }
 
 export function discardIncorrectChoice(
-  options: readonly ChoiceOption[],
+  options: readonly Pick<ChoiceOption, 'id'>[],
   correctId: string,
   selectedId: string | undefined,
   random: RandomSource = Math.random,

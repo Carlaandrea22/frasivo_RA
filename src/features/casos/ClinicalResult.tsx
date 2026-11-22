@@ -3,7 +3,8 @@ import { AlertCircle, ArrowRight, Check } from 'lucide-react';
 import type { ClinicalCase } from '../../content/casos/sessionTypes';
 import { Button } from '../../shared/ui/Button';
 import { Card } from '../../shared/ui/Card';
-import { performanceLevel } from './clinicalEngine';
+import { isPerfectWithoutHints, performanceLevel } from './clinicalEngine';
+import { ClinicalConfetti } from './ClinicalConfetti';
 
 export interface Score {
   correct: number;
@@ -26,6 +27,7 @@ export function NextCaseButton({ onComplete, score, last }: Pick<CaseStepProps<C
 export function ResultCard({ title, children, score }: { title: string; children: ReactNode; score: Score }) {
   const level = performanceLevel(score);
   return <Card className="clinical-result" data-level={level}>
+    {isPerfectWithoutHints(score) && <ClinicalConfetti/>}
     <span className="clinical-result-icon" aria-hidden="true">
       {level === 'strong' ? <Check size={24}/> : <AlertCircle size={24}/>}
     </span>

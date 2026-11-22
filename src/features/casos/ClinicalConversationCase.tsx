@@ -6,13 +6,7 @@ import { Card } from '../../shared/ui/Card';
 import { createInterviewExchange, getInterviewChoices, scoreInvestigation } from './clinicalEngine';
 import { NextCaseButton, ResultCard, type CaseStepProps } from './ClinicalResult';
 import { ClinicalAnatomy } from './ClinicalAnatomy';
-
-function Bilingual({ es, en }: { es: string; en: string }) {
-  return <span className="clinical-bilingual">
-    <span lang="es">{es}</span>
-    <small lang="en">{en}</small>
-  </span>;
-}
+import { Bilingual } from './Bilingual';
 
 function PatientLabel({ name }: { name: string }) {
   return <div className="clinical-message-head">

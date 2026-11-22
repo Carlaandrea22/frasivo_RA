@@ -27,7 +27,7 @@ function PracticeMetrics({ correct, errors, hints, assisted = 0 }: {
   assisted?: number;
 }) {
   return <ul className="progress-metrics" aria-label="Resultado">
-    <li data-tone="good"><strong>{correct}</strong> {correct === 1 ? 'acierto' : 'aciertos'}</li>
+    <li data-tone="good"><strong>{correct + assisted}</strong> {correct + assisted === 1 ? 'acierto' : 'aciertos'}</li>
     {assisted > 0 && <li data-tone="assist"><strong>{assisted}</strong> {assisted === 1 ? 'asistida' : 'asistidas'}</li>}
     <li data-tone={errors ? 'review' : undefined}><strong>{errors}</strong> para revisar</li>
     {hints > 0 && <li><strong>{hints}</strong> {hints === 1 ? 'pista' : 'pistas'}</li>}

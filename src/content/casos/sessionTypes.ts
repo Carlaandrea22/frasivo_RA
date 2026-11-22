@@ -65,27 +65,34 @@ export interface InvestigationCase extends ConversationCaseBase<InvestigationNod
 
 export interface OrderedAction {
   id: string;
+  textEs: string;
   textEn: string;
 }
 
 export interface OrderingCase extends ClinicalCaseBase {
   kind: 'ordering';
+  scenarioEs: string;
   scenarioEn: string;
   actions: readonly [OrderedAction, OrderedAction, ...OrderedAction[]];
+  explanationEs: string;
   explanationEn: string;
 }
 
 export interface ChoiceOption {
   id: string;
+  textEs: string;
   textEn: string;
 }
 
 export interface MultipleChoiceCase extends ClinicalCaseBase {
   kind: 'multiple-choice';
+  scenarioEs: string;
   scenarioEn: string;
+  promptEs: string;
   promptEn: string;
   options: readonly [ChoiceOption, ChoiceOption, ChoiceOption, ...ChoiceOption[]];
   correctId: string;
+  explanationEs: string;
   explanationEn: string;
 }
 

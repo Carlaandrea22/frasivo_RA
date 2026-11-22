@@ -31,6 +31,7 @@ import {
 import { InterviewCaseView, InvestigationCaseView } from './ClinicalConversationCase';
 import { NextCaseButton, ResultCard, type CaseStepProps, type Score } from './ClinicalResult';
 import { ClinicalSummary } from './ClinicalSummary';
+import { Bilingual } from './Bilingual';
 
 const casesById = new Map(clinicalCases.map(item => [item.id, item]));
 const sessionLabels = {
@@ -55,7 +56,6 @@ function OrderingCaseView({ item, onComplete, last }: CaseStepProps<OrderingCase
   const [drag, setDrag] = useState<{ id: string; pointerId: number; originX: number; originY: number; x: number; y: number; targetId: string }>();
   const [score, setScore] = useState<ReturnType<typeof scoreOrderedActions> | null>(null);
   const hintLimit = Math.min(3, item.actions.length - 1);
-  const hasIncorrectPosition = order.some((id, index) => id !== expectedIds[index]);
 
   const reorder = (fromIndex: number, toIndex: number) => {
     const locked = new Set(lockedIds);
@@ -127,7 +127,7 @@ function OrderingCaseView({ item, onComplete, last }: CaseStepProps<OrderingCase
   };
 
   if (score) return <ResultCard title={`${score.correct + score.assisted} de ${item.actions.length} posiciones correctas`} score={score}>
-    <p lang="en">{item.explanationEn}</p>
+    <p><Bilingual es={item.explanationEs} en={item.explanationEn}/></p>
     <p className="clinical-result-meta">
       {score.correct} sin ayuda · {score.assisted} {score.assisted === 1 ? 'con pista' : 'con pistas'} · {score.errors} para revisar
     </p>
@@ -136,7 +136,7 @@ function OrderingCaseView({ item, onComplete, last }: CaseStepProps<OrderingCase
 
   return <div className="clinical-case-body">
     <Card className="clinical-question-card">
-      <p lang="en">{item.scenarioEn}</p>
+      <p><Bilingual es={item.scenarioEs} en={item.scenarioEn}/></p>
     </Card>
     <section className="clinical-order" aria-labelledby="selected-actions">
       <div className="clinical-order-heading">
@@ -145,6 +145,8 @@ function OrderingCaseView({ item, onComplete, last }: CaseStepProps<OrderingCase
       </div>
       <div className="clinical-order-list" role="list">
         {order.map((id, index) => {
+          const action = actionMap.get(id);
+          if (!action) return null;
           const locked = lockedIds.includes(id);
           const unlocked = order.filter(actionId => !lockedIds.includes(actionId));
           const movableIndex = unlocked.indexOf(id);
@@ -159,7 +161,7 @@ function OrderingCaseView({ item, onComplete, last }: CaseStepProps<OrderingCase
               {locked ? <LockKeyhole size={19}/> : <GripVertical size={19}/>}
             </button>
             <span className="clinical-order-number">{index + 1}</span>
-            <p lang="en">{actionMap.get(id)?.textEn}</p>
+            <p><Bilingual es={action.textEs} en={action.textEn}/></p>
             {locked && <span className="clinical-assisted-label">Colocada con pista</span>}
             <div className="clinical-order-moves">
               <button type="button" aria-label="Mover arriba" disabled={locked || movableIndex <= 0} onClick={() => moveBy(id, -1)}><ChevronUp size={18}/></button>
@@ -170,15 +172,13 @@ function OrderingCaseView({ item, onComplete, last }: CaseStepProps<OrderingCase
       </div>
       <div className="lumar-actions">
         <Button variant="secondary" onClick={reset}><RotateCcw size={17}/> Reiniciar</Button>
-        <Button variant="secondary" disabled={lockedIds.length >= hintLimit || !hasIncorrectPosition} onClick={useHint}><Lightbulb size={17}/> Pista de orden</Button>
+        <Button variant="secondary" disabled={lockedIds.length >= hintLimit} onClick={useHint}><Lightbulb size={17}/> Pista de orden</Button>
         <Button onClick={() => setScore(scoreOrderedActions(order, expectedIds, lockedIds))}>Comprobar orden</Button>
       </div>
       <p className="clinical-hint-status" role="status">
         {lockedIds.length >= hintLimit
           ? 'Ya usaste todas las pistas disponibles.'
-          : !hasIncorrectPosition
-            ? 'El orden ya está correcto; no necesitas más pistas.'
-            : `${hintLimit - lockedIds.length} ${hintLimit - lockedIds.length === 1 ? 'pista disponible' : 'pistas disponibles'}.`}
+          : `${hintLimit - lockedIds.length} ${hintLimit - lockedIds.length === 1 ? 'pista disponible' : 'pistas disponibles'}.`}
       </p>
     </section>
   </div>;
@@ -191,24 +191,27 @@ function MultipleChoiceCaseView({ item, onComplete, last }: CaseStepProps<Multip
   const [score, setScore] = useState<Score | null>(null);
 
   if (score) return <ResultCard title={score.correct ? 'Respuesta correcta' : 'Respuesta para revisar'} score={score}>
-    <p lang="en">{item.explanationEn}</p>
+    <p><Bilingual es={item.explanationEs} en={item.explanationEn}/></p>
     <p className="clinical-result-meta">{hintUsed ? '1 pista utilizada' : 'Sin pistas'}</p>
     <NextCaseButton score={score} onComplete={onComplete} last={last}/>
   </ResultCard>;
 
   return <div className="clinical-case-body">
     <Card className="clinical-question-card">
-      <p lang="en">{item.scenarioEn}</p>
-      <h3 lang="en">{item.promptEn}</h3>
+      <p><Bilingual es={item.scenarioEs} en={item.scenarioEn}/></p>
+      <h3><Bilingual es={item.promptEs} en={item.promptEn}/></h3>
       <div className="clinical-answer-list">
         {item.options.map(option => {
           const isSelected = selected === option.id;
           const isDiscarded = discarded === option.id;
-          return <Button key={option.id} variant="answer" lang="en" disabled={isDiscarded}
+          return <Button key={option.id} variant="answer" disabled={isDiscarded}
             aria-pressed={isSelected} data-selected={isSelected || undefined} data-discarded={isDiscarded || undefined}
             onClick={() => setSelected(option.id)}>
             <span className="clinical-choice-marker" aria-hidden="true">{isSelected ? <Check size={15}/> : <Circle size={15}/>}</span>
-            <span className="clinical-choice-copy">{option.textEn}{isDiscarded && <small lang="es">Opción descartada</small>}</span>
+            <span className="clinical-choice-copy">
+              <Bilingual es={option.textEs} en={option.textEn}/>
+              {isDiscarded && <small lang="es">Opción descartada</small>}
+            </span>
           </Button>;
         })}
       </div>

@@ -5,7 +5,8 @@ import { useRacha } from '../../shared/progreso/useRacha';
 import { Button } from '../../shared/ui/Button';
 import { Mascota } from '../progreso/mascota/Mascota';
 import { obtenerEvolucion } from '../progreso/mascota/evolucion';
-import { performanceLevel, type PerformanceLevel } from './clinicalEngine';
+import { isPerfectWithoutHints, performanceLevel, scoreRatio, type PerformanceLevel } from './clinicalEngine';
+import { ClinicalConfetti } from './ClinicalConfetti';
 import type { Score } from './ClinicalResult';
 
 const levelLabels = {
@@ -24,11 +25,12 @@ export function ClinicalSummary({ total, count, levels, onExit }: {
   const { events } = useSyncExternalStore(subscribeProgress, getProgress);
   const { dias } = useRacha(events);
   const { actual } = obtenerEvolucion(dias);
-  const earned = total.correct + total.errors + (total.assisted ?? 0);
-  const percentage = earned ? Math.round(total.correct * 100 / earned) : 0;
+  const percentage = Math.round(scoreRatio(total) * 100);
   const level = performanceLevel(total);
+  const assisted = total.assisted ?? 0;
 
   return <section className="lumar-page clinical-session clinical-complete">
+    {count > 1 && isPerfectWithoutHints(total) && <ClinicalConfetti/>}
     <header className="lumar-card clinical-summary-hero" data-level={level}>
       <div className="clinical-summary-heading">
         <p className="lumar-eyebrow">Sesión terminada</p>
@@ -37,9 +39,10 @@ export function ClinicalSummary({ total, count, levels, onExit }: {
       </div>
       <div className="clinical-summary-score">
         <strong>{percentage}<span>%</span></strong>
-        <span>de aciertos sin ayuda</span>
+        <span>de aciertos</span>
       </div>
-      <Mascota className="clinical-summary-mascot" etapa={actual.id} animacion={level === 'strong' ? 'celebracion' : 'reposo'}/>
+      <Mascota className="clinical-summary-mascot" etapa={actual.id}
+        animacion={level === 'strong' ? 'celebracion' : level === 'review' ? 'triste' : 'reposo'}/>
     </header>
     <section className="lumar-card clinical-summary-detail" aria-labelledby="clinical-summary-detail-title">
       <h2 id="clinical-summary-detail-title">Desempeño por caso</h2>
@@ -52,7 +55,7 @@ export function ClinicalSummary({ total, count, levels, onExit }: {
           <span>{levelLabels[key]}</span><strong>{levels[key]}</strong>
         </li>)}
       </ul>
-      <p className="clinical-session-totals">{total.correct} aciertos · {total.assisted ?? 0} asistidas · {total.errors} para revisar · {total.hints ?? 0} pistas</p>
+      <p className="clinical-session-totals">{total.correct + assisted} aciertos · {assisted} con pista · {total.errors} para revisar · {total.hints ?? 0} pistas</p>
     </section>
     <div className="clinical-result-actions">
       <Button onClick={onExit}><ArrowLeft size={17}/> Volver a Casos clínicos</Button>

@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import type { MascotaEtapa } from './evolucion';
 import './mascota.css';
 
-export type MascotaAnimacion = 'reposo' | 'respiracion' | 'parpadeo' | 'saludo' | 'celebracion' | 'estatica';
+export type MascotaAnimacion = 'reposo' | 'respiracion' | 'parpadeo' | 'saludo' | 'celebracion' | 'triste' | 'estatica';
 export type { MascotaEtapa } from './evolucion';
 
 const piel = '#f5b98f';
@@ -20,7 +20,7 @@ function Rostro({ veterano = false }: { veterano?: boolean }) {
       ? 'M-34 6C-45-1-44-23-31-35-19-47-4-50 15-44c11-2 24 6 27 19 2 9-1 20-7 28-1-10-2-21-10-26-14-8-21 7-36 8-7 2-14 1-20 0l-3 21Z'
       : 'M-34 5C-44-5-43-25-31-34c9-8 18-12 30-11-3-4-7-6-12-7 17-2 26 3 30 10 2-4 2-8 0-11 12 4 16 11 15 16 11 5 15 19 8 33-2-8-4-14-11-19-9 1-16 0-23-5-6 9-16 13-27 13 2-3 3-5 3-8-7 3-13 12-16 28Z'} fill={cabello} stroke={tinta} strokeWidth="2.4"/>
     <path d="M-28-30q12-11 27-10M12-37q10 0 15 5" fill="none" stroke="#976348" strokeWidth="2.5"/>
-    <path d="M-24-2q7-5 14-2M10-4q7-3 14 2" fill="none" stroke={cabello} strokeWidth="3"/>
+    <path className="mascota__cejas" d="M-24-2q7-5 14-2M10-4q7-3 14 2" fill="none" stroke={cabello} strokeWidth="3"/>
     <g className="mascota__ojos" fill={ojos}>
       <ellipse cx="-15" cy="8" rx="5.1" ry="7"/>
       <ellipse cx="15" cy="8" rx="5.1" ry="7"/>
@@ -31,6 +31,11 @@ function Rostro({ veterano = false }: { veterano?: boolean }) {
     <ellipse cx="24" cy="20" rx="5" ry="2.75" fill="#db866e" opacity=".55"/>
     <path d="M-2 16q2 2 4 0" fill="none" stroke="#b66e53" strokeWidth="1.7"/>
     <path className="mascota__sonrisa" d="M-8 25q8 8 16 0" fill="none" stroke="#78372e" strokeWidth="2.5"/>
+    <g className="mascota__gesto-triste" fill="none" strokeLinecap="round">
+      <path d="M-23-1q6 0 12-4m22 0q6 4 12 4" stroke={cabello} strokeWidth="2.8"/>
+      <path d="M-21 8q6 6 12 0m18 0q6 6 12 0" stroke={ojos} strokeWidth="2.4"/>
+      <path d="M-6 29q6-5 12 0" stroke="#78372e" strokeWidth="2.3"/>
+    </g>
     <g className="mascota__risa">
       <path d="M-11 23q11 4 22 0c-2 15-20 15-22 0Z" fill="#78372e"/>
       <path d="M-7 25q7 2 14 0l-2 3H-5Z" fill="#fff7ea"/>
@@ -169,8 +174,10 @@ export function Mascota({ etapa, animacion = 'reposo', className }: {
     </g>
     <g className="mascota__cuerpo">
       <g transform={dibujo.cuerpo}>{dibujo.silueta}</g>
-      <g transform={dibujo.cabeza}><Rostro veterano={etapa === 'medico_veterano'}/></g>
-      {etapa === 'adolescente' && <g transform="translate(120 40) rotate(-8)"><Birrete/></g>}
+      <g className="mascota__cabeza">
+        <g transform={dibujo.cabeza}><Rostro veterano={etapa === 'medico_veterano'}/></g>
+        {etapa === 'adolescente' && <g transform="translate(120 40) rotate(-8)"><Birrete/></g>}
+      </g>
       {conLibro && <g transform={dibujo.cuerpo}>
         <BrazoConLibro adolescente={etapa === 'adolescente'} capa="libro"/>
         <BrazoConLibro adolescente={etapa === 'adolescente'} capa="mano"/>

@@ -290,6 +290,29 @@
 .clinical-anatomy-loading { display: grid; min-height: var(--viewer3d-height); place-content: center; background: var(--mint); color: var(--muted); text-align: center; }
 .clinical-anatomy-image { display: block; width: min(100%, 8rem); height: 8rem; margin-inline: auto; object-fit: contain; }
 .clinical-result-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.clinical-confetti {
+  position: fixed;
+  inset: 0;
+  z-index: 4;
+  overflow: hidden;
+  pointer-events: none;
+}
+.clinical-confetti span {
+  position: absolute;
+  inset-block-start: -14px;
+  inset-inline-start: var(--confetti-x);
+  width: 7px;
+  height: 10px;
+  border-radius: 2px;
+  background: var(--confetti-color);
+  animation: clinical-confetti-fall var(--confetti-duration) var(--confetti-delay) ease-in both;
+}
+.clinical-confetti span:nth-child(3n) { width: 6px; height: 6px; border-radius: 50%; }
+@keyframes clinical-confetti-fall {
+  0% { opacity: 0; transform: translate3d(0, -8px, 0) rotate(0); }
+  10%, 76% { opacity: 1; }
+  100% { opacity: 0; transform: translate3d(var(--confetti-drift), calc(100dvh + 20px), 0) rotate(var(--confetti-spin)); }
+}
 
 @media (max-width: 760px) {
   .clinical-home, .clinical-session { padding-top: var(--space-2); }
@@ -312,4 +335,5 @@
 @media (prefers-reduced-motion: reduce) {
   .clinical-typing-dots i { animation: none; opacity: .7; }
   .clinical-order-card { transition: none; }
+  .clinical-confetti { display: none; }
 }

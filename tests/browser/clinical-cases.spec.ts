@@ -116,6 +116,7 @@ test('completa los cuatro modos en cinco casos y muestra los resultados al final
 
   await choose(page, 'Comprobar orden');
   await expect(page.getByText('5 de 5 posiciones correctas')).toBeVisible();
+  await expect(page.locator('.clinical-confetti span').first()).toHaveCSS('animation-name', 'clinical-confetti-fall');
   await next(page);
 
   const wrongChoice = page.getByRole('button', { name: 'An oral antibiotic' });
@@ -167,6 +168,9 @@ test('permite practicar un modo y mantiene visible la tarjeta durante el arrastr
   await expect(page.getByRole('heading', { name: 'Orden clínico · Evaluación inicial' })).toBeVisible();
 
   const cards = page.locator('.clinical-order-card');
+  await expect(cards.first().locator('[lang="es"]')).toHaveText('Evalúa y asegura la vía aérea.');
+  await expect(cards.first().locator('[lang="en"]')).toHaveText('Assess and manage the airway.');
+  await cards.nth(1).scrollIntoViewIfNeeded();
   const firstText = await cards.first().locator('p').boundingBox();
   const secondCard = await cards.nth(1).boundingBox();
   if (!firstText || !secondCard) throw new Error('Ordering cards must have measurable positions');
@@ -181,26 +185,35 @@ test('permite practicar un modo y mantiene visible la tarjeta durante el arrastr
   await expect(cards.first()).toContainText('Assess breathing and ventilation.');
 });
 
-test('muestra las pistas agotadas y cuenta como correctas las posiciones asistidas', async ({ page }) => {
+test('tres pistas corrigen un orden sin aciertos y permiten obtener 5 de 5 sin confeti', async ({ page }) => {
   await page.getByRole('button', { name: 'Practicar solo Ordenar actuaciones' }).click();
 
   const firstCard = page.locator('.clinical-order-card').filter({ hasText: 'Assess and manage the airway.' });
   for (let step = 0; step < 4; step += 1) {
     await firstCard.getByRole('button', { name: 'Mover abajo' }).click();
   }
+  const cards = page.locator('.clinical-order-card');
+  await expect(cards.first()).toHaveAttribute('data-order-id', 'breathing');
+  await expect(cards.last()).toHaveAttribute('data-order-id', 'airway');
   for (let hint = 0; hint < 3; hint += 1) {
     await page.getByRole('button', { name: 'Pista de orden' }).click();
   }
   await expect(page.getByText('Ya usaste todas las pistas disponibles.')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Pista de orden' })).toBeDisabled();
+  await cards.first().getByRole('button', { name: 'Mover abajo' }).click();
   await page.getByRole('button', { name: 'Comprobar orden' }).click();
-  await expect(page.getByRole('heading', { name: '3 de 5 posiciones correctas' })).toBeVisible();
-  await expect(page.getByText(/0 sin ayuda.*3 con pistas.*2 para revisar/)).toBeVisible();
+  await expect(page.getByRole('heading', { name: '5 de 5 posiciones correctas' })).toBeVisible();
+  await expect(page.getByText(/2 sin ayuda.*3 con pistas.*0 para revisar/)).toBeVisible();
+  await expect(page.locator('.clinical-result')).toHaveAttribute('data-level', 'strong');
+  await expect(page.locator('.clinical-confetti')).toHaveCount(0);
 });
 
 test('usa un indicador compacto en la selección múltiple', async ({ page }) => {
   await page.getByRole('button', { name: 'Practicar solo Selección múltiple' }).click();
   const option = page.getByRole('button', { name: 'Intramuscular adrenaline' });
+  await expect(option.locator('[lang="es"]')).toHaveText('Adrenalina intramuscular');
+  await expect(option.locator('[lang="en"]')).toHaveText('Intramuscular adrenaline');
+  await expect(page.getByRole('heading', { name: /qué medicamento es el tratamiento.*first-line treatment/i })).toBeVisible();
   await option.click();
   const marker = await option.locator('.clinical-choice-marker').boundingBox();
   const copy = await option.locator('.clinical-choice-copy').boundingBox();
@@ -233,11 +246,12 @@ test('reordena tarjetas, fija una posición con pista y refleja la ayuda en el r
   const assistedCard = cards.filter({ hasText: 'Colocada con pista' });
   await expect(assistedCard).toHaveCount(1);
   await expect(assistedCard).toHaveAttribute('data-locked', 'true');
+  await expect(page.getByRole('button', { name: 'Pista de orden' })).toBeEnabled();
 
   await cards.nth(2).getByRole('button', { name: 'Mover abajo' }).click();
   await page.getByRole('button', { name: 'Comprobar orden' }).click();
   await expect(page.getByText(/1 con pista/)).toBeVisible();
-  await expect(page.locator('.clinical-result[data-level="review"]')).toBeVisible();
+  await expect(page.locator('.clinical-result[data-level="partial"]')).toBeVisible();
   await page.getByRole('button', { name: 'Siguiente caso' }).click();
   const orderingPractice = await page.evaluate(() => Object.entries(localStorage)
     .filter(([key]) => key.startsWith('lumar.progress:v1:event:'))
@@ -247,4 +261,18 @@ test('reordena tarjetas, fija una posición con pista y refleja la ayuda en el r
   await page.goto('/#progreso/practicas');
   await expect(page.getByText(/1 asistida/)).toBeVisible();
   expect(consoleErrors).toEqual([]);
+});
+
+test('la mascota baja la cabeza y cierra los ojos al mostrar un resultado bajo', async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await choose(page, 'Practicar solo Selección múltiple');
+  await choose(page, 'An oral antibiotic');
+  await choose(page, 'Comprobar respuesta');
+  await choose(page, 'Ver resultados');
+  const mascota = page.locator('.clinical-summary-mascot');
+  await expect(mascota).toHaveAttribute('data-animacion', 'triste');
+  await expect(mascota.locator('.mascota__gesto-triste')).toBeVisible();
+  await expect(mascota.locator('.mascota__ojos')).toBeHidden();
+  await expect(mascota.locator('.mascota__cabeza')).not.toHaveCSS('transform', 'none');
+  await expect(mascota.locator('.mascota__cabeza')).toHaveCSS('animation-name', 'none');
 });

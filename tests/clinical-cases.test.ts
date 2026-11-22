@@ -6,6 +6,7 @@ import {
   createInterviewExchange,
   discardIncorrectChoice,
   getInterviewChoices,
+  isPerfectWithoutHints,
   moveItem,
   performanceLevel,
   scoreInvestigation,
@@ -62,9 +63,13 @@ describe('sesión de casos clínicos', () => {
       }
       if (item.kind === 'multiple-choice') {
         expect(item.options.filter(option => option.id === item.correctId)).toHaveLength(1);
+        expect(item.scenarioEs && item.promptEs && item.explanationEs).toBeTruthy();
+        expect(item.options.every(option => option.textEs && option.textEn)).toBe(true);
       }
       if (item.kind === 'ordering') {
         expect(new Set(item.actions.map(action => action.id)).size).toBe(item.actions.length);
+        expect(item.scenarioEs && item.explanationEs).toBeTruthy();
+        expect(item.actions.every(action => action.textEs && action.textEn)).toBe(true);
       }
     }
   });
@@ -208,11 +213,29 @@ describe('sesión de casos clínicos', () => {
     expect(new Set(result.order)).toEqual(new Set(expected));
   });
 
-  it('separa las posiciones resueltas de las colocadas mediante pistas', () => {
-    const result = scoreOrderedActions(['a', 'b', 'c', 'd'], ['a', 'b', 'c', 'd'], ['a', 'b']);
+  it('permite usar las tres pistas sin revelar que las tarjetas ya están bien ordenadas', () => {
+    const expected = ['a', 'b', 'c', 'd', 'e'];
+    const result = applyOrderingHint(expected, expected, ['a', 'c'], () => .99);
 
-    expect(result).toEqual({ correct: 2, assisted: 2, errors: 0, hints: 2, complete: true });
-    expect(performanceLevel(result)).toBe('partial');
+    expect(result.order).toEqual(expected);
+    expect(result.lockedIds).toEqual(['a', 'c', 'e']);
+  });
+
+  it('registra las posiciones con pista por separado y las cuenta para el nivel de desempeño', () => {
+    const expected = ['a', 'b', 'c', 'd', 'e'];
+    const result = scoreOrderedActions(expected, expected, ['a', 'b', 'c']);
+
+    expect(result).toEqual({ correct: 2, assisted: 3, errors: 0, hints: 3, complete: true });
+    expect(performanceLevel(result)).toBe('strong');
+    expect(performanceLevel(scoreOrderedActions(['a', 'b', 'c', 'e', 'd'], expected, ['a', 'b', 'c']))).toBe('partial');
+  });
+
+  it('reserva la celebración para una práctica perfecta sin pistas', () => {
+    expect(isPerfectWithoutHints({ correct: 3, errors: 0 })).toBe(true);
+    expect(isPerfectWithoutHints({ correct: 1, errors: 0, hints: 1 })).toBe(false);
+    expect(isPerfectWithoutHints({ correct: 2, errors: 0, assisted: 3 })).toBe(false);
+    expect(isPerfectWithoutHints({ correct: 0, errors: 0 })).toBe(false);
+    expect(isPerfectWithoutHints({ correct: 4, errors: 1 })).toBe(false);
   });
 
   it('califica una selección usando el identificador correcto', () => {

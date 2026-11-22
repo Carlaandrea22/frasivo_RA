@@ -1,7 +1,8 @@
 .mascota { display: block; width: 100%; height: auto; }
 .mascota__cuerpo { transform-origin: 120px 225px; }
+.mascota__cabeza { transform-box: fill-box; transform-origin: 50% 88%; }
 .mascota__ojos { transform-box: fill-box; transform-origin: center; }
-.mascota__risa, .mascota__destellos { display: none; }
+.mascota__risa, .mascota__destellos, .mascota__gesto-triste { display: none; }
 .mascota__brazo { transform-origin: 0 0; }
 
 .mascota:is([data-animacion="reposo"], [data-animacion="respiracion"]) .mascota__cuerpo {
@@ -15,6 +16,10 @@
 .mascota[data-animacion="celebracion"] .mascota__sonrisa { display: none; }
 .mascota[data-animacion="celebracion"] :is(.mascota__risa, .mascota__destellos) { display: inline; }
 .mascota[data-animacion="celebracion"] .mascota__destellos { animation: mascota-destellos 1.5s ease-out both; }
+.mascota[data-animacion="triste"] .mascota__cabeza { animation: mascota-agachar 650ms ease-out both; }
+.mascota[data-animacion="triste"] .mascota__brazo:not(.mascota__brazo--libro) { animation: mascota-recoger-brazo 650ms ease-out both; }
+.mascota[data-animacion="triste"] :is(.mascota__ojos, .mascota__sonrisa, .mascota__cejas) { display: none; }
+.mascota[data-animacion="triste"] .mascota__gesto-triste { display: inline; }
 
 @keyframes mascota-respirar {
   0%, 100% { transform: scale(1); }
@@ -46,9 +51,19 @@
   0%, 100% { opacity: 0; }
   28%, 70% { opacity: 1; }
 }
+@keyframes mascota-agachar {
+  from { transform: translateY(0) rotate(0); }
+  to { transform: translateY(5px) rotate(-6deg); }
+}
+@keyframes mascota-recoger-brazo {
+  from { transform: rotate(0); }
+  to { transform: rotate(8deg); }
+}
 @media (prefers-reduced-motion: reduce) {
   .mascota[data-animacion] :is(.mascota__cuerpo, .mascota__ojos, .mascota__brazo, .mascota__destellos),
   .mascota[data-animacion="celebracion"] .mascota__brazo:not(.mascota__brazo--libro) { animation: none; }
   .mascota[data-animacion="saludo"] .mascota__brazo--saludo,
   .mascota[data-animacion="celebracion"] .mascota__brazo:not(.mascota__brazo--libro) { transform: rotate(-116deg); }
+  .mascota[data-animacion="triste"] .mascota__cabeza { animation: none; transform: translateY(5px) rotate(-6deg); }
+  .mascota[data-animacion="triste"] .mascota__brazo:not(.mascota__brazo--libro) { animation: none; transform: rotate(8deg); }
 }
