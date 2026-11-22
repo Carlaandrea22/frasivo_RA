@@ -33,7 +33,7 @@ const modos: Record<ModoReto, { label: string; descripcion: string }> = {
 type TipoConModelo = 'ubica-partes' | 'senala-estructura';
 const ordenDelCatalogo = ['ubica-partes', 'senala-estructura', 'relaciona-funcion', 'repaso-breve'] satisfies TipoReto[];
 const selectorPorTipo = {
-  'ubica-partes': { ruta: 'ubicar', descripcion: 'Coloca etiquetas en el modelo 3D. Elige qué quieres practicar o prueba un modelo al azar.' },
+  'ubica-partes': { ruta: 'ubicar', descripcion: 'Coloca etiquetas en las partes de un modelo 3D.' },
   'senala-estructura': { ruta: 'senalar', descripcion: 'Gira un modelo 3D y toca la pieza indicada.' },
   'relaciona-funcion': { ruta: 'relacionar', descripcion: 'Empareja huesos, músculos u órganos con la función que cumplen.' },
   'repaso-breve': { ruta: 'repasar', descripcion: 'Responde preguntas rápidas sobre huesos, músculos u órganos.' },
@@ -114,10 +114,9 @@ function Fuentes({ reto }: { reto: Reto }) {
 
 function Lista({ estructuraId }: { estructuraId?: string }) {
   const disponibles = estructuraId ? retos.filter(reto => reto.estructurasRelacionadas.includes(estructuraId)) : retos;
-  const [ubicar, ...secundarias] = ordenDelCatalogo.map(tipo => ({
+  const grupos = ordenDelCatalogo.map(tipo => ({
     tipo, actividades: disponibles.filter(reto => reto.tipo === tipo),
-  }));
-  const gruposSecundarios = secundarias.filter(grupo => grupo.actividades.length > 0);
+  })).filter(grupo => grupo.actividades.length > 0);
   return <section className="lumar-page retos-page">
     <header>
       <h1>Retos de anatomía</h1>
@@ -125,9 +124,8 @@ function Lista({ estructuraId }: { estructuraId?: string }) {
     </header>
     <PracticeTabs active="retos"/>
     {estructuraId && <a className="retos-back" href={rutaRetos}>Ver todos los retos</a>}
-    {ubicar.actividades.length > 0 && <TarjetaSelector {...ubicar} estructuraId={estructuraId}/>}
-    {gruposSecundarios.length > 0 && <div className="retos-grid">
-      {gruposSecundarios.map(grupo => <TarjetaSelector key={grupo.tipo} {...grupo} estructuraId={estructuraId}/>)}
+    {grupos.length > 0 && <div className="retos-grid">
+      {grupos.map(grupo => <TarjetaSelector key={grupo.tipo} {...grupo} estructuraId={estructuraId}/>)}
     </div>}
     {disponibles.length === 0 && <ContentState state="empty" title="Aún no hay un reto para esta estructura">
       <a href={rutaRetos}>Ver todos los retos</a>
@@ -137,16 +135,16 @@ function Lista({ estructuraId }: { estructuraId?: string }) {
 
 function TarjetaSelector({ tipo, actividades, estructuraId }: { tipo: TipoReto; actividades: readonly Reto[]; estructuraId?: string }) {
   const { icon: Icon, nombre } = tipos[tipo];
-  const principal = tipo === 'ubica-partes';
-  const accion = principal ? 'Elegir práctica' : tipo === 'senala-estructura' ? 'Elegir modelo' : 'Elegir tema';
+  const ubicar = tipo === 'ubica-partes';
+  const accion = ubicar ? 'Elegir práctica' : tipo === 'senala-estructura' ? 'Elegir modelo' : 'Elegir tema';
   const ultimo = actividades.map(ultimoIntento).filter(evento => evento?.kind === 'practice')
     .sort((a, b) => b.timestamp.localeCompare(a.timestamp))[0];
-  return <Card className={principal ? 'retos-card retos-featured' : 'retos-card'}>
-    <div className="retos-featured-title"><Icon size={principal ? 26 : 20} aria-hidden="true"/><h2>{nombre}</h2></div>
+  return <Card className="retos-card">
+    <div className="retos-card-title"><Icon size={20} aria-hidden="true"/><h2>{nombre}</h2></div>
     <p>{selectorPorTipo[tipo].descripcion}</p>
     <div className="retos-actions">
       <a className="button button--primary lumar-link" href={rutaSelector(tipo, estructuraId)}
-        aria-label={principal ? undefined : `${accion} para ${nombre}`}>
+        aria-label={ubicar ? undefined : `${accion} para ${nombre}`}>
         {accion}<ArrowRight size={17} aria-hidden="true"/>
       </a>
       {ultimo?.activityId && <a className="retos-history" href={rutaResultado(ultimo.activityId, ultimo.id)}>
