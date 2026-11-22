@@ -12,6 +12,7 @@ async function events(page: Page) {
 
 const accept = (page: Page) => page.getByRole('button', { name: 'Aceptar práctica rápida' });
 const timer = (page: Page) => page.getByRole('timer', { name: 'Tiempo restante' });
+const timeBar = (page: Page) => page.locator('.quick-practice-clock progress');
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => { Math.random = () => .99; });
@@ -37,6 +38,7 @@ test('el reloj empieza al aceptar y para al registrar el caso de selección múl
   await page.getByRole('button', { name: /Intramuscular adrenaline/ }).click();
   await page.getByRole('button', { name: 'Comprobar respuesta' }).click();
   await expect(page.getByText('Respuesta registrada')).toBeVisible();
+  await expect(timeBar(page)).toHaveCount(0);
   await page.clock.fastForward(20_000);
   await expect(page.getByRole('heading', { name: 'Respuesta correcta' })).toBeVisible();
   expect(await events(page)).toMatchObject([{ kind: 'practice', correct: 1, quick: true }]);
@@ -44,12 +46,20 @@ test('el reloj empieza al aceptar y para al registrar el caso de selección múl
   await expect(page).toHaveURL(/#explorar$/);
 });
 
-test('al agotarse el tiempo se cierran las respuestas sin crear un resultado', async ({ page }) => {
+test('la barra se vacía y al agotarse el tiempo se cierra la práctica sin guardar un resultado', async ({ page }) => {
   await offerClinicalChoice(page);
   await accept(page).click();
   await expect(timer(page)).toBeVisible();
-  await page.clock.fastForward(16_000);
+  const bar = timeBar(page);
+  await expect(bar).toHaveJSProperty('max', 15_000);
+  const value = () => bar.evaluate((progress: HTMLProgressElement) => progress.value);
+  expect(await value()).toBeGreaterThan(13_000);
+  await page.clock.fastForward(6_500);
+  await expect.poll(value).toBeLessThan(9_000);
+  await expect(bar.locator('..')).toHaveAttribute('data-urgent', 'true');
+  await page.clock.fastForward(10_000);
   await expect(page.getByRole('heading', { name: 'Se acabó el tiempo' })).toBeVisible();
+  await expect(bar).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Comprobar respuesta' })).toHaveCount(0);
   expect(await events(page)).toEqual([]);
 });

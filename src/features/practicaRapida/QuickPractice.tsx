@@ -42,20 +42,23 @@ export function QuickInvitation({ activity, accept, dismiss }: {
 }
 
 type Status = 'running' | 'finished' | 'expired';
-const remainingSeconds = (deadline: number) => Math.max(0, Math.ceil((deadline - Date.now()) / 1000));
+const remainingTime = (deadline: number, durationMs: number) => Math.min(durationMs, Math.max(0, deadline - Date.now()));
 
-function QuickClock({ deadline, running }: { deadline: number; running: boolean }) {
-  const [seconds, setSeconds] = useState(() => remainingSeconds(deadline));
+function QuickClock({ deadline, durationSeconds, running }: { deadline: number; durationSeconds: number; running: boolean }) {
+  const durationMs = durationSeconds * 1000;
+  const [remaining, setRemaining] = useState(() => remainingTime(deadline, durationMs));
+  const seconds = Math.ceil(remaining / 1000);
   useEffect(() => {
     if (!running) return;
-    const tick = window.setInterval(() => setSeconds(remainingSeconds(deadline)), 200);
+    const tick = window.setInterval(() => setRemaining(remainingTime(deadline, durationMs)), 200);
     return () => window.clearInterval(tick);
-  }, [deadline, running]);
+  }, [deadline, durationMs, running]);
 
   return <div className="quick-practice-clock" data-urgent={running && seconds <= 10}>
     <strong><Timer size={20} aria-hidden="true"/> Práctica rápida</strong>
     {running ? <span role="timer" aria-label="Tiempo restante">{seconds} s</span>
       : <span role="status">Respuesta registrada</span>}
+    {running && <progress className="quick-practice-time" max={durationMs} value={remaining} aria-hidden="true"/>}
   </div>;
 }
 
@@ -101,7 +104,7 @@ export function QuickPractice({ activity, deadline, onExit }: { activity: QuickA
   </section>;
 
   return <div className="quick-practice">
-    <QuickClock deadline={deadline} running={status === 'running'}/>
+    <QuickClock deadline={deadline} durationSeconds={activity.seconds} running={status === 'running'}/>
     {activity.kind === 'clinical' ? <ClinicalSession caseIds={[activity.caseId]} onExit={onExit} finishTimed={finish}/>
       : <Juego reto={activity.reto} modo="evaluacion" quick={{ finish, exit: onExit }}/>}
   </div>;
