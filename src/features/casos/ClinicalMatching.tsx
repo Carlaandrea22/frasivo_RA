@@ -9,10 +9,11 @@ import { shuffled } from './clinicalEngine';
 import './clinical-matching.css';
 
 type Point = { x: number; y: number };
-type Drag = { patient: string; pointer: number; start: Point; cursor: Point };
+type Endpoint = { side: 'patient' | 'cause'; id: string };
+type Drag = { from: Endpoint; pointer: number; start: Point; cursor: Point };
 const colors = ['#267e67', '#7254a6', '#b36426'];
-const sourceKey = (id: string) => `patient:${id}`;
-const targetKey = (id: string) => `cause:${id}`;
+const endpointKey = ({ side, id }: Endpoint) => `${side}:${id}`;
+const sameEndpoint = (a: Endpoint | undefined, b: Endpoint) => a?.side === b.side && a.id === b.id;
 
 function relativePoint(area: HTMLElement, x: number, y: number): Point {
   const box = area.getBoundingClientRect();
@@ -35,8 +36,8 @@ export function ClinicalMatching({ item, ...step }: CaseStepProps<MatchingCase>)
   const [points, setPoints] = useState<Record<string, Point>>({});
   const [compact, setCompact] = useState(false);
   const [connections, setConnections] = useState<Readonly<Record<string, string>>>({});
-  const [selected, setSelected] = useState<string>();
-  const [preview, setPreview] = useState<{ patient: string; point: Point }>();
+  const [selected, setSelected] = useState<Endpoint>();
+  const [preview, setPreview] = useState<{ from: Endpoint; point: Point }>();
   const [score, setScore] = useState<Score>();
   const gesture = useRef<Drag>(undefined);
   const ignoreClick = useRef(false);
@@ -74,7 +75,7 @@ export function ClinicalMatching({ item, ...step }: CaseStepProps<MatchingCase>)
       if (above || below) {
         const before = window.scrollY;
         window.scrollBy({ top: Math.max(-15, Math.min(15, (below - above) / 5)), behavior: 'instant' });
-        if (window.scrollY !== before) setPreview({ patient: drag.patient, point: relativePoint(area, drag.cursor.x, drag.cursor.y) });
+        if (window.scrollY !== before) setPreview({ from: drag.from, point: relativePoint(area, drag.cursor.x, drag.cursor.y) });
       }
       frame = requestAnimationFrame(follow);
     };
@@ -82,7 +83,8 @@ export function ClinicalMatching({ item, ...step }: CaseStepProps<MatchingCase>)
     return () => cancelAnimationFrame(frame);
   }, [dragging]);
 
-  const connect = (patient: string, cause: string) => {
+  const connect = (from: Endpoint, to: Endpoint) => {
+    const [patient, cause] = from.side === 'patient' ? [from.id, to.id] : [to.id, from.id];
     setConnections(current => {
       const next = Object.fromEntries(Object.entries(current).filter(([id, target]) => id !== patient && target !== cause));
       if (current[patient] !== cause) next[patient] = cause;
@@ -91,20 +93,20 @@ export function ClinicalMatching({ item, ...step }: CaseStepProps<MatchingCase>)
     setSelected(undefined);
   };
 
-  const begin = (event: PointerEvent<HTMLButtonElement>, patient: string) => {
+  const begin = (event: PointerEvent<HTMLButtonElement>, from: Endpoint) => {
     ignoreClick.current = false;
     if (!board.current || event.button !== 0 || !(event.target as Element).closest('[data-match-port]')) return;
     const cursor = { x: event.clientX, y: event.clientY };
     event.currentTarget.setPointerCapture(event.pointerId);
-    gesture.current = { patient, pointer: event.pointerId, start: cursor, cursor };
-    setPreview({ patient, point: relativePoint(board.current, cursor.x, cursor.y) });
+    gesture.current = { from, pointer: event.pointerId, start: cursor, cursor };
+    setPreview({ from, point: relativePoint(board.current, cursor.x, cursor.y) });
   };
 
   const move = (event: PointerEvent<HTMLButtonElement>) => {
     const drag = gesture.current;
     if (!board.current || !drag || drag.pointer !== event.pointerId) return;
     drag.cursor = { x: event.clientX, y: event.clientY };
-    setPreview({ patient: drag.patient, point: relativePoint(board.current, drag.cursor.x, drag.cursor.y) });
+    setPreview({ from: drag.from, point: relativePoint(board.current, drag.cursor.x, drag.cursor.y) });
   };
 
   const clearDrag = () => { gesture.current = undefined; setPreview(undefined); };
@@ -116,21 +118,38 @@ export function ClinicalMatching({ item, ...step }: CaseStepProps<MatchingCase>)
     clearDrag();
     if (Math.hypot(event.clientX - drag.start.x, event.clientY - drag.start.y) < 5) return;
     ignoreClick.current = true;
-    const target = document.elementFromPoint(event.clientX, event.clientY)?.closest<HTMLElement>('[data-match-cause]');
-    let cause = target && area.contains(target) ? target.dataset.matchCause : undefined;
-    if (!cause) {
+    const side = drag.from.side === 'patient' ? 'cause' : 'patient';
+    const attribute = side === 'cause' ? 'data-match-cause' : 'data-match-source';
+    const target = document.elementFromPoint(event.clientX, event.clientY)?.closest<HTMLElement>(`[${attribute}]`);
+    let id = target && area.contains(target) ? target.getAttribute(attribute) : undefined;
+    if (!id) {
       const point = relativePoint(area, event.clientX, event.clientY);
       let distance = 36;
-      for (const candidate of causes) {
-        const port = points[targetKey(candidate.id)];
+      for (const candidate of side === 'cause' ? causes : item.patients) {
+        const port = points[endpointKey({ side, id: candidate.id })];
         if (!port) continue;
         const gap = Math.hypot(point.x - port.x, point.y - port.y);
-        if (gap < distance) { cause = candidate.id; distance = gap; }
+        if (gap < distance) { id = candidate.id; distance = gap; }
       }
     }
-    if (cause) connect(drag.patient, cause);
-    else setSelected(drag.patient);
+    if (id) connect(drag.from, { side, id });
+    else setSelected(drag.from);
   };
+
+  const active = preview?.from ?? selected;
+  const nodeEvents = (endpoint: Endpoint) => ({
+    'aria-pressed': sameEndpoint(active, endpoint),
+    onPointerDown: (event: PointerEvent<HTMLButtonElement>) => begin(event, endpoint),
+    onPointerMove: move,
+    onPointerUp: end,
+    onPointerCancel: clearDrag,
+    onLostPointerCapture: clearDrag,
+    onClick: (event: React.MouseEvent<HTMLButtonElement>) => {
+      if (event.detail > 0 && ignoreClick.current) { ignoreClick.current = false; return; }
+      if (selected && selected.side !== endpoint.side) connect(selected, endpoint);
+      else setSelected(sameEndpoint(selected, endpoint) ? undefined : endpoint);
+    },
+  });
 
   if (score) return <CaseResult {...step} title={`${score.correct} de ${item.patients.length} conexiones correctas`} score={score}
     onRetry={() => setScore(undefined)} solutionLabel="Ver conexiones correctas" solution={<>
@@ -150,41 +169,42 @@ export function ClinicalMatching({ item, ...step }: CaseStepProps<MatchingCase>)
       </ul></details>
     </>}/>;
 
-  const activePatient = item.patients.find(patient => patient.id === (preview?.patient ?? selected));
-  const previewIndex = preview ? item.patients.findIndex(patient => patient.id === preview.patient) : 0;
+  const activePatient = active?.side === 'patient' && item.patients.find(patient => patient.id === active.id);
+  const previewAnchor = preview && points[endpointKey(preview.from)];
+  const previewIndex = preview?.from.side === 'patient'
+    ? item.patients.findIndex(patient => patient.id === preview.from.id)
+    : item.patients.findIndex(patient => connections[patient.id] === preview?.from.id);
   const count = Object.keys(connections).length;
 
   return <Card className="clinical-match">
-    <p>Toca un caso y luego una causa, o arrastra desde el punto del caso.</p>
+    <p>Toca dos tarjetas de filas distintas o arrastra desde cualquiera de los puntos.</p>
     <div className="clinical-match-board" ref={board}>
       <svg className="clinical-match-wires" aria-hidden="true">
         {item.patients.map((patient, index) => {
           const cause = connections[patient.id];
-          const from = points[sourceKey(patient.id)];
-          const to = points[targetKey(cause)];
+          const from = points[endpointKey({ side: 'patient', id: patient.id })];
+          const to = points[endpointKey({ side: 'cause', id: cause })];
           return from && to && <path className="clinical-match-wire" key={`${patient.id}:${cause}`} pathLength={1}
             stroke={colors[index]} d={wirePath(from, to, compact, index)}/>;
         })}
-        {preview && points[sourceKey(preview.patient)] && <path className="clinical-match-preview"
-          stroke={colors[previewIndex]}
-          d={wirePath(points[sourceKey(preview.patient)], preview.point, compact, previewIndex)}/>}
+        {preview && previewAnchor && <path className="clinical-match-preview"
+          stroke={colors[previewIndex] ?? '#477866'}
+          d={preview.from.side === 'patient'
+            ? wirePath(previewAnchor, preview.point, compact, previewIndex)
+            : wirePath(preview.point, previewAnchor, compact, Math.max(0, previewIndex))}/>}
       </svg>
       <h2>Síntomas y contexto</h2>
       <div className="clinical-match-row clinical-match-patients">
         {item.patients.map((patient, index) => {
           const linked = causes.find(cause => cause.id === connections[patient.id]);
           return <Button key={patient.id} variant="answer" className="clinical-match-node" data-match-source={patient.id}
-            aria-pressed={activePatient?.id === patient.id} data-linked={!!linked} aria-label={`Caso de ${patient.name}`}
-            aria-describedby={`match-clue-${patient.id}`} onPointerDown={event => begin(event, patient.id)} onPointerMove={move}
-            onPointerUp={end} onPointerCancel={clearDrag} onLostPointerCapture={clearDrag} onClick={event => {
-              if (event.detail > 0 && ignoreClick.current) { ignoreClick.current = false; return; }
-              setSelected(current => current === patient.id ? undefined : patient.id);
-            }}>
+            data-linked={!!linked} aria-label={`Caso de ${patient.name}`} aria-describedby={`match-clue-${patient.id}`}
+            {...nodeEvents({ side: 'patient', id: patient.id })}>
             <strong><UserRound size={16} aria-hidden="true"/> {patient.name}</strong>
             <span id={`match-clue-${patient.id}`}><Bilingual es={patient.textEs} en={patient.textEn}/>
               {linked && <span className="clinical-match-connection">Conectado a {linked.textEs}</span>}
             </span>
-            <span className="clinical-match-port" data-match-port={sourceKey(patient.id)} aria-hidden="true" style={{ color: colors[index] }}/>
+            <span className="clinical-match-port" data-match-port={endpointKey({ side: 'patient', id: patient.id })} aria-hidden="true" style={{ color: colors[index] }}/>
           </Button>;
         })}
       </div>
@@ -193,15 +213,17 @@ export function ClinicalMatching({ item, ...step }: CaseStepProps<MatchingCase>)
         {causes.map(cause => {
           const owner = item.patients.findIndex(patient => connections[patient.id] === cause.id);
           return <Button key={cause.id} variant="answer" className="clinical-match-node" data-match-cause={cause.id}
-            data-linked={owner >= 0} aria-disabled={!activePatient} onClick={() => selected && connect(selected, cause.id)}>
-            <span className="clinical-match-port" data-match-port={targetKey(cause.id)} aria-hidden="true" style={{ color: colors[owner] }}/>
+            data-linked={owner >= 0} {...nodeEvents({ side: 'cause', id: cause.id })}>
+            <span className="clinical-match-port" data-match-port={endpointKey({ side: 'cause', id: cause.id })} aria-hidden="true" style={{ color: colors[owner] }}/>
             <Bilingual es={cause.textEs} en={cause.textEn}/>
           </Button>;
         })}
       </div>
     </div>
     <p className="clinical-match-status" role="status">
-      {activePatient ? `Elige una causa para ${activePatient.name}.` : `${count} de ${item.patients.length} conexiones`}
+      {activePatient ? `Elige una causa para ${activePatient.name}.`
+        : active?.side === 'cause' ? 'Elige un caso para esta causa.'
+          : `${count} de ${item.patients.length} conexiones`}
     </p>
     <div className="clinical-result-actions">
       <Button variant="secondary" disabled={!count} onClick={() => { setConnections({}); setSelected(undefined); }}>

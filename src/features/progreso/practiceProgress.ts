@@ -3,12 +3,30 @@ import { clinicalCases } from '../../content/casos/session';
 import { clinicalModeLabels } from '../../content/casos/sessionTypes';
 import { retos } from '../../content/ejercicios/retos';
 import { retoTypeLabels } from '../../content/types';
-import type { PracticeEvent, ProgressEvent } from '../../shared/progreso';
+import type { PracticeEvent, PracticeSessionMode, ProgressEvent } from '../../shared/progreso';
 import { isPerfectCase, scoreRatio, strongScoreRatio } from '../casos/clinicalEngine';
 import { retoTuvoReintentos, tituloResultadoReto } from '../retos/intentos';
 
 export type PracticeGroup = 'clinical' | 'challenge';
 export const practiceGroupLabels = { clinical: 'Casos clínicos', challenge: 'Retos de anatomía' } satisfies Record<PracticeGroup, string>;
+
+export type PracticeFormat = PracticeSessionMode | 'rapida';
+export type PracticeFormatFilter = PracticeFormat | 'all';
+export const practiceFormatLabels: Record<PracticeFormat, string> = {
+  entrenamiento: 'Entrenamiento',
+  evaluacion: 'Evaluación',
+  rapida: 'Práctica rápida',
+};
+
+export function practiceFormat(event: PracticeEvent): PracticeFormat {
+  if (event.quick) return 'rapida';
+  if (event.context?.kind === 'reto') return event.context.mode;
+  return event.mode ?? 'entrenamiento';
+}
+
+export function readPracticeFormat(value?: string): PracticeFormatFilter {
+  return value === 'rapida' || value === 'entrenamiento' || value === 'evaluacion' ? value : 'all';
+}
 
 export const practiceModeLabels = {
   ...clinicalModeLabels,
@@ -44,8 +62,9 @@ export function practiceTitle(event: PracticeEvent) {
 
 interface ModeTotals { kind: PracticeMode; group: PracticeGroup; count: number; correct: number; errors: number }
 
-export function practiceProgress(events: readonly ProgressEvent[]) {
+export function practiceProgress(events: readonly ProgressEvent[], filter: PracticeFormatFilter = 'all') {
   const totals = { clinical: 0, challenge: 0 };
+  const formats = { entrenamiento: 0, evaluacion: 0, rapida: 0 };
   const byMode = new Map<PracticeMode, ModeTotals>();
   for (const group of ['clinical', 'challenge'] as const) {
     for (const kind of groupModes[group]) byMode.set(kind, { kind, group, count: 0, correct: 0, errors: 0 });
@@ -56,6 +75,9 @@ export function practiceProgress(events: readonly ProgressEvent[]) {
     if (event.kind !== 'practice') continue;
     const group = practiceGroup(event);
     if (!group) continue;
+    const format = practiceFormat(event);
+    formats[format] += 1;
+    if (filter !== 'all' && filter !== format) continue;
     totals[group] += 1;
     const id = practiceId(event);
     const reto = group === 'challenge' ? challengeCatalog.get(id) : undefined;
@@ -83,7 +105,7 @@ export function practiceProgress(events: readonly ProgressEvent[]) {
   });
 
   return {
-    ...totals, completed, perfect,
+    ...totals, completed, perfect, formats,
     perfectRate: completed ? Math.round(perfect / completed * 100) : 0,
     modes: modes.map(toDisplayMode),
     recommendation: recommended && { ...toDisplayMode(recommended), reason: weakest ? 'accuracy' as const : 'frequency' as const },
@@ -92,8 +114,8 @@ export function practiceProgress(events: readonly ProgressEvent[]) {
 
 type Recommendation = NonNullable<ReturnType<typeof practiceProgress>['recommendation']>;
 
-export function recommendationHref({ group, kind }: Pick<Recommendation, 'group' | 'kind'>) {
-  return `#practicar/${group === 'clinical' ? 'casos' : 'retos'}/modo/${kind}`;
+export function recommendationHref({ group, kind }: Pick<Recommendation, 'group' | 'kind'>, format?: PracticeFormatFilter) {
+  return `#practicar/${group === 'clinical' ? 'casos' : 'retos'}/modo/${kind}${format === 'evaluacion' ? '/evaluacion' : ''}`;
 }
 
 export function recommendationReason(recommendation: Recommendation) {

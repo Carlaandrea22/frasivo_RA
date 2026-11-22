@@ -4,6 +4,7 @@ import { RelacionaInicio, RepasoInicio, RetoRecomendado, Retos, SenalaInicio, Ub
 export const routes = [
   { path: 'practicar/retos', tab: 'practicar', Screen: Retos },
   { path: 'practicar/retos/modo/:modo', tab: 'practicar', Screen: RetoRecomendado },
+  { path: 'practicar/retos/modo/:modo/:formato', tab: 'practicar', Screen: RetoRecomendado },
   { path: 'practicar/retos/ubicar', tab: 'practicar', Screen: UbicaInicio },
   { path: 'practicar/retos/ubicar/estructura/:estructuraId', tab: 'practicar', Screen: UbicaInicio },
   { path: 'practicar/retos/senalar', tab: 'practicar', Screen: SenalaInicio },

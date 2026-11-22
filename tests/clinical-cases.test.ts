@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import {
   applyOrderingHint,
@@ -16,8 +17,7 @@ import {
 } from '../src/features/casos/clinicalEngine';
 import type { InterviewCase, InterviewNode } from '../src/content/casos/sessionTypes';
 import { clinicalCases } from '../src/content/casos/session';
-import { caseAnatomy } from '../src/content/casos/caseAnatomy';
-import { atlasParts } from '../src/features/cuerpo/atlasAlignment';
+import { resolveCaseAnatomy } from '../src/content/casos/caseAnatomy';
 
 const node: InterviewNode = {
   id: 'onset',
@@ -96,13 +96,32 @@ describe('sesión de casos clínicos', () => {
     expect(selections.size).toBeGreaterThan(1);
   });
 
-  it('vincula las investigaciones a nodos e ilustraciones que ya existen en el atlas', () => {
+  it('vincula cada investigación a una parte del modelo y conserva la mandíbula del cráneo', () => {
+    const assets = {
+      'body-bones-regions': 'huesos-regiones.glb',
+      'lung-regions': 'pulmones-regiones.glb',
+      'organ-regions': 'organos-regiones.glb',
+    };
+    const modelNodes = new Map(Object.entries(assets).map(([id, filename]) => {
+      const bytes = readFileSync(new URL(`../src/content/anatomy/modelos/${filename}`, import.meta.url));
+      const { nodes } = JSON.parse(bytes.toString('utf8', 20, 20 + bytes.readUInt32LE(12))) as {
+        nodes: { name: string; children?: number[]; mesh?: number }[];
+      };
+      return [id, nodes];
+    }));
     for (const item of clinicalCases) {
       if (item.kind !== 'investigation') continue;
-      for (const id of item.anatomy) {
-        const model = caseAnatomy[id];
-        expect(atlasParts.some(part => part.id === model.nodeId && `body-${part.layer}` === model.assetId)).toBe(true);
-        expect(model.imagen).toContain('.webp');
+      for (const region of item.anatomy) {
+        const anatomy = resolveCaseAnatomy(region);
+        if (!anatomy) throw new Error(`Anatomía sin resolver: ${region.structureId}/${region.partId}`);
+        const nodes = modelNodes.get(anatomy.model.assetId) ?? [];
+        const root = nodes.find(node => node.name === anatomy.model.nodeId);
+        const children = root?.children?.map(index => nodes[index]) ?? [];
+        expect(root).toBeDefined();
+        expect(anatomy.image).toContain('.webp');
+        expect(anatomy.anchor.point.every(Number.isFinite)).toBe(true);
+        if (anatomy.selectedNodeId) expect(children).toContainEqual(expect.objectContaining({ name: anatomy.selectedNodeId, mesh: expect.any(Number) }));
+        if (region.structureId === 'skull') expect(children).toContainEqual(expect.objectContaining({ name: 'skull__mandibula', mesh: expect.any(Number) }));
       }
     }
   });

@@ -40,7 +40,8 @@
   color: #69917f;
 }
 .clinical-match-port::before { content: ''; width: 13px; height: 13px; border: 2px solid currentColor; border-radius: 50%; background: var(--paper); }
-.clinical-match-patients .clinical-match-port { inset-block-end: -17px; cursor: grab; touch-action: none; }
+.clinical-match-port { cursor: grab; touch-action: none; }
+.clinical-match-patients .clinical-match-port { inset-block-end: -17px; }
 .clinical-match-causes .clinical-match-port { inset-block-start: -17px; }
 .clinical-match-node[data-linked="true"] .clinical-match-port::before { background: currentColor; box-shadow: 0 0 0 2px var(--paper); }
 .clinical-match-wires { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }

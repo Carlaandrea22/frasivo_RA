@@ -16,7 +16,15 @@ const instructionsEs = 'Haz tres preguntas y decide qué hipótesis investigarí
 
 export const investigationCases: readonly InvestigationCase[] = [{
   id: 'abdominal-investigation',
-  anatomy: ['stomach', 'small_intestine'],
+  anatomy: [{
+    structureId: 'stomach', partId: 'cuerpo',
+    contextEs: 'El cuerpo gástrico mezcla los alimentos con el jugo gástrico. Las náuseas tras la comida orientan a revisar el aparato digestivo.',
+    contextEn: 'The body of the stomach mixes food with gastric juice. Nausea after the meal points toward assessing the digestive system.',
+  }, {
+    structureId: 'small_intestine', partId: 'duodeno',
+    contextEs: 'El duodeno recibe el contenido del estómago. Aquí sirve de referencia para ubicar el intestino delgado. La diarrea puede tener su origen en distintos tramos.',
+    contextEn: 'The duodenum receives the contents of the stomach. It serves here as a landmark for the small intestine. Diarrhea can originate in different sections.',
+  }],
   kind: 'investigation',
   titleEs: 'Investigación · Dolor abdominal',
   summaryEs: 'Sigue las respuestas de Alex para decidir qué explorar primero.',
@@ -58,7 +66,15 @@ export const investigationCases: readonly InvestigationCase[] = [{
   revision: { estado: 'provisional', fuentes: [{ titulo: 'CDC · Food Poisoning Symptoms', url: 'https://www.cdc.gov/food-safety/signs-symptoms/index.html' }] },
 }, {
   id: 'headache-investigation',
-  anatomy: ['brain', 'skull'],
+  anatomy: [{
+    structureId: 'brain', partId: 'hemisferio_derecho',
+    contextEs: 'El hemisferio derecho se muestra como referencia bajo la zona del impacto. El dolor y la dificultad para concentrarse orientan la evaluación, pero por sí solos no localizan una lesión cerebral.',
+    contextEn: 'The right hemisphere is shown as a landmark beneath the impact site. Headache and trouble concentrating guide the assessment, but on their own they cannot locate a brain injury.',
+  }, {
+    structureId: 'skull', partId: 'parietales',
+    contextEs: 'Los parietales forman la parte superior y lateral del cráneo. Alex describe un golpe en la parte alta del lado derecho, cerca del parietal derecho.',
+    contextEn: 'The parietal bones form the upper sides of the skull. Alex describes a blow high on the right side, near the right parietal bone.',
+  }],
   kind: 'investigation',
   titleEs: 'Investigación · Dolor de cabeza',
   summaryEs: 'Reconstruye qué pasó antes de que empezara el dolor.',
@@ -71,8 +87,8 @@ export const investigationCases: readonly InvestigationCase[] = [{
     question('exposure', ['¿Estuviste cerca de pintura o productos de limpieza?', 'Were you around paint or cleaning products?'], ['No, ayer estuve casi todo el día fuera de casa.', 'No, I was out of the house most of yesterday.'], ['activity', 'medication', 'pain']),
     question('sleep', ['¿Dormiste bien anoche?', 'Did you sleep well last night?'], ['Dormí poco. Ya me dolía la cabeza cuando me acosté.', 'I didn’t sleep much. My head already hurt when I went to bed.'], ['before-bed', 'usual-sleep', 'pain']),
     question('onset', ['¿Qué estabas haciendo antes de que empezara?', 'What were you doing before it started?'], ['Estaba jugando fútbol con unos amigos.', 'I was playing soccer with some friends.'], ['impact', 'activity', 'pain']),
-    question('impact', ['¿Te diste algún golpe en la cabeza?', 'Did you hit your head?'], ['Sí, choqué con otro jugador y me golpeé la cabeza al caer.', 'Yes, I collided with another player and hit my head when I fell.'], ['timing', 'concentration', 'location'], 'head-impact'),
-    question('activity', ['¿Pasó algo fuera de lo común ayer?', 'Did anything unusual happen yesterday?'], ['Choqué con otro jugador y me golpeé la cabeza con el suelo.', 'I collided with another player and hit my head on the ground.'], ['timing', 'concentration', 'nausea'], 'head-impact'),
+    question('impact', ['¿Te diste algún golpe en la cabeza?', 'Did you hit your head?'], ['Sí, choqué con otro jugador y al caer me golpeé la parte alta del lado derecho de la cabeza.', 'Yes, I collided with another player and hit the upper right side of my head when I fell.'], ['timing', 'concentration', 'location'], 'head-impact'),
+    question('activity', ['¿Pasó algo fuera de lo común ayer?', 'Did anything unusual happen yesterday?'], ['Choqué con otro jugador y me golpeé la parte alta del lado derecho de la cabeza contra el suelo.', 'I collided with another player and struck the upper right side of my head on the ground.'], ['timing', 'concentration', 'nausea'], 'head-impact'),
     question('before-bed', ['¿Cuánto tiempo antes de acostarte empezó el dolor?', 'How long before you went to bed did the pain start?'], ['Varias horas antes, poco después de caerme jugando fútbol.', 'Several hours before, shortly after I fell while playing soccer.'], ['fall-detail', 'concentration', 'location'], 'after-impact'),
     question('usual-sleep', ['¿Sueles tener dolores de cabeza cuando duermes poco?', 'Do you usually get headaches when you don’t sleep enough?'], ['No, normalmente no me pasa.', 'No, that doesn’t usually happen to me.'], ['fall-detail', 'timing', 'location']),
     question('medication', ['¿Empezaste a tomar algún medicamento nuevo?', 'Have you started taking any new medicine?'], ['No, no he tomado nada nuevo.', 'No, I haven’t taken anything new.'], ['fall-detail', 'concentration', 'nausea']),
@@ -80,7 +96,7 @@ export const investigationCases: readonly InvestigationCase[] = [{
     question('fall-detail', ['¿Te golpeaste la cabeza ayer?', 'Did you hit your head yesterday?'], ['Sí, al caerme durante el partido.', 'Yes, when I fell during the game.'], undefined, 'head-impact'),
     question('timing', ['¿Qué pasó justo antes del primer dolor?', 'What happened just before you first felt the pain?'], ['Me caí jugando fútbol. La cabeza empezó a dolerme poco después.', 'I fell while playing soccer. My head started hurting shortly afterward.'], undefined, 'after-impact'),
     question('concentration', ['¿Has notado cambios al concentrarte?', 'Have you noticed any changes in your concentration?'], ['Hoy me costó seguir lo que estaba leyendo.', 'I had trouble following what I was reading today.']),
-    question('location', ['¿En qué parte de la cabeza lo sientes?', 'Where on your head do you feel it?'], ['Lo siento sobre todo en un lado.', 'I mostly feel it on one side.']),
+    question('location', ['¿En qué parte de la cabeza lo sientes?', 'Where on your head do you feel it?'], ['En la parte alta del lado derecho, donde me golpeé.', 'High on the right side, where I hit my head.']),
     question('nausea', ['¿Has sentido náuseas?', 'Have you felt nauseous?'], ['No, he podido comer con normalidad.', 'No, I’ve been able to eat normally.']),
   ],
   findings: [
@@ -100,10 +116,14 @@ export const investigationCases: readonly InvestigationCase[] = [{
 }, {
   id: 'shin-investigation', kind: 'investigation', titleEs: 'Investigación · Dolor al correr',
   summaryEs: 'Relaciona los cambios de entrenamiento con el dolor de la pierna.',
-  anatomy: ['tibia_right'],
+  anatomy: [{
+    structureId: 'tibia', partId: 'cuerpo',
+    contextEs: 'El cuerpo de la tibia es la parte larga de la espinilla. La franja de dolor que describe Nora está junto al borde interno de la tibia izquierda, una zona que conviene evaluar al revisar la carga al correr.',
+    contextEn: 'The tibial shaft is the long part of the shinbone. Nora describes a strip of pain along the inner edge of the left tibia, an area to assess when reviewing running load.',
+  }],
   instructionsEs, patientName: 'Nora',
-  openingEs: 'Desde hace unos días me duele la parte de abajo de la pierna derecha.',
-  openingEn: 'The lower part of my right leg has been hurting for a few days.',
+  openingEs: 'Desde hace unos días me duele la parte de abajo de la pierna izquierda.',
+  openingEn: 'The lower part of my left leg has been hurting for a few days.',
   roots: ['load', 'site', 'start'],
   nodes: [
     question('load', ['¿Cambiaste algo en tu actividad física?', 'Did anything change in your physical activity?'], ['Empecé a correr cuatro días a la semana. Antes corría solo los domingos.', 'I started running four days a week. I used to run only on Sundays.'], ['rest', 'tender', 'shoes'], 'increase'),
@@ -131,12 +151,16 @@ export const investigationCases: readonly InvestigationCase[] = [{
   preferredHypothesisId: 'training',
   debriefEs: 'El aumento reciente del entrenamiento y el dolor repartido por la espinilla orientan a explorar la carga repetida. La entrevista por sí sola no distingue todas las causas de dolor en esa zona.',
   debriefEn: 'The recent increase in training and pain spread along the shin suggest looking into repetitive loading. An interview alone cannot distinguish all causes of pain in that area.',
-  structuresRelated: ['tibia_right'],
+  structuresRelated: ['tibia_left'],
   revision: { estado: 'provisional', fuentes: [{ titulo: 'NHS · Shin splints', url: 'https://www.nhs.uk/conditions/shin-splints/' }] },
 }, {
   id: 'breathing-investigation', kind: 'investigation', titleEs: 'Investigación · Respiración entrecortada',
   summaryEs: 'Reconstruye cuándo le cuesta respirar a Eli.',
-  anatomy: ['lungs'],
+  anatomy: [{
+    structureId: 'lungs', partId: 'bronquios',
+    contextEs: 'El punto ubica la entrada aproximada de los bronquios en los pulmones. El silbido al exhalar durante el ejercicio orienta a evaluar si estas vías respiratorias se estrechan durante el esfuerzo.',
+    contextEn: 'The marker shows approximately where the bronchi enter the lungs. Wheezing while breathing out during exercise suggests checking whether these airways narrow during exertion.',
+  }],
   instructionsEs, patientName: 'Eli',
   openingEs: 'A veces me cuesta respirar. Ahora estoy bien, pero me ha pasado varias veces.',
   openingEn: 'Sometimes it is hard to breathe. I feel fine now, but it has happened several times.',

@@ -1,6 +1,6 @@
 import { ArrowRight, Route } from 'lucide-react';
 import { Card } from '../../shared/ui/Card';
-import { practiceModeLabels, recommendationHref, recommendationReason, type PracticeMode, type practiceProgress } from './practiceProgress';
+import { practiceModeLabels, recommendationHref, recommendationReason, type PracticeFormatFilter, type PracticeMode, type practiceProgress } from './practiceProgress';
 
 const modeColors = {
   interview: '#2b8067',
@@ -16,7 +16,9 @@ const modeColors = {
   'other-challenge': '#87725c',
 } satisfies Record<PracticeMode, string>;
 
-export function PracticeActivity({ modes, recommendation }: Pick<ReturnType<typeof practiceProgress>, 'modes' | 'recommendation'>) {
+export function PracticeActivity({ modes, recommendation, format }: Pick<ReturnType<typeof practiceProgress>, 'modes' | 'recommendation'> & {
+  format: PracticeFormatFilter;
+}) {
   const total = modes.reduce((sum, { count }) => sum + count, 0);
   const practiced = modes.filter(mode => mode.count > 0);
   let end = 0;
@@ -29,7 +31,8 @@ export function PracticeActivity({ modes, recommendation }: Pick<ReturnType<type
   return <Card className="progress-entry progress-activity">
     <h2>Prácticas por tipo de ejercicio</h2>
     {total === 0 ? <>
-      <p>Completa un caso clínico o un reto de anatomía para ver tu distribución.</p>
+      <p>{format === 'all' ? 'Completa un caso clínico o un reto de anatomía para ver tu distribución.'
+        : 'Todavía no tienes prácticas registradas en esta modalidad.'}</p>
       <a className="button button--secondary lumar-link progress-practice-link" href="#practicar">Ir a Practicar <ArrowRight size={16}/></a>
     </> : <div className="progress-activity-breakdown">
       <div className="progress-donut" aria-hidden="true" style={{ backgroundImage: `conic-gradient(${slices.join(', ')})` }}>
@@ -51,8 +54,8 @@ export function PracticeActivity({ modes, recommendation }: Pick<ReturnType<type
         <p>{recommendationReason(recommendation)}</p>
       </div>
       <a className="button button--secondary lumar-link progress-practice-link"
-        href={recommendationHref(recommendation)}>
-        Practicar este modo <ArrowRight size={16}/>
+        href={recommendationHref(recommendation, format)}>
+        {format === 'evaluacion' ? 'Hacer una evaluación' : 'Practicar este modo'} <ArrowRight size={16}/>
       </a>
     </div>}
   </Card>;

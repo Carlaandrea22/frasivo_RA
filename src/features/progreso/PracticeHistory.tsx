@@ -1,12 +1,14 @@
 import { useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
+import type { RouteProps } from '../../shared/navegacion';
 import { getProgress, subscribeProgress, type PracticeEvent } from '../../shared/progreso';
 import { Button } from '../../shared/ui/Button';
 import { Card } from '../../shared/ui/Card';
 import { ContentState } from '../../shared/ui/ContentState';
 import { Segmented } from '../../shared/ui/Segmented';
+import { PracticeFormatSelect, progressHref } from './PracticeFormatSelect';
 import { PracticeSummary } from './PracticeSummary';
-import { practiceGroup, practiceGroupLabels, practiceTitle } from './practiceProgress';
+import { practiceFormat, practiceGroup, practiceGroupLabels, practiceTitle, readPracticeFormat, type PracticeFormatFilter } from './practiceProgress';
 import './progreso.css';
 
 const pageSize = 10;
@@ -14,17 +16,19 @@ const monthFormat = new Intl.DateTimeFormat('es', { month: 'long', year: 'numeri
 const filters = [{ id: 'all', label: 'Todas' }, ...Object.entries(practiceGroupLabels).map(([id, label]) => ({ id, label }))];
 const searchKey = (text: string) => text.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLocaleLowerCase('es').trim();
 
-export function Practicas() {
+export function Practicas({ params }: RouteProps) {
   const { events } = useSyncExternalStore(subscribeProgress, getProgress);
-  const [filter, setFilter] = useState('all');
+  const [groupFilter, setGroupFilter] = useState('all');
+  const format = readPracticeFormat(params.formato);
   const [query, setQuery] = useState('');
   const [page, setPage] = useState(1);
   const results = useRef<HTMLParagraphElement>(null);
   const rows = useMemo(() => events.flatMap(event => event.kind === 'practice' ? [{
-    event, group: practiceGroup(event), title: searchKey(practiceTitle(event)),
+    event, group: practiceGroup(event), format: practiceFormat(event), title: searchKey(practiceTitle(event)),
   }] : []).reverse(), [events]);
   const search = searchKey(query);
-  const matches = rows.filter(row => (filter === 'all' || row.group === filter) && row.title.includes(search));
+  const matches = rows.filter(row => (groupFilter === 'all' || row.group === groupFilter)
+    && (format === 'all' || row.format === format) && row.title.includes(search));
   const pages = Math.max(1, Math.ceil(matches.length / pageSize));
   const currentPage = Math.min(page, pages);
   const start = (currentPage - 1) * pageSize;
@@ -42,10 +46,14 @@ export function Practicas() {
     results.current?.focus();
     results.current?.scrollIntoView({ block: 'start' });
   };
+  const changeFormat = (value: PracticeFormatFilter) => {
+    setPage(1);
+    window.location.replace(progressHref('history', value));
+  };
 
   return <section className="lumar-page progress-page">
     <header className="progress-history-heading">
-      <a className="button button--text lumar-link" href="#progreso"><ArrowLeft size={16}/> Mi progreso</a>
+      <a className="button button--text lumar-link" href={progressHref('overview', format)}><ArrowLeft size={16}/> Mi progreso</a>
       <h1>Mis prácticas</h1>
     </header>
     {rows.length > 0 ? <>
@@ -53,7 +61,8 @@ export function Practicas() {
         <label htmlFor="practice-search">Buscar práctica</label>
         <input type="search" className="lumar-search" id="practice-search" value={query} placeholder="Nombre del caso o reto"
           onChange={event => { setQuery(event.target.value); setPage(1); }}/>
-        <Segmented label="Tipo de práctica" value={filter} options={filters} onChange={value => { setFilter(value); setPage(1); }}/>
+        <PracticeFormatSelect format={format} onChange={changeFormat}/>
+        <Segmented label="Tipo de práctica" value={groupFilter} options={filters} onChange={value => { setGroupFilter(value); setPage(1); }}/>
       </section>
       <p className="progress-history-count" ref={results} tabIndex={-1} aria-live="polite">
         {visible.length > 0 ? `${start + 1}–${start + visible.length} de ${matches.length} ${matches.length === 1 ? 'práctica' : 'prácticas'}` : '0 prácticas'}
@@ -64,7 +73,7 @@ export function Practicas() {
           <PracticeSummary event={event} history/>
         </Card>)}
       </section>) : <ContentState state="empty" title="No hay prácticas que coincidan">
-        <Button variant="secondary" onClick={() => { setQuery(''); setFilter('all'); setPage(1); }}>Limpiar filtros</Button>
+        <Button variant="secondary" onClick={() => { setQuery(''); setGroupFilter('all'); changeFormat('all'); }}>Limpiar filtros</Button>
       </ContentState>}
       {pages > 1 && <nav className="progress-pagination" aria-label="Paginación del historial">
         <Button variant="secondary" aria-label="Página anterior" disabled={currentPage === 1} onClick={() => goToPage(currentPage - 1)}>

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { AlertCircle, ArrowRight, Check, RotateCcw } from 'lucide-react';
 import type { ClinicalCase } from '../../content/casos/sessionTypes';
+import type { PracticeSessionMode } from '../../shared/progreso';
 import { Button } from '../../shared/ui/Button';
 import { Card } from '../../shared/ui/Card';
 import { isPerfectWithoutHints, performanceLevel } from './clinicalEngine';
@@ -21,10 +22,11 @@ export interface CaseStepProps<T extends ClinicalCase> {
   last: boolean;
   retried: boolean;
   markRetry: () => void;
+  mode: PracticeSessionMode;
   submitTimed?: (score: Score) => boolean;
 }
 
-export function CaseResult({ title, children, score, retried, markRetry, last, onComplete, onRetry, submitTimed,
+export function CaseResult({ title, children, score, retried, markRetry, last, onComplete, onRetry, submitTimed, mode,
   retryLabel = 'Reintentar', solution, solutionLabel = 'Ver respuesta correcta' }: Omit<CaseStepProps<ClinicalCase>, 'item'> & {
   title: string;
   children?: ReactNode;
@@ -36,7 +38,7 @@ export function CaseResult({ title, children, score, retried, markRetry, last, o
 }) {
   const level = performanceLevel(score);
   const [revealed, setRevealed] = useState(false);
-  const canRetry = !submitTimed && score.errors > 0 && !revealed;
+  const canRetry = mode === 'entrenamiento' && !submitTimed && score.errors > 0 && !revealed;
   const heading = useRef<HTMLHeadingElement>(null);
   const solutionHeading = useRef<HTMLHeadingElement>(null);
   useEffect(() => { heading.current?.focus(); }, []);
@@ -49,7 +51,7 @@ export function CaseResult({ title, children, score, retried, markRetry, last, o
     <h2 tabIndex={-1} ref={heading}>{title}</h2>
     {retried && <p className="clinical-result-meta">Resultado del reintento</p>}
     {children}
-    {solution && (score.errors === 0 || revealed || submitTimed) && <section className="clinical-debrief">
+    {solution && !canRetry && <section className="clinical-debrief">
       <h3 ref={solutionHeading} tabIndex={-1}>Corrección</h3>
       {revealed && <p className="clinical-result-meta">Solución revelada. Este intento quedó cerrado.</p>}
       <div>{solution}</div>

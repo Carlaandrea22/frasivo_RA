@@ -85,6 +85,7 @@ test('la investigación permite seguir una ruta débil, reiniciar y guardar solo
   await expect(page.getByText(/2 de 2 hallazgos clave.*1 de 1 punto/)).toBeVisible();
   const stomach = page.getByRole('region', { name: 'Modelo 3D · Estómago' });
   await expect(stomach).toHaveAttribute('data-viewer-state', 'ready', { timeout: 15000 });
+  await expect(page.getByRole('region', { name: 'Anatomía del caso' })).toContainText('Cuerpo gástrico');
   await next(page);
   await expect(page.getByRole('heading', { name: 'Investigación · Dolor de cabeza' })).toBeVisible();
   await choose(page, /Qué estabas haciendo antes/);
@@ -95,6 +96,7 @@ test('la investigación permite seguir una ruta débil, reiniciar y guardar solo
   await expect(page.getByRole('region', { name: 'Modelo 3D · Cerebro' })).toHaveAttribute('data-viewer-state', 'ready', { timeout: 15000 });
   await choose(page, 'Cráneo');
   await expect(page.getByRole('region', { name: 'Modelo 3D · Cráneo' })).toHaveAttribute('data-viewer-state', 'ready', { timeout: 15000 });
+  await expect(page.getByRole('region', { name: 'Anatomía del caso' })).toContainText('Parietales');
 
   await page.goto('/#progreso/practicas');
   const entry = page.getByRole('article').filter({ hasText: 'Investigación · Dolor abdominal' });
@@ -104,6 +106,26 @@ test('la investigación permite seguir una ruta débil, reiniciar y guardar solo
   await expect(entry.getByText('¿Tu amiga comió lo mismo que tú?')).toBeVisible();
   await expect(entry.getByText(/Hipótesis elegida.*enfermedad transmitida por alimentos/)).toBeVisible();
   await expect(entry.getByText('¿Tienes alguna enfermedad conocida?')).toHaveCount(0);
+});
+
+test('Evaluación desactiva las pistas y corrige solo tras comprobar', async ({ page }) => {
+  await choose(page, 'Evaluación');
+  await choose(page, 'Practicar solo Ordenar actuaciones');
+  await expect(page.getByRole('button', { name: 'Pista de orden' })).toHaveCount(0);
+  await expect(page.getByRole('list', { name: 'Orden correcto' })).toHaveCount(0);
+  await choose(page, 'Comprobar orden');
+  await expect(page.getByRole('heading', { name: '3 de 5 posiciones correctas' })).toBeVisible();
+  await expect(page.getByRole('list', { name: 'Orden correcto' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Reintentar' })).toHaveCount(0);
+
+  await choose(page, 'Salir');
+  await expect(page.getByRole('button', { name: 'Evaluación' })).toHaveAttribute('aria-pressed', 'true');
+  await choose(page, 'Practicar solo Selección múltiple');
+  await expect(page.getByRole('button', { name: 'Descartar una opción' })).toHaveCount(0);
+  await choose(page, 'Salir');
+  await choose(page, 'Entrenamiento');
+  await choose(page, 'Practicar solo Selección múltiple');
+  await expect(page.getByRole('button', { name: 'Descartar una opción' })).toBeEnabled();
 });
 
 test('completa los cinco modos y muestra los resultados al finalizar', async ({ page }) => {

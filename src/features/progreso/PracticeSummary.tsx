@@ -1,10 +1,10 @@
 import { ArrowRight } from 'lucide-react';
 import { casos } from '../../content/casos/rodilla';
 import { clinicalModeLabels } from '../../content/casos/sessionTypes';
-import { retoModeLabels, retoTypeLabels } from '../../content/types';
+import { retoTypeLabels } from '../../content/types';
 import type { PracticeEvent, ReasoningText } from '../../shared/progreso';
 import { retoTuvoReintentos, rutaResultado } from '../retos/intentos';
-import { challengeCatalog, clinicalCatalog, practiceGroup, practiceGroupLabels, practiceId, practiceTitle } from './practiceProgress';
+import { challengeCatalog, clinicalCatalog, practiceFormat, practiceFormatLabels, practiceGroup, practiceGroupLabels, practiceId, practiceTitle } from './practiceProgress';
 
 const fecha = new Intl.DateTimeFormat('es', { dateStyle: 'medium' });
 
@@ -34,7 +34,7 @@ export function PracticeSummary({ event, history = false }: { event: PracticeEve
   const reto = challengeCatalog.get(id);
   const group = practiceGroup(event);
   const route = item?.kind === 'investigation' && event.context?.kind === 'caso' ? event.context : undefined;
-  const mode = event.context?.kind === 'reto' ? retoModeLabels[event.context.mode] : undefined;
+  const format = practiceFormatLabels[practiceFormat(event)];
   const type = reto ? retoTypeLabels[reto.tipo] : item && clinicalModeLabels[item.kind];
   const retried = reto ? retoTuvoReintentos(reto, event) : event.retried;
   const Heading = history ? 'h3' : 'h2';
@@ -44,14 +44,14 @@ export function PracticeSummary({ event, history = false }: { event: PracticeEve
       <Heading>{practiceTitle(event)}</Heading>
       <time dateTime={event.timestamp}>{fecha.format(new Date(event.timestamp))}</time>
     </div>
-    {(group || mode || event.quick) && <p className="progress-entry-type">
-      {[group && practiceGroupLabels[group], type, event.quick ? 'Práctica rápida' : mode].filter(Boolean).join(' · ')}
-    </p>}
+    <p className="progress-entry-type">
+      {[group && practiceGroupLabels[group], type, format].filter(Boolean).join(' · ')}
+    </p>
     <PracticeMetrics {...event}/>
     {retried && <p className="progress-caption">
       {group === 'challenge' ? 'Incluye respuestas reintentadas' : event.errors ? 'Se volvió a intentar' : 'Resuelto en un reintento'}
     </p>}
-    {reto && mode && <div><a className="progress-result-link" href={rutaResultado(reto.id, event.id)}>
+    {reto && event.context?.kind === 'reto' && <div><a className="progress-result-link" href={rutaResultado(reto.id, event.id)}>
       Ver resultado del reto <ArrowRight size={14}/>
     </a></div>}
     {item?.kind === 'investigation' && route && <details>

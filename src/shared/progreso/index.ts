@@ -24,8 +24,10 @@ export interface ReasoningEvidence {
   readonly revised?: ReasoningText;
 }
 
+export type PracticeSessionMode = 'entrenamiento' | 'evaluacion';
+
 export type PracticeContext =
-  | { readonly kind: 'reto'; readonly mode: 'entrenamiento' | 'evaluacion' }
+  | { readonly kind: 'reto'; readonly mode: PracticeSessionMode }
   | { readonly kind: 'caso'; readonly questionIds: readonly string[]; readonly hypothesisId: string };
 
 export interface PracticeInput extends ProgressTarget {
@@ -35,6 +37,7 @@ export interface PracticeInput extends ProgressTarget {
   readonly assisted?: number;
   readonly retried?: boolean;
   readonly quick?: boolean;
+  readonly mode?: PracticeSessionMode;
   readonly context?: PracticeContext;
   readonly reasoning?: ReasoningEvidence;
 }
@@ -171,9 +174,13 @@ function isReasoningEvidence(value: unknown): value is ReasoningEvidence {
     (value.revised === undefined || isReasoningText(value.revised));
 }
 
+function isPracticeSessionMode(value: unknown): value is PracticeSessionMode {
+  return value === 'entrenamiento' || value === 'evaluacion';
+}
+
 function isPracticeContext(value: unknown): value is PracticeContext {
   if (!isRecord(value)) return false;
-  if (value.kind === 'reto') return value.mode === 'entrenamiento' || value.mode === 'evaluacion';
+  if (value.kind === 'reto') return isPracticeSessionMode(value.mode);
   return value.kind === 'caso' && Array.isArray(value.questionIds) &&
     value.questionIds.every(isId) && isId(value.hypothesisId);
 }
@@ -197,6 +204,7 @@ function isProgressEvent(value: unknown): value is ProgressEvent {
         (value.assisted === undefined || isCount(value.assisted)) &&
         (value.retried === undefined || typeof value.retried === 'boolean') &&
         (value.quick === undefined || typeof value.quick === 'boolean') &&
+        (value.mode === undefined || isPracticeSessionMode(value.mode)) &&
         (value.context === undefined || isPracticeContext(value.context)) &&
         (value.reasoning === undefined || isReasoningEvidence(value.reasoning));
     case 'demonstration':

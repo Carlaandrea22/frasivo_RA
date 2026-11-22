@@ -44,6 +44,27 @@ it('sugiere un modo menos practicado cuando el desempeño es bueno', () => {
   expect(practiceProgress([]).recommendation).toBeUndefined();
 });
 
+it('separa los formatos guardados y calcula las sugerencias del formato elegido', () => {
+  const storage = new LocalStorage();
+  const clinical = { areaId: 'anatomy', groupId: 'clinical-cases', hints: 0 };
+  recordPractice({ ...clinical, itemId: 'knee-conversation', correct: 0, errors: 3 }, storage);
+  recordPractice({ ...clinical, itemId: 'matching-daily', correct: 1, errors: 2, mode: 'evaluacion' }, storage);
+  recordPractice({
+    ...target, activityId: 'corazon-3d', correct: 1, errors: 0, hints: 0,
+    context: { kind: 'reto', mode: 'evaluacion' },
+  }, storage);
+  recordPractice({
+    ...target, activityId: 'corazon-3d', correct: 0, errors: 1, hints: 0,
+    quick: true, context: { kind: 'reto', mode: 'evaluacion' },
+  }, storage);
+
+  const { events } = getProgress(storage);
+  expect(practiceProgress(events).formats).toEqual({ entrenamiento: 1, evaluacion: 2, rapida: 1 });
+  expect(practiceProgress(events, 'entrenamiento')).toMatchObject({ completed: 1, recommendation: { kind: 'interview' } });
+  expect(practiceProgress(events, 'evaluacion')).toMatchObject({ completed: 2, recommendation: { kind: 'matching' } });
+  expect(practiceProgress(events, 'rapida')).toMatchObject({ completed: 1, recommendation: { kind: 'senala-estructura' } });
+});
+
 it('suma un intento por reto y usa su tipo para el gráfico y la recomendación', () => {
   const storage = new LocalStorage();
   const target = { areaId: 'anatomy', groupId: 'organos', itemId: 'heart', activityId: 'corazon-3d' };

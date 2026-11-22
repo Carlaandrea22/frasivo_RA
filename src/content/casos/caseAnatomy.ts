@@ -1,18 +1,40 @@
-import brain from '../../../assets/anatomy/body/sprites/brain.webp?url';
-import skull from '../../../assets/anatomy/body/sprites/skull.webp?url';
-import stomach from '../../../assets/anatomy/body/sprites/stomach.webp?url';
-import intestine from '../../../assets/anatomy/body/sprites/small_intestine.webp?url';
-import lungs from '../../../assets/anatomy/body/sprites/lungs.webp?url';
-import tibia from '../../../assets/anatomy/body/sprites/tibia_right.webp?url';
-import type { ReferenciaModelo } from '../types';
+import { estructuras } from '../anatomy/catalogo';
+import { anotaciones } from '../anotaciones/anatomia';
+import type { Punto3D } from '../types';
 
-export const caseAnatomy = {
-  brain: { nombre: 'Cerebro', assetId: 'body-organs', nodeId: 'brain', imagen: brain },
-  skull: { nombre: 'Cráneo', assetId: 'body-bones', nodeId: 'skull', imagen: skull },
-  stomach: { nombre: 'Estómago', assetId: 'body-organs', nodeId: 'stomach', imagen: stomach },
-  small_intestine: { nombre: 'Intestino delgado', assetId: 'body-organs', nodeId: 'small_intestine', imagen: intestine },
-  lungs: { nombre: 'Pulmones', assetId: 'body-organs', nodeId: 'lungs', imagen: lungs },
-  tibia_right: { nombre: 'Tibia derecha', assetId: 'body-bones', nodeId: 'tibia_right', imagen: tibia },
-} satisfies Record<string, ReferenciaModelo & { nombre: string; imagen: string }>;
+export interface CaseAnatomyRegion {
+  structureId: string;
+  partId: string;
+  contextEs: string;
+  contextEn: string;
+}
 
-export type CaseAnatomyId = keyof typeof caseAnatomy;
+// The lung model separates the lobes. This point locates the entrance to the
+// branching airways without highlighting any one lobe as the source.
+const bronchialEntrance: Punto3D = [0, 1.29, .105];
+
+export function resolveCaseAnatomy({ structureId, partId }: CaseAnatomyRegion) {
+  const structure = estructuras.find(item => item.id === structureId);
+  if (!structure?.modelo || !structure.miniatura) return;
+
+  const { nombreEs: name, modelo: model, miniatura: image } = structure;
+  if (structureId === 'lungs' && partId === 'bronquios') {
+    return {
+      name, model, image,
+      partEs: 'Bronquios',
+      partEn: 'Bronchi',
+      anchor: { id: partId, nodeId: model.nodeId, point: bronchialEntrance },
+      selectedNodeId: null,
+    };
+  }
+
+  const note = anotaciones.find(item => item.estructuraId === structureId && item.parteId === partId);
+  if (!note) return;
+  return {
+    name, model, image,
+    partEs: note.etiquetaEs,
+    partEn: note.etiquetaEn,
+    anchor: { id: partId, nodeId: note.nodeId, point: note.punto },
+    selectedNodeId: note.nodeId,
+  };
+}

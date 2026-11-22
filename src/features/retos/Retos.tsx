@@ -448,14 +448,15 @@ function Resultados({ reto, intento, quickExit }: { reto: Reto; intento: string;
   </section>;
 }
 
-function RecommendedChallenge({ options }: { options: readonly Reto[] }) {
+function RecommendedChallenge({ options, mode }: { options: readonly Reto[]; mode: ModoReto }) {
   const [reto] = useState(() => options[Math.floor(Math.random() * options.length)]);
-  return <Juego reto={reto} modo="entrenamiento"/>;
+  return <Juego reto={reto} modo={mode}/>;
 }
 
 export function RetoRecomendado({ params }: RouteProps) {
-  const options = retos.filter(reto => reto.tipo === params.modo && reto.modos.includes('entrenamiento'));
-  if (options.length) return <RecommendedChallenge key={params.modo} options={options}/>;
+  const mode = params.formato === 'evaluacion' ? 'evaluacion' : 'entrenamiento';
+  const options = retos.filter(reto => reto.tipo === params.modo && reto.modos.includes(mode));
+  if (options.length) return <RecommendedChallenge key={`${params.modo}/${mode}`} options={options} mode={mode}/>;
   return <section className="lumar-page"><ContentState state="unavailable" title="Modo de reto no disponible">
     <a href={rutaRetos}>Ver retos de anatomía</a>
   </ContentState></section>;

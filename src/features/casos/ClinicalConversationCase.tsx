@@ -168,7 +168,7 @@ export function InvestigationCaseView({ item, ...step }: CaseStepProps<Investiga
         <Bilingual es={option.textEs} en={option.textEn}/>
       </Button>)}
     </div>
-    {!step.submitTimed && <Button variant="text" className="clinical-retry" onClick={retry}><RotateCcw size={17}/> Volver al primer turno</Button>}
+    {!step.submitTimed && step.mode === 'entrenamiento' && <Button variant="text" className="clinical-retry" onClick={retry}><RotateCcw size={17}/> Volver al primer turno</Button>}
   </Card>;
 
   const score = grade(hypothesisId);
@@ -185,12 +185,12 @@ export function InvestigationCaseView({ item, ...step }: CaseStepProps<Investiga
         <p><strong>Hallazgos que faltaron</strong></p>
         <ul className="clinical-findings">{missing.map(finding => <li key={finding.id}><Bilingual es={finding.textEs} en={finding.textEn}/></li>)}</ul>
       </>}
+      <ClinicalAnatomy structures={item.anatomy}/>
     </>}>
     <p>{findings.length} de {item.findings.length} hallazgos clave · {correct} de 1 punto</p>
     {chosen && chosen.id !== preferred?.id && <p><strong>Tu hipótesis</strong><Bilingual es={chosen.textEs} en={chosen.textEn}/></p>}
     {findings.length > 0 && <ul className="clinical-findings" aria-label="Hallazgos que obtuviste">
       {findings.map(finding => <li key={finding.id}><Bilingual es={finding.textEs} en={finding.textEn}/></li>)}
     </ul>}
-    <ClinicalAnatomy structures={item.anatomy}/>
   </CaseResult>;
 }
