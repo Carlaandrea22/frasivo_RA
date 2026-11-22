@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useId, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 import { X } from 'lucide-react';
 import { Button } from '../../shared/ui/Button';
 import { EnglishTerm } from '../../shared/ui/EnglishTerm';
@@ -12,6 +12,11 @@ import './boneLabels.css';
 
 export type { BoneTarget } from './boneLabelPlacement';
 
+export interface AnatomyDetailRequest {
+  id: string;
+  provisional?: boolean;
+}
+
 export const mainBoneIds = ['skull', 'humerus', 'ribs', 'pelvis', 'femur', 'tibia'];
 export const mainAnatomyIds: Record<AnatomyLayer, readonly string[]> = {
   bones: mainBoneIds,
@@ -24,7 +29,7 @@ const HeartViewer = lazy(() => import('../../shared/visor3d/Viewer3D'));
 
 export function BoneLabels({ targets, selected, showAll = false, layer = 'bones', reservedTop, reservedBottom, preferredIds, provisionalIds = [], detailRequest }: {
   targets: readonly BoneTarget[]; selected?: string; showAll?: boolean; layer?: AnatomyLayer; reservedTop?: number; reservedBottom?: number;
-  preferredIds?: readonly string[]; provisionalIds?: readonly string[]; detailRequest?: { id: string };
+  preferredIds?: readonly string[]; provisionalIds?: readonly string[]; detailRequest?: AnatomyDetailRequest;
 }) {
   const host = useRef<HTMLDivElement>(null);
   const sheet = useRef<HTMLDialogElement>(null);
@@ -33,12 +38,16 @@ export function BoneLabels({ targets, selected, showAll = false, layer = 'bones'
   const [provisional, setProvisional] = useState(false);
   const [heartOpen, setHeartOpen] = useState(false);
   const consumedRequest = useRef<typeof detailRequest>(undefined);
-  const [size, setSize] = useState({ width: 375, height: 600 });
-  useEffect(() => {
-    const observer = new ResizeObserver(([entry]) => {
-      setSize({ width: entry.contentRect.width, height: entry.contentRect.height });
-    });
-    observer.observe(host.current!);
+  const [size, setSize] = useState({ width: 0, height: 0 });
+  useLayoutEffect(() => {
+    const element = host.current!;
+    const measure = () => {
+      const width = element.clientWidth, height = element.clientHeight;
+      setSize(previous => previous.width === width && previous.height === height ? previous : { width, height });
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(element);
     return () => observer.disconnect();
   }, []);
   const opened = names.get(detail);
@@ -55,7 +64,7 @@ export function BoneLabels({ targets, selected, showAll = false, layer = 'bones'
   useEffect(() => {
     if (!detailRequest || consumedRequest.current === detailRequest) return;
     consumedRequest.current = detailRequest;
-    openDetail(detailRequest.id, provisionalIds.includes(detailRequest.id));
+    openDetail(detailRequest.id, detailRequest.provisional ?? false);
   }, [detailRequest]);
   const targetIds = new Set(targets.map(target => target.id));
   const choices = new Set([...(preferredIds?.length ? preferredIds : mainAnatomyIds[layer]), ...targets.map(target => target.id)]);

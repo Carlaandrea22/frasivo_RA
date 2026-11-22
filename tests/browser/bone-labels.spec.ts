@@ -44,6 +44,7 @@ test('las tarjetas quedan junto a su hueso y las flechas terminan en píxeles op
       const tip = new DOMPoint(line.x2.baseVal.value, line.y2.baseVal.value)
         .matrixTransform(line.getScreenCTM()!).matrixTransform(source.getScreenCTM()!.inverse());
       const svg = line.ownerSVGElement!;
+      const atlas = source.ownerSVGElement!;
       const card = document.querySelector(`[data-bone-label="${line.dataset.boneArrow}"]`)!;
       const panel = document.querySelector('.anatomy-controls')!;
       return {
@@ -56,6 +57,8 @@ test('las tarjetas quedan junto a su hueso y las flechas terminan en píxeles op
         v: (tip.y - source.y.baseVal.value) / source.height.baseVal.value,
         bottom: card.getBoundingClientRect().bottom,
         panelTop: panel.getBoundingClientRect().top,
+        labelSize: [svg.clientWidth, svg.clientHeight],
+        atlasSize: [atlas.clientWidth, atlas.clientHeight],
       };
     });
     return await Promise.all(samples.map(async sample => {
@@ -73,9 +76,10 @@ test('las tarjetas quedan junto a su hueso y las flechas terminan en píxeles op
   });
   expect(new Set(projected.map(label => label.side))).toEqual(new Set(['left', 'right']));
   for (const label of projected) {
+    expect(label.labelSize, label.id).toEqual(label.atlasSize);
     expect(label.side, label.id).toBe(label.left ? 'left' : 'right');
     expect(label.originLeft, label.id).toBe(label.left);
-    expect(label.alpha, label.id).toBeGreaterThan(180);
+    expect(label.alpha, `${label.id} · ${label.src} · ${label.u}, ${label.v}`).toBeGreaterThan(180);
     expect(label.bottom, label.id).toBeLessThanOrEqual(label.panelTop);
   }
 });

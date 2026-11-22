@@ -72,7 +72,7 @@ test('Músculos muestra la palma y sus tendones con seguimiento de Hand Landmark
   await expect(label).toBeVisible();
   await metrics(page, testInfo, 'data-hand-error-px');
   await page.screenshot({ path: testInfo.outputPath('musculos-mano.png') });
-  await label.click();
+  await label.getByRole('button', { name: 'Ver ficha de Eminencia tenar' }).press('Enter');
   await expect(page.getByRole('dialog', { name: 'Eminencia tenar' }).getByText('Provisional')).toBeVisible();
 });
 
@@ -114,7 +114,7 @@ test('Órganos proyecta el cerebro de la cabeza, con el cuello fuera de cuadro',
   await metrics(page, testInfo, 'data-face-error-px');
   await expect(regional).toHaveAttribute('data-regional-part-ids', 'brain');
   await page.screenshot({ path: testInfo.outputPath('organos-cabeza.png') });
-  await label.click();
+  await label.getByRole('button', { name: 'Ver ficha de Cerebro' }).press('Enter');
   await expect(page.getByRole('dialog', { name: 'Cerebro' }).getByText('Provisional')).toBeVisible();
 });
 

@@ -24,7 +24,7 @@ jobs:
       - run: npm run build
       - run: npm test
       - run: npx playwright install --with-deps chrome
-      - run: npm run test:e2e -- --workers=2 --reporter=line,html
+      - run: npm run test:e2e -- --workers=1 --reporter=line,html
         env:
           PLAYWRIGHT_HTML_OPEN: never
       - name: Guardar evidencia de Playwright

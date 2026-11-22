@@ -5,7 +5,7 @@ import { warmAnatomyLayer } from '../../shared/pwa/offline';
 import { AnatomyOverlay } from './AnatomyOverlay';
 import { anatomyParts, type AnatomyLayer, type BodyPoint } from './anatomy';
 import { atlasPlacement, visibleRegion } from './atlasAlignment';
-import type { BoneTarget } from './BoneLabels';
+import type { AnatomyDetailRequest, BoneTarget } from './BoneLabels';
 import { posteriorBoneLabels } from './boneLabelPlacement';
 import FixedSkeleton from './FixedSkeleton';
 import type { CameraFraming } from './cameraFraming';
@@ -88,7 +88,7 @@ export default function MedicineExplorer() {
   const [viewportAspect, setViewportAspect] = useState(.8);
   const regionalHint = useRef<RegionalHint>({ fullBody: false, detailedHands: false });
   const [regionalTargets, setRegionalTargets] = useState<BoneTarget[]>(emptyTargets);
-  const [detailRequest, setDetailRequest] = useState<{ id: string }>();
+  const [detailRequest, setDetailRequest] = useState<AnatomyDetailRequest>();
   const camera = usePoseCamera(diagnostics ? recordDetection : undefined, true, regionalHint, captureProgress !== null);
   const live = camera.status === 'active';
   const waiting = camera.status === 'permission';
@@ -219,11 +219,11 @@ export default function MedicineExplorer() {
     setAudioError(false);
   }
 
-  function selectPart(id: string, openDetail = false) {
+  function selectPart(id: string, detailSource?: 'atlas' | 'regional') {
     setSelected(id);
     setBoneSelection(true);
     setTouched(previous => previous.includes(id) ? previous : [...previous, id]);
-    if (openDetail) setDetailRequest({ id });
+    if (detailSource) setDetailRequest({ id, provisional: detailSource === 'regional' });
     setAudioError(false);
   }
 
@@ -376,7 +376,7 @@ export default function MedicineExplorer() {
               aspect={aspect}
               selected={layer === 'organs' && !selected ? undefined : activeTerm}
               opacity={opacity / 100}
-              onSelect={id => selectPart(id, live && layer !== 'bones')}
+              onSelect={id => selectPart(id, live && layer !== 'bones' ? 'atlas' : undefined)}
               onFrame={diagnostics && !regional ? recordDrawing : undefined}
               showLabels={showLabels}
               showSelection={boneSelection}
@@ -389,7 +389,7 @@ export default function MedicineExplorer() {
               <RegionalBones layer={layer} hands={regions.hands} face={regions.face} feet={regionalFeet} neck={regions.neck}
                 aspect={aspect} selected={activeTerm} opacity={opacity / 100}
                 onFrame={diagnostics ? recordDrawing : undefined} onTargets={setRegionalTargets}
-                onSelect={id => selectPart(id, true)}/>
+                onSelect={id => selectPart(id, 'regional')}/>
             </Suspense>}
             {frozenVisible && frozenPlacement && projection && <div className="anatomy-frozen-preview" aria-label="Esqueleto fijado sobre la cámara">
               <AnatomyOverlay placement={frozenPlacement} live layer={layer} aspect={projection.aspect} opacity={opacity / 100} onSelect={() => {}}/>

@@ -1,7 +1,7 @@
 import { useId, useLayoutEffect, useRef, useState } from 'react';
 import type { AnatomyLayer, Matrix } from './anatomy';
 import { atlasParts, atlasSprite, atlasSpriteId, referenceFrame, type atlasPlacement, type AtlasPart } from './atlasAlignment';
-import { BoneLabels, type BoneTarget } from './BoneLabels';
+import { BoneLabels, type AnatomyDetailRequest, type BoneTarget } from './BoneLabels';
 import { OneEuro } from './oneEuro';
 import { applyBoneTransform, boneSpritePoints } from './boneLabelPlacement';
 import reference from '../../../assets/anatomy/body/body-reference.webp?url';
@@ -40,7 +40,7 @@ interface Props {
   reservedBottom?: number;
   regionalTargets?: readonly BoneTarget[];
   preferredLabelIds?: readonly string[];
-  detailRequest?: { id: string };
+  detailRequest?: AnatomyDetailRequest;
 }
 
 function mirrored([a, b, c, d]: Matrix) {

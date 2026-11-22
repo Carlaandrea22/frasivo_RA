@@ -447,7 +447,7 @@ test('una flecha sigue el hueso y muestra la ficha con enlace solo si existe en 
   await femur.dispatchEvent('click');
   await expect(page.locator('[data-bone-arrow=femur]')).toHaveAttribute('marker-end', /^url/);
   await expect(page.getByRole('button', { name: 'Escuchar Femur' })).toBeVisible();
-  await page.getByRole('button', { name: 'Ver ficha de Fémur' }).click();
+  await page.getByRole('button', { name: 'Ver ficha de Fémur' }).press('Enter');
   const sheet = page.getByRole('dialog', { name: 'Fémur' });
   await expect(sheet.getByRole('link', { name: 'Ver en Explorar 3D' })).toHaveAttribute('href', '#explorar/estructura/femur');
   expect(await page.evaluate(() => Object.keys(localStorage).some(key => key.startsWith('lumar.progress:v1:event:')))).toBe(true);
@@ -465,7 +465,7 @@ test('una flecha sigue el hueso y muestra la ficha con enlace solo si existe en 
   await expect(page.locator('[data-bone-arrow]')).toHaveCount(6);
   await page.screenshot({ path: testInfo.outputPath('etiquetas.png') });
   await page.locator('image[data-part=skull]').dispatchEvent('click');
-  await page.getByRole('button', { name: 'Ver ficha de Cráneo' }).click();
+  await page.getByRole('button', { name: 'Ver ficha de Cráneo' }).press('Enter');
   const skull = page.getByRole('dialog', { name: 'Cráneo' });
   await expect(skull).toBeVisible();
   await expect(skull.getByRole('link', { name: 'Ver en Explorar 3D' })).toHaveCount(0);
