@@ -16,6 +16,15 @@ const practiceCatalog = [
   ...clinicalCases.map(item => ({ id: item.id, title: item.titleEs })),
 ];
 
+function PracticeMetrics({ correct, errors, hints, assisted = 0 }: {
+  correct: number;
+  errors: number;
+  hints: number;
+  assisted?: number;
+}) {
+  return <p>{correct} aciertos · {assisted > 0 && <>{assisted} {assisted === 1 ? 'asistida' : 'asistidas'} · </>}{errors} errores · {hints} pistas</p>;
+}
+
 export function Progreso() {
   const { events, legacy } = useSyncExternalStore(subscribeProgress, getProgress);
   const consulted = new Set(events.filter(event => event.kind === 'consultation').map(event => event.itemId));
@@ -43,7 +52,7 @@ export function Progreso() {
     {last && <Card>
       <h2>Última práctica registrada</h2>
       {activity && <p>{activity.title}</p>}
-      <p>{last.correct} aciertos · {last.errors} errores · {last.hints} pistas</p>
+      <PracticeMetrics {...last}/>
     </Card>}
     {available.length ? <Card>
       <h2>Consultas recientes</h2>
@@ -84,7 +93,7 @@ export function Practicas() {
       return <Card key={event.id}>
         <h2>{item?.title ?? 'Actividad registrada'}</h2>
         <time dateTime={event.timestamp}>{fecha.format(new Date(event.timestamp))}</time>
-        <p>{event.correct} aciertos · {event.errors} errores · {event.hints} pistas</p>
+        <PracticeMetrics {...event}/>
         {event.reasoning && <details>
           <summary>Ficha de razonamiento</summary>
           <h3>Texto inicial del estudiante</h3>

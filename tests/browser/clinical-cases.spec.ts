@@ -106,7 +106,10 @@ test('recorre las cinco modalidades de una sesión y conserva cada resultado', a
   await page.getByRole('button', { name: 'Siguiente caso' }).click();
 
   await expect(page.getByRole('heading', { name: 'Completaste los cinco casos' })).toBeVisible();
-  await expect(page.getByText(/1 pista/)).toBeVisible();
+  await expect(page.getByText(/0 asistidas.*1 pista/)).toBeVisible();
+  await expect(page.getByText('4 con buen dominio')).toBeVisible();
+  await expect(page.getByText('0 en progreso')).toBeVisible();
+  await expect(page.getByText('1 para repasar')).toBeVisible();
   const practiceCount = await page.evaluate(() => Object.keys(localStorage)
     .filter(key => key.startsWith('lumar.progress:v1:event:')).length);
   expect(practiceCount).toBe(5);
@@ -162,5 +165,13 @@ test('reordena tarjetas, fija una posición con pista y refleja la ayuda en el r
   await page.getByRole('button', { name: 'Comprobar orden' }).click();
   await expect(page.getByText('1 posición colocada con pista')).toBeVisible();
   await expect(page.locator('.clinical-result[data-level="review"]')).toBeVisible();
+  await page.getByRole('button', { name: 'Siguiente caso' }).click();
+  const orderingPractice = await page.evaluate(() => Object.entries(localStorage)
+    .filter(([key]) => key.startsWith('lumar.progress:v1:event:'))
+    .map(([, value]) => JSON.parse(value))
+    .find(event => event.activityId === 'primary-assessment-order'));
+  expect(orderingPractice).toMatchObject({ assisted: 1, hints: 1 });
+  await page.goto('/#progreso/practicas');
+  await expect(page.getByText(/1 asistida/)).toBeVisible();
   expect(consoleErrors).toEqual([]);
 });

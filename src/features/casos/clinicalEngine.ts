@@ -128,10 +128,15 @@ export function applyOrderingHint(
   const targetIndex = expected.findIndex((id, index) => !locked.has(id) && order[index] !== id);
   if (targetIndex < 0) return { order: [...order], lockedIds: [...lockedIds] };
   const hintedId = expected[targetIndex];
-  const fromIndex = order.indexOf(hintedId);
-  if (fromIndex < 0) return { order: [...order], lockedIds: [...lockedIds] };
+  const movableIndexes = expected.map((_, index) => index).filter(index => !locked.has(expected[index]));
+  const movable = order.filter(id => !locked.has(id));
+  const fromIndex = movable.indexOf(hintedId);
+  const toIndex = movableIndexes.indexOf(targetIndex);
+  if (fromIndex < 0 || toIndex < 0) return { order: [...order], lockedIds: [...lockedIds] };
+  const moved = moveItem(movable, fromIndex, toIndex);
+  let cursor = 0;
   return {
-    order: moveItem(order, fromIndex, targetIndex),
+    order: expected.map(id => locked.has(id) ? id : moved[cursor++]),
     lockedIds: [...lockedIds, hintedId],
     hintedId,
   };

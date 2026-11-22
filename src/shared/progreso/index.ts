@@ -32,6 +32,7 @@ export interface PracticeInput extends ProgressTarget {
   readonly correct: number;
   readonly errors: number;
   readonly hints: number;
+  readonly assisted?: number;
   readonly context?: PracticeContext;
   readonly reasoning?: ReasoningEvidence;
 }
@@ -191,6 +192,7 @@ function isProgressEvent(value: unknown): value is ProgressEvent {
       return true;
     case 'practice':
       return isCount(value.correct) && isCount(value.errors) && isCount(value.hints) &&
+        (value.assisted === undefined || isCount(value.assisted)) &&
         (value.context === undefined || isPracticeContext(value.context)) &&
         (value.reasoning === undefined || isReasoningEvidence(value.reasoning));
     case 'demonstration':

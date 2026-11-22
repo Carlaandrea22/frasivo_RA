@@ -150,6 +150,11 @@
 .clinical-result[data-level="review"] .clinical-result-icon { background: #ffe0d6; color: #a23e24; }
 .clinical-result-meta { color: var(--muted); font-size: .85rem; }
 .clinical-complete { max-width: 38rem; align-content: center; justify-items: start; }
+.clinical-level-summary { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.clinical-level-summary li { padding: 8px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--white); }
+.clinical-level-summary li:nth-child(1) strong { color: var(--forest); }
+.clinical-level-summary li:nth-child(2) strong { color: #8a5b00; }
+.clinical-level-summary li:nth-child(3) strong { color: #a23e24; }
 
 @media (max-width: 760px) {
   .clinical-home, .clinical-session { padding-top: var(--space-2); }

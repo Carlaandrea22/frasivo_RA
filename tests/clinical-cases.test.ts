@@ -147,6 +147,17 @@ describe('sesión de casos clínicos', () => {
     expect(shortAgain.lockedIds).toEqual(short.lockedIds);
   });
 
+  it('una pista nueva conserva la posición absoluta de las tarjetas ya bloqueadas', () => {
+    const expected = ['a', 'b', 'c', 'd', 'e'];
+
+    const result = applyOrderingHint(['d', 'b', 'a', 'c', 'e'], expected, ['b']);
+
+    expect(result.order).toEqual(['a', 'b', 'd', 'c', 'e']);
+    expect(result.lockedIds).toEqual(['b', 'a']);
+    expect(result.order[expected.indexOf('b')]).toBe('b');
+    expect(new Set(result.order)).toEqual(new Set(expected));
+  });
+
   it('separa las posiciones resueltas de las colocadas mediante pistas', () => {
     const result = scoreOrderedActions(['a', 'b', 'c', 'd'], ['a', 'b', 'c', 'd'], ['a', 'b']);
 

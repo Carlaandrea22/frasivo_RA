@@ -61,7 +61,7 @@ describe('progreso local', () => {
     };
     const consultation = recordConsultation(target, storage);
     const context = { kind: 'caso', questionIds: ['initial', 'detail', 'follow-up'], hypothesisId: 'option-a' } as const;
-    const practice = recordPractice({ ...practiceTarget, correct: 2, errors: 1, hints: 1, reasoning, context }, storage);
+    const practice = recordPractice({ ...practiceTarget, correct: 2, errors: 1, hints: 1, assisted: 2, reasoning, context }, storage);
     recordConsultation({ ...target, areaId: 'chemistry' }, storage);
 
     expect(queryProgress({ ...target, kind: 'consultation' }, storage)).toEqual([consultation]);
@@ -73,6 +73,7 @@ describe('progreso local', () => {
       correct: 2,
       errors: 1,
       hints: 1,
+      assisted: 2,
       reasoning,
       context,
     }]);
@@ -128,6 +129,16 @@ describe('progreso local', () => {
 
     expect(getProgress(storage).events).toEqual([consultation]);
     expect(storage.getItem(practiceKey)).toBe(damaged);
+  });
+
+  it('rechaza una cantidad asistida inválida al recargar el historial', () => {
+    const storage = new LocalStorage();
+    const practice = recordPractice({ ...practiceTarget, correct: 2, errors: 0, hints: 1 }, storage);
+    const practiceKey = `${progressStorageKey}:event:${practice.id}`;
+
+    storage.setItem(practiceKey, JSON.stringify({ ...practice, assisted: -1 }));
+
+    expect(getProgress(storage).events).toEqual([]);
   });
 
   it('conserva datos de otras versiones', () => {

@@ -353,12 +353,18 @@ export function ClinicalSession({ onExit }: { onExit: () => void }) {
   const caseMap = useMemo(() => new Map(clinicalCases.map(item => [item.id, item])), []);
   const [index, setIndex] = useState(0);
   const [total, setTotal] = useState<Score>({ correct: 0, errors: 0, hints: 0, assisted: 0 });
+  const [levels, setLevels] = useState<Record<PerformanceLevel, number>>({ strong: 0, partial: 0, review: 0 });
   const item = caseMap.get(sessionIds[index]);
 
   if (!item) return <section className="lumar-page clinical-session clinical-complete">
     <p className="lumar-eyebrow">Sesión terminada</p>
     <h1>Completaste los cinco casos</h1>
-    <p>{total.correct} respuestas o posiciones correctas · {total.errors} para revisar · {total.hints ?? 0} pistas</p>
+    <p>{total.correct} respuestas o posiciones correctas · {total.assisted ?? 0} asistidas · {total.errors} para revisar · {total.hints ?? 0} pistas</p>
+    <ul className="clinical-level-summary" aria-label="Distribución del desempeño">
+      <li><strong>{levels.strong}</strong> con buen dominio</li>
+      <li><strong>{levels.partial}</strong> en progreso</li>
+      <li><strong>{levels.review}</strong> para repasar</li>
+    </ul>
     <Button onClick={onExit}>Volver a Casos clínicos</Button>
   </section>;
 
@@ -371,6 +377,7 @@ export function ClinicalSession({ onExit }: { onExit: () => void }) {
       correct: score.correct,
       errors: score.errors,
       hints: score.hints ?? 0,
+      assisted: score.assisted,
     });
     setTotal(previous => ({
       correct: previous.correct + score.correct,
@@ -378,6 +385,8 @@ export function ClinicalSession({ onExit }: { onExit: () => void }) {
       hints: (previous.hints ?? 0) + (score.hints ?? 0),
       assisted: (previous.assisted ?? 0) + (score.assisted ?? 0),
     }));
+    const level = performanceLevel(score);
+    setLevels(previous => ({ ...previous, [level]: previous[level] + 1 }));
     setIndex(current => current + 1);
   };
 
