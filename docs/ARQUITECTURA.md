@@ -69,3 +69,11 @@ Los avisos internos se generan con la actividad local. La notificación en el di
 | C | `src/features/casos/`, `src/features/progreso/` y `src/content/casos/`. |
 
 Los módulos pueden leer los datos de otros módulos e intercambiar identificadores y enlaces. Cada persona edita sus propias carpetas. Coordina con A antes de modificar una interfaz compartida o `src/content/types.ts`, y avisa al otro módulo cuando el cambio afecte su integración. [Guía de contribución](../CONTRIBUTING.md)
+
+## Chatbot
+
+Luis mantiene `src/features/chatbot/` y `functions/api/chat.ts`. La pestaña Chat abre `#chatbot`. El navegador envía el historial reciente por `POST /api/chat`. La función de Cloudflare Pages añade el prompt de sistema, llama a OpenRouter y devuelve eventos `delta`, `error` y `done`. El servidor local de Vite usa la misma función en `dev` y `preview`.
+
+El navegador guarda hasta 30 mensajes en `localStorage`. La función envía hasta 12 a OpenRouter y limita cada mensaje del estudiante a 1 000 caracteres, el cuerpo a 16 KiB y la salida a 700 tokens. Corta la solicitud a los 60 segundos y propaga la cancelación. Cada instancia aplica un límite en memoria de 20 solicitudes por IP cada 10 minutos.
+
+La función acepta orígenes de LumAR en Pages y de `localhost` o `127.0.0.1`. OpenRouter recibe `provider.data_collection: "deny"` para excluir proveedores que entrenan con los mensajes. La app y la función omiten el contenido de los mensajes en sus registros. El service worker excluye `/api/` de su caché. La clave se lee desde un secreto de Cloudflare o `.dev.vars` en pruebas locales. [Configuración del chatbot](HOSTING.md#activar-el-chatbot-carla)

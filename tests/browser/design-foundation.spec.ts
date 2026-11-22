@@ -2,14 +2,14 @@ import { activateBodyCamera } from './body-camera';
 import { readFile, writeFile } from 'node:fs/promises';
 import { expect, test, type Page } from '@playwright/test';
 
-test('la navegación de móvil abre las cuatro secciones y llega a Créditos desde Mi progreso', async ({ page }) => {
+test('la navegación de móvil abre las cinco secciones y llega a Créditos desde Mi progreso', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 });
   await page.goto('/');
   const nav = page.getByRole('navigation', { name: 'Navegación principal' });
   const body = page.getByRole('region', { name: 'Cámara corporal' });
   await expect(body).toBeVisible();
   await expect(nav.getByRole('button', { name: 'Cuerpo' })).toHaveAttribute('aria-current', 'page');
-  await expect(nav.getByRole('button')).toHaveCount(4);
+  await expect(nav.getByRole('button')).toHaveCount(5);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(375);
   const buttons = await page.getByRole('button').evaluateAll(elements =>
     elements.map(element => ({ width: element.getBoundingClientRect().width, height: element.getBoundingClientRect().height })),
@@ -28,6 +28,16 @@ test('la navegación de móvil abre las cuatro secciones y llega a Créditos des
   await expect(page.locator('a[href^="https://cdn.humanatlas.io/hra-releases/v2.0/docs/ref-organs/"]')).toHaveCount(8);
   await page.goBack();
   await expect(page.getByRole('heading', { name: 'Mi progreso' })).toBeVisible();
+  await nav.getByRole('button', { name: 'Chatbot' }).click();
+  await expect(page).toHaveURL(/#chatbot$/);
+  await expect(page.getByRole('heading', { name: 'Chatbot' })).toBeVisible();
+});
+
+test('Chatbot se abre por enlace directo', async ({ page }) => {
+  await page.goto('/#chatbot');
+  await expect(page.getByRole('main').getByRole('heading', { name: 'Chatbot' })).toBeVisible();
+  const nav = page.getByRole('navigation', { name: 'Navegación principal' });
+  await expect(nav.getByRole('button', { name: 'Chatbot' })).toHaveAttribute('aria-current', 'page');
 });
 
 test('las capas y la opacidad responden y el botón tiene presión, foco y movimiento reducido', async ({ page }) => {
