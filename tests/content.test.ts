@@ -8,8 +8,9 @@ import { resolveRoute, type RouteDefinition } from '../src/shared/navegacion';
 describe('contratos de las muestras de LumAR', () => {
   it('vincula el reto, las partes anatómicas y sus anclajes', () => {
     const femur = estructuras[0];
-    expect(anotaciones.map(note => note.parteId)).toEqual(femur.partes.map(part => part.id));
-    expect(anotaciones.every(note => note.estructuraId === femur.id && note.nodeId === femur.modelo?.nodeId)).toBe(true);
+    const femurNotes = anotaciones.filter(note => note.estructuraId === femur.id);
+    expect(femurNotes.map(note => note.parteId)).toEqual(femur.partes.map(part => part.id));
+    expect(femurNotes.every(note => note.nodeId === `${femur.modelo?.nodeId}__${note.parteId}`)).toBe(true);
     expect(retos[0].preguntas[0].estructuraId).toBe(femur.id);
     expect(retos[0].preguntas[0].respuestas.filter(option => option.id === retos[0].preguntas[0].correctaId)).toHaveLength(1);
     for (const item of [...estructuras, ...anotaciones, ...retos, ...casos]) {

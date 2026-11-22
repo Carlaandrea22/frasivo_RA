@@ -15,16 +15,16 @@ test('LumAR recorre sus secciones y subrutas a 375 px', async ({ page }, testInf
   await shot('cuerpo');
 
   await nav.getByRole('button', { name: 'Explorar 3D' }).click();
-  await page.getByRole('link', { name: 'Huesos', exact: true }).click();
+  await page.getByRole('link', { name: /^Huesos \(/ }).click();
   await expect(page).toHaveURL(/#explorar\/huesos$/);
-  const search = page.getByRole('searchbox', { name: 'Buscar una estructura' });
-  await search.fill('tibia');
-  await expect(page.getByText('No encontramos esa estructura')).toBeVisible();
+  const search = page.getByRole('searchbox', { name: 'Busca en español o inglés' });
+  await search.fill('estructura inexistente');
+  await expect(page.getByText(/No encontramos.*Prueba con otro nombre/)).toBeVisible();
   await search.fill('femur');
   await shot('catalogo');
   await page.getByRole('link', { name: /Ver fémur/i }).click();
   await expect(page).toHaveURL(/#explorar\/estructura\/femur$/);
-  await expect(page.getByRole('heading', { name: 'Fémur', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Fémur', exact: true, level: 1 })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Escuchar Femur' })).toBeVisible();
   await expect(page.locator('canvas')).toBeVisible();
   await expect(page.getByText('Cabeza del fémur', { exact: true }).first()).toBeVisible();
@@ -40,11 +40,12 @@ test('LumAR recorre sus secciones y subrutas a 375 px', async ({ page }, testInf
   await shot('practicar');
   await page.getByRole('link', { name: 'Retos de anatomía', exact: true }).click();
   await expect(page).toHaveURL(/#practicar\/retos$/);
-  await page.getByRole('link', { name: 'Ver reto de muestra' }).click();
+  await page.getByRole('link', { name: 'Elegir tema para Relaciona estructura y función' }).click();
   await expect(page).toHaveURL(/#practicar\/retos\//);
-  await expect(page.getByText('En construcción')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Empezar reto' })).toBeVisible();
   await shot('retos');
 
+  await page.getByRole('link', { name: 'Volver a los retos' }).click();
   await page.getByRole('link', { name: 'Casos clínicos', exact: true }).click();
   await expect(page).toHaveURL(/#practicar\/casos$/);
   await expect(page.getByRole('heading', { name: 'Casos clínicos' })).toBeVisible();

@@ -28,6 +28,8 @@ if (pushTest) {
   await writeFile(manifestPath, JSON.stringify(manifest, null, 2));
 }
 const files = await walk(output);
+const fullModel = '/body-tracking/pose_landmarker_full.task';
+if (!files.includes(`${output}${fullModel}`)) throw new Error('Falta Pose Full. Ejecuta npm run assets antes de compilar.');
 const hash = createHash('sha256');
 hash.update(await readFile(new URL(import.meta.url)));
 hash.update(pushWorker);
@@ -38,7 +40,8 @@ const runtimeOnly = new Set([
   '/body-tracking/wasm/vision_wasm_nosimd_internal.js',
   '/body-tracking/wasm/vision_wasm_nosimd_internal.wasm',
 ]);
-const urls = ['/', ...files.map(file => file.slice(output.length)).filter(url => !runtimeOnly.has(url))];
+// The pose worker caches Full when the first precise capture requests it.
+const urls = ['/', ...files.map(file => file.slice(output.length)).filter(url => url !== fullModel && !runtimeOnly.has(url))];
 await writeFile(`${output}/sw.js`, `// Generated from the exact build.
 const NAME = ${JSON.stringify(cacheName)};
 const FILES = ${JSON.stringify(urls)};
@@ -74,4 +77,4 @@ self.addEventListener('fetch', event => {
 });
 ${pushWorker}
 `);
-console.log(`PWA: ${urls.length} recursos precargados, con Pose Lite y WASM SIMD. Variante sin SIMD bajo demanda. Caché: ${cacheName}`);
+console.log(`PWA: ${urls.length} recursos precargados, con Pose Lite y WASM SIMD. Pose Full y variante sin SIMD bajo demanda. Caché: ${cacheName}`);

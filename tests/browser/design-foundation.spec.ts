@@ -30,6 +30,8 @@ test('las capas y la opacidad responden y el botón tiene presión, foco y movim
   await page.goto('/');
   const bone = page.getByRole('button', { name: 'Huesos', exact: true });
   await page.keyboard.press('Tab');
+  await expect(page.getByRole('button', { name: 'Etiquetas' })).toBeFocused();
+  await page.keyboard.press('Tab');
   await expect(bone).toBeFocused();
   await expect(bone).toHaveCSS('outline-style', 'solid');
 
@@ -197,7 +199,8 @@ test('las tres capas muestran WebP y el vocabulario en inglés y español', asyn
   await expect(page.locator('canvas')).toHaveCount(0);
   await page.getByText('Vocabulario de la capa', { exact: true }).click();
   await page.getByRole('button', { name: 'Mandible Mandíbula', exact: true }).click();
-  await expect(page.locator('.anatomy-active-term')).toHaveText('Mandible');
+  await expect(page.getByRole('button', { name: 'Ver ficha de Mandíbula' })).toBeVisible();
+  await expect(page.locator('.anatomy-active-term')).toHaveCount(0);
   await expect(page.locator('image[data-part="mandible"]')).toHaveClass('selected');
   await page.getByRole('button', { name: 'Órganos', exact: true }).click();
   await page.getByRole('button', { name: 'Kidneys Riñones', exact: true }).click();
@@ -254,6 +257,7 @@ test('Pose dibuja tórax frontal sin caderas, retira selección y pide girar de 
   await page.goto('/?fps=1');
   await page.getByRole('button', { name: 'Activar cámara' }).click();
   await expect(page.getByRole('status')).toHaveText('Persona detectada');
+  await expect(page.getByRole('status')).toHaveCSS('white-space', 'nowrap');
   await expect(page.locator('image[data-part=fibula_right]')).toBeVisible();
   await expect(page.locator('[data-fps-detection]')).toBeVisible();
   await expect(page.locator('[data-fps-drawing]')).toBeVisible();
@@ -261,7 +265,9 @@ test('Pose dibuja tórax frontal sin caderas, retira selección y pide girar de 
   const fibula = page.getByRole('button', { name: 'Fibula Peroné' });
   await fibula.click();
   await page.getByRole('button', { name: 'Cerrar vocabulario' }).click();
-  await expect(page.locator('.anatomy-active-term')).toHaveText('Fibula');
+  await page.getByRole('button', { name: 'Minimizar controles' }).click();
+  await expect(page.getByRole('button', { name: 'Ver ficha de Peroné' })).toBeVisible();
+  await expect(page.locator('.anatomy-active-term')).toHaveCount(0);
   await page.evaluate(() => { (window as unknown as { bodyCameraTest: { shot: string } }).bodyCameraTest.shot = 'torso'; });
   await expect(page.getByText('Aléjate para ver el cuerpo completo')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Fijar esqueleto' })).toBeDisabled();
@@ -270,6 +276,7 @@ test('Pose dibuja tórax frontal sin caderas, retira selección y pide girar de 
   await expect(page.locator('image[data-part=pelvis_left]')).toHaveCount(0);
   await expect(page.locator('image[data-part=sternum]')).toBeVisible();
   await expect(page.locator('.anatomy-active-term')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Expandir controles' }).click();
   await page.getByRole('button', { name: 'Vocabulario de la capa' }).click();
   await expect(fibula).toBeDisabled();
   await page.getByRole('button', { name: 'Cerrar vocabulario' }).click();
@@ -281,7 +288,10 @@ test('Pose dibuja tórax frontal sin caderas, retira selección y pide girar de 
 
 test('fija la pose de cuerpo completo, muestra el visor y vuelve a la cámara al soltar', async ({ page }, testInfo) => {
   await useBodyFixture(page);
-  await page.addInitScript(() => Object.defineProperty(navigator, 'userAgent', { value: 'Android' }));
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'userAgent', { value: 'Android' });
+    Object.defineProperty(navigator, 'xr', { value: undefined });
+  });
   await page.goto('/?fps=1');
   await page.getByRole('button', { name: 'Activar cámara' }).click();
   const pin = page.getByRole('button', { name: 'Fijar esqueleto' });
@@ -295,9 +305,12 @@ test('fija la pose de cuerpo completo, muestra el visor y vuelve a la cámara al
   await expect(page.locator('[data-fps-detection]')).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath('captura.png') });
   await pin.click();
+  await expect(page.getByText('Quédate quieto 1 segundo')).toBeVisible({ timeout: 15000 });
+  await page.screenshot({ path: testInfo.outputPath('quieto.png') });
   const space = page.getByRole('button', { name: 'Ver en mi espacio' });
   await expect(space).toBeEnabled();
   await expect(page.getByRole('button', { name: 'Ver en 3D' })).toBeEnabled();
+  await expect(page.locator('canvas[aria-label="Esqueleto 3D sobre la cámara"]')).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath('pose-fijada.png') });
   const camera = page.locator('video');
   expect(await camera.evaluate((video: HTMLVideoElement) => (video.srcObject as MediaStream).active)).toBe(true);
@@ -305,7 +318,7 @@ test('fija la pose de cuerpo completo, muestra el visor y vuelve a la cámara al
   const viewer = page.getByRole('region', { name: 'Visor del esqueleto 3D' });
   await expect(viewer.locator('canvas')).toBeVisible();
   await expect(viewer).toHaveAttribute('data-bones', '36');
-  await expect(page.getByText('AR en Android: próximamente')).toBeVisible();
+  await expect(page.getByText(/La realidad aumentada requiere Chrome/)).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath('visor-3d.png') });
   const canvas = viewer.locator('canvas');
   await canvas.click({ position: { x: 194, y: 64 } });
@@ -337,8 +350,22 @@ test('iPhone recibe un enlace Quick Look con un USDZ de la pose y Soltar libera 
   await page.goto('/');
   await page.getByRole('button', { name: 'Activar cámara' }).click();
   await page.getByRole('button', { name: 'Fijar esqueleto' }).click();
+  const canvas = page.locator('canvas[aria-label="Esqueleto 3D sobre la cámara"]');
+  await expect(canvas).toBeVisible({ timeout: 20000 });
+  const calibrated = page.locator('.anatomy-camera-skeleton');
+  await expect(calibrated).toHaveAttribute('data-calibration-points', '9');
+  const maximum = Number(await calibrated.getAttribute('data-calibration-max-px'));
+  await writeFile(testInfo.outputPath('error-proyeccion-px.txt'), String(maximum));
+  expect(maximum).toBeLessThan(15);
+  await expect(page.locator('.anatomy-fps')).toHaveCount(0);
+  expect(await page.locator('video').evaluate((video: HTMLVideoElement) => (video.srcObject as MediaStream).active)).toBe(true);
+  const picker = page.getByLabel('Etiquetas para el visor de Apple');
+  await picker.selectOption('main');
+  await page.getByRole('button', { name: 'Etiquetas', exact: true }).click();
+  await expect(page.locator('[data-bone-arrow=femur]')).toHaveCount(1);
   const ar = page.getByRole('link', { name: 'Ver en mi espacio' });
-  await expect(ar).toHaveAttribute('rel', 'ar');
+  await expect(ar).toHaveAttribute('rel', 'ar', { timeout: 20000 });
+  await page.screenshot({ path: testInfo.outputPath('modo-sobre-camara.png') });
   await expect(ar.locator('img:only-child')).toHaveCount(1);
   const url = (await ar.getAttribute('href'))!;
   expect(url).toMatch(/^blob:.*#allowsContentScaling=0$/);
@@ -360,6 +387,9 @@ test('iPhone recibe un enlace Quick Look con un USDZ de la pose y Soltar libera 
     expect(file.includes(Buffer.from(`"${piece}"`)), piece).toBe(true);
   }
   expect(file.includes(Buffer.from('metersPerUnit = 1'))).toBe(true);
+  for (const label of ['"Label_femur"', '"Arrow_tip"', 'textures/Texture_']) {
+    expect(file.includes(Buffer.from(label)), label).toBe(true);
+  }
   await writeFile(testInfo.outputPath('esqueleto.usdz'), file);
   await page.screenshot({ path: testInfo.outputPath('enlace-quick-look.png') });
   await page.getByRole('button', { name: 'Soltar' }).click();
@@ -396,4 +426,38 @@ test('la cámara dibuja piezas distales y mantiene el cerebro por encima de los 
   await expect(brain).toBeVisible();
   expect(await brain.evaluate(node => Number(node.getAttribute('y')) + Number(node.getAttribute('height')))).toBeLessThan(-1.551095);
   await photograph('organos');
+});
+
+test('una flecha sigue el hueso y muestra la ficha con enlace solo si existe en el catálogo', async ({ page }, testInfo) => {
+  await useBodyFixture(page);
+  await page.goto('/?debug=1');
+  await page.getByRole('button', { name: 'Activar cámara' }).click();
+  await expect(page.locator('[data-landmark]')).toHaveCount(33);
+  const femur = page.locator('image[data-part=femur_left]');
+  await expect(femur).toBeVisible();
+  await femur.dispatchEvent('click');
+  await expect(page.locator('[data-bone-arrow=femur]')).toHaveAttribute('marker-end', /^url/);
+  await expect(page.getByRole('button', { name: 'Escuchar Femur' })).toBeVisible();
+  await page.getByRole('button', { name: 'Ver ficha de Fémur' }).click();
+  const sheet = page.getByRole('dialog', { name: 'Fémur' });
+  await expect(sheet.getByRole('link', { name: 'Ver en Explorar 3D' })).toHaveAttribute('href', '#explorar/estructura/femur');
+  expect(await page.evaluate(() => Object.keys(localStorage).some(key => key.startsWith('lumar.progress:v1:event:')))).toBe(true);
+  await sheet.getByRole('button', { name: 'Cerrar ficha' }).click();
+  await page.goto('/?fps=1');
+  await page.getByRole('button', { name: 'Activar cámara' }).click();
+  await expect(page.locator('[data-fps-detection]')).toBeVisible();
+  await expect(page.locator('[data-fps-drawing]')).toBeVisible();
+  await testInfo.attach('fps', { body: await page.locator('.anatomy-fps').innerText(), contentType: 'text/plain' });
+  await page.getByRole('button', { name: 'Minimizar controles' }).click();
+  await page.locator('image[data-part=femur_left]').dispatchEvent('click');
+  await expect(page.locator('[data-bone-arrow=femur]')).toHaveAttribute('marker-end', /^url/);
+  await page.screenshot({ path: testInfo.outputPath('flecha-femur.png') });
+  await page.getByRole('button', { name: 'Etiquetas', exact: true }).click();
+  await expect(page.locator('[data-bone-arrow]')).toHaveCount(6);
+  await page.screenshot({ path: testInfo.outputPath('etiquetas.png') });
+  await page.locator('image[data-part=skull]').dispatchEvent('click');
+  await page.getByRole('button', { name: 'Ver ficha de Cráneo' }).click();
+  const skull = page.getByRole('dialog', { name: 'Cráneo' });
+  await expect(skull).toBeVisible();
+  await expect(skull.getByRole('link', { name: 'Ver en Explorar 3D' })).toHaveCount(0);
 });
