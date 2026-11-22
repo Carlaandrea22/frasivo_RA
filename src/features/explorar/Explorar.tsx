@@ -71,7 +71,9 @@ function Ficha({ item }: { item: Estructura }) {
   const labels = distribuirEtiquetas(groupPoints, size.width, size.height, selectedAnnotation?.id);
   const related = estructuras.filter(i => item.relacionadas.includes(i.id));
   const practices = retos.filter(r => r.estructurasRelacionadas.includes(item.id));
-  const practiceLink = practices.length === 1 ? `#practicar/retos/${practices[0].id}` : `#practicar/retos/estructura/${item.id}`;
+  const practiceLink = practices.length === 1
+    ? practices[0].tipo === 'ubica-partes' ? `#practicar/retos/ubicar/estructura/${item.id}` : `#practicar/retos/${practices[0].id}`
+    : `#practicar/retos/estructura/${item.id}`;
 
   useEffect(() => {
     if (recorded.current) return;

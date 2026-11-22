@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, Box, CheckCircle2, CircleHelp, Clock, Layers, Link2, ListChecks, LogOut } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Box, CheckCircle2, CircleHelp, Clock, Layers, Link2, ListChecks, LogOut } from 'lucide-react';
+import { categorias, estructuras } from '../../content/anatomy/catalogo';
 import { retos } from '../../content/ejercicios/retos';
 import type { ModoReto, PreguntaReto, Reto, TipoReto } from '../../content/types';
 import type { RouteProps } from '../../shared/navegacion';
@@ -28,6 +29,26 @@ const modos: Record<ModoReto, { label: string; descripcion: string }> = {
   entrenamiento: { label: 'Entrenamiento', descripcion: 'Con pistas, reintentos y respuesta inmediata' },
   evaluacion: { label: 'Evaluación', descripcion: 'Sin ayuda y con la corrección al final' },
 };
+
+const retosUbicar = retos.filter(reto => reto.tipo === 'ubica-partes');
+const recorridos = retosUbicar.filter(reto => reto.estructurasRelacionadas.length > 1);
+const modelosUbicar = estructuras.flatMap(estructura => {
+  const reto = retosUbicar.find(item => item.preguntas.some(pregunta => pregunta.estructuraId === estructura.id));
+  return reto ? [{ estructura, reto }] : [];
+});
+const rutaUbicar = (estructuraId?: string) => `${rutaRetos}/ubicar${estructuraId ? `/estructura/${estructuraId}` : ''}`;
+
+function retoParaModelo(reto: Reto, modeloId: string): Reto {
+  if (reto.estructurasRelacionadas.length === 1) return reto;
+  const [primera, ...otras] = reto.preguntas.filter(pregunta => pregunta.estructuraId === modeloId);
+  if (!primera) return reto;
+  return {
+    ...reto,
+    titulo: `Ubica las partes · ${nombreEstructura(modeloId)}`,
+    estructurasRelacionadas: [modeloId],
+    preguntas: [primera, ...otras],
+  };
+}
 
 function duracion(reto: Reto) {
   return reto.tipo === 'ubica-partes' ? Math.max(2, reto.estructurasRelacionadas.length) : tipos[reto.tipo].minutos;
@@ -60,6 +81,10 @@ function Fuentes({ reto }: { reto: Reto }) {
 
 function Lista({ estructuraId }: { estructuraId?: string }) {
   const disponibles = estructuraId ? retos.filter(reto => reto.estructurasRelacionadas.includes(estructuraId)) : retos;
+  const ubicar = disponibles.filter(reto => reto.tipo === 'ubica-partes');
+  const otros = disponibles.filter(reto => reto.tipo !== 'ubica-partes');
+  const ultimoUbicar = ubicar.map(ultimoIntento).filter(evento => evento?.kind === 'practice')
+    .sort((a, b) => b.timestamp.localeCompare(a.timestamp))[0];
   return <section className="lumar-page retos-page">
     <header>
       <h1>Retos de anatomía</h1>
@@ -67,8 +92,18 @@ function Lista({ estructuraId }: { estructuraId?: string }) {
     </header>
     <PracticeTabs active="retos"/>
     {estructuraId && <a className="retos-back" href={rutaRetos}>Ver todos los retos</a>}
-    {disponibles.length ? <div className="retos-grid">
-      {disponibles.map(reto => {
+    {ubicar.length > 0 && <Card className="retos-card retos-featured">
+      <div className="retos-featured-title"><Layers size={26} aria-hidden="true"/><h2>Ubica las partes</h2></div>
+      <p>Coloca etiquetas en el modelo 3D. Elige qué quieres practicar o prueba un modelo al azar.</p>
+      <div className="retos-actions">
+        <a className="button button--primary lumar-link" href={rutaUbicar(estructuraId)}>Elegir práctica<ArrowRight size={17} aria-hidden="true"/></a>
+        {ultimoUbicar?.activityId && <a className="retos-history" href={rutaResultado(ultimoUbicar.activityId, ultimoUbicar.id)}>
+          Último resultado: {ultimoUbicar.correct} de {ultimoUbicar.correct+ultimoUbicar.errors}
+        </a>}
+      </div>
+    </Card>}
+    {otros.length > 0 && <div className="retos-grid">
+      {otros.map(reto => {
         const resultado = ultimoIntento(reto);
         return <Card key={reto.id} className="retos-card">
           <Tipo tipo={reto.tipo}/>
@@ -81,9 +116,70 @@ function Lista({ estructuraId }: { estructuraId?: string }) {
           <a className="button button--primary lumar-link" href={rutaReto(reto.id)} aria-label={`Abrir reto: ${reto.titulo}`}>Abrir reto</a>
         </Card>;
       })}
-    </div> : <ContentState state="empty" title="Aún no hay un reto para esta estructura">
+    </div>}
+    {disponibles.length === 0 && <ContentState state="empty" title="Aún no hay un reto para esta estructura">
       <a href={rutaRetos}>Ver todos los retos</a>
     </ContentState>}
+  </section>;
+}
+
+function SelectorModo({ opciones, modo, onChange }: { opciones: readonly ModoReto[]; modo: ModoReto; onChange: (id: ModoReto) => void }) {
+  return <>
+    <h2>Elige un modo</h2>
+    <Segmented label="Modo del reto" value={modo}
+      options={opciones.map(id => ({ id, label: modos[id].label }))}
+      onChange={id => onChange(id as ModoReto)}/>
+    <p role="status">{modos[modo].descripcion}.</p>
+  </>;
+}
+
+export function UbicaInicio({ params }: RouteProps) {
+  return <ConfigurarUbicar key={params.estructuraId ?? 'todos'} estructuraId={params.estructuraId}/>;
+}
+
+function ConfigurarUbicar({ estructuraId }: { estructuraId?: string }) {
+  const [seleccion, setSeleccion] = useState(modelosUbicar.some(({ estructura }) => estructura.id === estructuraId) ? estructuraId! : '');
+  const [aleatorio, setAleatorio] = useState(false);
+  const [modo, setModo] = useState<ModoReto>('entrenamiento');
+  const [jugando, setJugando] = useState<Reto>();
+  const modelo = modelosUbicar.find(opcion => opcion.estructura.id === seleccion);
+  const recorrido = recorridos.find(reto => reto.id === seleccion);
+  const fuente = aleatorio ? undefined : modelo?.reto ?? recorrido;
+  if (jugando) return <Juego reto={jugando} modo={modo}/>;
+
+  function empezar() {
+    if (!aleatorio && recorrido) { setJugando(recorrido); return; }
+    const opcion = aleatorio ? modelosUbicar[Math.floor(Math.random()*modelosUbicar.length)] : modelo;
+    if (opcion) setJugando(retoParaModelo(opcion.reto, opcion.estructura.id));
+  }
+
+  return <section className="lumar-page retos-page">
+    <header><a className="retos-back" href={estructuraId ? `${rutaRetos}/estructura/${estructuraId}` : rutaRetos}>
+      <ArrowLeft size={18} aria-hidden="true"/>Volver a los retos
+    </a><h1>Ubica las partes</h1></header>
+    <Card className="retos-card retos-configurar">
+      <h2>¿Qué quieres practicar?</h2>
+      <Segmented label="Selección de práctica" value={aleatorio ? 'azar' : 'elegir'}
+        options={[{ id: 'elegir', label: 'Elegir' }, { id: 'azar', label: 'Aleatorio' }]}
+        onChange={id => setAleatorio(id === 'azar')}/>
+      {aleatorio ? <p role="status">El reto elegirá un modelo del atlas cuando empieces.</p> : <label className="retos-model-select">
+        Modelo o recorrido
+        <select value={seleccion} onChange={event => setSeleccion(event.target.value)}>
+          <option value="">Elige una opción</option>
+          {categorias.map(categoria => <optgroup key={categoria.id} label={categoria.nombre}>
+            {modelosUbicar.filter(({ estructura }) => estructura.categoria === categoria.id).map(({ estructura }) =>
+              <option key={estructura.id} value={estructura.id}>{estructura.nombreEs}</option>,
+            )}
+          </optgroup>)}
+          <optgroup label="Recorridos de varios modelos">
+            {recorridos.map(reto => <option key={reto.id} value={reto.id}>{reto.titulo} · {reto.estructurasRelacionadas.length} modelos</option>)}
+          </optgroup>
+        </select>
+      </label>}
+      <SelectorModo opciones={['entrenamiento','evaluacion']} modo={modo} onChange={setModo}/>
+      <Button className="retos-start" disabled={aleatorio ? modelosUbicar.length === 0 : !modelo && !recorrido} onClick={empezar}>Empezar reto</Button>
+      {fuente && <Fuentes reto={fuente}/>}
+    </Card>
   </section>;
 }
 
@@ -102,11 +198,7 @@ function Preparar({ reto }: { reto: Reto }) {
       <h2>Objetivo</h2>
       <p>{tipos[reto.tipo].objetivo}</p>
       <p className="retos-meta">{reto.preguntas.length} {reto.tipo === 'ubica-partes' ? 'etiquetas' : 'preguntas'} · ~{duracion(reto)} min</p>
-      <h2>Elige un modo</h2>
-      <Segmented label="Modo del reto" value={modo}
-        options={reto.modos.map(id => ({ id, label: modos[id].label }))}
-        onChange={id => setModo(id as ModoReto)}/>
-      <p role="status">{modos[modo].descripcion}.</p>
+      <SelectorModo opciones={reto.modos} modo={modo} onChange={setModo}/>
       <Button className="retos-start" onClick={() => setIniciado(true)}>Empezar reto</Button>
       {ultimo?.kind === 'practice' && <a className="retos-history" href={rutaResultado(reto.id, ultimo.id)}>Ver último resultado</a>}
       <Fuentes reto={reto}/>
@@ -243,17 +335,20 @@ function Resultados({ reto, intento }: { reto: Reto; intento: string }) {
   </ContentState></section>;
 
   const { registro, correcciones, modo } = resultado;
+  const modeloSolo = reto.tipo === 'ubica-partes' && registro.correct + registro.errors < reto.preguntas.length;
+  const tituloResultado = modeloSolo ? retoParaModelo(reto, registro.itemId).titulo : reto.titulo;
+  const repetir = modeloSolo ? rutaUbicar(registro.itemId) : rutaReto(reto.id);
   const errores = correcciones.filter(row => !row.acierto || row.erroresPrevios.length > 0);
   const filas = soloErrores ? errores : correcciones;
   return <section className="lumar-page retos-page">
     <header><p className="retos-meta">{modos[modo].label}</p><h1 tabIndex={-1} ref={titulo}>Resultado del reto</h1></header>
     <Card className="retos-score">
-      <h2>{reto.titulo}</h2>
+      <h2>{tituloResultado}</h2>
       <p className="retos-score-value">{registro.correct} de {registro.correct+registro.errors}</p>
       <p>{registro.errors} {registro.errors === 1 ? 'error final' : 'errores finales'} · {registro.hints} {registro.hints === 1 ? 'pista usada' : 'pistas usadas'}</p>
     </Card>
     <div className="retos-actions">
-      <a className="button button--primary lumar-link" href={rutaReto(reto.id)}>Repetir</a>
+      <a className="button button--primary lumar-link" href={repetir}>Repetir</a>
       <a className="button button--secondary lumar-link" href={rutaRetos}>Otro reto</a>
       {errores.length > 0 && <Button variant="secondary" aria-pressed={soloErrores}
         onClick={() => { setSoloErrores(!soloErrores); lista.current?.focus(); }}>

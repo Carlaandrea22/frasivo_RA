@@ -1,5 +1,36 @@
 import { expect, test } from '@playwright/test';
 
+test('agrupa las variantes de Ubica las partes y permite elegir un modelo o empezar al azar', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 900 });
+  await page.goto('/#practicar/retos');
+  await expect(page.locator('.retos-page article')).toHaveCount(4, { timeout: 2000 });
+  await page.getByRole('link', { name: 'Elegir práctica' }).click();
+  const modelo = page.getByRole('combobox', { name: 'Modelo o recorrido' });
+  await modelo.selectOption('lungs');
+  await page.getByRole('button', { name: 'Evaluación', exact: true }).click();
+  await page.getByRole('button', { name: 'Empezar reto' }).click();
+  await expect(page.getByRole('region', { name: 'Modelo 3D de Pulmones' })).toHaveAttribute('data-viewer-state', 'ready');
+  await expect(page.getByRole('button', { name: /^Pista/ })).toHaveCount(0);
+  await expect(page.locator('.retos-drop--overlay')).toHaveCount(5);
+  const etiquetas = ['Lóbulo superior derecho', 'Lóbulo medio derecho', 'Lóbulo inferior derecho', 'Lóbulo superior izquierdo', 'Lóbulo inferior izquierdo'];
+  for (const [i, etiqueta] of etiquetas.entries()) {
+    await page.getByRole('group', { name: 'Etiquetas de partes' }).getByRole('button', { name: etiqueta, exact: true }).click();
+    await page.getByRole('button', { name: `Recuadro ${i+1}, vacío`, exact: true }).click();
+  }
+  await page.getByRole('button', { name: 'Comprobar' }).click();
+  await expect(page.getByText('5 de 5', { exact: true })).toBeVisible();
+  await page.reload();
+  await page.getByRole('link', { name: 'Repetir', exact: true }).click();
+  await expect(modelo).toHaveValue('lungs');
+  await page.getByRole('link', { name: 'Volver a los retos' }).click();
+  await page.getByRole('link', { name: 'Elegir práctica' }).click();
+  await page.getByRole('button', { name: 'Aleatorio', exact: true }).click();
+  await expect(modelo).toHaveCount(0);
+  await page.getByRole('button', { name: 'Empezar reto' }).click();
+  await expect(page.getByRole('region', { name: /^Modelo 3D de / })).toHaveAttribute('data-viewer-state', 'ready');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(375);
+});
+
 test('Entrenamiento permite usar una pista, corregir la respuesta y repasar el error guardado', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 900 });
   await page.goto('/#practicar/retos/repaso-musculos');
@@ -56,7 +87,8 @@ test('desde la ficha del fémur se elige un reto y se forman tres parejas', asyn
   await page.setViewportSize({ width: 375, height: 900 });
   await page.goto('/#explorar/estructura/femur');
   await page.getByRole('link', { name: 'Practicar esta estructura' }).click();
-  await expect(page.getByRole('link', { name: /^Abrir reto:/ })).toHaveCount(2);
+  await expect(page.getByRole('link', { name: /^Abrir reto:/ })).toHaveCount(1);
+  await expect(page.getByRole('link', { name: 'Elegir práctica' })).toHaveAttribute('href', '#practicar/retos/ubicar/estructura/femur');
   await page.getByRole('link', { name: 'Abrir reto: El fémur en movimiento' }).click();
   await page.getByRole('button', { name: 'Empezar reto' }).click();
   await page.getByRole('button', { name: 'Salir', exact: true }).click();
@@ -131,7 +163,10 @@ test.describe('Ubica las partes con varios modelos', () => {
 
   for (const { id, modelos } of retos) test(`cambia entre los modelos de ${id} y suma todas las etiquetas`, async ({ page }) => {
     const entrenamiento = id === 'partes-musculos';
-    await page.goto(`/#practicar/retos/${id}`);
+    if (entrenamiento) {
+      await page.goto('/#practicar/retos/ubicar');
+      await page.getByRole('combobox', { name: 'Modelo o recorrido' }).selectOption(id);
+    } else await page.goto(`/#practicar/retos/${id}`);
     if (!entrenamiento) await page.getByRole('button', { name: 'Evaluación' }).tap();
     await page.getByRole('button', { name: 'Empezar reto' }).tap();
     let total = 0;

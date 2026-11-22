@@ -113,3 +113,8 @@ con un modelo por ronda y un resultado para el reto completo. Huesos pasa
 por tibia, húmero, radio, hueso coxal y rótula. Músculos usa bíceps y
 cuádriceps. Órganos usa las cuatro cámaras del corazón y los cinco lóbulos
 pulmonares. Las etiquetas usan los anclajes de Explorar.
+
+La tarjeta principal de «Ubica las partes» reúne los diez modelos y los
+tres recorridos. El selector ofrece practicar un modelo concreto, completar
+un recorrido o elegir un modelo al azar al empezar. Los enlaces desde
+Explorar preseleccionan la estructura cuando corresponde.

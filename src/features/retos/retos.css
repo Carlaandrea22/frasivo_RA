@@ -2,6 +2,17 @@
 .retos-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
 .retos-page .retos-card, .retos-score, .retos-result-card { border-radius: var(--radius-panel); }
 .retos-page .retos-card { gap: 14px; }
+.retos-page .retos-featured { padding: clamp(18px, 4vw, 34px); background: var(--mint); }
+.retos-featured-title { display: flex; align-items: center; gap: 10px; color: var(--forest); }
+.retos-featured .retos-featured-title h2 { font-size: clamp(1.35rem, 3vw, 2rem); margin: 0; }
+.retos-featured p { max-width: 48ch; }
+.retos-page .retos-configurar { width: min(100%, 38rem); }
+.retos-model-select { display: grid; gap: 6px; min-width: 0; font-weight: 700; }
+.retos-model-select select {
+  width: 100%; min-height: var(--target); padding: 7px 12px; border-radius: var(--radius-soft);
+  border: 1px solid var(--line); background: var(--paper); color: var(--ink); font: inherit;
+  text-overflow: ellipsis;
+}
 .retos-tipo, .retos-meta, .retos-selection, .retos-result-status { display: flex; align-items: center; gap: 6px; }
 .retos-tipo { width: fit-content; border-radius: var(--radius-soft); background: var(--mint); padding: 7px 10px; color: var(--forest); font-size: .83rem; font-weight: 700; }
 .retos-meta { color: var(--muted); font-size: .84rem; }
@@ -59,6 +70,7 @@
 .retos-result-card[data-ok="false"] { background: var(--wrong-face); }
 .retos-result-status { color: var(--forest); font-size: .85rem; font-weight: 800; }
 .retos-result-card[data-ok="false"] .retos-result-status { color: var(--ink); }
+@media (min-width: 900px) { .retos-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 630px) {
   .retos-grid, .retos-pairs { grid-template-columns: 1fr; }
   .retos-page .lumar-segmented { flex-wrap: nowrap; }
