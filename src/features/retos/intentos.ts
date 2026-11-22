@@ -30,6 +30,14 @@ export function asignar(respuestas: Respuestas, pregunta: string, opcion: string
   return Object.fromEntries([...entradas, [pregunta, opcion]]);
 }
 
+export function emparejar(respuestas: Respuestas, pregunta: string, opcion: string): Respuestas {
+  const otra = Object.keys(respuestas).find(id => id !== pregunta && respuestas[id] === opcion);
+  const anterior = respuestas[pregunta];
+  return otra && anterior
+    ? { ...respuestas, [pregunta]: opcion, [otra]: anterior }
+    : asignar(respuestas, pregunta, opcion);
+}
+
 export function corregir(preguntas: readonly PreguntaReto[], respuestas: Respuestas, previos: Readonly<Record<string, readonly string[]>>): Correccion[] {
   return preguntas.map(pregunta => ({
     preguntaId: pregunta.id,

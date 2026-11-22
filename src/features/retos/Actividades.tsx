@@ -1,5 +1,5 @@
-import { lazy, Suspense, useMemo, useRef, useState, type CSSProperties } from 'react';
-import { CircleDot, GripVertical } from 'lucide-react';
+import { lazy, Suspense, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { CircleDot, GripVertical, Link2 } from 'lucide-react';
 import { estructuras } from '../../content/anatomy/catalogo';
 import { modelos } from '../../content/anatomy/modelos';
 import { anotaciones } from '../../content/anotaciones/anatomia';
@@ -46,30 +46,62 @@ interface TableroProps {
   onRemove: (pregunta: string) => void;
 }
 
-export function Relacionar({ preguntas, respuestas, bloqueado, onAssign, onRemove }: TableroProps) {
-  const [activa, setActiva] = useState<string>();
+export function Relacionar({ preguntas, respuestas, bloqueado, onAssign }: Omit<TableroProps, 'onRemove'>) {
+  const [editando, setEditando] = useState<string>();
+  const heading = useRef<HTMLHeadingElement>(null);
+  const enfocar = useRef(false);
+  const pendiente = preguntas.find(pregunta => !respuestas[pregunta.id]);
+  const activa = bloqueado ? undefined : preguntas.find(pregunta => pregunta.id === editando) ?? pendiente;
+  const seleccionadas = preguntas.filter(pregunta => respuestas[pregunta.id]);
+
+  useEffect(() => {
+    if (!enfocar.current) return;
+    enfocar.current = false;
+    heading.current?.focus();
+  }, [activa?.id, editando]);
+
+  function editar(id?: string) {
+    enfocar.current = true;
+    setEditando(id);
+  }
+
   return <div className="retos-pairs">
-    <div className="retos-option-list" role="group" aria-label="Estructuras">
-      <h3>Estructuras</h3>
-      {preguntas.map((pregunta, index) => <Button key={pregunta.id} variant="answer"
-        disabled={bloqueado} data-pair={respuestas[pregunta.id] ? index : undefined} aria-pressed={activa === pregunta.id}
-        onClick={() => setActiva(activa === pregunta.id ? undefined : pregunta.id)}>
-        {nombreEstructura(pregunta.estructuraId)} {respuestas[pregunta.id] && <span className="retos-pair-badge" aria-label={`Pareja ${index+1}`}>{index+1}</span>}
-      </Button>)}
-    </div>
-    <div className="retos-option-list" role="group" aria-label="Funciones">
-      <h3>Funciones</h3>
-      {preguntas[0].respuestas.map(opcion => {
-        const pareja = preguntas.findIndex(p => respuestas[p.id] === opcion.id);
-        return <Button key={opcion.id} variant="answer" disabled={bloqueado || (!activa && pareja < 0)}
-          data-pair={pareja >= 0 ? pareja : undefined} onClick={() => {
-            if (activa) { onAssign(activa,opcion.id); setActiva(undefined); }
-            else if (pareja >= 0) onRemove(preguntas[pareja].id);
-          }}>
-          {opcion.texto} {pareja >= 0 && <span className="retos-pair-badge" aria-label={`Pareja ${pareja+1}`}>{pareja+1}</span>}
-        </Button>;
-      })}
-    </div>
+    {activa && <>
+      <div className="retos-pair-current">
+        <p className="retos-meta">{editando ? 'Editar la función de' : 'Elige la función de'}</p>
+        <h3 ref={heading} tabIndex={-1}>{nombreEstructura(activa.estructuraId)}</h3>
+      </div>
+      <div className="retos-option-list" role="group" aria-label="Funciones">
+        {activa.respuestas.map(opcion => {
+          const asignada = preguntas.find(pregunta => respuestas[pregunta.id] === opcion.id);
+          if (asignada && !editando) return null;
+          const actual = asignada?.id === activa.id;
+          return <Button key={opcion.id} variant="answer" className="retos-pair-option"
+            aria-pressed={editando ? actual : undefined} onClick={() => {
+              onAssign(activa.id, opcion.id);
+              editar(undefined);
+            }}>
+            <span>{opcion.texto}</span>
+            {asignada && <small>{actual ? 'Función actual' : `Intercambiar con ${nombreEstructura(asignada.estructuraId)}`}</small>}
+          </Button>;
+        })}
+      </div>
+      {editando && <Button variant="text" className="retos-start" onClick={() => editar(undefined)}>Cancelar edición</Button>}
+    </>}
+    {seleccionadas.length > 0 && <section className="retos-pair-summary" aria-label="Tus parejas">
+      <h3 ref={activa ? undefined : heading} tabIndex={activa ? undefined : -1}>{activa || bloqueado ? 'Tus parejas' : 'Revisa tus parejas'}</h3>
+      <ul className="retos-pair-list">
+        {seleccionadas.map(pregunta => {
+          const nombre = nombreEstructura(pregunta.estructuraId);
+          const respuesta = pregunta.respuestas.find(opcion => opcion.id === respuestas[pregunta.id]);
+          return <li key={pregunta.id}>
+            <div><strong><Link2 size={16} aria-hidden="true"/>{nombre}</strong><p>{respuesta?.texto}</p></div>
+            {!bloqueado && <Button variant="text" disabled={editando === pregunta.id} aria-label={`Editar pareja de ${nombre}`}
+              onClick={() => editar(pregunta.id)}>Editar</Button>}
+          </li>;
+        })}
+      </ul>
+    </section>}
   </div>;
 }
 

@@ -174,12 +174,21 @@ test('desde la ficha del fémur se elige un reto y se forman tres parejas', asyn
   await page.getByRole('button', { name: 'Salir', exact: true }).click();
   await expect(page.getByRole('dialog', { name: '¿Salir del reto?' })).toBeVisible();
   await page.keyboard.press('Escape');
-  const estructuras = page.getByRole('group', { name: 'Estructuras' });
   const funciones = page.getByRole('group', { name: 'Funciones' });
-  for (const [nombre, funcion] of [['Fémur', /Transmitir el peso/], ['Tibia', /Soportar gran parte/], ['Rótula', /Mejorar la palanca/]] as const) {
-    await estructuras.getByRole('button', { name: nombre, exact: true }).click();
+  for (const [nombre, funcion] of [['Fémur', /Soportar gran parte/], ['Tibia', /Transmitir el peso/], ['Rótula', /Mejorar la palanca/]] as const) {
+    await expect(page.getByRole('heading', { name: nombre, exact: true, level: 3 })).toBeVisible();
     await funciones.getByRole('button', { name: funcion }).click();
   }
+  await expect(page.getByRole('heading', { name: 'Revisa tus parejas' })).toBeFocused();
+  const parejas = page.getByRole('region', { name: 'Tus parejas' });
+  const pareja = (nombre: string) => parejas.getByRole('listitem').filter({ has: page.getByText(nombre, { exact: true }) });
+  await parejas.getByRole('button', { name: 'Editar pareja de Fémur' }).click();
+  await expect(page.getByRole('heading', { name: 'Fémur', exact: true, level: 3 })).toBeFocused();
+  const intercambio = funciones.getByRole('button', { name: /Transmitir el peso/ });
+  await expect(intercambio).toContainText('Intercambiar con Tibia');
+  await intercambio.click();
+  await expect(pareja('Fémur')).toContainText('Transmitir el peso');
+  await expect(pareja('Tibia')).toContainText('Soportar gran parte');
   await page.getByRole('button', { name: 'Comprobar' }).click();
   await page.getByRole('button', { name: 'Ver resultado' }).click();
   await expect(page.getByText('3 de 3', { exact: true })).toBeVisible();
@@ -207,7 +216,7 @@ test('Relaciona permite escoger temas de las tres categorías o empezar al azar'
     const verResultado = page.getByRole('button', { name: 'Ver resultado', exact: true });
     await expect(verResultado).toHaveAccessibleDescription('Forma todas las parejas para continuar.');
     for (const [estructura, funcion] of parejas) {
-      await page.getByRole('group', { name: 'Estructuras' }).getByRole('button', { name: estructura, exact: true }).click();
+      await expect(page.getByRole('heading', { name: estructura, exact: true, level: 3 })).toBeVisible();
       await page.getByRole('group', { name: 'Funciones' }).getByRole('button', { name: funcion }).click();
     }
     await verResultado.click();
@@ -219,7 +228,7 @@ test('Relaciona permite escoger temas de las tres categorías o empezar al azar'
   await page.getByRole('button', { name: 'Aleatorio', exact: true }).click();
   await expect(tema).toHaveCount(0);
   await page.getByRole('button', { name: 'Empezar reto' }).click();
-  await expect(page.getByRole('group', { name: 'Estructuras' })).toBeVisible();
+  await expect(page.getByRole('group', { name: 'Funciones' })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(375);
 });
 

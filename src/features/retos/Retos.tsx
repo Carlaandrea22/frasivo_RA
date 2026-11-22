@@ -12,7 +12,7 @@ import { ContentState } from '../../shared/ui/ContentState';
 import { Segmented } from '../../shared/ui/Segmented';
 import { Relacionar, Repasar, Senalar, Ubicar } from './Actividades';
 import {
-  asignar, corregir, explicacion, guardarResultado, leerResultado, nombreEstructura,
+  asignar, corregir, emparejar, explicacion, guardarResultado, leerResultado, nombreEstructura,
   rutaFicha, rutaResultado, rutaReto, rutaRetos, ultimoIntento,
   type Correccion, type Respuestas,
 } from './intentos';
@@ -21,7 +21,7 @@ import './retos.css';
 const tipos = {
   'ubica-partes': { nombre: 'Ubica las partes', icon: Layers, minutos: 2, objetivo: 'Coloca cada etiqueta en el recuadro que señala su parte. Arrastra la ficha o tócala y luego toca el recuadro.' },
   'senala-estructura': { nombre: 'Señala la estructura', icon: Box, minutos: 3, objetivo: 'Gira el modelo, toca la pieza que indica la consigna y confirma tu elección.' },
-  'relaciona-funcion': { nombre: 'Relaciona estructura y función', icon: Link2, minutos: 2, objetivo: 'Toca una estructura y luego su función para formar una pareja. Comprueba todas las parejas juntas.' },
+  'relaciona-funcion': { nombre: 'Relaciona estructura y función', icon: Link2, minutos: 2, objetivo: 'Elige la función de cada estructura. Puedes editar tus parejas antes de confirmar.' },
   'repaso-breve': { nombre: 'Repaso breve', icon: ListChecks, minutos: 1, objetivo: 'Elige la respuesta que mejor contesta cada pregunta.' },
 } satisfies Record<TipoReto, { nombre: string; icon: typeof Box; minutos: number; objetivo: string }>;
 
@@ -320,7 +320,9 @@ function Juego({ reto, modo }: { reto: Reto; modo: ModoReto }) {
 
   const tableroProps = {
     preguntas, respuestas, bloqueado: !!correccion,
-    onAssign: (id: string, opcion: string) => setRespuestas(current => asignar(current,id,opcion)),
+    onAssign: (id: string, opcion: string) => setRespuestas(current =>
+      reto.tipo === 'relaciona-funcion' ? emparejar(current,id,opcion) : asignar(current,id,opcion),
+    ),
     onRemove: quitar,
   };
   const opcionProps = { pregunta, respuesta: respuestas[pregunta.id], bloqueado: !!correccion, onSelect: seleccionar };
@@ -342,7 +344,7 @@ function Juego({ reto, modo }: { reto: Reto; modo: ModoReto }) {
     </div>
     <Card className="retos-card">
       <h2 tabIndex={-1} ref={heading}>{ubicar && rondas.length > 1 ? nombreEstructura(pregunta.estructuraId) : tablero ? tipos[reto.tipo].nombre : pregunta.enunciado}</h2>
-      {tablero && <p>{tipos[reto.tipo].objetivo}</p>}
+      {ubicar && <p>{tipos[reto.tipo].objetivo}</p>}
       {ubicar && <Ubicar key={paso} {...tableroProps}/>}
       {reto.tipo === 'relaciona-funcion' && <Relacionar {...tableroProps}/>}
       {reto.tipo === 'senala-estructura' && <Senalar key={pregunta.estructuraId} {...opcionProps}/>}

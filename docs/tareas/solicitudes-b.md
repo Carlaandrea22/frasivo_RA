@@ -135,7 +135,13 @@ La tarjeta abre un selector de temas de huesos, músculos y órganos. La
 opción «Aleatorio» elige un tema al empezar. Las parejas usan las funciones
 de las fichas del atlas. Se conserva el reto original del fémur y su enlace.
 
+El reto muestra una estructura a la vez con las funciones disponibles debajo.
+Al elegir, guarda la pareja y pasa a la siguiente estructura. Las parejas se
+pueden revisar y editar antes de confirmar. Si la nueva función ya pertenece
+a otra estructura, el reto indica con cuál se van a intercambiar las funciones.
+
 - Selector de «Relaciona estructura y función» a [375 px](../capturas/carla/retos-relaciona-selector-375.png) y en [escritorio](../capturas/carla/retos-relaciona-selector-1440.png).
+- Reto en curso a [375 px](../capturas/carla/retos-relaciona-parejas-375.png) y en [escritorio](../capturas/carla/retos-relaciona-parejas-1440.png).
 
 ### Ampliación de «Repaso breve»
 
