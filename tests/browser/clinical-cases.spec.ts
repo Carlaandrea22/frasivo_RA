@@ -91,12 +91,22 @@ test('recorre las cinco modalidades de una sesión y conserva cada resultado', a
   await page.getByRole('button', { name: 'Siguiente caso' }).click();
 
   await expect(page.getByText('Caso 5 de 5')).toBeVisible();
-  await page.getByRole('button', { name: 'Intramuscular adrenaline' }).click();
+  const selectedChoice = page.getByRole('button', { name: 'An oral antibiotic' });
+  await selectedChoice.click();
+  await expect(selectedChoice).toHaveAttribute('aria-pressed', 'true');
+  await expect(selectedChoice).toHaveAttribute('data-selected', 'true');
+  await page.getByRole('button', { name: 'Descartar una opción' }).click();
+  await expect(page.getByRole('button', { name: 'Descartar una opción' })).toBeDisabled();
+  await expect(page.getByRole('button', { name: /Paracetamol.*Opción descartada/ })).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Intramuscular adrenaline' })).toBeEnabled();
   await page.getByRole('button', { name: 'Comprobar respuesta' }).click();
-  await expect(page.getByRole('heading', { name: 'Respuesta correcta' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Respuesta para revisar' })).toBeVisible();
+  await expect(page.locator('.clinical-result[data-level="review"]')).toBeVisible();
+  await expect(page.getByText('1 pista utilizada')).toBeVisible();
   await page.getByRole('button', { name: 'Siguiente caso' }).click();
 
   await expect(page.getByRole('heading', { name: 'Completaste los cinco casos' })).toBeVisible();
+  await expect(page.getByText(/1 pista/)).toBeVisible();
   const practiceCount = await page.evaluate(() => Object.keys(localStorage)
     .filter(key => key.startsWith('lumar.progress:v1:event:')).length);
   expect(practiceCount).toBe(5);

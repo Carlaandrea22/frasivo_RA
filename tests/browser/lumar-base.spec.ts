@@ -47,12 +47,10 @@ test('LumAR recorre sus secciones y subrutas a 375 px', async ({ page }, testInf
 
   await page.getByRole('link', { name: 'Casos clínicos', exact: true }).click();
   await expect(page).toHaveURL(/#practicar\/casos$/);
-  await page.getByRole('link', { name: 'Ver caso de muestra' }).click();
-  const caseUrl = page.url();
-  await page.reload();
-  await expect(page).toHaveURL(caseUrl);
-  await expect(page.getByRole('heading', { name: 'Dolor al subir escaleras' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Casos clínicos' })).toBeVisible();
   expect(await page.getByText(/dolor femoropatelar/i).count()).toBe(0);
+  await page.getByRole('button', { name: 'Empezar sesión de 5 casos' }).click();
+  await expect(page.getByText('Caso 1 de 5')).toBeVisible();
   await shot('casos');
 
   await nav.getByRole('button', { name: 'Mi progreso' }).click();

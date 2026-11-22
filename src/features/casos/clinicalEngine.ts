@@ -1,4 +1,5 @@
 import type {
+  ChoiceOption,
   InterviewCase,
   InterviewNode,
   InterviewRecallOption,
@@ -160,4 +161,15 @@ export function scoreOrderedActions(
 
 export function scoreMultipleChoice(selectedId: string, correctId: string) {
   return selectedId === correctId ? { correct: 1, errors: 0 } : { correct: 0, errors: 1 };
+}
+
+export function discardIncorrectChoice(
+  options: readonly ChoiceOption[],
+  correctId: string,
+  selectedId: string | undefined,
+  random: RandomSource = Math.random,
+): string | undefined {
+  const candidates = options.filter(option => option.id !== correctId && option.id !== selectedId);
+  if (!candidates.length) return undefined;
+  return candidates[randomIndex(candidates.length, random)].id;
 }

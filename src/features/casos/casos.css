@@ -59,6 +59,20 @@
   font-size: .78rem;
   font-weight: 600;
 }
+.clinical-answer-list .button[data-selected="true"] {
+  border-color: var(--forest);
+  background: var(--mint);
+  box-shadow: 0 3px 0 var(--forest-edge), 0 8px 22px rgb(28 60 48 / 12%);
+}
+.clinical-answer-list .button[data-discarded="true"] {
+  border-style: dashed;
+  background: var(--surface);
+  color: var(--muted);
+  opacity: .68;
+  text-decoration: line-through;
+}
+.clinical-choice-marker { display: grid; width: 24px; height: 24px; flex: none; place-items: center; color: var(--forest); }
+.clinical-choice-actions { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); }
 .clinical-translation {
   margin-top: calc(var(--space-2) * -1);
   padding-left: var(--space-3);
@@ -146,6 +160,8 @@
   .clinical-order { padding: var(--space-3); }
   .clinical-order .lumar-actions { align-items: stretch; flex-direction: column; }
   .clinical-order .lumar-actions .button { width: 100%; }
+  .clinical-choice-actions { align-items: stretch; flex-direction: column; }
+  .clinical-choice-actions .button { width: 100%; }
   .clinical-hint-row { align-items: flex-start; flex-direction: column; }
 }
 

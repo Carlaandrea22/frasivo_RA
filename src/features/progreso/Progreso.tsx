@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react';
 import { estructuras } from '../../content/anatomy/catalogo';
 import { casos } from '../../content/casos/rodilla';
+import { clinicalCases } from '../../content/casos/session';
 import { retos } from '../../content/ejercicios/retos';
 import { getProgress, subscribeProgress, type ReasoningText } from '../../shared/progreso';
 import { Button } from '../../shared/ui/Button';
@@ -9,6 +10,11 @@ import { ContentState } from '../../shared/ui/ContentState';
 import './progreso.css';
 
 const fecha = new Intl.DateTimeFormat('es', { dateStyle: 'medium' });
+const practiceCatalog = [
+  ...retos.map(item => ({ id: item.id, title: item.titulo })),
+  ...casos.map(item => ({ id: item.id, title: item.titulo })),
+  ...clinicalCases.map(item => ({ id: item.id, title: item.titleEs })),
+];
 
 export function Progreso() {
   const { events, legacy } = useSyncExternalStore(subscribeProgress, getProgress);
@@ -18,7 +24,7 @@ export function Progreso() {
   const available = estructuras.filter(item => consulted.has(item.id));
   const legacyTerms = Object.keys(legacy?.words ?? {}).length;
   const last = [...practices].sort((a, b) => b.timestamp.localeCompare(a.timestamp))[0];
-  const activity = last && [...retos, ...casos].find(item => item.id === (last.activityId ?? last.itemId));
+  const activity = last && practiceCatalog.find(item => item.id === (last.activityId ?? last.itemId));
 
   return <section className="lumar-page">
     <header>
@@ -36,7 +42,7 @@ export function Progreso() {
     </Card>
     {last && <Card>
       <h2>Última práctica registrada</h2>
-      {activity && <p>{activity.titulo}</p>}
+      {activity && <p>{activity.title}</p>}
       <p>{last.correct} aciertos · {last.errors} errores · {last.hints} pistas</p>
     </Card>}
     {available.length ? <Card>
@@ -74,9 +80,9 @@ export function Practicas() {
     </header>
     {practices.length ? practices.map(event => {
       const id = event.activityId ?? event.itemId;
-      const item = [...retos, ...casos].find(activity => activity.id === id);
+      const item = practiceCatalog.find(activity => activity.id === id);
       return <Card key={event.id}>
-        <h2>{item?.titulo ?? 'Actividad registrada'}</h2>
+        <h2>{item?.title ?? 'Actividad registrada'}</h2>
         <time dateTime={event.timestamp}>{fecha.format(new Date(event.timestamp))}</time>
         <p>{event.correct} aciertos · {event.errors} errores · {event.hints} pistas</p>
         {event.reasoning && <details>

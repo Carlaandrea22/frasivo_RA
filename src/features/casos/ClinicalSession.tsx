@@ -3,6 +3,7 @@ import {
   AlertCircle,
   ArrowLeft,
   Check,
+  Circle,
   ChevronDown,
   ChevronUp,
   GripVertical,
@@ -25,6 +26,7 @@ import {
   applyOrderingHint,
   buildCaseSession,
   createInterviewExchange,
+  discardIncorrectChoice,
   getInterviewChoices,
   moveItem,
   performanceLevel,
@@ -289,10 +291,13 @@ function OrderingCaseView({ item, onComplete }: CaseViewProps<OrderingCase>) {
 
 function MultipleChoiceCaseView({ item, onComplete }: CaseViewProps<MultipleChoiceCase>) {
   const [selected, setSelected] = useState<string>();
+  const [discarded, setDiscarded] = useState<string>();
+  const [hintUsed, setHintUsed] = useState(false);
   const [score, setScore] = useState<Score | null>(null);
 
-  if (score) return <ResultCard title={score.correct ? 'Respuesta correcta' : 'Respuesta para revisar'}>
+  if (score) return <ResultCard title={score.correct ? 'Respuesta correcta' : 'Respuesta para revisar'} level={performanceLevel(score)}>
     <p lang="en">{item.explanationEn}</p>
+    <p className="clinical-result-meta">{hintUsed ? '1 pista utilizada' : 'Sin pistas'}</p>
     <NextCaseButton score={score} onComplete={onComplete}/>
   </ResultCard>;
 
@@ -301,12 +306,28 @@ function MultipleChoiceCaseView({ item, onComplete }: CaseViewProps<MultipleChoi
       <p lang="en">{item.scenarioEn}</p>
       <h3 lang="en">{item.promptEn}</h3>
       <div className="clinical-answer-list">
-        {item.options.map(option => <Button key={option.id} variant="answer" lang="en"
-          aria-pressed={selected === option.id} onClick={() => setSelected(option.id)}>{option.textEn}</Button>)}
+        {item.options.map(option => {
+          const isSelected = selected === option.id;
+          const isDiscarded = discarded === option.id;
+          return <Button key={option.id} variant="answer" lang="en" disabled={isDiscarded}
+            aria-pressed={isSelected} data-selected={isSelected || undefined} data-discarded={isDiscarded || undefined}
+            onClick={() => setSelected(option.id)}>
+            <span className="clinical-choice-marker" aria-hidden="true">{isSelected ? <Check size={16}/> : <Circle size={16}/>}</span>
+            <span>{option.textEn}{isDiscarded && <small lang="es">Opción descartada</small>}</span>
+          </Button>;
+        })}
       </div>
-      <Button disabled={!selected} onClick={() => selected && setScore(scoreMultipleChoice(selected, item.correctId))}>
-        Comprobar respuesta
-      </Button>
+      <div className="clinical-choice-actions">
+        <Button variant="secondary" disabled={hintUsed} onClick={() => {
+          const discardedId = discardIncorrectChoice(item.options, item.correctId, selected);
+          if (discardedId) setDiscarded(discardedId);
+          setHintUsed(true);
+        }}><Lightbulb size={17}/> Descartar una opción</Button>
+        <Button disabled={!selected} onClick={() => selected && setScore({
+          ...scoreMultipleChoice(selected, item.correctId),
+          hints: hintUsed ? 1 : 0,
+        })}>Comprobar respuesta</Button>
+      </div>
     </Card>
   </div>;
 }

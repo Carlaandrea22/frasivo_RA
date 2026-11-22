@@ -3,6 +3,7 @@ import {
   applyOrderingHint,
   buildCaseSession,
   createInterviewExchange,
+  discardIncorrectChoice,
   getInterviewChoices,
   moveItem,
   performanceLevel,
@@ -156,5 +157,27 @@ describe('sesión de casos clínicos', () => {
   it('califica una selección usando el identificador correcto', () => {
     expect(scoreMultipleChoice('adrenaline', 'adrenaline')).toEqual({ correct: 1, errors: 0 });
     expect(scoreMultipleChoice('antibiotic', 'adrenaline')).toEqual({ correct: 0, errors: 1 });
+  });
+
+  it('descarta exactamente una opción incorrecta sin eliminar la correcta', () => {
+    const options = [
+      { id: 'correct', textEn: 'Correct' },
+      { id: 'wrong-a', textEn: 'Wrong A' },
+      { id: 'wrong-b', textEn: 'Wrong B' },
+    ] as const;
+
+    expect(discardIncorrectChoice(options, 'correct', undefined, () => 0)).toBe('wrong-a');
+    expect(discardIncorrectChoice(options, 'correct', undefined, () => .99)).toBe('wrong-b');
+  });
+
+  it('conserva la opción ya elegida y no inventa un descarte cuando no queda candidato', () => {
+    const options = [
+      { id: 'correct', textEn: 'Correct' },
+      { id: 'wrong-a', textEn: 'Wrong A' },
+      { id: 'wrong-b', textEn: 'Wrong B' },
+    ] as const;
+
+    expect(discardIncorrectChoice(options, 'correct', 'wrong-a', () => 0)).toBe('wrong-b');
+    expect(discardIncorrectChoice(options.slice(0, 2), 'correct', 'wrong-a', () => 0)).toBeUndefined();
   });
 });
