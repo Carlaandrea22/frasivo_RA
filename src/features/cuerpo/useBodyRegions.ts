@@ -4,12 +4,12 @@ import { chooseRegions, confirmRegions } from './regionPolicy';
 type Decision = ReturnType<typeof chooseRegions>;
 
 export function useBodyRegions(active: boolean, ...input: Parameters<typeof chooseRegions>) {
-  const [points, aspect, viewportAspect, hands, face, facing] = input;
+  const [points, aspect, viewportAspect, hands, face, facing, , layer] = input;
   const previous = useRef(new Set<string>());
   const retained = useRef<ReadonlySet<string>>(new Set());
   const [confirmed, setConfirmed] = useState<ReadonlySet<string>>(new Set());
-  const candidate = useMemo(() => active ? chooseRegions(points, aspect, viewportAspect, hands, face, facing, retained.current) : null,
-    [active, points, aspect, viewportAspect, hands, face, facing]);
+  const candidate = useMemo(() => active ? chooseRegions(points, aspect, viewportAspect, hands, face, facing, retained.current, layer) : null,
+    [active, points, aspect, viewportAspect, hands, face, facing, layer]);
   useEffect(() => {
     const keys = new Set<string>();
     if (candidate) {
@@ -17,6 +17,7 @@ export function useBodyRegions(active: boolean, ...input: Parameters<typeof choo
       for (const hand of candidate.hands) keys.add(`detail_hand_${hand.side}`);
       for (const foot of candidate.feet) keys.add(`detail_foot_${foot.side}`);
       if (candidate.face) keys.add('detail_face');
+      if (candidate.neck) keys.add('neck');
       keys.add(`status:${candidate.status}`);
       if (candidate.fullBody) keys.add('full');
     }
@@ -33,6 +34,7 @@ export function useBodyRegions(active: boolean, ...input: Parameters<typeof choo
     feet: candidate.feet.filter(foot => confirmed.has(`detail_foot_${foot.side}`)),
     hands: candidate.hands.filter(hand => confirmed.has(`detail_hand_${hand.side}`)),
     face: confirmed.has('detail_face') ? candidate.face : null,
+    neck: confirmed.has('neck') ? candidate.neck : null,
     fullBody: candidate.fullBody && confirmed.has('full'),
     status: confirmed.has(`status:${candidate.status}`) ? candidate.status : 'Buscando…',
   } satisfies Decision), [candidate, confirmed]);

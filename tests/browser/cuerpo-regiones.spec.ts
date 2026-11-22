@@ -90,7 +90,10 @@ for (const scene of scenes) {
     }
     if (scene.key !== 'cuerpo-completo') {
       await expect(page.getByRole('button', { name: 'Fijar esqueleto' })).toBeDisabled();
-      await expect(page.locator('#anatomy-pin-reason')).toHaveText('Para fijar, aléjate hasta ver el cuerpo completo');
+      if (scene.key === 'pie') {
+        await expect(page.locator('#anatomy-pin-reason')).toHaveText(/Incluye el tobillo|Para fijar/);
+        await expect(page.locator('.anatomy-stage-hint > span')).toHaveCount(1);
+      } else await expect(page.locator('#anatomy-pin-reason')).toHaveText('Para fijar, aléjate hasta ver el cuerpo completo');
       await expect(atlas.locator('image[data-part=femur_left]')).toHaveCount(0);
     } else {
       await expect(page.getByRole('button', { name: 'Fijar esqueleto' })).toBeEnabled();

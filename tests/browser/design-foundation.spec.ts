@@ -112,7 +112,7 @@ test('Pose Lite detecta sin conexión tras la primera carga y libera la cámara 
   await page.getByRole('button', { name: 'Músculos', exact: true }).click();
   await page.getByRole('button', { name: 'Activar cámara' }).click();
   const status = page.getByRole('status');
-  await expect(status).toHaveText('Persona detectada', { timeout: 45000 });
+  await expect(status).toHaveText('Torso', { timeout: 45000 });
   await expect(page.locator('[data-rendered=muscles] image[data-part=pectoralis_major_left]')).toBeVisible();
   await expect(page.locator('[data-rendered=muscles]')).not.toHaveAttribute('data-visible-parts', '0');
   const video = page.locator('video.visible');
@@ -120,7 +120,7 @@ test('Pose Lite detecta sin conexión tras la primera carga y libera la cámara 
   await expect(video).toHaveCSS('object-fit', 'cover');
   await expect(page.locator('.anatomy-sprites')).toHaveAttribute('preserveAspectRatio', 'xMidYMid slice');
   await page.evaluate(() => { (window as unknown as { poseTest: { blank: boolean } }).poseTest.blank = true; });
-  await expect(status).toHaveText('Buscando una persona', { timeout: 15000 });
+  await expect(status).toHaveText('Buscando…', { timeout: 15000 });
   await expect(page.locator('[data-rendered=muscles]')).toHaveAttribute('data-visible-parts', '0');
   await page.getByRole('button', { name: 'Explorar 3D' }).click();
   await expect.poll(() => page.evaluate(() => {

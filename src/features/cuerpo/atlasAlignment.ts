@@ -27,9 +27,17 @@ export interface AtlasPart {
   group: Group;
   sprite: readonly number[];
   demoSprite?: readonly number[];
+  backSprite?: readonly number[];
+  labelPoint?: readonly [number, number];
+  backLabelPoint?: readonly [number, number];
+  view?: 'front' | 'back' | 'both';
 }
 
-export const atlasParts = anchors.parts as AtlasPart[];
+export const atlasParts = (anchors.parts as AtlasPart[]).map(part => {
+  if (part.term === 'liver' || part.term === 'stomach') return { ...part, group: 'trunk' } as AtlasPart;
+  if (/^abdomen_(left|right)$/.test(part.group)) return { ...part, group: 'abdomen' } as AtlasPart;
+  return part;
+});
 export const referenceFrame = anchors.reference;
 
 export const limbJoints = {
@@ -51,11 +59,18 @@ export function pointInFrame(point: BodyPoint | undefined, aspect: number, regio
   return x >= left && x <= left + width && y >= top && y <= top + height ? [x, y] : null;
 }
 
-export function atlasSprite(part: AtlasPart, live: boolean, frontFeet: ReadonlySet<Group>): readonly number[] {
+export function atlasSpriteId(part: AtlasPart, live: boolean, frontFeet: ReadonlySet<Group>, facing?: Facing) {
+  if (live && facing === 'back' && part.backSprite) return `${part.id}_back`;
+  if ((!live || frontFeet.has(part.group)) && part.demoSprite) return `${part.id}_front`;
+  return part.id;
+}
+
+export function atlasSprite(part: AtlasPart, live: boolean, frontFeet: ReadonlySet<Group>, facing?: Facing): readonly number[] {
   if (live && part.id === 'brain') {
     // Fit the frontal illustration into the cranial vault above the atlas eye line.
     return [-.054, -1.64, .108, .086];
   }
+  if (live && facing === 'back' && part.backSprite) return part.backSprite;
   return (!live || frontFeet.has(part.group)) && part.demoSprite ? part.demoSprite : part.sprite;
 }
 
@@ -104,7 +119,7 @@ function overlapsVisibleFrame(matrix: Matrix, bounds: readonly number[], region:
     && projectedY + halfHeight > top && projectedY - halfHeight < top + visibleHeight;
 }
 
-export function atlasPlacement(points: BodyPoint[] | null, aspect: number, viewportAspect = aspect, bones = false) {
+export function atlasPlacement(points: BodyPoint[] | null, aspect: number, viewportAspect = aspect, bones = false, allowBack = false) {
   const region = visibleRegion(aspect, viewportAspect);
   const [minX, minY, width, height] = anchors.bounds;
   const demoScale = Math.min(aspect * .88 / width, .94 / height);
@@ -112,9 +127,9 @@ export function atlasPlacement(points: BodyPoint[] | null, aspect: number, viewp
   const matrices = {} as Matrices;
   const frontFeet = new Set<Group>();
   for (const part of atlasParts) matrices[part.group] = points ? null : demo;
-  const inFrame = (sorted: AtlasPart[]) => sorted.filter(part => {
+  const inFrame = (sorted: AtlasPart[], facing: Facing = 'front') => sorted.filter(part => {
     const matrix = matrices[part.group];
-    return matrix && overlapsVisibleFrame(matrix, atlasSprite(part, Boolean(points), frontFeet), region);
+    return matrix && overlapsVisibleFrame(matrix, atlasSprite(part, Boolean(points), frontFeet, facing), region);
   });
   if (!points) return { matrices, frontFeet, facing: 'front' as Facing, complete: true, visible: inFrame(atlasParts) };
 
@@ -137,27 +152,34 @@ export function atlasPlacement(points: BodyPoint[] | null, aspect: number, viewp
   if (left && right && shoulderWidth > .035) {
     const dx = left[0] - right[0];
     if (dx < -.7 * shoulderWidth && (!faceFront || faceWidth <= .20 * shoulderWidth)) facing = 'back';
-    else if (dx > .7 * shoulderWidth && ((faceFront && faceWidth > .10 * shoulderWidth) || !nose)) facing = 'front';
+    else if (dx > .7 * shoulderWidth && (allowBack || (faceFront && faceWidth > .10 * shoulderWidth) || !nose)) facing = 'front';
     else facing = 'side';
   } else if (faceFront) {
     facing = 'front';
   }
-  if (facing !== 'front' && (!bones || facing === 'back')) return { matrices, frontFeet, facing, complete: false, visible: [] as AtlasPart[] };
+  const back = facing === 'back';
+  if ((back && !allowBack) || (facing !== 'front' && !bones && !allowBack))
+    return { matrices, frontFeet, facing, complete: false, visible: [] as AtlasPart[] };
 
   if (left && right && scale > 0) {
     const at = midpoint(left, right);
-    matrices.trunk = verticalFit(midpoint(rest('shoulder_left'), rest('shoulder_right')), at, scale);
+    const restShoulders = midpoint(rest('shoulder_left'), rest('shoulder_right'));
+    const trunk = verticalFit(restShoulders, at, scale);
+    if (back) { trunk[0] *= -1; trunk[4] = at[0] - restShoulders[0]*trunk[0]; }
+    matrices.trunk = trunk;
     if (leftHip && rightHip) {
       const base = midpoint(leftHip, rightHip);
       const restBase = midpoint(rest('hip_left'), rest('hip_right'));
-      const hipFit = fitSegment(rest('hip_right'), rest('hip_left'), rightHip, leftHip);
-      if (hipFit && leftHip[0] > rightHip[0] && distance(leftHip, rightHip) >= .24 * shoulderWidth) {
+      const hipFit = fitSegment(rest('hip_right'), rest('hip_left'), rightHip, leftHip, back);
+      if (hipFit && (leftHip[0] > rightHip[0]) !== back && distance(leftHip, rightHip) >= .24 * shoulderWidth) {
         matrices.pelvis = hipFit;
         const expected = distance(restBase, midpoint(rest('shoulder_left'), rest('shoulder_right'))) * scale;
         const vertical = base[1] - at[1];
         if (vertical >= .44 * expected && vertical <= 1.65 * expected && Math.abs(base[0] - at[0]) < shoulderWidth*.45) {
           // Anchor abdominal pieces at the hips and limit vertical compression to seated proportions.
-          matrices.abdomen = verticalFit(restBase, base, Math.min(scale, scale * vertical / expected));
+          const abdomen = verticalFit(restBase, base, Math.min(scale, scale * vertical / expected));
+          if (back) { abdomen[0] *= -1; abdomen[4] = base[0] - restBase[0]*abdomen[0]; }
+          matrices.abdomen = abdomen;
         }
       }
     }
@@ -210,7 +232,7 @@ export function atlasPlacement(points: BodyPoint[] | null, aspect: number, viewp
       // Depth can be noisy under loose clothing. Trust a well-sized 2D segment when both ends are supported.
       const supported = leg ? limb === 'shin' && legSupported : armSupported;
       if (plausibleLength && (!foreshortened(a, b, projected, .018) || (supported && scale > 0 && projected >= expected*.72))) {
-        matrices[`${limb}_${side}`] = fitSegment(rest(a), rest(b), actualA, actualB);
+        matrices[`${limb}_${side}`] = fitSegment(rest(a), rest(b), actualA, actualB, back);
       }
     }
     const wrist = `wrist_${side}` as const, index = `index_${side}` as const;
@@ -245,7 +267,7 @@ export function atlasPlacement(points: BodyPoint[] | null, aspect: number, viewp
 
   const complete = Boolean((nose || earLeft || earRight) && left && right && leftHip && rightHip
     && sides.every(side => locate(`knee_${side}`) && locate(`ankle_${side}`)));
-  return { matrices, frontFeet, facing, complete, visible: inFrame(atlasParts) };
+  return { matrices, frontFeet, facing, complete, visible: inFrame(atlasParts, facing) };
 }
 
 export function atlasMatrices(points: BodyPoint[] | null, aspect: number): Matrices {

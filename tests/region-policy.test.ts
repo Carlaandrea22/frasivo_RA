@@ -40,6 +40,16 @@ test('los ojos y orejas de Pose aislados no habilitan el cráneo sin Face', () =
   expect(result.groups.has('head')).toBe(false);
 });
 
+test('el cuello en primer plano requiere hombros confiables fuera de la cara', () => {
+  const face: FaceRegion = { matrix: [], jawOpen: 0, landmarks: Array.from({ length: 478 }, (_, i) =>
+    ({ x: .38 + (i%5)*.05, y: i === 152 ? .29 : .1 + (i%7)*.029 })) };
+  const shoulders = pose().map((point, i) => i === 11 || i === 12
+    ? { ...point, y: .42, visibility: .77 } : { ...point, visibility: 0 });
+  expect(chooseRegions(shoulders, 1, 1, [], face, 'front', new Set(), 'organs').neck).toBeNull();
+  shoulders[11].visibility = shoulders[12].visibility = .92;
+  expect(chooseRegions(shoulders, 1, 1, [], face, 'front', new Set(), 'organs').neck).not.toBeNull();
+});
+
 test('cuerpo completo mantiene torso y piernas, mientras un recorte conserva solo sus regiones', () => {
   const source=pose();
   const full=chooseRegions(source,1,1,[],null,'front');
@@ -60,6 +70,31 @@ test('una mano pequeña en un cuerpo de espaldas conserva la guía del atlas', (
   expect(result.status).toBe('Buscando…');
   expect(result.hands).toHaveLength(0);
   expect(result.reasons).toContain('Pose está de espaldas');
+});
+
+test('las capas blandas comparten el encuadre posterior y descartan un torso sin caderas para el abdomen', () => {
+  const back = pose().map((point, index) => ({
+    ...point, x: 1-point.x, visibility: index < 7 ? 0 : point.visibility,
+  }));
+  const muscles = chooseRegions(back, 1, 1, [], null, 'back', new Set(), 'muscles');
+  expect(muscles.status).toBe('Espalda');
+  expect(muscles.groups.has('trunk')).toBe(true);
+  expect(muscles.groups.has('thigh_left')).toBe(true);
+  const crop = back.map((point, index) => index >= 23 ? { ...point, visibility: 0 } : point);
+  const organs = chooseRegions(crop, 1, 1, [], null, 'back', new Set(), 'organs');
+  expect(organs.groups.has('trunk')).toBe(true);
+  expect(organs.groups.has('abdomen')).toBe(false);
+});
+
+test.each([
+  [[11, 13, 15], 'Brazo izquierdo', ['upper_arm_left', 'forearm_left']],
+  [[23, 25, 27], 'Pierna izquierda', ['thigh_left', 'shin_left']],
+] as const)('la capa muscular acepta un miembro sin inventar el torso', (joints, status, groups) => {
+  const region = chooseRegions(pose().map((point, index) => ({
+    ...point, visibility: (joints as readonly number[]).includes(index) ? point.visibility : 0,
+  })), 1, 1, [], null, 'unknown', new Set(), 'muscles');
+  expect(region.status).toBe(status);
+  expect([...region.groups]).toEqual(groups);
 });
 
 test('la histéresis exige dos observaciones para adquirir y elimina regiones inválidas al desaparecer', () => {

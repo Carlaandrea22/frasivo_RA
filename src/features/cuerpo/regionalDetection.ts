@@ -21,6 +21,7 @@ export interface FaceRegion {
 export interface RegionalHint {
   fullBody: boolean;
   detailedHands: boolean;
+  detailedFace?: boolean;
 }
 
 export interface DetectorStat {
@@ -38,6 +39,7 @@ export function chooseDetector(
 ): DetectorKind {
   if (hint.fullBody) {
     if (hint.detailedHands && status.hand === 'ready' && now - last.hand >= 300 && now - last.pose < 155) return 'hand';
+    if (hint.detailedFace && status.face === 'ready' && now - last.face >= 360 && now - last.pose < 155) return 'face';
     return 'pose';
   }
   if (active && status[active] === 'ready') {

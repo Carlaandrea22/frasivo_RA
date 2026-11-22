@@ -23,6 +23,10 @@
   pointer-events: auto;
 }
 
+.anatomy-android-space-controls .anatomy-layers {
+  width: 100%;
+}
+
 .anatomy-android-space-hint {
   position: absolute;
   right: max(.75rem, env(safe-area-inset-right, 0px));

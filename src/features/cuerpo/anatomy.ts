@@ -1,47 +1,94 @@
 export interface BodyPoint { x: number; y: number; z?: number; visibility?: number }
 export type Matrix = [number, number, number, number, number, number];
 export type AnatomyLayer = 'muscles' | 'bones' | 'organs';
-export interface AnatomyPart { id: string; layer: AnatomyLayer; en: string; es: string; description: string }
-export const anatomyParts: AnatomyPart[] = [
-  { id: 'skull', layer: 'bones', en: 'Skull', es: 'Cráneo', description: 'The bones of the head protect the brain.' },
-  { id: 'mandible', layer: 'bones', en: 'Mandible', es: 'Mandíbula', description: 'The movable lower jaw holds the lower teeth.' },
-  { id: 'clavicle', layer: 'bones', en: 'Clavicle', es: 'Clavícula', description: 'This bone connects the breastbone to the shoulder.' },
-  { id: 'sternum', layer: 'bones', en: 'Sternum', es: 'Esternón', description: 'The breastbone supports the front of the rib cage.' },
-  { id: 'ribs', layer: 'bones', en: 'Ribs', es: 'Costillas', description: 'These curved bones protect the organs in the chest.' },
-  { id: 'spine', layer: 'bones', en: 'Spine', es: 'Columna vertebral', description: 'The vertebrae support the trunk and surround the spinal cord.' },
-  { id: 'pelvis', layer: 'bones', en: 'Pelvis', es: 'Pelvis', description: 'The bony ring helps transfer weight from the trunk to the legs.' },
-  { id: 'humerus', layer: 'bones', en: 'Humerus', es: 'Húmero', description: 'The upper arm bone runs from the shoulder to the elbow.' },
-  { id: 'radius', layer: 'bones', en: 'Radius', es: 'Radio', description: 'This forearm bone lies on the thumb side.' },
-  { id: 'ulna', layer: 'bones', en: 'Ulna', es: 'Cúbito', description: 'This forearm bone lies on the little finger side.' },
-  { id: 'femur', layer: 'bones', en: 'Femur', es: 'Fémur', description: 'The thigh bone connects the hip and knee.' },
-  { id: 'patella', layer: 'bones', en: 'Patella', es: 'Rótula', description: 'The kneecap protects the front of the knee joint.' },
-  { id: 'tibia', layer: 'bones', en: 'Tibia', es: 'Tibia', description: 'The shinbone carries most of the lower leg’s weight.' },
-  { id: 'fibula', layer: 'bones', en: 'Fibula', es: 'Peroné', description: 'This thin lower leg bone helps stabilize the ankle.' },
-  { id: 'carpals', layer: 'bones', en: 'Carpals', es: 'Huesos del carpo', description: 'These small bones form the wrist.' },
-  { id: 'metacarpals', layer: 'bones', en: 'Metacarpals', es: 'Metacarpianos', description: 'These five bones form the framework of the palm.' },
-  { id: 'hand_phalanges', layer: 'bones', en: 'Hand phalanges', es: 'Falanges de la mano', description: 'These bones form the fingers and thumb.' },
-  { id: 'tarsals', layer: 'bones', en: 'Tarsals', es: 'Huesos del tarso', description: 'These bones form the heel and the back of the foot.' },
-  { id: 'metatarsals', layer: 'bones', en: 'Metatarsals', es: 'Metatarsianos', description: 'These long bones connect the midfoot to the toes.' },
-  { id: 'foot_phalanges', layer: 'bones', en: 'Foot phalanges', es: 'Falanges del pie', description: 'These small bones form the toes.' },
-  { id: 'pectoralis_major', layer: 'muscles', en: 'Pectoralis major', es: 'Pectoral mayor', description: 'This chest muscle moves the upper arm toward and across the body.' },
-  { id: 'deltoid', layer: 'muscles', en: 'Deltoid', es: 'Deltoides', description: 'The shoulder muscle helps lift the arm out to the side.' },
-  { id: 'biceps_brachii', layer: 'muscles', en: 'Biceps brachii', es: 'Bíceps braquial', description: 'The front upper arm muscle bends the elbow and turns the palm upward.' },
-  { id: 'triceps_brachii', layer: 'muscles', en: 'Triceps brachii', es: 'Tríceps braquial', description: 'The rear upper arm muscle straightens the elbow.' },
-  { id: 'rectus_abdominis', layer: 'muscles', en: 'Rectus abdominis', es: 'Recto abdominal', description: 'This paired abdominal muscle bends the trunk forward.' },
-  { id: 'external_oblique', layer: 'muscles', en: 'External oblique', es: 'Oblicuo externo', description: 'This abdominal muscle helps rotate the trunk.' },
-  { id: 'quadriceps_femoris', layer: 'muscles', en: 'Quadriceps femoris', es: 'Cuádriceps femoral', description: 'Four muscles at the front of the thigh work together to straighten the knee.' },
-  { id: 'sartorius', layer: 'muscles', en: 'Sartorius', es: 'Sartorio', description: 'This long muscle crosses the thigh diagonally and helps move the hip and knee.' },
-  { id: 'gastrocnemius', layer: 'muscles', en: 'Gastrocnemius', es: 'Gastrocnemio', description: 'This calf muscle helps lift the heel and bend the knee.' },
-  { id: 'tibialis_anterior', layer: 'muscles', en: 'Tibialis anterior', es: 'Tibial anterior', description: 'This muscle at the front of the shin lifts the foot at the ankle.' },
-  { id: 'brain', layer: 'organs', en: 'Brain', es: 'Cerebro', description: 'This organ processes information and coordinates movement and other functions.' },
-  { id: 'lungs', layer: 'organs', en: 'Lungs', es: 'Pulmones', description: 'The lungs exchange oxygen and carbon dioxide with the blood.' },
-  { id: 'heart', layer: 'organs', en: 'Heart', es: 'Corazón', description: 'This muscle pumps blood through the lungs and the rest of the body.' },
-  { id: 'liver', layer: 'organs', en: 'Liver', es: 'Hígado', description: 'The liver processes nutrients and produces bile.' },
-  { id: 'stomach', layer: 'organs', en: 'Stomach', es: 'Estómago', description: 'This hollow organ mixes food with digestive juices.' },
-  { id: 'small_intestine', layer: 'organs', en: 'Small intestine', es: 'Intestino delgado', description: 'Most nutrients enter the body through this part of the digestive tract.' },
-  { id: 'large_intestine', layer: 'organs', en: 'Large intestine', es: 'Intestino grueso', description: 'This part of the digestive tract absorbs water and forms stool.' },
-  { id: 'kidneys', layer: 'organs', en: 'Kidneys', es: 'Riñones', description: 'The kidneys filter the blood and produce urine.' },
-];
+export interface AnatomyPart {
+  id: string;
+  layer: AnatomyLayer;
+  en: string;
+  es: string;
+  location: string;
+  description: string;
+  provisional?: boolean;
+}
+
+type VocabularyRow = [id: string, es: string, en: string, location: string, description: string, provisional?: true];
+
+const vocabulary: Record<AnatomyLayer, VocabularyRow[]> = {
+  bones: [
+    ['skull', 'Cráneo', 'Skull', 'En la cabeza, alrededor del encéfalo.', 'Protege el encéfalo y sostiene la cara.'],
+    ['mandible', 'Mandíbula', 'Mandible', 'En la parte inferior de la cara.', 'Sostiene los dientes inferiores y se mueve al masticar.'],
+    ['clavicle', 'Clavícula', 'Clavicle', 'Entre el esternón y la escápula.', 'Conecta el hombro con el tronco.'],
+    ['sternum', 'Esternón', 'Sternum', 'En el centro de la parte anterior del tórax.', 'Sostiene las uniones anteriores de varias costillas.'],
+    ['ribs', 'Costillas', 'Ribs', 'Alrededor de la cavidad torácica.', 'Protegen órganos del tórax y se mueven al respirar.'],
+    ['spine', 'Columna vertebral', 'Spine', 'Desde la base del cráneo hasta la pelvis.', 'Sostiene el tronco y protege la médula espinal.'],
+    ['pelvis', 'Pelvis', 'Pelvis', 'En la base del tronco, entre las caderas.', 'Transmite el peso hacia las piernas.'],
+    ['humerus', 'Húmero', 'Humerus', 'Entre el hombro y el codo.', 'Forma parte de ambas articulaciones y transmite fuerzas en el brazo.'],
+    ['radius', 'Radio', 'Radius', 'En el antebrazo, del lado del pulgar.', 'Participa en la rotación del antebrazo y en el apoyo de la muñeca.'],
+    ['ulna', 'Cúbito', 'Ulna', 'En el antebrazo, del lado del meñique.', 'Contribuye a la estabilidad del codo.'],
+    ['femur', 'Fémur', 'Femur', 'Entre la cadera y la rodilla.', 'Sostiene el peso y lo transmite a la pierna.'],
+    ['patella', 'Rótula', 'Patella', 'Delante de la articulación de la rodilla.', 'Protege su parte anterior y mejora la palanca del cuádriceps.'],
+    ['tibia', 'Tibia', 'Tibia', 'Entre la rodilla y el tobillo.', 'Es el principal hueso de carga de la pierna.'],
+    ['fibula', 'Peroné', 'Fibula', 'En el lado externo de la pierna.', 'Da estabilidad al tobillo y permite inserciones musculares.'],
+    ['carpals', 'Huesos del carpo', 'Carpals', 'En la muñeca.', 'Unen la mano al antebrazo y contribuyen a su movilidad.'],
+    ['metacarpals', 'Metacarpianos', 'Metacarpals', 'Entre la muñeca y la base de los dedos.', 'Forman el armazón de la palma.'],
+    ['hand_phalanges', 'Falanges de la mano', 'Hand phalanges', 'En los dedos de la mano.', 'Permiten la prensión y los movimientos finos.'],
+    ['tarsals', 'Huesos del tarso', 'Tarsals', 'En el talón y la parte media del pie.', 'Transmiten cargas entre el tobillo y el resto del pie.'],
+    ['metatarsals', 'Metatarsianos', 'Metatarsals', 'Entre el tarso y los dedos del pie.', 'Sostienen el antepié durante el apoyo y la marcha.'],
+    ['foot_phalanges', 'Falanges del pie', 'Foot phalanges', 'En los dedos del pie.', 'Ayudan al equilibrio y al impulso al caminar.'],
+  ],
+  muscles: [
+    ['pectoralis_major', 'Pectoral mayor', 'Pectoralis major', 'En la parte superficial y anterior del tórax.', 'Acerca el brazo al centro del cuerpo y lo gira hacia dentro.'],
+    ['deltoid', 'Deltoides', 'Deltoid', 'Alrededor de la parte superior del hombro.', 'Eleva el brazo hacia el lado y ayuda a moverlo hacia delante y hacia atrás.'],
+    ['biceps_brachii', 'Bíceps braquial', 'Biceps brachii', 'En la parte anterior del brazo.', 'Flexiona el codo y gira el antebrazo para orientar la palma hacia arriba.'],
+    ['triceps_brachii', 'Tríceps braquial', 'Triceps brachii', 'En la parte posterior del brazo.', 'Extiende el codo.'],
+    ['rectus_abdominis', 'Recto abdominal', 'Rectus abdominis', 'A ambos lados de la línea media anterior del abdomen.', 'Flexiona el tronco y ayuda a contener el abdomen.'],
+    ['external_oblique', 'Oblicuo externo', 'External oblique', 'En los costados superficiales del abdomen.', 'Ayuda a girar y flexionar el tronco.'],
+    ['quadriceps_femoris', 'Cuádriceps femoral', 'Quadriceps femoris', 'En la parte anterior del muslo.', 'Sus cuatro músculos extienden la rodilla.'],
+    ['sartorius', 'Sartorio', 'Sartorius', 'Cruza en diagonal la cara anterior del muslo.', 'Colabora al flexionar la cadera y la rodilla.'],
+    ['gastrocnemius', 'Gastrocnemio', 'Gastrocnemius', 'En la parte superficial de la pantorrilla.', 'Eleva el talón y ayuda a flexionar la rodilla.'],
+    ['tibialis_anterior', 'Tibial anterior', 'Tibialis anterior', 'En la parte anterior y lateral de la tibia.', 'Eleva la punta del pie hacia la pierna.'],
+    ['thenar_eminence', 'Eminencia tenar', 'Thenar eminence', 'En el relieve de la palma bajo el pulgar.', 'Sus músculos mueven el pulgar y ayudan a oponerlo a los dedos.', true],
+    ['hypothenar_eminence', 'Eminencia hipotenar', 'Hypothenar eminence', 'En el relieve de la palma bajo el meñique.', 'Sus músculos mueven el meñique y ahuecan la palma.', true],
+    ['dorsal_interossei', 'Interóseos dorsales', 'Dorsal interossei', 'Entre los huesos metacarpianos.', 'Separan los dedos y colaboran al flexionar sus bases.', true],
+    ['flexor_tendons', 'Tendones flexores', 'Flexor tendons', 'En la cara palmar de la muñeca, la mano y los dedos.', 'Transmiten la fuerza de los músculos que flexionan los dedos.', true],
+    ['extensor_tendons', 'Tendones extensores', 'Extensor tendons', 'En el dorso de la mano y los dedos.', 'Transmiten la fuerza de los músculos que extienden los dedos.', true],
+    ['frontalis', 'Frontal', 'Frontalis', 'En la frente.', 'Eleva las cejas y arruga la frente.', true],
+    ['orbicularis_oculi', 'Orbicular de los ojos', 'Orbicularis oculi', 'Alrededor de cada órbita.', 'Cierra los párpados.', true],
+    ['orbicularis_oris', 'Orbicular de la boca', 'Orbicularis oris', 'Alrededor de los labios.', 'Cierra y proyecta los labios.', true],
+    ['zygomaticus_major', 'Cigomático mayor', 'Zygomaticus major', 'Del pómulo a la comisura de los labios.', 'Eleva la comisura al sonreír.', true],
+    ['masseter', 'Masetero', 'Masseter', 'A ambos lados de la mandíbula, bajo el pómulo.', 'Eleva la mandíbula al masticar.', true],
+    ['temporalis', 'Temporal', 'Temporalis', 'En la sien, por encima del arco cigomático.', 'Eleva la mandíbula y ayuda a llevarla hacia atrás.', true],
+    ['buccinator', 'Buccinador', 'Buccinator', 'En la pared muscular de la mejilla.', 'Mantiene la mejilla contra los dientes al masticar.', true],
+    ['sternocleidomastoid', 'Esternocleidomastoideo', 'Sternocleidomastoid', 'A ambos lados del cuello, del esternón y la clavícula a la base del cráneo.', 'Inclina la cabeza y la gira hacia el lado contrario.', true],
+    ['serratus_anterior', 'Serrato anterior', 'Serratus anterior', 'Entre las costillas laterales y la escápula.', 'Mantiene la escápula contra el tórax y ayuda a elevar el brazo.', true],
+    ['trapezius', 'Trapecio', 'Trapezius', 'En la nuca y la parte superior y media de la espalda.', 'Eleva, aproxima y gira la escápula.', true],
+    ['brachioradialis', 'Braquiorradial', 'Brachioradialis', 'En el borde lateral del antebrazo.', 'Flexiona el codo, especialmente con la mano en posición de dar un apretón.', true],
+    ['forearm_flexors', 'Flexores del antebrazo', 'Forearm flexors', 'En la parte anterior del antebrazo.', 'Flexionan la muñeca o los dedos, según el músculo.', true],
+    ['forearm_extensors', 'Extensores del antebrazo', 'Forearm extensors', 'En la parte posterior del antebrazo.', 'Extienden la muñeca o los dedos, según el músculo.', true],
+    ['adductors', 'Aductores', 'Hip adductors', 'En la parte interna del muslo.', 'Acercan el muslo a la línea media del cuerpo.', true],
+    ['latissimus_dorsi', 'Dorsal ancho', 'Latissimus dorsi', 'En la parte media e inferior de la espalda.', 'Lleva el brazo hacia atrás y hacia el cuerpo.', true],
+    ['gluteus_maximus', 'Glúteo mayor', 'Gluteus maximus', 'En la parte superficial y posterior de la cadera.', 'Extiende la cadera al levantarse o subir escalones.', true],
+    ['hamstrings', 'Isquiotibiales', 'Hamstrings', 'En la parte posterior del muslo.', 'Flexionan la rodilla y ayudan a extender la cadera.', true],
+  ],
+  organs: [
+    ['brain', 'Cerebro', 'Brain', 'En la cavidad craneal.', 'Procesa información y coordina funciones como el movimiento, la memoria y el lenguaje.'],
+    ['lungs', 'Pulmones', 'Lungs', 'Dentro del tórax, a ambos lados del corazón.', 'Intercambian oxígeno y dióxido de carbono con la sangre.'],
+    ['heart', 'Corazón', 'Heart', 'Entre los pulmones, por detrás del esternón y algo hacia la izquierda.', 'Impulsa la sangre hacia los pulmones y el resto del cuerpo.'],
+    ['liver', 'Hígado', 'Liver', 'Bajo el diafragma, principalmente del lado derecho.', 'Procesa nutrientes y produce bilis.'],
+    ['stomach', 'Estómago', 'Stomach', 'En la zona superior izquierda del abdomen.', 'Mezcla los alimentos con los jugos digestivos.'],
+    ['small_intestine', 'Intestino delgado', 'Small intestine', 'En gran parte del centro y la parte inferior del abdomen.', 'Absorbe la mayor parte de los nutrientes.'],
+    ['large_intestine', 'Intestino grueso', 'Large intestine', 'Rodea parte del intestino delgado dentro del abdomen.', 'Absorbe agua y contribuye a formar las heces.'],
+    ['kidneys', 'Riñones', 'Kidneys', 'En la pared posterior del abdomen, a ambos lados de la columna.', 'Filtran la sangre y producen orina.'],
+    ['trachea', 'Tráquea', 'Trachea', 'Entre la laringe y la división en los dos bronquios principales.', 'Conduce el aire hacia los pulmones y desde ellos.', true],
+    ['thyroid_gland', 'Tiroides', 'Thyroid gland', 'En la parte anterior del cuello, a los lados de la tráquea.', 'Produce hormonas que ayudan a regular el metabolismo.', true],
+    ['urinary_bladder', 'Vejiga', 'Urinary bladder', 'Dentro de la pelvis, por detrás del pubis.', 'Almacena la orina hasta la micción.', true],
+  ],
+};
+
+export const anatomyLayerNames: Record<AnatomyLayer, string> = { bones: 'Huesos', muscles: 'Músculos', organs: 'Órganos' };
+export const anatomyParts: AnatomyPart[] = (Object.keys(vocabulary) as AnatomyLayer[]).flatMap(layer =>
+  vocabulary[layer].map(([id, es, en, location, description, provisional]) => ({ id, layer, es, en, location, description, provisional })));
+
 function visible(p: BodyPoint | undefined): p is BodyPoint {
   return !!p && Number.isFinite(p.x) && Number.isFinite(p.y) && p.x >= -.1 && p.x <= 1.1 && p.y >= -.1 && p.y <= 1.1 && (p.visibility ?? 0) >= .6;
 }

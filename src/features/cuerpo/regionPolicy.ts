@@ -1,4 +1,4 @@
-import type { BodyPoint } from './anatomy';
+import type { AnatomyLayer, BodyPoint } from './anatomy';
 import { atlasPlacement, landmark, limbJoints, pointInFrame, sides, visibleRegion, type AtlasPart, type Joint } from './atlasAlignment';
 import type { FaceRegion, HandRegion } from './regionalDetection';
 import type { RegionalFoot, RegionalNeck } from './regionalTransforms';
@@ -20,7 +20,7 @@ function span(points: readonly BodyPoint[], aspect: number) {
 
 export function chooseRegions(points: BodyPoint[], aspect: number, viewportAspect: number,
   hands: readonly HandRegion[], face: FaceRegion | null, facing: ReturnType<typeof atlasPlacement>['facing'],
-  confirmed: ReadonlySet<string> = new Set()) {
+  confirmed: ReadonlySet<string> = new Set(), layer: AnatomyLayer = 'bones') {
   const [left, top, width, height] = visibleRegion(aspect, viewportAspect);
   const margin = .01 * Math.min(width, height);
   const inside = (point: BodyPoint, border = margin) => Number.isFinite(point.x) && Number.isFinite(point.y)
@@ -59,6 +59,7 @@ export function chooseRegions(points: BodyPoint[], aspect: number, viewportAspec
     && (!torso || shoulderWidth < faceSize.height*.92 || neckLength < faceSize.height*.13 || (!hips && !elbows)));
   const contradicted = largeHandOverrides || largeFaceOverrides;
   const back = facing === 'back' && torso && !contradicted;
+  const posterior = back && layer !== 'bones';
   const visibleHands = back ? [] : acceptedHands;
   const visibleFace = back ? null : acceptedFace;
   const groups = new Set<Group>();
@@ -68,19 +69,21 @@ export function chooseRegions(points: BodyPoint[], aspect: number, viewportAspec
   const poseHead = torso && shoulders && eyeLeft && eyeRight && at('ear_left', .55) && at('ear_right', .55)
     && Math.max(eyeLeft[1], eyeRight[1]) < shoulders[1] - shoulderWidth*.12
     && separation(eyeLeft, eyeRight) < shoulderWidth*.50;
+  const neckConfidence = layer === 'bones' || hips || elbows ? .65 : confirmed.has('neck') ? .79 : .83;
   const neck: RegionalNeck | null = faceSize && sl && sr && !largeHandOverrides
+    && at('shoulder_left', neckConfidence) && at('shoulder_right', neckConfidence)
     && shoulderWidth > faceSize.width*.95 && neckLength > faceSize.height*.10 && neckLength < faceSize.height*.8
     ? { shoulderLeft: value('shoulder_left'), shoulderRight: value('shoulder_right') } : null;
 
   if (contradicted) reasons.push(largeHandOverrides ? 'Pose no coincide con la escala de la mano' : 'Pose no coincide con la escala de la cara');
-  else if (facing !== 'back') {
+  else if (facing !== 'back' || posterior) {
     const missing: string[] = [];
     const disproportionate: string[] = [];
-    if (torso && facing === 'front') {
+    if (torso && (facing === 'front' || posterior)) {
       groups.add('trunk');
       if (hips) { groups.add('pelvis'); groups.add('abdomen'); }
     } else reasons.push('Hombros fuera del encuadre o torso desproporcionado');
-    if (!acceptedFace && poseHead) groups.add('head');
+    if (!back && (!acceptedFace || layer !== 'bones') && poseHead) groups.add('head');
     for (const side of sides) {
       const supported = (joint: string, threshold?: number) => at(`${joint}_${side}` as Joint, threshold);
       const chain = [
@@ -133,8 +136,11 @@ export function chooseRegions(points: BodyPoint[], aspect: number, viewportAspec
     const wrist = at(`wrist_${side}`, .45), index = at(`index_${side}`, .45);
     return wrist && index && separation(wrist, index) >= height*.024;
   });
+  const detailedFace = Boolean(fullBody && layer !== 'bones' && eyeLeft && eyeRight
+    && separation(eyeLeft, eyeRight) >= height*.019);
   let status = 'Buscando…';
   if (fullBody) status = 'Cuerpo completo';
+  else if (posterior) status = 'Espalda';
   else if (groups.has('trunk')) status = 'Torso';
   else if (visibleHands.length > 1) status = 'Ambas manos';
   else if (visibleHands.length === 1) status = `Mano ${sideName(visibleHands[0].side, true)}`;
@@ -149,8 +155,8 @@ export function chooseRegions(points: BodyPoint[], aspect: number, viewportAspec
   }
   if (!feet.length) reasons.push('Faltan puntos coherentes de tobillo, talón y punta');
   if (fullBody && poseHead) groups.add('head');
-  return { groups, hands: visibleHands, face: fullBody && poseHead ? null : visibleFace,
-    feet, neck, status, reasons, fullBody, detailedHands };
+  return { groups, hands: visibleHands, face: fullBody && poseHead && layer === 'bones' ? null : visibleFace,
+    feet, neck, status, reasons, fullBody, detailedHands, detailedFace };
 }
 
 // Only acquire a region after two consecutive observations. Invalidated

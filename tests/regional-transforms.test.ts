@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { Euler, Matrix4, Quaternion, Vector3 } from 'three';
 import metadata from '../assets/anatomy/regions/anchors.json';
-import { faceRotation, fitHeadProjection, fitLandmarkPlane, fitRegionalSegment } from '../src/features/cuerpo/regionalTransforms';
+import {
+  faceRotation, fitHeadProjection, fitLandmarkPlane, fitRegionalSegment, handCrossSectionScale, handMuscleView,
+  visibleNeckFit,
+} from '../src/features/cuerpo/regionalTransforms';
 
 describe('ajuste de huesos regionales', () => {
   it('mantiene cada falange entre los dos extremos de un índice doblado', () => {
@@ -47,5 +50,31 @@ describe('ajuste de huesos regionales', () => {
     for (const [i, point] of source.entries()) {
       expect(point.clone().applyMatrix4(fit).distanceTo(target[i])).toBeLessThan(1e-6);
     }
+  });
+
+});
+
+describe('ajustes de músculos y órganos regionales', () => {
+  it('ajusta el grosor de las piezas a una palma más estrecha con la misma longitud', () => {
+    const source = { base: new Vector3(0, 0, 0), middle: new Vector3(-.4, 1, 0), tip: new Vector3(.4, 1, 0) };
+    const target = { base: source.base, middle: new Vector3(-.3, 1, 0), tip: new Vector3(.3, 1, 0) };
+    expect(handCrossSectionScale(source, target)).toBeCloseTo(.75);
+  });
+
+  it('muestra el lado anatómico de la mano y mantiene la vista al pasar de canto', () => {
+    expect(handMuscleView(new Vector3(0, 0, 1))).toBe('palmar');
+    expect(handMuscleView(new Vector3(0, 0, -1), 'palmar')).toBe('dorsal');
+    expect(handMuscleView(new Vector3(.99, 0, .09), 'dorsal')).toBe('dorsal');
+    expect(handMuscleView(new Vector3(.99, 0, -.09), 'palmar')).toBe('palmar');
+  });
+
+  it('ubica el cuello entre la cabeza y los hombros visibles', () => {
+    const source = [new Vector3(0, 1.5, .04), new Vector3(0, 1.3, .04)] as const;
+    const top = new Vector3(.45, .60, 0), shoulders = new Vector3(.46, .45, 0);
+    const fit = visibleNeckFit(source, top, shoulders, new Quaternion(), 1)!;
+    expect(source[0].clone().applyMatrix4(fit).distanceTo(top)).toBeLessThan(1e-6);
+    expect(source[1].clone().applyMatrix4(fit).distanceTo(shoulders)).toBeLessThan(1e-6);
+    expect(visibleNeckFit(source, top, new Vector3(.46, .67, 0), new Quaternion(), 1)).toBeNull();
+    expect(visibleNeckFit(source, top, new Vector3(.46, .29, 0), new Quaternion(), 1)).toBeNull();
   });
 });

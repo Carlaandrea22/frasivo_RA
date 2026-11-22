@@ -1,6 +1,6 @@
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useId, useLayoutEffect, useRef, useState } from 'react';
 import type { AnatomyLayer, Matrix } from './anatomy';
-import { atlasParts, atlasSprite, referenceFrame, type atlasPlacement, type AtlasPart } from './atlasAlignment';
+import { atlasParts, atlasSprite, atlasSpriteId, referenceFrame, type atlasPlacement, type AtlasPart } from './atlasAlignment';
 import { BoneLabels, type BoneTarget } from './BoneLabels';
 import { OneEuro } from './oneEuro';
 import { applyBoneTransform, boneSpritePoints } from './boneLabelPlacement';
@@ -9,7 +9,7 @@ import reference from '../../../assets/anatomy/body/body-reference.webp?url';
 const sprites = import.meta.glob<string>('../../../assets/anatomy/body/sprites/*.webp', {
   query: '?url', import: 'default', eager: true,
 });
-const organOrder = ['kidneys', 'lungs', 'small_intestine', 'large_intestine', 'stomach', 'liver', 'heart', 'brain'];
+const organOrder = ['kidneys', 'urinary_bladder', 'small_intestine', 'large_intestine', 'lungs', 'stomach', 'liver', 'heart', 'brain'];
 const muscleOrder = ['triceps_brachii', 'biceps_brachii', 'deltoid'];
 const layers = {
   bones: atlasParts.filter(part => part.layer === 'bones'),
@@ -21,6 +21,10 @@ const layers = {
 
 type Group = AtlasPart['group'];
 type Placement = ReturnType<typeof atlasPlacement>;
+const torsoWindow = {
+  trunk: 'M 0 -1.384 C .145 -1.404 .172 -1.295 .158 -1.178 C .148 -1.077 .125 -1.015 0 -1.002 C -.125 -1.015 -.148 -1.077 -.158 -1.178 C -.172 -1.295 -.145 -1.404 0 -1.384 Z',
+  abdomen: 'M 0 -1.15 C .153 -1.149 .148 -1.058 .147 -1.005 C .149 -.919 .141 -.79 .088 -.745 C .017 -.705 -.066 -.73 -.112 -.772 C -.157 -.827 -.153 -.99 -.146 -1.064 C -.141 -1.127 -.06 -1.16 0 -1.15 Z',
+};
 
 interface Props {
   placement: Placement;
@@ -45,7 +49,8 @@ function mirrored([a, b, c, d]: Matrix) {
 
 export function AnatomyOverlay({ placement, live, layer, aspect, opacity, selected, onSelect, onFrame, showLabels, showSelection,
   reservedBottom, regionalTargets = [], preferredLabelIds, detailRequest }: Props) {
-  const { matrices, visible, frontFeet } = placement;
+  const { matrices, visible, frontFeet, facing } = placement;
+  const organWindow = useId();
   const groups = useRef(new Map<Group, SVGGElement>());
   const current = useRef(new Map<Group, Matrix>());
   const filters = useRef(new Map<Group, OneEuro[]>());
@@ -62,7 +67,7 @@ export function AnatomyOverlay({ placement, live, layer, aspect, opacity, select
 
   useLayoutEffect(() => {
     let request: number;
-    let last = performance.now();
+    const last = performance.now();
     const targets = new Map<Group, Matrix>();
     for (const [group, node] of groups.current) {
       const target = matrices[group];
@@ -85,7 +90,7 @@ export function AnatomyOverlay({ placement, live, layer, aspect, opacity, select
 
     const publish = () => {
       const element = svg.current;
-      if (layer !== 'bones' || !element) return;
+      if (!element) return;
       const width = element.clientWidth, height = element.clientHeight;
       if (!width || !height) return;
       const scale = (live ? Math.max : Math.min)(width/aspect, height);
@@ -95,8 +100,11 @@ export function AnatomyOverlay({ placement, live, layer, aspect, opacity, select
       candidates.current = parts.flatMap(part => {
         const matrix = current.current.get(part.group);
         if (!matrix) return [];
-        const spriteId = part.demoSprite && (!live || frontFeet.has(part.group)) ? `${part.id}_front` : part.id;
-        return boneSpritePoints(spriteId, atlasSprite(part, live, frontFeet)).map(anchor => {
+        const spriteId = atlasSpriteId(part, live, frontFeet, facing);
+        const [x, y, w, h] = atlasSprite(part, live, frontFeet, facing);
+        const point = live && facing === 'back' ? part.backLabelPoint ?? part.labelPoint : part.labelPoint;
+        const anchors = point ? [[x+point[0]*w, y+point[1]*h] as const] : boneSpritePoints(spriteId, [x, y, w, h]);
+        return anchors.map(anchor => {
           const [x, y] = applyBoneTransform(matrix, anchor);
           return { id: part.term, key: part.id, source: part.id, centerX,
             x: (left+scale*x)/width, y: (top+scale*y)/height };
@@ -110,18 +118,14 @@ export function AnatomyOverlay({ placement, live, layer, aspect, opacity, select
     };
     publish();
     const resize = new ResizeObserver(publish);
-    if (layer === 'bones' && svg.current) resize.observe(svg.current);
+    if (svg.current) resize.observe(svg.current);
 
     const draw = (now: number) => {
-      const mix = 1 - Math.exp(-Math.max(0, now - last) / 27);
-      last = now;
       let animated = false;
       for (const [group, target] of targets) {
         const from = current.current.get(group)!;
         if (from === target) continue;
-        const next = (layer === 'bones'
-          ? filters.current.get(group)!.map((filter, i) => filter.filter(target[i], now))
-          : from.map((value, i) => value + (target[i] - value) * mix)) as Matrix;
+        const next = filters.current.get(group)!.map((filter, i) => filter.filter(target[i], now)) as Matrix;
         const settled = next.every((value, i) => Math.abs(value - target[i]) < .00015);
         const result = settled ? target : next;
         current.current.set(group, result);
@@ -134,7 +138,7 @@ export function AnatomyOverlay({ placement, live, layer, aspect, opacity, select
 
     if (live && targets.size > 0) request = requestAnimationFrame(draw);
     return () => { cancelAnimationFrame(request); resize.disconnect(); };
-  }, [matrices, visible, layer, live, onFrame, preferred, showLabels, showSelection, aspect]);
+  }, [matrices, visible, layer, live, onFrame, preferred, showLabels, showSelection, aspect, frontFeet, facing]);
 
   return <>
     {!live && matrices.trunk && (
@@ -144,8 +148,9 @@ export function AnatomyOverlay({ placement, live, layer, aspect, opacity, select
     )}
     <svg ref={svg} className={`anatomy-overlay anatomy-sprites layer-${layer}`} viewBox={viewBox}
       preserveAspectRatio={live ? 'xMidYMid slice' : 'xMidYMid meet'} aria-hidden="true"
-      onClick={layer === 'bones' ? event => {
+      onClick={event => {
         const direct = (event.target as Element).getAttribute('data-part');
+        if (!direct && layer !== 'bones') return;
         const box = event.currentTarget.getBoundingClientRect();
         const distance = (item: BoneTarget) =>
           Math.hypot(box.left+item.x*box.width-event.clientX, box.top+item.y*box.height-event.clientY);
@@ -153,16 +158,28 @@ export function AnatomyOverlay({ placement, live, layer, aspect, opacity, select
           : candidates.current.reduce<(typeof candidates.current)[number] | undefined>((best, item) =>
             distance(item) <= 22 && (!best || distance(item) < distance(best)) ? item : best, undefined);
         if (near) { setPreferred(near.key); onSelect(near.id); }
-      } : undefined}
+      }}
       data-rendered={layer} data-visible-parts={parts.length} data-focused-organ={focusedOrgan} style={{ opacity }}>
+      {layer === 'organs' && live && <defs>
+        <filter id={`${organWindow}-feather`} filterUnits="userSpaceOnUse" x="-.25" y="-1.55" width=".5" height=".95">
+          <feGaussianBlur stdDeviation=".012"/>
+        </filter>
+        {Object.entries(torsoWindow).map(([group, path]) => <mask key={group} id={`${organWindow}-${group}`}
+          maskUnits="userSpaceOnUse" x="-.25" y="-1.55" width=".5" height=".95">
+          <path d={path} fill="white" filter={`url(#${organWindow}-feather)`}/>
+        </mask>)}
+      </defs>}
       {Array.from(visibleGroups, group => (
-        <g key={group} ref={node => {
+        <g key={group} data-atlas-group={group} ref={node => {
           if (node) groups.current.set(group, node);
           else groups.current.delete(group);
         }}>
+          <g mask={layer === 'organs' && live && (group === 'trunk' || group === 'abdomen') ? `url(#${organWindow}-${group})` : undefined}>
+          {layer === 'organs' && live && (group === 'trunk' || group === 'abdomen') &&
+            <path d={torsoWindow[group]} data-organ-window={group} fill="#543031" opacity=".22" pointerEvents="none"/>}
           {parts.filter(part => part.group === group).map(part => {
-            const [x, y, width, height] = atlasSprite(part, live, frontFeet);
-            const spriteId = part.demoSprite && (!live || frontFeet.has(part.group)) ? `${part.id}_front` : part.id;
+            const [x, y, width, height] = atlasSprite(part, live, frontFeet, facing);
+            const spriteId = atlasSpriteId(part, live, frontFeet, facing);
             const recedes = (focusedOrgan && focusedOrgan !== part.term)
               || (focusedMuscle && focusedMuscle !== part.term && parts.some(p => p.group === group && p.term === focusedMuscle));
             return <image
@@ -172,14 +189,14 @@ export function AnatomyOverlay({ placement, live, layer, aspect, opacity, select
               href={sprites[`../../../assets/anatomy/body/sprites/${spriteId}.webp`]}
               x={x} y={y} width={width} height={height}
               opacity={recedes ? .19 : 1}
-              onClick={layer === 'bones' ? undefined : () => onSelect(part.term)}
             />;
           })}
+          </g>
         </g>
       ))}
     </svg>
-    {layer === 'bones' && (showSelection || showLabels || detailRequest) &&
-      <BoneLabels targets={[...regionalTargets, ...projected]} selected={showSelection ? selected : undefined}
+    {(showSelection || showLabels || detailRequest) &&
+      <BoneLabels layer={layer} targets={[...regionalTargets, ...projected]} selected={showSelection ? selected : undefined}
         showAll={showLabels} reservedBottom={reservedBottom} preferredIds={preferredLabelIds}
         provisionalIds={regionalTargets.map(target => target.id)} detailRequest={detailRequest}/>}
   </>;

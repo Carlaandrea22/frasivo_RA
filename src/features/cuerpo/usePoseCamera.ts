@@ -29,6 +29,7 @@ export function usePoseCamera(onDetection?: (time: number) => void, detailed = f
   const [aspect, setAspect] = useState(4 / 5);
   const [hands, setHands] = useState<HandRegion[]>(emptyHands);
   const [face, setFace] = useState<FaceRegion | null>(null);
+  const [handChecked, setHandChecked] = useState(false);
   const [detectorStats, setDetectorStats] = useState(emptyStats);
 
   useEffect(() => {
@@ -47,6 +48,7 @@ export function usePoseCamera(onDetection?: (time: number) => void, detailed = f
     setHistory([]);
     setHands(emptyHands);
     setFace(null);
+    setHandChecked(false);
     setTracking('loading');
 
     function updateStats() {
@@ -84,6 +86,7 @@ export function usePoseCamera(onDetection?: (time: number) => void, detailed = f
         } else if (data.type === 'detector-ready' || data.type === 'detector-unavailable') {
           const kind: Specialist = data.kind;
           states[kind] = data.type === 'detector-ready' ? 'ready' : 'unavailable';
+          if (kind === 'hand' && data.type === 'detector-unavailable') setHandChecked(true);
           if (data.frame) busy = false;
         } else if (data.type === 'pose' || data.type === 'hand' || data.type === 'face') {
           busy = false;
@@ -102,6 +105,7 @@ export function usePoseCamera(onDetection?: (time: number) => void, detailed = f
               ? [...previous.filter(frame => sample.time - frame.time <= captureWindow), sample] : []);
             setTracking(sample.points.length ? 'tracking' : 'searching');
           } else if (data.type === 'hand') {
+            setHandChecked(true);
             if (data.hands.length || missed.hand === 1) {
               lastSeen.hand = data.hands.length ? arrived : 0;
               setHands(data.hands);
@@ -148,7 +152,7 @@ export function usePoseCamera(onDetection?: (time: number) => void, detailed = f
       if (hint && poseFrames >= 3 && states.hand !== 'loading' && states.face !== 'loading') {
         let prepare: Specialist | undefined;
         if ((!hint.fullBody || hint.detailedHands) && states.hand === 'idle') prepare = 'hand';
-        else if (!hint.fullBody && states.face === 'idle') prepare = 'face';
+        else if ((!hint.fullBody || hint.detailedFace) && states.face === 'idle') prepare = 'face';
         if (prepare) {
           states[prepare] = 'loading';
           worker!.postMessage({ type: 'prepare', detector: prepare });
@@ -193,6 +197,7 @@ export function usePoseCamera(onDetection?: (time: number) => void, detailed = f
     ...camera, start, samples, points: samples.at(-1)?.points ?? emptyPoints, tracking, modelError, aspect,
     hands: status === 'active' && detailed ? hands : emptyHands,
     face: status === 'active' && detailed ? face : null,
+    handChecked,
     detectorStats,
   };
 }

@@ -2,6 +2,7 @@ import { Matrix4, Quaternion, Vector3 } from 'three';
 import type { BodyPoint } from './anatomy';
 
 export type RegionalSide = 'left' | 'right';
+export type HandMuscleView = 'palmar' | 'dorsal';
 export type Coordinates = readonly [number, number, number];
 
 export interface RegionalFoot {
@@ -28,6 +29,13 @@ interface Landmarks {
   base: Vector3;
   middle: Vector3;
   tip: Vector3;
+}
+
+export function handCrossSectionScale(source: Landmarks, target: Landmarks) {
+  const lengthScale = (target.base.distanceTo(target.middle)+target.base.distanceTo(target.tip)) /
+    (source.base.distanceTo(source.middle)+source.base.distanceTo(source.tip));
+  const widthScale = target.middle.distanceTo(target.tip)/source.middle.distanceTo(source.tip);
+  return Math.max(lengthScale*.62, Math.min(lengthScale*1.25, widthScale));
 }
 
 export function fitLandmarkPlane(source: Landmarks, target: Landmarks, mirrored: boolean) {
@@ -68,6 +76,23 @@ export function fitRegionalSegment(
     .scale(new Vector3(widthScale, lengthScale, widthScale))
     .multiply(boneBasis(sourceAxis.normalize(), sourceNormal).invert())
     .multiply(shift(source[0].clone().negate()));
+}
+
+export function handMuscleView(normal: Vector3, previous?: HandMuscleView): HandMuscleView {
+  return previous && Math.abs(normal.z) < .20 ? previous : normal.z >= 0 ? 'palmar' : 'dorsal';
+}
+
+export function visibleNeckFit(
+  source: readonly [Vector3, Vector3],
+  top: Vector3,
+  shoulders: Vector3,
+  rotation: Quaternion,
+  scale: number,
+  maxDistance = .21,
+) {
+  if (shoulders.y >= top.y || top.distanceTo(shoulders) >= maxDistance) return null;
+  const forward = new Vector3(0, 0, 1);
+  return fitRegionalSegment(source, [top, shoulders], forward, forward.clone().applyQuaternion(rotation), scale);
 }
 
 export function faceRotation(matrix: readonly number[]) {

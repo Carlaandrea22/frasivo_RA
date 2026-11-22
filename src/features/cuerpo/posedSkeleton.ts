@@ -2,10 +2,14 @@ import { Box3, Group, Matrix4, Mesh, MeshStandardMaterial, Scene, Vector3 } from
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import anchors from '../../../assets/anatomy/body/anchors.json';
 import bonesUrl from '../../../assets/anatomy/body/bones.glb?url';
-import type { BodyPoint } from './anatomy';
+import musclesUrl from '../../../assets/anatomy/body/muscles.glb?url';
+import organsUrl from '../../../assets/anatomy/body/organs.glb?url';
+import type { AnatomyLayer, BodyPoint } from './anatomy';
 import { atlasParts, landmark, limbJoints, sides, type Joint } from './atlasAlignment';
 
-const bones = atlasParts.filter(part => part.layer === 'bones');
+const layerUrls = { muscles: musclesUrl, organs: organsUrl };
+const footNodes = new Set(atlasParts.filter(part => part.layer === 'bones' && part.group.startsWith('foot_')).map(part => part.id));
+const capturedMatrices = new WeakMap<Group, ReadonlyMap<string, Matrix4>>();
 const up = new Vector3(0, 1, 0);
 const across = new Vector3(1, 0, 0);
 const forward = new Vector3(0, 0, 1);
@@ -68,6 +72,26 @@ function fit(source: Segment, target: Segment, width: number, depth = width) {
 
 function bodyFrame(origin: Vector3, height: Vector3, side: Vector3, scale: Vector3) {
   return axes(height, side).scale(scale).setPosition(origin);
+}
+
+function placeLayer(model: Group, layer: AnatomyLayer, matrices: ReadonlyMap<string, Matrix4>) {
+  const placements = atlasParts.filter(part => part.layer === layer).map(part => {
+    const mesh = model.getObjectByName(part.id);
+    const placement = matrices.get(part.group) ?? (part.group.startsWith('abdomen_') ? matrices.get('abdomen') : undefined);
+    if (!(mesh instanceof Mesh) || !placement) throw new Error(`No se pudo colocar ${part.id}.`);
+    return { part, mesh, placement };
+  });
+  const posed = new Group();
+  posed.name = layer === 'bones' ? 'Posed_skeleton' : `Posed_${layer}`;
+  for (const { part, mesh, placement } of placements) {
+    mesh.userData.term = part.term;
+    mesh.updateMatrix();
+    mesh.matrixAutoUpdate = false;
+    mesh.matrix.premultiply(placement);
+    mesh.matrixWorldNeedsUpdate = true;
+    posed.add(mesh);
+  }
+  return posed;
 }
 
 export function poseSkeleton(model: Group, points: BodyPoint[]) {
@@ -169,23 +193,10 @@ export function poseSkeleton(model: Group, points: BodyPoint[]) {
     ));
   }
 
-  const placements = bones.map(part => {
-    const mesh = model.getObjectByName(part.id);
-    const placement = matrices.get(part.group);
-    if (!(mesh instanceof Mesh) || !placement) throw new Error(`No se pudo colocar ${part.id}.`);
-    return { part, mesh, placement };
-  });
-  const skeleton = new Group();
-  skeleton.name = 'Posed_skeleton';
+  const skeleton = placeLayer(model, 'bones', matrices);
   const feet = new Box3();
-  for (const { part, mesh, placement } of placements) {
-    mesh.userData.term = part.term;
-    mesh.updateMatrix();
-    mesh.matrixAutoUpdate = false;
-    mesh.matrix.premultiply(placement);
-    mesh.matrixWorldNeedsUpdate = true;
-    skeleton.add(mesh);
-    if (part.group.startsWith('foot_')) feet.expandByObject(mesh, true);
+  for (const mesh of skeleton.children) {
+    if (footNodes.has(mesh.name)) feet.expandByObject(mesh, true);
   }
   const origin = between(at('ankle_left'), at('ankle_right'));
   skeleton.position.set(-origin.x, -feet.min.y, -origin.z);
@@ -200,7 +211,18 @@ export function poseSkeleton(model: Group, points: BodyPoint[]) {
     face,
     head: fittedHead.toArray() as [number, number, number],
   };
+  capturedMatrices.set(skeleton, matrices);
   return skeleton;
+}
+
+export function poseAnatomyLayer(skeleton: Group, model: Group, layer: Exclude<AnatomyLayer, 'bones'>) {
+  const matrices = capturedMatrices.get(skeleton);
+  if (!matrices) throw new Error('Falta la pose anatómica capturada.');
+  const posed = placeLayer(model, layer, matrices);
+  posed.position.copy(skeleton.position);
+  posed.userData.calibrationJoints = skeleton.userData.calibrationJoints;
+  posed.updateMatrixWorld(true);
+  return posed;
 }
 
 export function disposeSkeleton(skeleton: Group) {
@@ -225,12 +247,22 @@ export async function loadPosedSkeleton(points: BodyPoint[]) {
   }
 }
 
-export async function exportSkeleton(skeleton: Group, labelIds: readonly string[] = []) {
+export async function loadPosedAnatomyLayer(skeleton: Group, layer: Exclude<AnatomyLayer, 'bones'>) {
+  const { scene } = await new GLTFLoader().loadAsync(layerUrls[layer]);
+  try {
+    return poseAnatomyLayer(skeleton, scene, layer);
+  } catch (error) {
+    disposeSkeleton(scene);
+    throw error;
+  }
+}
+
+export async function exportSkeleton(skeleton: Group, labelIds: readonly string[] = [], layer: AnatomyLayer = 'bones') {
   const { USDZExporter } = await import('three/addons/exporters/USDZExporter.js');
   const scene = new Scene();
   scene.add(skeleton.clone());
   const labelTools = labelIds.length ? await import('./usdLabels') : null;
-  const labels = labelTools?.buildUsdLabels(skeleton, labelIds);
+  const labels = labelTools?.buildUsdLabels(skeleton, labelIds, layer);
   if (labels) scene.add(labels);
   scene.updateMatrixWorld(true);
   try {
