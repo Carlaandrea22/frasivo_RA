@@ -57,6 +57,14 @@
         "isa_element_parts.txt": "a3de74423f943b0d724ae8f59b3a817f87c423a544f8db98113b1980817cbeaf",
         "partof_element_parts.txt": "3f5f6df1028eb122b30de77c711597b6bb8e5541658e5985859fd228adbf88ea"
       }
+    },
+    "hra-v2": {
+      "library": "Human Reference Atlas 3D Reference Object Library",
+      "release": "v2.0",
+      "releaseIndexUrl": "https://cdn.humanatlas.io/hra-releases/v2.0/docs/index.html",
+      "metadataRevision": "b036a91aaf7234f462b1249d4a5f4fb0e982f412",
+      "license": "CC-BY-4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/"
     }
   },
   "fichas": [
@@ -7952,6 +7960,1792 @@
         "descripcion": "La proyección distingue las dos cúpulas y permite ubicar aproximadamente la región superior anterocentral. La malla es continua y no ofrece un borde tisular del centro tendinoso. El selector puede seguir esa proyección, separada de los pilares posteriores inferiores."
       },
       "thumbnailOnDemand": true
+    },
+    {
+      "id": "pancreas",
+      "root": "pancreas",
+      "name": "Páncreas",
+      "category": "organos",
+      "parts": [
+        {
+          "id": "cabeza",
+          "method": "mesh",
+          "nodes": [
+            {
+              "sourceId": "HBM368.XMJZ.722",
+              "index": 5,
+              "name": "VH_M_head_of_pancreas"
+            }
+          ]
+        },
+        {
+          "id": "cuello",
+          "method": "mesh",
+          "nodes": [
+            {
+              "sourceId": "HBM368.XMJZ.722",
+              "index": 6,
+              "name": "VH_M_neck_of_pancreas"
+            }
+          ]
+        },
+        {
+          "id": "cuerpo",
+          "method": "mesh",
+          "nodes": [
+            {
+              "sourceId": "HBM368.XMJZ.722",
+              "index": 3,
+              "name": "VH_M_body_of_pancreas"
+            }
+          ]
+        },
+        {
+          "id": "cola",
+          "method": "mesh",
+          "nodes": [
+            {
+              "sourceId": "HBM368.XMJZ.722",
+              "index": 4,
+              "name": "VH_M_tail_of_pancreas"
+            }
+          ]
+        },
+        {
+          "id": "proceso_unciforme",
+          "method": "mesh",
+          "nodes": [
+            {
+              "sourceId": "HBM368.XMJZ.722",
+              "index": 7,
+              "name": "VH_M_uncinate_process_of_the_pancreas"
+            }
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "HBM368.XMJZ.722",
+          "version": "1.2",
+          "title": "3D Reference Organ for Pancreas, Male v1.2",
+          "creators": [
+            "Kristen Browne",
+            "Heidi Schlehlein"
+          ],
+          "publisher": "HuBMAP",
+          "license": "CC-BY-4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+          "evidence": {
+            "releasePage": "https://cdn.humanatlas.io/hra-releases/v2.0/docs/ref-organs/3d-vh-m-pancreas.html",
+            "releaseMarkdown": "https://cdn.humanatlas.io/hra-releases/v2.0/markdown/ref-organs/3d-vh-m-pancreas.md",
+            "pinnedReleaseMarkdown": "https://github.com/hubmapconsortium/ccf-releases/blob/b036a91aaf7234f462b1249d4a5f4fb0e982f412/v2.0/markdown/ref-organs/3d-vh-m-pancreas.md",
+            "localMetadata": "assets/_fuentes/explorar-fase2/e/hra/metadata/3d-vh-m-pancreas.md",
+            "metadataSha256": "d51e16744650ce3589c60e0ae7cd621fde91f960a734deb527c24e7d1c665bcc",
+            "doi": "https://doi.org/10.48539/HBM368.XMJZ.722",
+            "doiDestinationStatusOnCheck": 404
+          },
+          "fileRelease": "v2.0",
+          "downloadUrl": "https://cdn.humanatlas.io/hra-releases/v2.0/models/3d-vh-m-pancreas.glb",
+          "filename": "3d-vh-m-pancreas.glb",
+          "path": "assets/_fuentes/explorar-fase2/e/hra/raw/3d-vh-m-pancreas.glb",
+          "bytes": 2110152,
+          "sha256": "6fc5de9825c2ce8449b5bd5c0751d6b754bca4aa1c63ea2353dd09efa5c44a15",
+          "pack": "hra-v2",
+          "attribution": "Kristen Browne, Heidi Schlehlein (2023). 3D Reference Organ for Pancreas, Male v1.2. HuBMAP. CC BY 4.0. https://doi.org/10.48539/HBM368.XMJZ.722",
+          "glbNodes": {
+            "VH_M_head_of_pancreas": "cabeza",
+            "VH_M_neck_of_pancreas": "cuello",
+            "VH_M_body_of_pancreas": "cuerpo",
+            "VH_M_tail_of_pancreas": "cola",
+            "VH_M_uncinate_process_of_the_pancreas": "proceso_unciforme"
+          }
+        }
+      ],
+      "attribution": "Kristen Browne, Heidi Schlehlein (2023). 3D Reference Organ for Pancreas, Male v1.2. HuBMAP. CC BY 4.0. https://doi.org/10.48539/HBM368.XMJZ.722",
+      "thumbnailOnDemand": true,
+      "decision": "La silueta conserva la cabeza y la cola. Las cinco regiones están separadas en origen.",
+      "comparacion": {
+        "bodyparts3d": [
+          "assets/_fuentes/explorar-fase2/e/obj95/FMA7198nsn.obj"
+        ],
+        "humanReferenceAtlas": [
+          "assets/_fuentes/explorar-fase2/e/hra/raw/3d-vh-m-pancreas.glb"
+        ]
+      }
+    },
+    {
+      "id": "spleen",
+      "root": "spleen",
+      "name": "Bazo",
+      "category": "organos",
+      "parts": [
+        {
+          "id": "hilio",
+          "method": "mesh",
+          "nodes": [
+            {
+              "sourceId": "HBM662.GMWC.569",
+              "index": 4,
+              "name": "VH_M_hilum_of_spleen"
+            }
+          ]
+        },
+        {
+          "id": "superficie_diafragmatica",
+          "method": "mesh",
+          "nodes": [
+            {
+              "sourceId": "HBM662.GMWC.569",
+              "index": 2,
+              "name": "VH_M_diaphragmatic_surface_of_spleen"
+            }
+          ]
+        },
+        {
+          "id": "superficie_gastrica",
+          "method": "mesh",
+          "nodes": [
+            {
+              "sourceId": "HBM662.GMWC.569",
+              "index": 3,
+              "name": "VH_M_gastric_surface_of_spleen"
+            }
+          ]
+        },
+        {
+          "id": "superficie_renal",
+          "method": "mesh",
+          "nodes": [
+            {
+              "sourceId": "HBM662.GMWC.569",
+              "index": 5,
+              "name": "VH_M_renal_surface_of_spleen"
+            }
+          ]
+        },
+        {
+          "id": "superficie_colica",
+          "method": "mesh",
+          "nodes": [
+            {
+              "sourceId": "HBM662.GMWC.569",
+              "index": 1,
+              "name": "VH_M_colic_surface_of_spleen"
+            }
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "HBM662.GMWC.569",
+          "version": "1.2",
+          "title": "3D Reference Organ for Spleen, Male v1.2",
+          "creators": [
+            "Kristen Browne",
+            "Heidi Schlehlein"
+          ],
+          "publisher": "HuBMAP",
+          "license": "CC-BY-4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+          "evidence": {
+            "releasePage": "https://cdn.humanatlas.io/hra-releases/v2.0/docs/ref-organs/3d-vh-m-spleen.html",
+            "releaseMarkdown": "https://cdn.humanatlas.io/hra-releases/v2.0/markdown/ref-organs/3d-vh-m-spleen.md",
+            "pinnedReleaseMarkdown": "https://github.com/hubmapconsortium/ccf-releases/blob/b036a91aaf7234f462b1249d4a5f4fb0e982f412/v2.0/markdown/ref-organs/3d-vh-m-spleen.md",
+            "localMetadata": "assets/_fuentes/explorar-fase2/e/hra/metadata/3d-vh-m-spleen.md",
+            "metadataSha256": "96fb392c149975c58385b0dd7788b83e60a78168c7938d3474dc4cc0dd8c92cc",
+            "doi": "https://doi.org/10.48539/HBM662.GMWC.569",
+            "doiDestinationStatusOnCheck": 404
+          },
+          "fileRelease": "v1.2",
+          "downloadUrl": "https://cdn.humanatlas.io/hra-releases/v1.2/models/VH_M_Spleen.glb",
+          "filename": "VH_M_Spleen.glb",
+          "path": "assets/_fuentes/explorar-fase2/e/hra/raw/VH_M_Spleen.glb",
+          "bytes": 540236,
+          "sha256": "572ca93068f6e7506d5653ca16292ec3048ad52957d34f389cb67c8961a7c8fb",
+          "pack": "hra-v2",
+          "attribution": "Kristen Browne, Heidi Schlehlein (2022). 3D Reference Organ for Spleen, Male v1.2. HuBMAP. CC BY 4.0. https://doi.org/10.48539/HBM662.GMWC.569",
+          "glbNodes": {
+            "VH_M_hilum_of_spleen": "hilio",
+            "VH_M_diaphragmatic_surface_of_spleen": "superficie_diafragmatica",
+            "VH_M_gastric_surface_of_spleen": "superficie_gastrica",
+            "VH_M_renal_surface_of_spleen": "superficie_renal",
+            "VH_M_colic_surface_of_spleen": "superficie_colica"
+          }
+        }
+      ],
+      "attribution": "Kristen Browne, Heidi Schlehlein (2022). 3D Reference Organ for Spleen, Male v1.2. HuBMAP. CC BY 4.0. https://doi.org/10.48539/HBM662.GMWC.569",
+      "thumbnailOnDemand": true,
+      "decision": "El hilio queda definido y las cuatro superficies tienen nodos separados.",
+      "comparacion": {
+        "bodyparts3d": [
+          "assets/_fuentes/explorar-fase2/e/obj95/FMA7196.obj"
+        ],
+        "humanReferenceAtlas": [
+          "assets/_fuentes/explorar-fase2/e/hra/raw/VH_M_Spleen.glb"
+        ]
+      }
+    },
+    {
+      "id": "gallbladder",
+      "root": "gallbladder",
+      "name": "Vesícula biliar",
+      "category": "organos",
+      "sources": [
+        {
+          "path": "assets/_fuentes/explorar-fase2/e/obj99/FJ2817.obj",
+          "id": "FJ2817",
+          "filename": "FJ2817.obj",
+          "pack": "bp3d-4.0-isa-obj99",
+          "version": "4.0",
+          "sha256": "6ac50f710bc24344ce81bf63bcf2bb1250b2c765bd3d3feb6a893840c1434918",
+          "crc32": "fd704ae0",
+          "partId": null,
+          "conceptId": "FMA7202",
+          "anatomicalName": "gallbladder",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ2817.obj",
+          "bytes": 144859,
+          "sourceTriangles": 2396,
+          "license": "CC-BY-4.0",
+          "masks": [
+            {
+              "partId": "cuello",
+              "min": [
+                -37,
+                -10000,
+                1084
+              ]
+            },
+            {
+              "partId": "fondo",
+              "max": [
+                10000,
+                10000,
+                1063
+              ]
+            },
+            {
+              "partId": "cuerpo"
+            }
+          ]
+        },
+        {
+          "path": "assets/_fuentes/explorar-fase2/e/obj99/FJ3080.obj",
+          "id": "FJ3080",
+          "filename": "FJ3080.obj",
+          "pack": "bp3d-4.0-isa-obj99",
+          "version": "4.0",
+          "sha256": "8f7a2604f762392129842c1a7251be006b00bfe9211698d48d0e6dd2bd512d28",
+          "crc32": "bcfc03c9",
+          "partId": "conducto_cistico",
+          "conceptId": "FMA14539",
+          "anatomicalName": "cystic duct",
+          "archiveMember": "isa_BP3D_4.0_obj_99/FJ3080.obj",
+          "bytes": 17016,
+          "sourceTriangles": 278,
+          "license": "CC-BY-4.0"
+        }
+      ],
+      "guides": [],
+      "parts": [
+        {
+          "id": "fondo"
+        },
+        {
+          "id": "cuerpo"
+        },
+        {
+          "id": "cuello"
+        },
+        {
+          "id": "conducto_cistico"
+        }
+      ],
+      "reason4": "El conducto cístico FMA14539 sólo está disponible como FJ3080 en OBJ99. Su contacto con el cuello es coherente con FJ2817 de la misma edición.",
+      "comparison": {
+        "obj95": {
+          "title": "BodyParts3D 3.0 OBJ95",
+          "sources": [
+            {
+              "path": "assets/_fuentes/explorar-fase2/e/obj95/FMA7202.obj",
+              "id": "FMA7202",
+              "filename": "FMA7202.obj",
+              "pack": "bp3d-3.0-obj95",
+              "version": "3.0",
+              "sha256": "412fb458d1859d56348a3277db722928a466910eb6c1e79c9d342918b3cd0c8e",
+              "crc32": "7fa79800",
+              "partId": null,
+              "conceptId": "FMA7202",
+              "anatomicalName": "gallbladder",
+              "archiveMember": "BodyParts3D_3.0_obj_95\\FMA7202.obj",
+              "bytes": 884510,
+              "sourceTriangles": 13846,
+              "license": "CC-BY-4.0"
+            }
+          ],
+          "sourceTriangles": 13846
+        },
+        "obj99": {
+          "title": "BodyParts3D 4.0 IS-A OBJ99",
+          "sources": [
+            {
+              "path": "assets/_fuentes/explorar-fase2/e/obj99/FJ2817.obj",
+              "id": "FJ2817",
+              "filename": "FJ2817.obj",
+              "pack": "bp3d-4.0-isa-obj99",
+              "version": "4.0",
+              "sha256": "6ac50f710bc24344ce81bf63bcf2bb1250b2c765bd3d3feb6a893840c1434918",
+              "crc32": "fd704ae0",
+              "partId": null,
+              "conceptId": "FMA7202",
+              "anatomicalName": "gallbladder",
+              "archiveMember": "isa_BP3D_4.0_obj_99/FJ2817.obj",
+              "bytes": 144859,
+              "sourceTriangles": 2396,
+              "license": "CC-BY-4.0",
+              "masks": [
+                {
+                  "partId": "cuello",
+                  "min": [
+                    -37,
+                    -10000,
+                    1084
+                  ]
+                },
+                {
+                  "partId": "fondo",
+                  "max": [
+                    10000,
+                    10000,
+                    1063
+                  ]
+                },
+                {
+                  "partId": "cuerpo"
+                }
+              ]
+            },
+            {
+              "path": "assets/_fuentes/explorar-fase2/e/obj99/FJ3080.obj",
+              "id": "FJ3080",
+              "filename": "FJ3080.obj",
+              "pack": "bp3d-4.0-isa-obj99",
+              "version": "4.0",
+              "sha256": "8f7a2604f762392129842c1a7251be006b00bfe9211698d48d0e6dd2bd512d28",
+              "crc32": "bcfc03c9",
+              "partId": "conducto_cistico",
+              "conceptId": "FMA14539",
+              "anatomicalName": "cystic duct",
+              "archiveMember": "isa_BP3D_4.0_obj_99/FJ3080.obj",
+              "bytes": 17016,
+              "sourceTriangles": 278,
+              "license": "CC-BY-4.0"
+            }
+          ],
+          "sourceTriangles": 2674
+        },
+        "notes": "OBJ95 contiene la vesícula y carece del conducto cístico. La vesícula OBJ95 y el conducto OBJ99 tienen 13,496 mm de separación mínima entre vértices. El par OBJ99 se aproxima a 0,084 mm."
+      },
+      "geometryHints": {
+        "coordinateFrame": "BodyParts3D 4.0 XYZ original (mm)",
+        "evidence": [
+          "assets/_fuentes/explorar-fase2/e/bp3d-vesicula-4.0.png",
+          "assets/_fuentes/explorar-fase2/e/bp3d-vesicula-3.0-frente-a-4.0.png",
+          "assets/_fuentes/explorar-fase2/e/bp3d-landmarks.json"
+        ],
+        "cysticJunctionXYZ": [
+          -26.84,
+          -136.202,
+          1090.39
+        ],
+        "fundus": "Extremo redondeado distal e inferior, Z ≤ 1063.",
+        "neck": "Estrechamiento superomedial hacia el contacto con el conducto, X ≥ −37 y Z ≥ 1084.",
+        "body": "Tramo intermedio entre el fondo y el cuello.",
+        "reference": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8354732/"
+      },
+      "thumbnailOnDemand": true
+    },
+    {
+      "id": "esophagus",
+      "root": "esophagus",
+      "name": "Esófago",
+      "category": "organos",
+      "sources": [
+        {
+          "path": "assets/_fuentes/explorar-fase2/e/obj95/FMA7131.obj",
+          "id": "FMA7131",
+          "filename": "FMA7131.obj",
+          "pack": "bp3d-3.0-obj95",
+          "version": "3.0",
+          "sha256": "e01752f85df2044154b0668b41493181db899c41626a7e6e061813e3d5cec43f",
+          "crc32": "1dd01d57",
+          "partId": null,
+          "conceptId": "FMA7131",
+          "anatomicalName": "esophagus",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA7131.obj",
+          "bytes": 163762,
+          "sourceTriangles": 2642,
+          "license": "CC-BY-4.0",
+          "masks": [
+            {
+              "partId": "cervical",
+              "min": [
+                -10000,
+                -10000,
+                1375
+              ]
+            },
+            {
+              "partId": "abdominal",
+              "max": [
+                10000,
+                10000,
+                1186
+              ]
+            },
+            {
+              "partId": "toracica"
+            }
+          ]
+        }
+      ],
+      "guides": [
+        {
+          "path": "assets/_fuentes/explorar-fase2/e/obj95/FMA7394.obj",
+          "id": "FMA7394",
+          "filename": "FMA7394.obj",
+          "pack": "bp3d-3.0-obj95",
+          "version": "3.0",
+          "sha256": "1483319735f426f86e178f4884a15d5838678f0191c9d835eb0b98ed13b876ae",
+          "crc32": "8bf57f3a",
+          "partId": null,
+          "conceptId": "FMA7394",
+          "anatomicalName": "trachea",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA7394.obj",
+          "bytes": 972660,
+          "sourceTriangles": 13870,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "path": "assets/_fuentes/explorar-fase2/e/obj95/FMA13295.obj",
+          "id": "FMA13295",
+          "filename": "FMA13295.obj",
+          "pack": "bp3d-3.0-obj95",
+          "version": "3.0",
+          "sha256": "8a0372e1d749aca1ccdf4cc7b8f8c47baf6066b554d6679def83cc13d381af4a",
+          "crc32": "f12bba6b",
+          "partId": null,
+          "conceptId": "FMA13295",
+          "anatomicalName": "diaphragm",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA13295.obj",
+          "bytes": 14572772,
+          "sourceTriangles": 210666,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "path": "assets/_fuentes/explorar-fase2/e/obj95/FMA7148.obj",
+          "id": "FMA7148",
+          "filename": "FMA7148.obj",
+          "pack": "bp3d-3.0-obj95",
+          "version": "3.0",
+          "sha256": "91e3ae25e870d0a6754bc58d410d441b31f94948f9df8483dc9cdcb9bda7276b",
+          "crc32": "9ae4a2ba",
+          "partId": null,
+          "conceptId": "FMA7148",
+          "anatomicalName": "stomach",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA7148.obj",
+          "bytes": 588820,
+          "sourceTriangles": 9384,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "path": "assets/_fuentes/explorar-fase2/e/obj95/FMA9165.obj",
+          "id": "FMA9165",
+          "filename": "FMA9165.obj",
+          "pack": "bp3d-3.0-obj95",
+          "version": "3.0",
+          "sha256": "fdf9f08838c3efb8a143212212ae24b806d69cbaa6deb660ec87edaaee54d74a",
+          "crc32": "000a1f94",
+          "partId": null,
+          "conceptId": "FMA9165",
+          "anatomicalName": "first thoracic vertebra",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA9165.obj",
+          "bytes": 360359,
+          "sourceTriangles": 5614,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "path": "assets/_fuentes/explorar-fase2/e/obj95/FMA7857.obj",
+          "id": "FMA7857",
+          "filename": "FMA7857.obj",
+          "pack": "bp3d-3.0-obj95",
+          "version": "3.0",
+          "sha256": "0ae64b17ce3f6187697dda013037b8506b260a70b6ebbf534c370df8b9c8af93",
+          "crc32": "da09d947",
+          "partId": null,
+          "conceptId": "FMA7857",
+          "anatomicalName": "right first rib",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA7857.obj",
+          "bytes": 903779,
+          "sourceTriangles": 14194,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "path": "assets/_fuentes/explorar-fase2/e/obj95/FMA7987.obj",
+          "id": "FMA7987",
+          "filename": "FMA7987.obj",
+          "pack": "bp3d-3.0-obj95",
+          "version": "3.0",
+          "sha256": "18094216f0bfe3b365bd99888e90f929cc6f2d389f941f2273689e99d5128903",
+          "crc32": "38a46ac0",
+          "partId": null,
+          "conceptId": "FMA7987",
+          "anatomicalName": "left first rib",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA7987.obj",
+          "bytes": 977885,
+          "sourceTriangles": 15464,
+          "license": "CC-BY-4.0"
+        }
+      ],
+      "parts": [
+        {
+          "id": "cervical"
+        },
+        {
+          "id": "toracica"
+        },
+        {
+          "id": "abdominal"
+        }
+      ],
+      "reason4": null,
+      "comparison": {
+        "obj95": {
+          "title": "BodyParts3D 3.0 OBJ95",
+          "sources": [
+            {
+              "path": "assets/_fuentes/explorar-fase2/e/obj95/FMA7131.obj",
+              "id": "FMA7131",
+              "filename": "FMA7131.obj",
+              "pack": "bp3d-3.0-obj95",
+              "version": "3.0",
+              "sha256": "e01752f85df2044154b0668b41493181db899c41626a7e6e061813e3d5cec43f",
+              "crc32": "1dd01d57",
+              "partId": null,
+              "conceptId": "FMA7131",
+              "anatomicalName": "esophagus",
+              "archiveMember": "BodyParts3D_3.0_obj_95\\FMA7131.obj",
+              "bytes": 163762,
+              "sourceTriangles": 2642,
+              "license": "CC-BY-4.0",
+              "masks": [
+                {
+                  "partId": "cervical",
+                  "min": [
+                    -10000,
+                    -10000,
+                    1375
+                  ]
+                },
+                {
+                  "partId": "abdominal",
+                  "max": [
+                    10000,
+                    10000,
+                    1186
+                  ]
+                },
+                {
+                  "partId": "toracica"
+                }
+              ]
+            }
+          ],
+          "sourceTriangles": 2642
+        },
+        "obj99": {
+          "title": "BodyParts3D 4.0 IS-A OBJ99",
+          "sources": [
+            {
+              "path": "assets/_fuentes/explorar-fase2/e/obj99/FJ2563.obj",
+              "id": "FJ2563",
+              "filename": "FJ2563.obj",
+              "pack": "bp3d-4.0-isa-obj99",
+              "version": "4.0",
+              "sha256": "d81ae7fe6b1dbf7bccbbb7cb1fa37e1681c05d2475a49e137f9d72b5297f6858",
+              "crc32": "48ab75bb",
+              "partId": null,
+              "conceptId": "FMA7131",
+              "anatomicalName": "esophagus",
+              "archiveMember": "isa_BP3D_4.0_obj_99/FJ2563.obj",
+              "bytes": 35886,
+              "sourceTriangles": 578,
+              "license": "CC-BY-4.0"
+            }
+          ],
+          "sourceTriangles": 578
+        },
+        "notes": "Los dos OBJ son continuos a escala docente y no dividen las tres porciones. Se conserva OBJ95 con 2 642 triángulos frente a 578 de OBJ99."
+      },
+      "geometryHints": {
+        "coordinateFrame": "BodyParts3D 3.0 XYZ original (mm)",
+        "evidence": [
+          "assets/_fuentes/explorar-fase2/e/bp3d-esofago-orientacion.png",
+          "assets/_fuentes/explorar-fase2/e/bp3d-esofago-hiato.png",
+          "assets/_fuentes/explorar-fase2/e/bp3d-landmarks.json"
+        ],
+        "thoracicInletZ": 1375,
+        "hiatusZ": 1186,
+        "nearDiaphragmXYZ": [
+          -6.395,
+          -94.029,
+          1186.36
+        ],
+        "nearStomachXYZ": [
+          15.023,
+          -105.016,
+          1179.58
+        ],
+        "reference": "https://sites.google.com/a/umich.edu/bluelink/curricula/m1-foundational-anatomy/sequence-2-cardiology/posterior-mediastinum/posterior-mediastinum-written-learning-objectives"
+      },
+      "thumbnailOnDemand": true
+    },
+    {
+      "id": "trachea_bronchi",
+      "root": "trachea_bronchi",
+      "name": "Tráquea y bronquios principales",
+      "category": "organos",
+      "parts": [
+        {
+          "id": "traquea",
+          "method": "mesh",
+          "nodes": [
+            {
+              "sourceId": "HBM969.WCCJ.636",
+              "index": 1,
+              "name": "VH_M_trachea"
+            }
+          ]
+        },
+        {
+          "id": "cartilago_traqueal",
+          "method": "mesh",
+          "nodes": [
+            {
+              "sourceId": "HBM969.WCCJ.636",
+              "index": 2,
+              "name": "VH_M_tracheal_cartilage"
+            }
+          ]
+        },
+        {
+          "id": "carina",
+          "method": "mesh",
+          "nodes": [
+            {
+              "sourceId": "HBM969.WCCJ.636",
+              "index": 3,
+              "name": "VH_M_carina"
+            }
+          ]
+        },
+        {
+          "id": "bronquio_principal_derecho",
+          "method": "mesh",
+          "nodes": [
+            {
+              "sourceId": "HBM795.LVRX.842",
+              "index": 3,
+              "name": "VH_M_right_main_bronchus"
+            }
+          ]
+        },
+        {
+          "id": "cartilago_bronquial_derecho",
+          "method": "mesh",
+          "nodes": [
+            {
+              "sourceId": "HBM795.LVRX.842",
+              "index": 4,
+              "name": "VH_M_cartilage_of_the_main_bronchus_R"
+            }
+          ]
+        },
+        {
+          "id": "bronquio_principal_izquierdo",
+          "method": "mesh",
+          "nodes": [
+            {
+              "sourceId": "HBM795.LVRX.842",
+              "index": 1,
+              "name": "VH_M_left_main_bronchus"
+            }
+          ]
+        },
+        {
+          "id": "cartilago_bronquial_izquierdo",
+          "method": "mesh",
+          "nodes": [
+            {
+              "sourceId": "HBM795.LVRX.842",
+              "index": 2,
+              "name": "VH_M_cartilage_of_the_main_bronchus_L"
+            }
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "HBM969.WCCJ.636",
+          "version": "1.0",
+          "title": "3D Reference Organ for Trachea, Male v1.0",
+          "creators": [
+            "Kristen Browne",
+            "Heidi Schlehlein"
+          ],
+          "publisher": "HuBMAP",
+          "license": "CC-BY-4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+          "evidence": {
+            "releasePage": "https://cdn.humanatlas.io/hra-releases/v2.0/docs/ref-organs/3d-vh-m-trachea.html",
+            "releaseMarkdown": "https://cdn.humanatlas.io/hra-releases/v2.0/markdown/ref-organs/3d-vh-m-trachea.md",
+            "pinnedReleaseMarkdown": "https://github.com/hubmapconsortium/ccf-releases/blob/b036a91aaf7234f462b1249d4a5f4fb0e982f412/v2.0/markdown/ref-organs/3d-vh-m-trachea.md",
+            "localMetadata": "assets/_fuentes/explorar-fase2/e/hra/metadata/3d-vh-m-trachea.md",
+            "metadataSha256": "3e90cfa76eb61580ae1629b517995bfe2e7731f612b6a2f1a6417872590243ca",
+            "doi": "https://doi.org/10.48539/HBM969.WCCJ.636",
+            "doiDestinationStatusOnCheck": 404
+          },
+          "fileRelease": "v1.4",
+          "downloadUrl": "https://cdn.humanatlas.io/hra-releases/v1.4/models/3d-vh-m-trachea.glb",
+          "filename": "3d-vh-m-trachea.glb",
+          "path": "assets/_fuentes/explorar-fase2/e/hra/raw/3d-vh-m-trachea.glb",
+          "bytes": 1184804,
+          "sha256": "0ba59ac521b0265dd70868e1b722f986a04fe3b4fcc1db950260219dcf978aae",
+          "pack": "hra-v2",
+          "attribution": "Kristen Browne, Heidi Schlehlein (2023). 3D Reference Organ for Trachea, Male v1.0. HuBMAP. CC BY 4.0. https://doi.org/10.48539/HBM969.WCCJ.636",
+          "glbNodes": {
+            "VH_M_trachea": "traquea",
+            "VH_M_tracheal_cartilage": "cartilago_traqueal",
+            "VH_M_carina": "carina"
+          }
+        },
+        {
+          "id": "HBM795.LVRX.842",
+          "version": "1.0",
+          "title": "3D Reference Organ for Main Bronchus, Male v1.0",
+          "creators": [
+            "Kristen Browne",
+            "Heidi Schlehlein"
+          ],
+          "publisher": "HuBMAP",
+          "license": "CC-BY-4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+          "evidence": {
+            "releasePage": "https://cdn.humanatlas.io/hra-releases/v2.0/docs/ref-organs/3d-vh-m-main-bronchus.html",
+            "releaseMarkdown": "https://cdn.humanatlas.io/hra-releases/v2.0/markdown/ref-organs/3d-vh-m-main-bronchus.md",
+            "pinnedReleaseMarkdown": "https://github.com/hubmapconsortium/ccf-releases/blob/b036a91aaf7234f462b1249d4a5f4fb0e982f412/v2.0/markdown/ref-organs/3d-vh-m-main-bronchus.md",
+            "localMetadata": "assets/_fuentes/explorar-fase2/e/hra/metadata/3d-vh-m-main-bronchus.md",
+            "metadataSha256": "2ceb88c2eee621e281bbdae5941c6e3d3d14e3aa6db9033e267ba4fc252449e9",
+            "doi": "https://doi.org/10.48539/HBM795.LVRX.842",
+            "doiDestinationStatusOnCheck": 404
+          },
+          "fileRelease": "v1.4",
+          "downloadUrl": "https://cdn.humanatlas.io/hra-releases/v1.4/models/3d-vh-m-main-bronchus.glb",
+          "filename": "3d-vh-m-main-bronchus.glb",
+          "path": "assets/_fuentes/explorar-fase2/e/hra/raw/3d-vh-m-main-bronchus.glb",
+          "bytes": 422208,
+          "sha256": "6db5b11213570514f9c2f637423cd1b369ed6a796fb2f661193b708aba1733fa",
+          "pack": "hra-v2",
+          "attribution": "Kristen Browne, Heidi Schlehlein (2023). 3D Reference Organ for Main Bronchus, Male v1.0. HuBMAP. CC BY 4.0. https://doi.org/10.48539/HBM795.LVRX.842",
+          "glbNodes": {
+            "VH_M_right_main_bronchus": "bronquio_principal_derecho",
+            "VH_M_cartilage_of_the_main_bronchus_R": "cartilago_bronquial_derecho",
+            "VH_M_left_main_bronchus": "bronquio_principal_izquierdo",
+            "VH_M_cartilage_of_the_main_bronchus_L": "cartilago_bronquial_izquierdo"
+          }
+        }
+      ],
+      "attribution": "Kristen Browne, Heidi Schlehlein (2023). 3D Reference Organ for Trachea, Male v1.0. HuBMAP. CC BY 4.0. https://doi.org/10.48539/HBM969.WCCJ.636 | Kristen Browne, Heidi Schlehlein (2023). 3D Reference Organ for Main Bronchus, Male v1.0. HuBMAP. CC BY 4.0. https://doi.org/10.48539/HBM795.LVRX.842",
+      "thumbnailOnDemand": true,
+      "decision": "Los bronquios se limitan a los principales. La carina y los cartílagos tienen sus propios nodos.",
+      "comparacion": {
+        "bodyparts3d": [
+          "assets/_fuentes/explorar-fase2/e/obj95/FMA7394.obj",
+          "assets/_fuentes/explorar-fase2/e/obj95/FMA7409.obj"
+        ],
+        "humanReferenceAtlas": [
+          "assets/_fuentes/explorar-fase2/e/hra/raw/3d-vh-m-trachea.glb",
+          "assets/_fuentes/explorar-fase2/e/hra/raw/3d-vh-m-main-bronchus.glb"
+        ],
+        "bodyparts3d40": [
+          "assets/_fuentes/explorar-fase2/e/obj99/FJ2541.obj",
+          "assets/_fuentes/explorar-fase2/e/obj99/FJ2539.obj",
+          "assets/_fuentes/explorar-fase2/e/obj99/FJ2450.obj"
+        ]
+      }
+    },
+    {
+      "id": "urinary_bladder",
+      "root": "urinary_bladder",
+      "name": "Vejiga urinaria",
+      "category": "organos",
+      "parts": [
+        {
+          "id": "cupula",
+          "method": "mesh",
+          "nodes": [
+            {
+              "sourceId": "HBM934.DMHJ.898",
+              "index": 2,
+              "name": "VH_M_fundus_of_urinary_bladder_dome"
+            }
+          ]
+        },
+        {
+          "id": "base_vesical",
+          "method": "mesh",
+          "nodes": [
+            {
+              "sourceId": "HBM934.DMHJ.898",
+              "index": 7,
+              "name": "VH_M_fundus_of_urinary_bladder_base1"
+            }
+          ]
+        },
+        {
+          "id": "cuello",
+          "method": "mesh",
+          "nodes": [
+            {
+              "sourceId": "HBM934.DMHJ.898",
+              "index": 1,
+              "name": "VH_M_urinary_bladder_neck_smooth_muscle"
+            }
+          ]
+        },
+        {
+          "id": "trigono",
+          "method": "mesh",
+          "nodes": [
+            {
+              "sourceId": "HBM934.DMHJ.898",
+              "index": 8,
+              "name": "VH_M_trigone_of_urinary_bladder"
+            }
+          ]
+        },
+        {
+          "id": "orificio_ureteral_derecho",
+          "method": "mesh",
+          "nodes": [
+            {
+              "sourceId": "HBM934.DMHJ.898",
+              "index": 5,
+              "name": "VH_M_ureteral_orifice_R"
+            }
+          ]
+        },
+        {
+          "id": "orificio_ureteral_izquierdo",
+          "method": "mesh",
+          "nodes": [
+            {
+              "sourceId": "HBM934.DMHJ.898",
+              "index": 6,
+              "name": "VH_M_ureteral_orifice_L"
+            }
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "HBM934.DMHJ.898",
+          "version": "1.1",
+          "title": "3D Reference Organ for Urinary Bladder, Male v1.1",
+          "creators": [
+            "Kristen Browne",
+            "Heidi Schlehlein"
+          ],
+          "publisher": "HuBMAP",
+          "license": "CC-BY-4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+          "evidence": {
+            "releasePage": "https://cdn.humanatlas.io/hra-releases/v2.0/docs/ref-organs/3d-vh-m-urinary-bladder.html",
+            "releaseMarkdown": "https://cdn.humanatlas.io/hra-releases/v2.0/markdown/ref-organs/3d-vh-m-urinary-bladder.md",
+            "pinnedReleaseMarkdown": "https://github.com/hubmapconsortium/ccf-releases/blob/b036a91aaf7234f462b1249d4a5f4fb0e982f412/v2.0/markdown/ref-organs/3d-vh-m-urinary-bladder.md",
+            "localMetadata": "assets/_fuentes/explorar-fase2/e/hra/metadata/3d-vh-m-urinary-bladder.md",
+            "metadataSha256": "6df8ce9d3cf55734a183e8ef81d84c376931becd3879f2db06b8e1d63d78a49c",
+            "doi": "https://doi.org/10.48539/HBM934.DMHJ.898",
+            "doiDestinationStatusOnCheck": 404
+          },
+          "fileRelease": "v1.2",
+          "downloadUrl": "https://cdn.humanatlas.io/hra-releases/v1.2/models/VH_M_Urinary_Bladder.glb",
+          "filename": "VH_M_Urinary_Bladder.glb",
+          "path": "assets/_fuentes/explorar-fase2/e/hra/raw/VH_M_Urinary_Bladder.glb",
+          "bytes": 198936,
+          "sha256": "43b7f17e3f498d5e494a7757ce86c183ae458f83724ceaf922f6bdd6a35ff339",
+          "pack": "hra-v2",
+          "attribution": "Kristen Browne, Heidi Schlehlein (2022). 3D Reference Organ for Urinary Bladder, Male v1.1. HuBMAP. CC BY 4.0. https://doi.org/10.48539/HBM934.DMHJ.898",
+          "glbNodes": {
+            "VH_M_fundus_of_urinary_bladder_dome": "cupula",
+            "VH_M_fundus_of_urinary_bladder_base1": "base_vesical",
+            "VH_M_urinary_bladder_neck_smooth_muscle": "cuello",
+            "VH_M_trigone_of_urinary_bladder": "trigono",
+            "VH_M_ureteral_orifice_R": "orificio_ureteral_derecho",
+            "VH_M_ureteral_orifice_L": "orificio_ureteral_izquierdo"
+          }
+        }
+      ],
+      "attribution": "Kristen Browne, Heidi Schlehlein (2022). 3D Reference Organ for Urinary Bladder, Male v1.1. HuBMAP. CC BY 4.0. https://doi.org/10.48539/HBM934.DMHJ.898",
+      "thumbnailOnDemand": true,
+      "decision": "El contorno, el cuello y las regiones internas se distinguen al girar. Se conservan seis nodos de origen.",
+      "comparacion": {
+        "bodyparts3d": [
+          "assets/_fuentes/explorar-fase2/e/obj95/FMA15900.obj"
+        ],
+        "humanReferenceAtlas": [
+          "assets/_fuentes/explorar-fase2/e/hra/raw/VH_M_Urinary_Bladder.glb"
+        ]
+      },
+      "anchorHints": {
+        "cuello": [
+          0.00382442,
+          0.012811219,
+          -0.001395396
+        ],
+        "trigono": [
+          0.016824261,
+          0.039269468,
+          -0.014215396
+        ],
+        "orificio_ureteral_derecho": [
+          -0.030875432,
+          0.046603724,
+          -0.010500386
+        ],
+        "orificio_ureteral_izquierdo": [
+          0.019230563,
+          0.039277876,
+          -0.01456426
+        ]
+      }
+    },
+    {
+      "id": "larynx",
+      "root": "larynx",
+      "name": "Laringe",
+      "category": "organos",
+      "parts": [
+        {
+          "id": "epiglotico",
+          "method": "mesh",
+          "nodes": [
+            {
+              "sourceId": "HBM563.KGWS.679",
+              "index": 5,
+              "name": "VH_M_epiglottic_cartilage"
+            }
+          ]
+        },
+        {
+          "id": "tiroides",
+          "method": "mesh",
+          "nodes": [
+            {
+              "sourceId": "HBM563.KGWS.679",
+              "index": 7,
+              "name": "VH_M_thyroid_cartilage"
+            }
+          ]
+        },
+        {
+          "id": "cricoides",
+          "method": "mesh",
+          "nodes": [
+            {
+              "sourceId": "HBM563.KGWS.679",
+              "index": 6,
+              "name": "VH_M_cricoid_cartilage"
+            }
+          ]
+        },
+        {
+          "id": "aritenoides_derecho",
+          "method": "mesh",
+          "nodes": [
+            {
+              "sourceId": "HBM563.KGWS.679",
+              "index": 3,
+              "name": "VH_M_arytenoid_cartilage_R"
+            }
+          ]
+        },
+        {
+          "id": "aritenoides_izquierdo",
+          "method": "mesh",
+          "nodes": [
+            {
+              "sourceId": "HBM563.KGWS.679",
+              "index": 4,
+              "name": "VH_M_arytenoid_cartilage_L"
+            }
+          ]
+        },
+        {
+          "id": "corniculado_derecho",
+          "method": "mesh",
+          "nodes": [
+            {
+              "sourceId": "HBM563.KGWS.679",
+              "index": 10,
+              "name": "VH_M_corniculate_cartilage_R"
+            }
+          ]
+        },
+        {
+          "id": "corniculado_izquierdo",
+          "method": "mesh",
+          "nodes": [
+            {
+              "sourceId": "HBM563.KGWS.679",
+              "index": 9,
+              "name": "VH_M_corniculate_cartilage_L"
+            }
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "HBM563.KGWS.679",
+          "version": "1.0",
+          "title": "3D Reference Organ for Larynx, Male v1.0",
+          "creators": [
+            "Kristen Browne",
+            "Heidi Schlehlein"
+          ],
+          "publisher": "HuBMAP",
+          "license": "CC-BY-4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+          "evidence": {
+            "releasePage": "https://cdn.humanatlas.io/hra-releases/v2.0/docs/ref-organs/3d-vh-m-larynx.html",
+            "releaseMarkdown": "https://cdn.humanatlas.io/hra-releases/v2.0/markdown/ref-organs/3d-vh-m-larynx.md",
+            "pinnedReleaseMarkdown": "https://github.com/hubmapconsortium/ccf-releases/blob/b036a91aaf7234f462b1249d4a5f4fb0e982f412/v2.0/markdown/ref-organs/3d-vh-m-larynx.md",
+            "localMetadata": "assets/_fuentes/explorar-fase2/e/hra/metadata/3d-vh-m-larynx.md",
+            "metadataSha256": "3a359d5848bc8debc461d118bee55d5f3c77cda2384d5e948e51867fddf2df2f",
+            "doi": "https://doi.org/10.48539/HBM563.KGWS.679",
+            "doiDestinationStatusOnCheck": 404
+          },
+          "fileRelease": "v1.4",
+          "downloadUrl": "https://cdn.humanatlas.io/hra-releases/v1.4/models/3d-vh-m-larynx.glb",
+          "filename": "3d-vh-m-larynx.glb",
+          "path": "assets/_fuentes/explorar-fase2/e/hra/raw/3d-vh-m-larynx.glb",
+          "bytes": 335444,
+          "sha256": "f7073848c06ffabd084e5c56ba7bc613099a1f2d4bbcab729c4b485a48ed9cb2",
+          "pack": "hra-v2",
+          "attribution": "Kristen Browne, Heidi Schlehlein (2023). 3D Reference Organ for Larynx, Male v1.0. HuBMAP. CC BY 4.0. https://doi.org/10.48539/HBM563.KGWS.679",
+          "glbNodes": {
+            "VH_M_epiglottic_cartilage": "epiglotico",
+            "VH_M_thyroid_cartilage": "tiroides",
+            "VH_M_cricoid_cartilage": "cricoides",
+            "VH_M_arytenoid_cartilage_R": "aritenoides_derecho",
+            "VH_M_arytenoid_cartilage_L": "aritenoides_izquierdo",
+            "VH_M_corniculate_cartilage_R": "corniculado_derecho",
+            "VH_M_corniculate_cartilage_L": "corniculado_izquierdo"
+          }
+        }
+      ],
+      "attribution": "Kristen Browne, Heidi Schlehlein (2023). 3D Reference Organ for Larynx, Male v1.0. HuBMAP. CC BY 4.0. https://doi.org/10.48539/HBM563.KGWS.679",
+      "thumbnailOnDemand": true,
+      "decision": "La epiglotis es continua. Los siete cartílagos se distinguen en la malla original.",
+      "comparacion": {
+        "bodyparts3d": [
+          "assets/_fuentes/explorar-fase2/e/obj99/FJ2769.obj",
+          "assets/_fuentes/explorar-fase2/e/obj99/FJ2770.obj",
+          "assets/_fuentes/explorar-fase2/e/obj99/FJ2775.obj",
+          "assets/_fuentes/explorar-fase2/e/obj99/FJ2776.obj",
+          "assets/_fuentes/explorar-fase2/e/obj99/FJ2792.obj",
+          "assets/_fuentes/explorar-fase2/e/obj99/FJ2793.obj",
+          "assets/_fuentes/explorar-fase2/e/obj99/FJ2808.obj"
+        ],
+        "humanReferenceAtlas": [
+          "assets/_fuentes/explorar-fase2/e/hra/raw/3d-vh-m-larynx.glb"
+        ]
+      }
+    },
+    {
+      "id": "adrenal_glands",
+      "root": "adrenal_glands",
+      "name": "Glándulas suprarrenales",
+      "category": "organos",
+      "sources": [
+        {
+          "path": "assets/_fuentes/explorar-fase2/e/obj95/FMA15629.obj",
+          "id": "FMA15629",
+          "filename": "FMA15629.obj",
+          "pack": "bp3d-3.0-obj95",
+          "version": "3.0",
+          "sha256": "d5507595e8d9535d0a9d7530f608b870415bfb28f9bd5b261ef1f1a067dfa2aa",
+          "crc32": "552b7fb0",
+          "partId": "derecha",
+          "conceptId": "FMA15629",
+          "anatomicalName": "right adrenal gland",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA15629.obj",
+          "bytes": 624729,
+          "sourceTriangles": 9874,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "path": "assets/_fuentes/explorar-fase2/e/obj95/FMA15630.obj",
+          "id": "FMA15630",
+          "filename": "FMA15630.obj",
+          "pack": "bp3d-3.0-obj95",
+          "version": "3.0",
+          "sha256": "4aeb3d08a3574fc36ff60d8b1becb99c5bf4ca43aba223e7de392dcd32b7f8f7",
+          "crc32": "368bd272",
+          "partId": "izquierda",
+          "conceptId": "FMA15630",
+          "anatomicalName": "left adrenal gland",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA15630.obj",
+          "bytes": 1255669,
+          "sourceTriangles": 19788,
+          "license": "CC-BY-4.0"
+        }
+      ],
+      "guides": [
+        {
+          "path": "assets/_fuentes/explorar-fase2/e/obj95/FMA7204.obj",
+          "id": "FMA7204",
+          "filename": "FMA7204.obj",
+          "pack": "bp3d-3.0-obj95",
+          "version": "3.0",
+          "sha256": "bb840d337f4b99dad9d8f9c211bdab81ac548a95869e61e3f8bb01734da3781a",
+          "crc32": "26dae51e",
+          "partId": null,
+          "conceptId": "FMA7204",
+          "anatomicalName": "right kidney",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA7204.obj",
+          "bytes": 787727,
+          "sourceTriangles": 12394,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "path": "assets/_fuentes/explorar-fase2/e/obj95/FMA7205.obj",
+          "id": "FMA7205",
+          "filename": "FMA7205.obj",
+          "pack": "bp3d-3.0-obj95",
+          "version": "3.0",
+          "sha256": "2cae3ed4f0c8752c52f465482823ce3c6483c466884a41fcfdab2fff6502c1a2",
+          "crc32": "d38f3d76",
+          "partId": null,
+          "conceptId": "FMA7205",
+          "anatomicalName": "left kidney",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA7205.obj",
+          "bytes": 972451,
+          "sourceTriangles": 15358,
+          "license": "CC-BY-4.0"
+        }
+      ],
+      "parts": [
+        {
+          "id": "derecha"
+        },
+        {
+          "id": "izquierda"
+        }
+      ],
+      "reason4": null,
+      "comparison": {
+        "obj95": {
+          "title": "BodyParts3D 3.0 OBJ95",
+          "sources": [
+            {
+              "path": "assets/_fuentes/explorar-fase2/e/obj95/FMA15629.obj",
+              "id": "FMA15629",
+              "filename": "FMA15629.obj",
+              "pack": "bp3d-3.0-obj95",
+              "version": "3.0",
+              "sha256": "d5507595e8d9535d0a9d7530f608b870415bfb28f9bd5b261ef1f1a067dfa2aa",
+              "crc32": "552b7fb0",
+              "partId": "derecha",
+              "conceptId": "FMA15629",
+              "anatomicalName": "right adrenal gland",
+              "archiveMember": "BodyParts3D_3.0_obj_95\\FMA15629.obj",
+              "bytes": 624729,
+              "sourceTriangles": 9874,
+              "license": "CC-BY-4.0"
+            },
+            {
+              "path": "assets/_fuentes/explorar-fase2/e/obj95/FMA15630.obj",
+              "id": "FMA15630",
+              "filename": "FMA15630.obj",
+              "pack": "bp3d-3.0-obj95",
+              "version": "3.0",
+              "sha256": "4aeb3d08a3574fc36ff60d8b1becb99c5bf4ca43aba223e7de392dcd32b7f8f7",
+              "crc32": "368bd272",
+              "partId": "izquierda",
+              "conceptId": "FMA15630",
+              "anatomicalName": "left adrenal gland",
+              "archiveMember": "BodyParts3D_3.0_obj_95\\FMA15630.obj",
+              "bytes": 1255669,
+              "sourceTriangles": 19788,
+              "license": "CC-BY-4.0"
+            }
+          ],
+          "sourceTriangles": 29662
+        },
+        "obj99": {
+          "title": "BodyParts3D 4.0 IS-A OBJ99",
+          "sources": [
+            {
+              "path": "assets/_fuentes/explorar-fase2/e/obj99/FJ3130.obj",
+              "id": "FJ3130",
+              "filename": "FJ3130.obj",
+              "pack": "bp3d-4.0-isa-obj99",
+              "version": "4.0",
+              "sha256": "c4d17a1accdd2e684d919582c36c1d51c7b6d382e221525c87e04c2575ccc3c6",
+              "crc32": "aa193c08",
+              "partId": null,
+              "conceptId": "FMA15629",
+              "anatomicalName": "right adrenal gland",
+              "archiveMember": "isa_BP3D_4.0_obj_99/FJ3130.obj",
+              "bytes": 137872,
+              "sourceTriangles": 2294,
+              "license": "CC-BY-4.0"
+            },
+            {
+              "path": "assets/_fuentes/explorar-fase2/e/obj99/FJ3129.obj",
+              "id": "FJ3129",
+              "filename": "FJ3129.obj",
+              "pack": "bp3d-4.0-isa-obj99",
+              "version": "4.0",
+              "sha256": "bff9553c5d66c854bb54577136eb734dfd004075323013456f1e995ac8f8e545",
+              "crc32": "c6b29acf",
+              "partId": null,
+              "conceptId": "FMA15630",
+              "anatomicalName": "left adrenal gland",
+              "archiveMember": "isa_BP3D_4.0_obj_99/FJ3129.obj",
+              "bytes": 247431,
+              "sourceTriangles": 3996,
+              "license": "CC-BY-4.0"
+            }
+          ],
+          "sourceTriangles": 6290
+        },
+        "notes": "Ambas versiones contienen las dos glándulas en OBJ separados. OBJ95 conserva más detalle y no requiere cambio de edición."
+      },
+      "geometryHints": {
+        "coordinateFrame": "BodyParts3D 3.0 XYZ original (mm)",
+        "evidence": [
+          "assets/_fuentes/explorar-fase2/e/bp3d-suprarrenales-con-rinones.png",
+          "assets/_fuentes/explorar-fase2/e/bp3d-landmarks.json"
+        ],
+        "minVertexGapRightKidneyMm": 0.073,
+        "minVertexGapLeftKidneyMm": 0.101
+      },
+      "thumbnailOnDemand": true
+    },
+    {
+      "id": "ureters",
+      "root": "ureters",
+      "name": "Uréteres",
+      "category": "organos",
+      "parts": [
+        {
+          "id": "ureter_derecho",
+          "method": "mesh",
+          "nodes": [
+            {
+              "sourceId": "HBM878.DBSR.759",
+              "index": 16,
+              "name": "VH_M_ureter_R"
+            }
+          ]
+        },
+        {
+          "id": "pelvis_renal_derecha",
+          "method": "mesh",
+          "nodes": [
+            {
+              "sourceId": "HBM878.DBSR.759",
+              "index": 15,
+              "name": "VH_M_renal_pelvis_R"
+            }
+          ]
+        },
+        {
+          "id": "calices_derechos",
+          "method": "mesh",
+          "nodes": [
+            {
+              "sourceId": "HBM878.DBSR.759",
+              "index": 3,
+              "name": "VH_M_major_calyx_R_a"
+            },
+            {
+              "sourceId": "HBM878.DBSR.759",
+              "index": 4,
+              "name": "VH_M_major_calyx_R_b"
+            },
+            {
+              "sourceId": "HBM878.DBSR.759",
+              "index": 6,
+              "name": "VH_M_minor_calyx_R_a"
+            },
+            {
+              "sourceId": "HBM878.DBSR.759",
+              "index": 7,
+              "name": "VH_M_minor_calyx_R_b"
+            },
+            {
+              "sourceId": "HBM878.DBSR.759",
+              "index": 8,
+              "name": "VH_M_minor_calyx_R_c"
+            },
+            {
+              "sourceId": "HBM878.DBSR.759",
+              "index": 9,
+              "name": "VH_M_minor_calyx_R_d"
+            },
+            {
+              "sourceId": "HBM878.DBSR.759",
+              "index": 10,
+              "name": "VH_M_minor_calyx_R_e"
+            },
+            {
+              "sourceId": "HBM878.DBSR.759",
+              "index": 11,
+              "name": "VH_M_minor_calyx_R_f"
+            },
+            {
+              "sourceId": "HBM878.DBSR.759",
+              "index": 12,
+              "name": "VH_M_minor_calyx_R_g"
+            },
+            {
+              "sourceId": "HBM878.DBSR.759",
+              "index": 13,
+              "name": "VH_M_minor_calyx_R_h"
+            },
+            {
+              "sourceId": "HBM878.DBSR.759",
+              "index": 14,
+              "name": "VH_M_minor_calyx_R_i"
+            }
+          ]
+        },
+        {
+          "id": "ureter_izquierdo",
+          "method": "mesh",
+          "nodes": [
+            {
+              "sourceId": "HBM473.XWNL.438",
+              "index": 17,
+              "name": "VH_M_ureter_L"
+            }
+          ]
+        },
+        {
+          "id": "pelvis_renal_izquierda",
+          "method": "mesh",
+          "nodes": [
+            {
+              "sourceId": "HBM473.XWNL.438",
+              "index": 1,
+              "name": "VH_M_renal_pelvis_L"
+            }
+          ]
+        },
+        {
+          "id": "calices_izquierdos",
+          "method": "mesh",
+          "nodes": [
+            {
+              "sourceId": "HBM473.XWNL.438",
+              "index": 4,
+              "name": "VH_M_major_calyx_L_a"
+            },
+            {
+              "sourceId": "HBM473.XWNL.438",
+              "index": 5,
+              "name": "VH_M_major_calyx_L_b"
+            },
+            {
+              "sourceId": "HBM473.XWNL.438",
+              "index": 6,
+              "name": "VH_M_major_calyx_L_c"
+            },
+            {
+              "sourceId": "HBM473.XWNL.438",
+              "index": 8,
+              "name": "VH_M_minor_calyx_L_a"
+            },
+            {
+              "sourceId": "HBM473.XWNL.438",
+              "index": 9,
+              "name": "VH_M_minor_calyx_L_b"
+            },
+            {
+              "sourceId": "HBM473.XWNL.438",
+              "index": 10,
+              "name": "VH_M_minor_calyx_L_c"
+            },
+            {
+              "sourceId": "HBM473.XWNL.438",
+              "index": 11,
+              "name": "VH_M_minor_calyx_L_d"
+            },
+            {
+              "sourceId": "HBM473.XWNL.438",
+              "index": 12,
+              "name": "VH_M_minor_calyx_L_e"
+            },
+            {
+              "sourceId": "HBM473.XWNL.438",
+              "index": 13,
+              "name": "VH_M_minor_calyx_L_f"
+            },
+            {
+              "sourceId": "HBM473.XWNL.438",
+              "index": 14,
+              "name": "VH_M_minor_calyx_L_g"
+            },
+            {
+              "sourceId": "HBM473.XWNL.438",
+              "index": 15,
+              "name": "VH_M_minor_calyx_L_h"
+            },
+            {
+              "sourceId": "HBM473.XWNL.438",
+              "index": 16,
+              "name": "VH_M_minor_calyx_L_i"
+            }
+          ]
+        }
+      ],
+      "sources": [
+        {
+          "id": "HBM878.DBSR.759",
+          "version": "1.1",
+          "title": "3D Reference Organ for Ureter, Male, Right v1.1",
+          "creators": [
+            "Kristen Browne",
+            "Heidi Schlehlein"
+          ],
+          "publisher": "HuBMAP",
+          "license": "CC-BY-4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+          "evidence": {
+            "releasePage": "https://cdn.humanatlas.io/hra-releases/v2.0/docs/ref-organs/3d-vh-m-ureter-r.html",
+            "releaseMarkdown": "https://cdn.humanatlas.io/hra-releases/v2.0/markdown/ref-organs/3d-vh-m-ureter-r.md",
+            "pinnedReleaseMarkdown": "https://github.com/hubmapconsortium/ccf-releases/blob/b036a91aaf7234f462b1249d4a5f4fb0e982f412/v2.0/markdown/ref-organs/3d-vh-m-ureter-r.md",
+            "localMetadata": "assets/_fuentes/explorar-fase2/e/hra/metadata/3d-vh-m-ureter-r.md",
+            "metadataSha256": "8691f3c640e9e879b1d822b049ca61889801852d66ac1841a38a6089d6131dc5",
+            "doi": "https://doi.org/10.48539/HBM878.DBSR.759",
+            "doiDestinationStatusOnCheck": 404
+          },
+          "fileRelease": "v1.2",
+          "downloadUrl": "https://cdn.humanatlas.io/hra-releases/v1.2/models/VH_M_Ureter_R.glb",
+          "filename": "VH_M_Ureter_R.glb",
+          "path": "assets/_fuentes/explorar-fase2/e/hra/raw/VH_M_Ureter_R.glb",
+          "bytes": 540712,
+          "sha256": "be2d0331aed637f2f291a342ee760dda41d3418a9e2e9a4070e1e845e3b3e581",
+          "pack": "hra-v2",
+          "attribution": "Kristen Browne, Heidi Schlehlein (2022). 3D Reference Organ for Ureter, Male, Right v1.1. HuBMAP. CC BY 4.0. https://doi.org/10.48539/HBM878.DBSR.759",
+          "glbNodes": {
+            "VH_M_ureter_R": "ureter_derecho",
+            "VH_M_renal_pelvis_R": "pelvis_renal_derecha",
+            "VH_M_major_calyx_R_a": "calices_derechos",
+            "VH_M_major_calyx_R_b": "calices_derechos",
+            "VH_M_minor_calyx_R_a": "calices_derechos",
+            "VH_M_minor_calyx_R_b": "calices_derechos",
+            "VH_M_minor_calyx_R_c": "calices_derechos",
+            "VH_M_minor_calyx_R_d": "calices_derechos",
+            "VH_M_minor_calyx_R_e": "calices_derechos",
+            "VH_M_minor_calyx_R_f": "calices_derechos",
+            "VH_M_minor_calyx_R_g": "calices_derechos",
+            "VH_M_minor_calyx_R_h": "calices_derechos",
+            "VH_M_minor_calyx_R_i": "calices_derechos"
+          }
+        },
+        {
+          "id": "HBM473.XWNL.438",
+          "version": "1.1",
+          "title": "3D Reference Organ for Ureter, Male, Left v1.1",
+          "creators": [
+            "Kristen Browne",
+            "Heidi Schlehlein"
+          ],
+          "publisher": "HuBMAP",
+          "license": "CC-BY-4.0",
+          "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+          "evidence": {
+            "releasePage": "https://cdn.humanatlas.io/hra-releases/v2.0/docs/ref-organs/3d-vh-m-ureter-l.html",
+            "releaseMarkdown": "https://cdn.humanatlas.io/hra-releases/v2.0/markdown/ref-organs/3d-vh-m-ureter-l.md",
+            "pinnedReleaseMarkdown": "https://github.com/hubmapconsortium/ccf-releases/blob/b036a91aaf7234f462b1249d4a5f4fb0e982f412/v2.0/markdown/ref-organs/3d-vh-m-ureter-l.md",
+            "localMetadata": "assets/_fuentes/explorar-fase2/e/hra/metadata/3d-vh-m-ureter-l.md",
+            "metadataSha256": "23e73de7c28b1329e5ecec6d43dc6b2ea06cd604001e67bdadfa2f66c6aba6cc",
+            "doi": "https://doi.org/10.48539/HBM473.XWNL.438",
+            "doiDestinationStatusOnCheck": 404
+          },
+          "fileRelease": "v1.2",
+          "downloadUrl": "https://cdn.humanatlas.io/hra-releases/v1.2/models/VH_M_Ureter_L.glb",
+          "filename": "VH_M_Ureter_L.glb",
+          "path": "assets/_fuentes/explorar-fase2/e/hra/raw/VH_M_Ureter_L.glb",
+          "bytes": 682796,
+          "sha256": "b6e27766b5e5663fe31d96052caa49cd4fab782eed39367c26fec517b3ba0ebb",
+          "pack": "hra-v2",
+          "attribution": "Kristen Browne, Heidi Schlehlein (2022). 3D Reference Organ for Ureter, Male, Left v1.1. HuBMAP. CC BY 4.0. https://doi.org/10.48539/HBM473.XWNL.438",
+          "glbNodes": {
+            "VH_M_ureter_L": "ureter_izquierdo",
+            "VH_M_renal_pelvis_L": "pelvis_renal_izquierda",
+            "VH_M_major_calyx_L_a": "calices_izquierdos",
+            "VH_M_major_calyx_L_b": "calices_izquierdos",
+            "VH_M_major_calyx_L_c": "calices_izquierdos",
+            "VH_M_minor_calyx_L_a": "calices_izquierdos",
+            "VH_M_minor_calyx_L_b": "calices_izquierdos",
+            "VH_M_minor_calyx_L_c": "calices_izquierdos",
+            "VH_M_minor_calyx_L_d": "calices_izquierdos",
+            "VH_M_minor_calyx_L_e": "calices_izquierdos",
+            "VH_M_minor_calyx_L_f": "calices_izquierdos",
+            "VH_M_minor_calyx_L_g": "calices_izquierdos",
+            "VH_M_minor_calyx_L_h": "calices_izquierdos",
+            "VH_M_minor_calyx_L_i": "calices_izquierdos"
+          }
+        }
+      ],
+      "attribution": "Kristen Browne, Heidi Schlehlein (2022). 3D Reference Organ for Ureter, Male, Right v1.1. HuBMAP. CC BY 4.0. https://doi.org/10.48539/HBM878.DBSR.759 | Kristen Browne, Heidi Schlehlein (2022). 3D Reference Organ for Ureter, Male, Left v1.1. HuBMAP. CC BY 4.0. https://doi.org/10.48539/HBM473.XWNL.438",
+      "thumbnailOnDemand": true,
+      "decision": "Los dos conductos tienen un contorno claro y se conservan nodos para pelvis renal y cálices.",
+      "comparacion": {
+        "bodyparts3d": [
+          "assets/_fuentes/explorar-fase2/e/obj95/FMA15571.obj",
+          "assets/_fuentes/explorar-fase2/e/obj95/FMA15572.obj"
+        ],
+        "humanReferenceAtlas": [
+          "assets/_fuentes/explorar-fase2/e/hra/raw/VH_M_Ureter_R.glb",
+          "assets/_fuentes/explorar-fase2/e/hra/raw/VH_M_Ureter_L.glb"
+        ]
+      }
+    },
+    {
+      "id": "thymus",
+      "root": "thymus",
+      "name": "Timo",
+      "category": "organos",
+      "sources": [
+        {
+          "path": "assets/_fuentes/explorar-fase2/e/obj95/FMA71194.obj",
+          "id": "FMA71194",
+          "filename": "FMA71194.obj",
+          "pack": "bp3d-3.0-obj95",
+          "version": "3.0",
+          "sha256": "7a983573a737584bc534428f6a7b9bb0fd0cb177107cadad4e74f8cc96bcdb39",
+          "crc32": "530652c0",
+          "partId": "lobulo_derecho",
+          "conceptId": "FMA71194",
+          "anatomicalName": "right lobe of thymus",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA71194.obj",
+          "bytes": 2189831,
+          "sourceTriangles": 32268,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "path": "assets/_fuentes/explorar-fase2/e/obj95/FMA71195.obj",
+          "id": "FMA71195",
+          "filename": "FMA71195.obj",
+          "pack": "bp3d-3.0-obj95",
+          "version": "3.0",
+          "sha256": "05093084f66f631f884989e5db25ab0dc5573cd1c4128fb65831c2680b0bb353",
+          "crc32": "3223baf7",
+          "partId": "lobulo_izquierdo",
+          "conceptId": "FMA71195",
+          "anatomicalName": "left lobe of thymus",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA71195.obj",
+          "bytes": 3099781,
+          "sourceTriangles": 45944,
+          "license": "CC-BY-4.0"
+        }
+      ],
+      "guides": [],
+      "parts": [
+        {
+          "id": "lobulo_derecho"
+        },
+        {
+          "id": "lobulo_izquierdo"
+        }
+      ],
+      "reason4": null,
+      "comparison": {
+        "obj95": {
+          "title": "BodyParts3D 3.0 OBJ95",
+          "sources": [
+            {
+              "path": "assets/_fuentes/explorar-fase2/e/obj95/FMA71194.obj",
+              "id": "FMA71194",
+              "filename": "FMA71194.obj",
+              "pack": "bp3d-3.0-obj95",
+              "version": "3.0",
+              "sha256": "7a983573a737584bc534428f6a7b9bb0fd0cb177107cadad4e74f8cc96bcdb39",
+              "crc32": "530652c0",
+              "partId": "lobulo_derecho",
+              "conceptId": "FMA71194",
+              "anatomicalName": "right lobe of thymus",
+              "archiveMember": "BodyParts3D_3.0_obj_95\\FMA71194.obj",
+              "bytes": 2189831,
+              "sourceTriangles": 32268,
+              "license": "CC-BY-4.0"
+            },
+            {
+              "path": "assets/_fuentes/explorar-fase2/e/obj95/FMA71195.obj",
+              "id": "FMA71195",
+              "filename": "FMA71195.obj",
+              "pack": "bp3d-3.0-obj95",
+              "version": "3.0",
+              "sha256": "05093084f66f631f884989e5db25ab0dc5573cd1c4128fb65831c2680b0bb353",
+              "crc32": "3223baf7",
+              "partId": "lobulo_izquierdo",
+              "conceptId": "FMA71195",
+              "anatomicalName": "left lobe of thymus",
+              "archiveMember": "BodyParts3D_3.0_obj_95\\FMA71195.obj",
+              "bytes": 3099781,
+              "sourceTriangles": 45944,
+              "license": "CC-BY-4.0"
+            }
+          ],
+          "sourceTriangles": 78212
+        },
+        "obj99": {
+          "title": "BodyParts3D 4.0 IS-A OBJ99",
+          "sources": [
+            {
+              "path": "assets/_fuentes/explorar-fase2/e/obj99/FJ3151.obj",
+              "id": "FJ3151",
+              "filename": "FJ3151.obj",
+              "pack": "bp3d-4.0-isa-obj99",
+              "version": "4.0",
+              "sha256": "995a2ca43438414c6835da1169ff78761e9e67517ebf2ed6254d870960784287",
+              "crc32": "ab989fee",
+              "partId": "lobulo_derecho",
+              "conceptId": "FMA71194",
+              "anatomicalName": "right lobe of thymus",
+              "archiveMember": "isa_BP3D_4.0_obj_99/FJ3151.obj",
+              "bytes": 65796,
+              "sourceTriangles": 1030,
+              "license": "CC-BY-4.0"
+            },
+            {
+              "path": "assets/_fuentes/explorar-fase2/e/obj99/FJ3150.obj",
+              "id": "FJ3150",
+              "filename": "FJ3150.obj",
+              "pack": "bp3d-4.0-isa-obj99",
+              "version": "4.0",
+              "sha256": "8e46aee81d56797bcc111608c5268f7edd72f5030e663049f67cecee1c7a9db9",
+              "crc32": "68d05b0e",
+              "partId": "lobulo_izquierdo",
+              "conceptId": "FMA71195",
+              "anatomicalName": "left lobe of thymus",
+              "archiveMember": "isa_BP3D_4.0_obj_99/FJ3150.obj",
+              "bytes": 66351,
+              "sourceTriangles": 1050,
+              "license": "CC-BY-4.0"
+            }
+          ],
+          "sourceTriangles": 2080
+        },
+        "notes": "El timo está presente en los dos paquetes. El catálogo 3.0 vincula FMA9607 al par de lóbulos mediante sus primitivas FMA71194/FMA71195. El índice IS-A 4.0 contiene los dos elementos FJ3151/FJ3150 registrados por lóbulo bajo FMA71193. Cada lóbulo tiene una malla de origen.",
+        "hra": {
+          "title": "Human Reference Atlas",
+          "paths": [
+            "assets/_fuentes/explorar-fase2/e/hra/raw/VH_M_Thymus.glb"
+          ]
+        },
+        "availability": {
+          "obj95": {
+            "wholeConceptId": "FMA9607",
+            "wholeMeshMember": false,
+            "lobeMembers": [
+              "FMA71194",
+              "FMA71195"
+            ]
+          },
+          "obj99": {
+            "wholeConceptId": "FMA9607",
+            "wholeMeshMember": false,
+            "lobeMembers": [
+              "FJ3151",
+              "FJ3150"
+            ]
+          }
+        }
+      },
+      "thumbnailOnDemand": true,
+      "decision": "BodyParts3D 3.0 conserva dos lóbulos separados y muestra detalle de superficie.",
+      "comparacion": {
+        "bodyparts3d": [
+          "assets/_fuentes/explorar-fase2/e/obj95/FMA71194.obj",
+          "assets/_fuentes/explorar-fase2/e/obj95/FMA71195.obj"
+        ],
+        "humanReferenceAtlas": [
+          "assets/_fuentes/explorar-fase2/e/hra/raw/VH_M_Thymus.glb"
+        ]
+      }
     }
+  ],
+  "pronunciationOnDemand": [
+    "abdominal-part-of-esophagus",
+    "adrenal-glands",
+    "base-of-urinary-bladder",
+    "body-of-gallbladder",
+    "body-of-pancreas",
+    "carina-of-trachea",
+    "cartilage-of-left-main-bronchus",
+    "cartilage-of-right-main-bronchus",
+    "cervical-part-of-esophagus",
+    "colic-impression-of-spleen",
+    "cricoid-cartilage",
+    "cystic-duct",
+    "diaphragmatic-surface-of-spleen",
+    "dome-of-urinary-bladder",
+    "epiglottic-cartilage",
+    "esophagus",
+    "fundus-of-gallbladder",
+    "gallbladder",
+    "gastric-impression-of-spleen",
+    "head-of-pancreas",
+    "larynx",
+    "left-adrenal-gland",
+    "left-arytenoid-cartilage",
+    "left-corniculate-cartilage",
+    "left-lobe-of-thymus",
+    "left-main-bronchus",
+    "left-renal-calyces",
+    "left-renal-pelvis",
+    "left-ureter",
+    "left-ureteric-orifice",
+    "neck-of-gallbladder",
+    "neck-of-pancreas",
+    "neck-of-urinary-bladder",
+    "pancreas",
+    "renal-impression-of-spleen",
+    "right-adrenal-gland",
+    "right-arytenoid-cartilage",
+    "right-corniculate-cartilage",
+    "right-lobe-of-thymus",
+    "right-main-bronchus",
+    "right-renal-calyces",
+    "right-renal-pelvis",
+    "right-ureter",
+    "right-ureteric-orifice",
+    "spleen",
+    "splenic-hilum",
+    "tail-of-pancreas",
+    "thoracic-part-of-esophagus",
+    "thymus",
+    "thyroid-cartilage",
+    "trachea-and-main-bronchi",
+    "tracheal-cartilage",
+    "trigone-of-urinary-bladder",
+    "uncinate-process-of-pancreas",
+    "ureters"
   ]
 }

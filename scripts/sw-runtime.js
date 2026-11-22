@@ -92,7 +92,10 @@ async function respond(request, url) {
       return new Response(binary, { headers: { 'Content-Type': 'application/wasm' } });
     }
   }
-  if (deferred.has(url.pathname)) return withoutRedirect((await download(url.pathname)).clone());
+  if (deferred.has(url.pathname)) {
+    const response = withoutRedirect((await download(url.pathname)).clone());
+    return range ? audioRange(response, range) : response;
+  }
   try {
     return await fetch(request);
   } catch (error) {

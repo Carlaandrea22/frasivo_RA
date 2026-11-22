@@ -20,7 +20,7 @@ output.mkdir(exist_ok=True)
 terms = set()
 for filename in (
     'catalogo.ts', 'partesAtlas.ts', 'corazon.ts', 'ampliacionAtlas.ts',
-    'atlasAxialDigestivo.ts', 'atlasHuesosNuevos.ts', 'atlasMusculosNuevos.ts',
+    'atlasAxialDigestivo.ts', 'atlasHuesosNuevos.ts', 'atlasMusculosNuevos.ts', 'atlasOrganosNuevos.ts',
 ):
     content = (catalog / filename).read_text(encoding='utf-8')
     terms.update(re.findall(r"terminoEn: '([^']+)'", content))

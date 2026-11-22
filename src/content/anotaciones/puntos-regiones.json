@@ -993,5 +993,240 @@
     0.0574124,
     1.1061488,
     0.1914443
+  ],
+  "pancreas__cuerpo": [
+    0.0145783,
+    0.3513104,
+    0.0438023
+  ],
+  "pancreas__cabeza": [
+    -0.0121999,
+    0.3302872,
+    0.0488645
+  ],
+  "pancreas__cuello": [
+    -0.0020664,
+    0.3387817,
+    0.0482356
+  ],
+  "pancreas__cola": [
+    0.0461793,
+    0.359902,
+    0.0148254
+  ],
+  "pancreas__proceso_unciforme": [
+    -0.012683,
+    0.3134827,
+    0.0406473
+  ],
+  "spleen__superficie_colica": [
+    0.1271412,
+    0.3397092,
+    0.0035612
+  ],
+  "spleen__superficie_diafragmatica": [
+    0.1263312,
+    0.3795242,
+    0.0022477
+  ],
+  "spleen__superficie_gastrica": [
+    0.1052798,
+    0.3828732,
+    -0.0204856
+  ],
+  "spleen__hilio": [
+    0.0881893,
+    0.3549536,
+    -0.0353022
+  ],
+  "spleen__superficie_renal": [
+    0.0899806,
+    0.3462113,
+    -0.0358661
+  ],
+  "gallbladder__cuello": [
+    -0.0344322,
+    1.0874601,
+    0.1420663
+  ],
+  "gallbladder__fondo": [
+    -0.050682,
+    1.05924,
+    0.1782203
+  ],
+  "gallbladder__cuerpo": [
+    -0.048263,
+    1.06904,
+    0.1735993
+  ],
+  "gallbladder__conducto_cistico": [
+    -0.0259763,
+    1.0876467,
+    0.1343827
+  ],
+  "esophagus__cervical": [
+    -0.0008829,
+    1.3885301,
+    0.0990609
+  ],
+  "esophagus__abdominal": [
+    0.0050416,
+    1.1773434,
+    0.1076547
+  ],
+  "esophagus__toracica": [
+    0.0008777,
+    1.2905833,
+    0.0748361
+  ],
+  "trachea_bronchi__carina": [
+    -0.0063453,
+    0.5419494,
+    0.0031862
+  ],
+  "trachea_bronchi__cartilago_bronquial_izquierdo": [
+    0.0182937,
+    0.5229898,
+    -0.0044136
+  ],
+  "trachea_bronchi__cartilago_bronquial_derecho": [
+    -0.0169852,
+    0.5333431,
+    -0.0006069
+  ],
+  "trachea_bronchi__bronquio_principal_izquierdo": [
+    0.0196541,
+    0.5244746,
+    -0.0057894
+  ],
+  "trachea_bronchi__bronquio_principal_derecho": [
+    -0.0169335,
+    0.5368931,
+    -0.0005443
+  ],
+  "trachea_bronchi__traquea": [
+    -0.0011055,
+    0.6068357,
+    0.0369166
+  ],
+  "trachea_bronchi__cartilago_traqueal": [
+    -0.0009807,
+    0.5979414,
+    0.0325469
+  ],
+  "urinary_bladder__base_vesical": [
+    -0.0066459,
+    0.0322891,
+    0.0516187
+  ],
+  "urinary_bladder__cupula": [
+    -0.0041092,
+    0.0386644,
+    0.0539517
+  ],
+  "urinary_bladder__trigono": [
+    0.0168243,
+    0.0392695,
+    -0.0142154
+  ],
+  "urinary_bladder__orificio_ureteral_izquierdo": [
+    0.0192306,
+    0.0392779,
+    -0.0145643
+  ],
+  "urinary_bladder__orificio_ureteral_derecho": [
+    -0.0308754,
+    0.0466037,
+    -0.0105004
+  ],
+  "urinary_bladder__cuello": [
+    0.0038244,
+    0.0128112,
+    -0.0013954
+  ],
+  "larynx__aritenoides_izquierdo": [
+    0.0032132,
+    0.6545235,
+    0.0403714
+  ],
+  "larynx__aritenoides_derecho": [
+    -0.0042856,
+    0.6547454,
+    0.0400259
+  ],
+  "larynx__corniculado_izquierdo": [
+    0.0032328,
+    0.666172,
+    0.0310164
+  ],
+  "larynx__corniculado_derecho": [
+    -0.0060106,
+    0.666605,
+    0.0328038
+  ],
+  "larynx__cricoides": [
+    -0.0013996,
+    0.6366222,
+    0.0503657
+  ],
+  "larynx__epiglotico": [
+    -0.0035371,
+    0.6802142,
+    0.0419743
+  ],
+  "larynx__tiroides": [
+    -0.0011735,
+    0.6605516,
+    0.0594061
+  ],
+  "adrenal_glands__derecha": [
+    -0.039215,
+    1.0908767,
+    0.0751954
+  ],
+  "adrenal_glands__izquierda": [
+    0.0319633,
+    1.1028567,
+    0.085587
+  ],
+  "ureters__calices_izquierdos": [
+    0.0718574,
+    0.3025448,
+    -0.0145966
+  ],
+  "ureters__calices_derechos": [
+    -0.053842,
+    0.2839723,
+    0.008099
+  ],
+  "ureters__pelvis_renal_izquierda": [
+    0.0596419,
+    0.2965327,
+    -0.0033642
+  ],
+  "ureters__pelvis_renal_derecha": [
+    -0.0498917,
+    0.271391,
+    0.0158591
+  ],
+  "ureters__ureter_izquierdo": [
+    0.0323405,
+    0.1656193,
+    0.0251559
+  ],
+  "ureters__ureter_derecho": [
+    -0.0161829,
+    0.1556889,
+    0.0288484
+  ],
+  "thymus__lobulo_derecho": [
+    0.000735,
+    1.2742001,
+    0.1600787
+  ],
+  "thymus__lobulo_izquierdo": [
+    0.0278185,
+    1.2819676,
+    0.1574843
   ]
 }

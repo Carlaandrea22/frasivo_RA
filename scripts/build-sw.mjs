@@ -73,14 +73,19 @@ const geometryLayers = {
     .filter(name => name.endsWith('.glb')).map(name => name.slice(0, -4))),
 };
 const layers = { muscles: [], organs: [], explore: [] };
-const { fichas } = JSON.parse(await readFile('scripts/explorar-detail-sources.json', 'utf8'));
+const { fichas, pronunciationOnDemand = [] } = JSON.parse(await readFile('scripts/explorar-detail-sources.json', 'utf8'));
 const detailThumbnails = new Map(await Promise.all(fichas.filter(ficha => ficha.thumbnailOnDemand)
   .map(async ({ root }) => [root, await readFile(`src/content/anatomy/miniaturas/${root}.webp`)])));
+const detailAudio = new Set(pronunciationOnDemand);
 const exploreOnDemand = [];
 for (const url of urls) {
-  const asset = /^\/assets\/(.+)-[\w-]{8}\.(glb|webp)$/.exec(url);
+  const asset = /^\/assets\/(.+)-[\w-]{8}\.(glb|webp|mp3)$/.exec(url);
   if (!asset) continue;
   const [, name, format] = asset;
+  if (format === 'mp3') {
+    if (detailAudio.has(name)) exploreOnDemand.push(url);
+    continue;
+  }
   const thumbnail = format === 'webp' && detailThumbnails.get(name);
   if (thumbnail && thumbnail.equals(await readFile(output + url))) {
     exploreOnDemand.push(url);

@@ -9,7 +9,7 @@ for (const width of [375, 1440]) test(`Explorar: catálogo y corazón a ${width}
   await search.fill('no-existe');
   await expect(page.getByRole('button', { name: 'Limpiar búsqueda' })).toBeVisible();
   await page.getByRole('button', { name: 'Limpiar búsqueda' }).click();
-  await expect(page.locator('.explorar-grid > article')).toHaveCount(8);
+  await expect(page.locator('.explorar-grid > article')).toHaveCount(18);
   await expect(page.locator('.explorar-grid').getByText('Provisional', { exact: true })).toHaveCount(0);
   await page.screenshot({ path: `docs/capturas/carla/catalogo-organos-${width}.png`, fullPage: true });
   await page.getByRole('link', { name: /Ver corazón/i }).click();
