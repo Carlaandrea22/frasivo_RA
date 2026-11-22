@@ -9,6 +9,8 @@ import { useRacha } from '../../shared/progreso/useRacha';
 import { Card } from '../../shared/ui/Card';
 import { ContentState } from '../../shared/ui/ContentState';
 import { MascotaProgreso } from './mascota/MascotaProgreso';
+import { ClinicalActivity } from './ClinicalActivity';
+import { clinicalCatalog, clinicalProgress } from './clinicalProgress';
 import './progreso.css';
 
 const fecha = new Intl.DateTimeFormat('es', { dateStyle: 'medium' });
@@ -17,7 +19,6 @@ const practiceCatalog = new Map([
   ...casos.map(item => ({ id: item.id, title: item.titulo })),
   ...clinicalCases.map(item => ({ id: item.id, title: item.titleEs })),
 ].map(item => [item.id, item.title]));
-const clinicalCatalog = new Map(clinicalCases.map(item => [item.id, item]));
 const dateOf = (timestamp: string) => fecha.format(new Date(timestamp));
 
 function PracticeMetrics({ correct, errors, hints, assisted = 0 }: {
@@ -45,6 +46,7 @@ function PracticeSummary({ event }: { event: PracticeEvent }) {
       <time dateTime={event.timestamp}>{dateOf(event.timestamp)}</time>
     </div>
     <PracticeMetrics {...event}/>
+    {event.retried && <p className="progress-caption">{event.errors ? 'Se volvió a intentar' : 'Resuelto en un reintento'}</p>}
     {item?.kind === 'investigation' && route && <details>
       <summary>Ruta de investigación</summary>
       <ol>{route.questionIds.map(questionId => {
@@ -59,31 +61,33 @@ function PracticeSummary({ event }: { event: PracticeEvent }) {
 export function Progreso() {
   const { events, legacy } = useSyncExternalStore(subscribeProgress, getProgress);
   const racha = useRacha(events);
+  const clinicalStats = clinicalProgress(events);
   const consulted = new Set(events.filter(event => event.kind === 'consultation').map(event => event.itemId));
   const practices = events.filter(event => event.kind === 'practice');
-  const performance = events.filter(event => event.kind === 'demonstration');
   const available = estructuras.filter(item => consulted.has(item.id));
   const legacyTerms = Object.keys(legacy?.words ?? {}).length;
   const last = practices.at(-1);
   const stats = [
-    { label: 'Estructuras consultadas', count: consulted.size, Icon: BookOpen },
-    { label: 'Prácticas realizadas', count: practices.length, Icon: ClipboardList },
-    { label: 'Desempeños demostrados', count: performance.length, Icon: Trophy },
+    { label: 'Estructuras consultadas', value: consulted.size, Icon: BookOpen },
+    { label: 'Casos clínicos realizados', value: clinicalStats.completed, Icon: ClipboardList },
+    { label: 'Calificaciones perfectas', value: `${clinicalStats.perfectRate}%`, Icon: Trophy,
+      detail: `${clinicalStats.perfect} de ${clinicalStats.completed} al primer intento` },
   ];
 
   return <section className="lumar-page progress-page">
+    <MascotaProgreso {...racha}/>
     <Card className="progress-overview">
       <header>
         <div><h1>Mi progreso</h1><p className="lumar-subtitle">Tu actividad y resultados de práctica.</p></div>
         <a className="button button--primary lumar-link" href="#progreso/practicas">Mis prácticas <ArrowRight size={17}/></a>
       </header>
       <ul className="progress-stats" aria-label="Mi actividad">
-        {stats.map(({ label, count, Icon }) => <li key={label}>
-          <Icon size={17} aria-hidden="true"/><strong>{count}</strong><span>{label}</span>
+        {stats.map(({ label, value, detail, Icon }) => <li key={label}>
+          <Icon size={17} aria-hidden="true"/><strong>{value}</strong><span>{label}</span>
+          {detail && <small>{detail}</small>}
         </li>)}
       </ul>
     </Card>
-    <MascotaProgreso {...racha}/>
     {import.meta.env.MODE === 'push-test' && <div>
       <a className="button button--secondary lumar-link" href="#progreso/notificaciones">Prueba de notificaciones</a>
     </div>}
@@ -91,6 +95,7 @@ export function Progreso() {
       <p className="progress-caption"><History size={16} aria-hidden="true"/> Última práctica registrada</p>
       <PracticeSummary event={last}/>
     </Card>}
+    <ClinicalActivity modes={clinicalStats.modes} recommendation={clinicalStats.recommendation}/>
     {available.length ? <Card className="progress-entry">
       <h2>Estructuras consultadas</h2>
       <div className="progress-consulted">{available.map(item => <a key={item.id} href={`#explorar/estructura/${item.id}`}>{item.nombreEs}<ArrowRight size={14}/></a>)}</div>

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ArrowRight, CircleHelp, ListOrdered, MessagesSquare, Search, Stethoscope } from 'lucide-react';
 import { clinicalCases } from '../../content/casos/session';
-import type { ClinicalCase } from '../../content/casos/sessionTypes';
+import { clinicalModeLabels, type ClinicalCase } from '../../content/casos/sessionTypes';
 import type { RouteProps } from '../../shared/navegacion';
 import { PracticeTabs } from '../../shared/navegacion/PracticarHome';
 import { Button } from '../../shared/ui/Button';
@@ -9,13 +9,6 @@ import { Card } from '../../shared/ui/Card';
 import { ClinicalSession } from './ClinicalSession';
 import { buildCaseSession, buildMixedCaseSession } from './clinicalEngine';
 import './casos.css';
-
-const kindLabel = {
-  interview: 'Conversación y comprensión',
-  investigation: 'Investigación clínica',
-  ordering: 'Ordenar actuaciones',
-  'multiple-choice': 'Selección múltiple',
-} as const;
 
 const kindIcon = {
   interview: MessagesSquare,
@@ -60,12 +53,12 @@ export function Casos(_props: RouteProps) {
     <section className="clinical-mode-section" aria-labelledby="clinical-mode-title">
       <h2 id="clinical-mode-title">Practica por modo</h2>
       <div className="clinical-mode-grid">
-        {(Object.keys(kindLabel) as ClinicalCase['kind'][]).map(kind => {
+        {(Object.keys(clinicalModeLabels) as ClinicalCase['kind'][]).map(kind => {
           const Icon = kindIcon[kind];
           return <Button key={kind} variant="answer" className="clinical-mode-button"
-            aria-label={`Practicar solo ${kindLabel[kind]}`} onClick={() => startModeSession(kind)}>
+            aria-label={`Practicar solo ${clinicalModeLabels[kind]}`} onClick={() => startModeSession(kind)}>
             <span className="clinical-kind-icon" aria-hidden="true"><Icon size={19}/></span>
-            <span className="clinical-mode-copy"><strong>{kindLabel[kind]}</strong><small>{modeDescription[kind]}</small></span>
+            <span className="clinical-mode-copy"><strong>{clinicalModeLabels[kind]}</strong><small>{modeDescription[kind]}</small></span>
             <ArrowRight className="clinical-mode-arrow" size={16} aria-hidden="true"/>
           </Button>;
         })}

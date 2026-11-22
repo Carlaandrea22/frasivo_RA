@@ -4,7 +4,7 @@ import type { ConversationNode, InterviewCase, InvestigationCase, InvestigationN
 import { Button } from '../../shared/ui/Button';
 import { Card } from '../../shared/ui/Card';
 import { createInterviewExchange, getInterviewChoices, scoreInvestigation } from './clinicalEngine';
-import { NextCaseButton, ResultCard, type CaseStepProps } from './ClinicalResult';
+import { CaseResult, type CaseStepProps } from './ClinicalResult';
 import { ClinicalAnatomy } from './ClinicalAnatomy';
 import { Bilingual } from './Bilingual';
 
@@ -85,7 +85,7 @@ function Conversation<Node extends ConversationNode>({ item, finishLabel, onFini
   </div>;
 }
 
-export function InterviewCaseView({ item, onComplete, last }: CaseStepProps<InterviewCase>) {
+export function InterviewCaseView({ item, ...step }: CaseStepProps<InterviewCase>) {
   const [recall, setRecall] = useState<ReturnType<typeof createInterviewExchange>[]>([]);
   const [answers, setAnswers] = useState<string[]>([]);
   const exchange = recall[answers.length];
@@ -94,12 +94,20 @@ export function InterviewCaseView({ item, onComplete, last }: CaseStepProps<Inte
     onFinish={path => setRecall(path.map(node => createInterviewExchange(node)))}/>;
 
   if (!exchange) {
-    const correct = recall.filter(({ recall: entry }, index) => entry.correctId === answers[index]).length;
-    const score = { correct, errors: recall.length - correct };
-    return <ResultCard title={`${correct} de ${recall.length} respuestas correctas`} score={score}>
-      <p>La puntuación corresponde a lo que recordaste de esta conversación.</p>
-      <NextCaseButton score={score} onComplete={onComplete} last={last}/>
-    </ResultCard>;
+    const missed = recall.flatMap((entry, index) => entry.recall.correctId === answers[index] ? [] : [{
+      ...entry,
+      chosen: entry.recall.options.find(option => option.id === answers[index]),
+    }]);
+    const correct = recall.length - missed.length;
+    return <CaseResult {...step} title={`${correct} de ${recall.length} respuestas correctas`}
+      score={{ correct, errors: missed.length }} onRetry={() => setAnswers([])}
+      solutionLabel="Ver respuestas correctas" solution={missed.length > 0 && <ol className="clinical-correction-list" aria-label="Preguntas para repasar">
+        {missed.map(({ prompt, chosen, response }) => <li key={prompt.id}>
+          <strong><Bilingual es={prompt.promptEs} en={prompt.promptEn}/></strong>
+          {chosen && <p><strong>Tu respuesta</strong><Bilingual es={chosen.textEs} en={chosen.textEn}/></p>}
+          <p><strong>Lo que dijo {item.patientName}</strong><Bilingual es={response.patientEs} en={response.patientEn}/></p>
+        </li>)}
+      </ol>}/>;
   }
 
   const { prompt, recall: question } = exchange;
@@ -122,7 +130,7 @@ export function InterviewCaseView({ item, onComplete, last }: CaseStepProps<Inte
   </div>;
 }
 
-export function InvestigationCaseView({ item, onComplete, last }: CaseStepProps<InvestigationCase>) {
+export function InvestigationCaseView({ item, ...step }: CaseStepProps<InvestigationCase>) {
   const [path, setPath] = useState<InvestigationNode[]>();
   const [hypothesisId, setHypothesisId] = useState<string>();
   const retry = () => {
@@ -151,23 +159,23 @@ export function InvestigationCaseView({ item, onComplete, last }: CaseStepProps<
   const { findings, hypothesisSupported, correct, errors } = scoreInvestigation(item, questionIds, hypothesisId);
   const score = { correct, errors, investigation: { questionIds, hypothesisId } };
   const preferred = item.hypotheses.find(option => option.id === item.preferredHypothesisId);
+  const chosen = item.hypotheses.find(option => option.id === hypothesisId);
+  const missing = item.findings.filter(finding => !findings.includes(finding));
 
-  return <ResultCard title={errors === 0 ? 'Investigación bien orientada' : 'Revisa tu camino'} score={score}>
+  return <CaseResult {...step} title={errors === 0 ? 'Investigación bien orientada' : 'Revisa tu camino'} score={score}
+    onRetry={retry} retryLabel="Reintentar desde el primer turno" solutionLabel="Ver hipótesis de referencia" solution={preferred && <>
+      <strong><Bilingual es={preferred.textEs} en={preferred.textEn}/></strong>
+      <p><strong>Por qué encaja con el caso</strong><Bilingual es={item.debriefEs} en={item.debriefEn}/></p>
+      {missing.length > 0 && <>
+        <p><strong>Hallazgos que faltaron</strong></p>
+        <ul className="clinical-findings">{missing.map(finding => <li key={finding.id}><Bilingual es={finding.textEs} en={finding.textEn}/></li>)}</ul>
+      </>}
+    </>}>
     <p>{findings.length} de {item.findings.length} hallazgos clave · {hypothesisSupported ? 'Hipótesis respaldada' : 'Hipótesis por revisar'}</p>
+    {chosen && chosen.id !== preferred?.id && <p><strong>Tu hipótesis</strong><Bilingual es={chosen.textEs} en={chosen.textEn}/></p>}
     {findings.length > 0 && <ul className="clinical-findings" aria-label="Hallazgos que obtuviste">
       {findings.map(finding => <li key={finding.id}><Bilingual es={finding.textEs} en={finding.textEn}/></li>)}
     </ul>}
-    {preferred && <details className="clinical-debrief" open={errors === 0}>
-      <summary>Hipótesis de referencia</summary>
-      <div>
-        <Bilingual es={preferred.textEs} en={preferred.textEn}/>
-        <Bilingual es={item.debriefEs} en={item.debriefEn}/>
-      </div>
-    </details>}
     <ClinicalAnatomy structures={item.anatomy}/>
-    <div className="clinical-result-actions">
-      <Button variant="secondary" onClick={retry}><RotateCcw size={17}/> Volver al primer turno</Button>
-      <NextCaseButton score={score} onComplete={onComplete} last={last}/>
-    </div>
-  </ResultCard>;
+  </CaseResult>;
 }

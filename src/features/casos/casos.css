@@ -113,6 +113,10 @@
   border: 1px solid var(--line);
 }
 .clinical-debrief > div { display: grid; gap: 8px; margin-top: 8px; }
+.clinical-correction-list { display: grid; gap: 8px; margin: 0; padding-inline-start: 1.6rem; }
+.clinical-correction-list li { padding: 8px 10px; border-radius: 10px; background: var(--surface); }
+.clinical-correction-list li::marker { font-weight: 750; color: var(--forest); }
+.clinical-correction-list li > :not(:first-child) { display: block; margin-top: 6px; }
 .clinical-review-dialogue > summary, .clinical-debrief > summary { color: var(--forest); font-weight: 700; cursor: pointer; }
 .clinical-review-dialogue[open] > summary { margin-bottom: var(--space-2); }
 .clinical-answer-list .button[data-selected="true"] {

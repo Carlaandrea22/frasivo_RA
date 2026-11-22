@@ -5,7 +5,7 @@ import { useRacha } from '../../shared/progreso/useRacha';
 import { Button } from '../../shared/ui/Button';
 import { Mascota } from '../progreso/mascota/Mascota';
 import { obtenerEvolucion } from '../progreso/mascota/evolucion';
-import { isPerfectWithoutHints, performanceLevel, scoreRatio, type PerformanceLevel } from './clinicalEngine';
+import { performanceLevel, scoreRatio, type PerformanceLevel } from './clinicalEngine';
 import { ClinicalConfetti } from './ClinicalConfetti';
 import type { Score } from './ClinicalResult';
 
@@ -30,7 +30,7 @@ export function ClinicalSummary({ total, count, levels, onExit }: {
   const assisted = total.assisted ?? 0;
 
   return <section className="lumar-page clinical-session clinical-complete">
-    {count > 1 && isPerfectWithoutHints(total) && <ClinicalConfetti/>}
+    {level === 'strong' && <ClinicalConfetti/>}
     <header className="lumar-card clinical-summary-hero" data-level={level}>
       <div className="clinical-summary-heading">
         <p className="lumar-eyebrow">Sesión terminada</p>

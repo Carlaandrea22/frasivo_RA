@@ -97,3 +97,10 @@ export interface MultipleChoiceCase extends ClinicalCaseBase {
 }
 
 export type ClinicalCase = InterviewCase | InvestigationCase | OrderingCase | MultipleChoiceCase;
+
+export const clinicalModeLabels = {
+  interview: 'Conversación y comprensión',
+  investigation: 'Investigación clínica',
+  ordering: 'Ordenar actuaciones',
+  'multiple-choice': 'Selección múltiple',
+} satisfies Record<ClinicalCase['kind'], string>;

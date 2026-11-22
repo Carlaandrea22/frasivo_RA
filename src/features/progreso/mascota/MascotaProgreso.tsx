@@ -41,17 +41,12 @@ export function MascotaProgreso({ dias, completadosHoy }: {
   const faltan = siguiente ? siguiente.dias - dias : 0;
 
   return <section className="lumar-card mascota-panel" aria-labelledby="mascota-titulo">
-    <div className="mascota-escena">
-      <span className="mascota-etapa">Etapa {indice + 1} de {etapasMascota.length}</span>
-      <Mascota key={gesto?.turno ?? 0} etapa={actual.id} animacion={gesto?.nombre ?? 'reposo'}/>
-    </div>
     <div className="mascota-info">
       <header>
-        <p className="mascota-contexto">Tu mascota</p>
-        <h2 id="mascota-titulo">{actual.nombre}</h2>
+        <h2 id="mascota-titulo" className="mascota-racha"><strong>{dias}</strong> {dias === 1 ? 'día' : 'días'} de racha</h2>
+        <p className="mascota-contexto">Tu mascota · {actual.nombre}</p>
       </header>
       <div className="mascota-evolucion">
-        <p className="mascota-racha"><strong>{dias}</strong> {dias === 1 ? 'día' : 'días'} de racha</p>
         {siguiente ? <>
           <progress aria-label={`Progreso hacia ${siguiente.nombre}`} value={dias - actual.dias} max={siguiente.dias - actual.dias}/>
           <p>{faltan === 1 ? 'Falta 1 día' : `Faltan ${faltan} días`} para <strong>{siguiente.nombre}</strong>.</p>
@@ -64,6 +59,10 @@ export function MascotaProgreso({ dias, completadosHoy }: {
         <Button variant="secondary" onClick={() => activar('saludo')}><Hand size={17} aria-hidden="true"/> Saludar</Button>
         <Button variant="secondary" onClick={() => activar('celebracion')}><PartyPopper size={17} aria-hidden="true"/> Celebrar</Button>
       </div>
+    </div>
+    <div className="mascota-escena">
+      <span className="mascota-etapa">Etapa {indice + 1} de {etapasMascota.length}</span>
+      <Mascota key={gesto?.turno ?? 0} etapa={actual.id} animacion={gesto?.nombre ?? 'reposo'}/>
     </div>
   </section>;
 }

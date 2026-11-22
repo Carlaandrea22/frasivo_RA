@@ -9,6 +9,7 @@ import {
   recordPractice,
   type ProgressStorage,
 } from '../src/shared/progreso';
+import { clinicalProgress } from '../src/features/progreso/clinicalProgress';
 
 class LocalStorage implements ProgressStorage {
   private items = new Map<string, string>();
@@ -21,6 +22,27 @@ class LocalStorage implements ProgressStorage {
 
 const target = { areaId: 'anatomy', groupId: 'cardiovascular', itemId: 'heart' };
 const practiceTarget = { ...target, activityId: 'technical-english' };
+
+it('calcula porcentajes clínicos con el historial anterior y excluye los reintentos de las notas perfectas', () => {
+  const storage = new LocalStorage();
+  const clinical = { areaId: 'anatomy', groupId: 'clinical-cases', hints: 0 };
+  recordPractice({ ...practiceTarget, correct: 5, errors: 0, hints: 0 }, storage);
+  recordPractice({ ...clinical, itemId: 'knee-conversation', correct: 1, errors: 2 }, storage);
+  recordPractice({ ...clinical, itemId: 'knee-conversation', correct: 3, errors: 0, retried: true }, storage);
+  recordPractice({ ...clinical, itemId: 'primary-assessment-order', correct: 2, errors: 0, assisted: 3, hints: 3 }, storage);
+
+  const stats = clinicalProgress(getProgress(storage).events);
+  expect(stats).toMatchObject({ completed: 3, perfect: 1, perfectRate: 33 });
+  expect(stats.modes.find(mode => mode.kind === 'interview')).toMatchObject({ count: 2, accuracy: 67 });
+  expect(stats.recommendation).toMatchObject({ kind: 'interview', reason: 'accuracy' });
+});
+
+it('sugiere un modo menos practicado cuando el desempeño es bueno', () => {
+  const storage = new LocalStorage();
+  recordPractice({ areaId: 'anatomy', groupId: 'clinical-cases', itemId: 'knee-conversation', correct: 3, errors: 0, hints: 0 }, storage);
+  expect(clinicalProgress(getProgress(storage).events).recommendation).toMatchObject({ count: 0, reason: 'frequency' });
+  expect(clinicalProgress([]).recommendation).toBeUndefined();
+});
 
 describe('progreso local', () => {
   it('conserva los totales migrados sin atribuirles nuevas evidencias', () => {

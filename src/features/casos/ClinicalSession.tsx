@@ -29,7 +29,7 @@ import {
   type PerformanceLevel,
 } from './clinicalEngine';
 import { InterviewCaseView, InvestigationCaseView } from './ClinicalConversationCase';
-import { NextCaseButton, ResultCard, type CaseStepProps, type Score } from './ClinicalResult';
+import { CaseResult, type CaseStepProps, type Score } from './ClinicalResult';
 import { ClinicalSummary } from './ClinicalSummary';
 import { Bilingual } from './Bilingual';
 
@@ -40,7 +40,7 @@ const sessionLabels = {
   ordering: 'Orden clínico',
   'multiple-choice': 'Decisión clínica',
 };
-function OrderingCaseView({ item, onComplete, last }: CaseStepProps<OrderingCase>) {
+function OrderingCaseView({ item, ...step }: CaseStepProps<OrderingCase>) {
   const actionMap = useMemo(() => new Map(item.actions.map(action => [action.id, action])), [item]);
   const expectedIds = useMemo(() => item.actions.map(action => action.id), [item]);
   const initialOrder = useMemo(() => {
@@ -126,13 +126,20 @@ function OrderingCaseView({ item, onComplete, last }: CaseStepProps<OrderingCase
     setDrag(undefined);
   };
 
-  if (score) return <ResultCard title={`${score.correct + score.assisted} de ${item.actions.length} posiciones correctas`} score={score}>
-    <p><Bilingual es={item.explanationEs} en={item.explanationEn}/></p>
+  if (score) return <CaseResult {...step} title={`${score.correct + score.assisted} de ${item.actions.length} posiciones correctas`}
+    score={score} onRetry={() => setScore(null)} solutionLabel="Ver orden correcto" solution={<>
+      <ol className="clinical-correction-list" aria-label="Orden correcto">
+        {item.actions.map((action, index) => <li key={action.id}>
+          <Bilingual es={action.textEs} en={action.textEn}/>
+          {order[index] !== action.id && <small className="clinical-result-meta">Tu orden colocaba este paso en la posición {order.indexOf(action.id) + 1}.</small>}
+        </li>)}
+      </ol>
+      <p><Bilingual es={item.explanationEs} en={item.explanationEn}/></p>
+    </>}>
     <p className="clinical-result-meta">
       {score.correct} sin ayuda · {score.assisted} {score.assisted === 1 ? 'con pista' : 'con pistas'} · {score.errors} para revisar
     </p>
-    <NextCaseButton score={score} onComplete={onComplete} last={last}/>
-  </ResultCard>;
+  </CaseResult>;
 
   return <div className="clinical-case-body">
     <Card className="clinical-question-card">
@@ -184,17 +191,24 @@ function OrderingCaseView({ item, onComplete, last }: CaseStepProps<OrderingCase
   </div>;
 }
 
-function MultipleChoiceCaseView({ item, onComplete, last }: CaseStepProps<MultipleChoiceCase>) {
+function MultipleChoiceCaseView({ item, ...step }: CaseStepProps<MultipleChoiceCase>) {
   const [selected, setSelected] = useState<string>();
   const [discarded, setDiscarded] = useState<string>();
   const [hintUsed, setHintUsed] = useState(false);
   const [score, setScore] = useState<Score | null>(null);
 
-  if (score) return <ResultCard title={score.correct ? 'Respuesta correcta' : 'Respuesta para revisar'} score={score}>
-    <p><Bilingual es={item.explanationEs} en={item.explanationEn}/></p>
-    <p className="clinical-result-meta">{hintUsed ? '1 pista utilizada' : 'Sin pistas'}</p>
-    <NextCaseButton score={score} onComplete={onComplete} last={last}/>
-  </ResultCard>;
+  if (score) {
+    const chosen = item.options.find(option => option.id === selected);
+    const expected = item.options.find(option => option.id === item.correctId);
+    return <CaseResult {...step} title={score.correct ? 'Respuesta correcta' : 'Respuesta para revisar'} score={score}
+      onRetry={() => { setSelected(undefined); setScore(null); }} solution={<>
+        {expected && <strong><Bilingual es={expected.textEs} en={expected.textEn}/></strong>}
+        <p><Bilingual es={item.explanationEs} en={item.explanationEn}/></p>
+      </>}>
+      {score.errors > 0 && chosen && <p><strong>Tu respuesta</strong><Bilingual es={chosen.textEs} en={chosen.textEn}/></p>}
+      <p className="clinical-result-meta">{hintUsed ? '1 pista utilizada' : 'Sin pistas'}</p>
+    </CaseResult>;
+  }
 
   return <div className="clinical-case-body">
     <Card className="clinical-question-card">
@@ -230,7 +244,9 @@ function MultipleChoiceCaseView({ item, onComplete, last }: CaseStepProps<Multip
   </div>;
 }
 
-function CaseView({ item, ...step }: CaseStepProps<ClinicalCase>) {
+function CaseView({ item, onComplete, last }: Pick<CaseStepProps<ClinicalCase>, 'item' | 'onComplete' | 'last'>) {
+  const [retried, setRetried] = useState(false);
+  const step = { onComplete, last, retried, markRetry: () => setRetried(true) };
   if (item.kind === 'interview') return <InterviewCaseView item={item} {...step}/>;
   if (item.kind === 'investigation') return <InvestigationCaseView item={item} {...step}/>;
   if (item.kind === 'ordering') return <OrderingCaseView item={item} {...step}/>;
@@ -260,6 +276,7 @@ export function ClinicalSession({ caseIds: sessionIds, onExit }: { caseIds: read
       errors: score.errors,
       hints: score.hints ?? 0,
       assisted: score.assisted,
+      retried: score.retried,
       context: score.investigation && { kind: 'caso', ...score.investigation },
     });
     setTotal(previous => ({
