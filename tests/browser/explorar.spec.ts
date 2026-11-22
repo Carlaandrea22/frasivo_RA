@@ -87,6 +87,8 @@ test('las fichas nuevas se encuentran en el catálogo y se conectan al selector 
     await page.getByRole('link', { name: 'Practicar esta estructura' }).click();
     await expect(page.getByRole('link', { name: 'Elegir práctica' })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Elegir modelo' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Elegir tema para Relaciona estructura y función' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Elegir tema para Repaso breve' })).toBeVisible();
   }
 });
 

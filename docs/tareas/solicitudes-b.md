@@ -167,3 +167,16 @@ respiración. «Aleatorio» elige uno de esos temas. El repaso muscular conserva
 su enlace, sus preguntas y sus resultados previos.
 
 - Selector de «Repaso breve» a [375 px](../capturas/carla/retos-repaso-selector-375.png) y en [escritorio](../capturas/carla/retos-repaso-selector-1440.png).
+
+### Práctica con las ocho fichas nuevas
+
+«Relaciona estructura y función» y «Repaso breve» incluyen tres temas nuevos.
+
+- Cúbito, peroné y esternón
+- Deltoides, tríceps y gastrocnemio
+- Estómago y riñones
+
+Cada ficha aporta una pareja en Relaciona y una pregunta de opción múltiple
+en Repaso. Los temas aparecen en su categoría y «Aleatorio» también puede
+elegirlos. Al entrar desde una ficha nueva, el selector preselecciona el tema
+que incluye esa estructura.

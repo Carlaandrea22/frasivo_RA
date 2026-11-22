@@ -118,8 +118,12 @@ test('Repaso breve permite elegir huesos, músculos u órganos y empezar al azar
     ['repaso-huesos', ['Tibia', 'Radio', 'Acetábulo', 'Tróclea humeral']],
     ['repaso-musculos', ['Bíceps braquial', 'Recto femoral']],
     ['repaso-organos', ['Ventrículo izquierdo', 'Tres', 'Intercambiar oxígeno y dióxido de carbono entre el aire y la sangre.']],
+    ['repaso-huesos-ampliacion', ['Olécranon', 'Maléolo lateral', 'Manubrio']],
+    ['repaso-musculos-ampliacion', ['Porción acromial', 'Cúbito', 'Levantar el talón']],
+    ['repaso-organos-ampliacion', ['Región pilórica', 'Por la posición del hígado.']],
   ] as const;
   for (const [id, respuestas] of repasos) {
+    await expect(tema.locator(`option[value="${id}"]`)).toHaveCount(1);
     await tema.selectOption(id);
     await page.getByRole('button', { name: 'Evaluación', exact: true }).click();
     await page.getByRole('button', { name: 'Empezar reto' }).click();
@@ -135,7 +139,9 @@ test('Repaso breve permite elegir huesos, músculos u órganos y empezar al azar
 
   await page.getByRole('button', { name: 'Aleatorio', exact: true }).click();
   await expect(tema).toHaveCount(0);
+  await page.evaluate(() => { Math.random = () => .999; });
   await page.getByRole('button', { name: 'Empezar reto' }).click();
+  await expect(page.getByRole('heading', { name: 'Estómago y riñones', exact: true })).toBeVisible();
   await expect(page.getByRole('group', { name: 'Respuestas' })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(375);
 });
@@ -208,8 +214,12 @@ test('Relaciona permite escoger temas de las tres categorías o empezar al azar'
     ['funcion-huesos', [['Hueso coxal', /Transmite cargas al miembro inferior/], ['Húmero', /palanca para los movimientos del brazo/], ['Radio', /pronación y supinación del antebrazo/]]],
     ['funcion-musculos', [['Bíceps braquial', /Flexiona el codo/], ['Cuádriceps femoral', /Extiende la rodilla/]]],
     ['funcion-organos', [['Corazón', /Mantiene la circulación pulmonar y sistémica/], ['Pulmones', /intercambiar oxígeno y dióxido de carbono/]]],
+    ['funcion-huesos-ampliacion', [['Cúbito', /bisagra del codo/], ['Peroné', /Estabiliza el tobillo/], ['Esternón', /uniones anteriores de las costillas/]]],
+    ['funcion-musculos-ampliacion', [['Deltoides', /Eleva el brazo hacia el lado/], ['Tríceps braquial', /Extiende el codo/], ['Gastrocnemio', /levantar el talón/]]],
+    ['funcion-organos-ampliacion', [['Estómago', /Almacena el alimento/], ['Riñones', /Filtran la sangre/]]],
   ] as const;
   for (const [id, parejas] of ejemplos) {
+    await expect(tema.locator(`option[value="${id}"]`)).toHaveCount(1);
     await tema.selectOption(id);
     await page.getByRole('button', { name: 'Evaluación', exact: true }).click();
     await page.getByRole('button', { name: 'Empezar reto' }).click();
@@ -227,7 +237,9 @@ test('Relaciona permite escoger temas de las tres categorías o empezar al azar'
 
   await page.getByRole('button', { name: 'Aleatorio', exact: true }).click();
   await expect(tema).toHaveCount(0);
+  await page.evaluate(() => { Math.random = () => .999; });
   await page.getByRole('button', { name: 'Empezar reto' }).click();
+  await expect(page.getByRole('heading', { name: 'Estómago y riñones', exact: true })).toBeVisible();
   await expect(page.getByRole('group', { name: 'Funciones' })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(375);
 });
