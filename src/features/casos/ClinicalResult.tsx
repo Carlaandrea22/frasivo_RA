@@ -21,9 +21,10 @@ export interface CaseStepProps<T extends ClinicalCase> {
   last: boolean;
   retried: boolean;
   markRetry: () => void;
+  submitTimed?: (score: Score) => boolean;
 }
 
-export function CaseResult({ title, children, score, retried, markRetry, last, onComplete, onRetry,
+export function CaseResult({ title, children, score, retried, markRetry, last, onComplete, onRetry, submitTimed,
   retryLabel = 'Reintentar', solution, solutionLabel = 'Ver respuesta correcta' }: Omit<CaseStepProps<ClinicalCase>, 'item'> & {
   title: string;
   children?: ReactNode;
@@ -35,7 +36,7 @@ export function CaseResult({ title, children, score, retried, markRetry, last, o
 }) {
   const level = performanceLevel(score);
   const [revealed, setRevealed] = useState(false);
-  const canRetry = score.errors > 0 && !revealed;
+  const canRetry = !submitTimed && score.errors > 0 && !revealed;
   const heading = useRef<HTMLHeadingElement>(null);
   const solutionHeading = useRef<HTMLHeadingElement>(null);
   useEffect(() => { heading.current?.focus(); }, []);
@@ -48,7 +49,7 @@ export function CaseResult({ title, children, score, retried, markRetry, last, o
     <h2 tabIndex={-1} ref={heading}>{title}</h2>
     {retried && <p className="clinical-result-meta">Resultado del reintento</p>}
     {children}
-    {solution && (score.errors === 0 || revealed) && <section className="clinical-debrief">
+    {solution && (score.errors === 0 || revealed || submitTimed) && <section className="clinical-debrief">
       <h3 ref={solutionHeading} tabIndex={-1}>Corrección</h3>
       {revealed && <p className="clinical-result-meta">Solución revelada. Este intento quedó cerrado.</p>}
       <div>{solution}</div>
@@ -63,7 +64,9 @@ export function CaseResult({ title, children, score, retried, markRetry, last, o
         <RotateCcw size={17} aria-hidden="true"/> {retryLabel}
       </Button>}
       {canRetry && solution && <Button variant="text" onClick={() => setRevealed(true)}>{solutionLabel}</Button>}
-      <Button onClick={() => onComplete({ ...score, retried })}>{last ? 'Ver resultados' : 'Siguiente caso'} <ArrowRight size={17}/></Button>
+      <Button onClick={() => onComplete({ ...score, retried })}>
+        {submitTimed ? 'Terminar práctica' : last ? 'Ver resultados' : 'Siguiente caso'} <ArrowRight size={17}/>
+      </Button>
     </div>
   </Card>;
 }

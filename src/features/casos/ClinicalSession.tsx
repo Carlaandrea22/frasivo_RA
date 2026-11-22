@@ -43,14 +43,16 @@ const sessionLabels = {
 function OrderingCaseView({ item, ...step }: CaseStepProps<OrderingCase>) {
   const actionMap = useMemo(() => new Map(item.actions.map(action => [action.id, action])), [item]);
   const expectedIds = useMemo(() => item.actions.map(action => action.id), [item]);
+  const timed = !!step.submitTimed;
   const initialOrder = useMemo(() => {
     const ids = [...expectedIds];
     for (let index = ids.length - 1; index > 0; index -= 1) {
       const swap = Math.floor(Math.random() * (index + 1));
       [ids[index], ids[swap]] = [ids[swap], ids[index]];
     }
+    if (timed && ids.every((id, index) => id === expectedIds[index])) [ids[0], ids[1]] = [ids[1], ids[0]];
     return ids;
-  }, [expectedIds]);
+  }, [expectedIds, timed]);
   const [order, setOrder] = useState<string[]>(initialOrder);
   const [lockedIds, setLockedIds] = useState<string[]>([]);
   const [drag, setDrag] = useState<{ id: string; pointerId: number; originX: number; originY: number; x: number; y: number; targetId: string }>();
@@ -180,7 +182,10 @@ function OrderingCaseView({ item, ...step }: CaseStepProps<OrderingCase>) {
       <div className="lumar-actions">
         <Button variant="secondary" onClick={reset}><RotateCcw size={17}/> Reiniciar</Button>
         <Button variant="secondary" disabled={lockedIds.length >= hintLimit} onClick={useHint}><Lightbulb size={17}/> Pista de orden</Button>
-        <Button onClick={() => setScore(scoreOrderedActions(order, expectedIds, lockedIds))}>Comprobar orden</Button>
+        <Button onClick={() => {
+          const result = scoreOrderedActions(order, expectedIds, lockedIds);
+          if (!step.submitTimed || step.submitTimed(result)) setScore(result);
+        }}>Comprobar orden</Button>
       </div>
       <p className="clinical-hint-status" role="status">
         {lockedIds.length >= hintLimit
@@ -235,25 +240,30 @@ function MultipleChoiceCaseView({ item, ...step }: CaseStepProps<MultipleChoiceC
           if (discardedId) setDiscarded(discardedId);
           setHintUsed(true);
         }}><Lightbulb size={17}/> Descartar una opción</Button>
-        <Button disabled={!selected} onClick={() => selected && setScore({
-          ...scoreMultipleChoice(selected, item.correctId),
-          hints: hintUsed ? 1 : 0,
-        })}>Comprobar respuesta</Button>
+        <Button disabled={!selected} onClick={() => {
+          if (!selected) return;
+          const result = { ...scoreMultipleChoice(selected, item.correctId), hints: hintUsed ? 1 : 0 };
+          if (!step.submitTimed || step.submitTimed(result)) setScore(result);
+        }}>Comprobar respuesta</Button>
       </div>
     </Card>
   </div>;
 }
 
-function CaseView({ item, onComplete, last }: Pick<CaseStepProps<ClinicalCase>, 'item' | 'onComplete' | 'last'>) {
+function CaseView({ item, onComplete, last, submitTimed }: Pick<CaseStepProps<ClinicalCase>, 'item' | 'onComplete' | 'last' | 'submitTimed'>) {
   const [retried, setRetried] = useState(false);
-  const step = { onComplete, last, retried, markRetry: () => setRetried(true) };
+  const step = { onComplete, last, submitTimed, retried, markRetry: () => setRetried(true) };
   if (item.kind === 'interview') return <InterviewCaseView item={item} {...step}/>;
   if (item.kind === 'investigation') return <InvestigationCaseView item={item} {...step}/>;
   if (item.kind === 'ordering') return <OrderingCaseView item={item} {...step}/>;
   return <MultipleChoiceCaseView item={item} {...step}/>;
 }
 
-export function ClinicalSession({ caseIds: sessionIds, onExit }: { caseIds: readonly string[]; onExit: () => void }) {
+export function ClinicalSession({ caseIds: sessionIds, onExit, finishTimed }: {
+  caseIds: readonly string[];
+  onExit: () => void;
+  finishTimed?: () => boolean;
+}) {
   const [index, setIndex] = useState(0);
   const [total, setTotal] = useState<Score>({ correct: 0, errors: 0, hints: 0, assisted: 0 });
   const [levels, setLevels] = useState<Record<PerformanceLevel, number>>({ strong: 0, partial: 0, review: 0 });
@@ -264,8 +274,8 @@ export function ClinicalSession({ caseIds: sessionIds, onExit }: { caseIds: read
 
   if (!item) return <ClinicalSummary total={total} count={sessionIds.length} levels={levels} onExit={onExit}/>;
 
-  const complete = (score: Score) => {
-    if (lastRecordedId.current === item.id) return;
+  const save = (score: Score) => {
+    if (lastRecordedId.current === item.id) return false;
     lastRecordedId.current = item.id;
     recordPractice({
       areaId: 'anatomy',
@@ -277,8 +287,13 @@ export function ClinicalSession({ caseIds: sessionIds, onExit }: { caseIds: read
       hints: score.hints ?? 0,
       assisted: score.assisted,
       retried: score.retried,
+      quick: finishTimed ? true : undefined,
       context: score.investigation && { kind: 'caso', ...score.investigation },
     });
+    return true;
+  };
+  const complete = (score: Score) => {
+    if (!save(score)) return;
     setTotal(previous => ({
       correct: previous.correct + score.correct,
       errors: previous.errors + score.errors,
@@ -303,7 +318,8 @@ export function ClinicalSession({ caseIds: sessionIds, onExit }: { caseIds: read
       <h1>{item.titleEs}</h1>
       <p className="lumar-subtitle">{item.instructionsEs}</p>
     </header>
-    <CaseView key={item.id} item={item} onComplete={complete} last={index === sessionIds.length - 1}/>
+    <CaseView key={item.id} item={item} onComplete={finishTimed ? onExit : complete} last={index === sessionIds.length - 1}
+      submitTimed={finishTimed && (score => finishTimed() && save(score))}/>
     <p className="clinical-disclaimer">Material educativo provisional basado en la fuente indicada. No sustituye formación clínica supervisada.</p>
   </section>;
 }

@@ -13,7 +13,7 @@ import { Segmented } from '../../shared/ui/Segmented';
 import { Relacionar, Repasar, Senalar, Ubicar } from './Actividades';
 import {
   asignar, corregir, emparejar, explicacion, guardarResultado, leerResultado, modeloDelResultado, nombreEstructura,
-  rutaFicha, rutaResultado, rutaReto, rutaRetos, tituloResultadoReto, ultimoIntento,
+  rutaFicha, rutaResultado, rutaReto, rutaRetos, tituloResultadoReto, tituloRetoParaEstructura, ultimoIntento,
   type Correccion, type Respuestas,
 } from './intentos';
 import './retos.css';
@@ -75,7 +75,7 @@ function retoParaModelo(reto: Reto, modeloId: string): Reto {
   if (!primera) return reto;
   return {
     ...reto,
-    titulo: `${tipos[reto.tipo].nombre} · ${nombreEstructura(modeloId)}`,
+    titulo: tituloRetoParaEstructura(reto, modeloId),
     estructurasRelacionadas: [modeloId],
     preguntas: [primera, ...otras],
   };
@@ -251,7 +251,11 @@ function Preparar({ reto }: { reto: Reto }) {
   </section>;
 }
 
-function Juego({ reto, modo }: { reto: Reto; modo: ModoReto }) {
+export function Juego({ reto, modo, quick }: {
+  reto: Reto;
+  modo: ModoReto;
+  quick?: { finish: () => boolean; exit: () => void };
+}) {
   const ubicar = reto.tipo === 'ubica-partes';
   const tablero = ubicar || reto.tipo === 'relaciona-funcion';
   const rondas = useMemo(() => rondasDeReto(reto), [reto]);
@@ -263,6 +267,7 @@ function Juego({ reto, modo }: { reto: Reto; modo: ModoReto }) {
   const [previos, setPrevios] = useState<Readonly<Record<string, readonly string[]>>>({});
   const [correccion, setCorreccion] = useState<Correccion[]>();
   const [terminadas, setTerminadas] = useState<Correccion[]>([]);
+  const [intentoRapido, setIntentoRapido] = useState<string>();
   const guardado = useRef(false);
   const heading = useRef<HTMLHeadingElement>(null);
   const ayudaId = useId();
@@ -291,9 +296,11 @@ function Juego({ reto, modo }: { reto: Reto; modo: ModoReto }) {
   function avanzar(filas: Correccion[]) {
     const todas = [...terminadas,...filas];
     if (ultima) {
-      if (guardado.current) return;
+      if (guardado.current || (quick && !quick.finish())) return;
       guardado.current = true;
-      window.location.hash = guardarResultado(reto, { modo, totalPistas: pistasTotales, correcciones: todas });
+      const intento = guardarResultado(reto, { modo, totalPistas: pistasTotales, correcciones: todas, quick: quick ? true : undefined });
+      if (quick) setIntentoRapido(intento.id);
+      else window.location.hash = rutaResultado(reto.id, intento.id);
       return;
     }
     setTerminadas(todas);
@@ -328,12 +335,15 @@ function Juego({ reto, modo }: { reto: Reto; modo: ModoReto }) {
   const opcionProps = { pregunta, respuesta: respuestas[pregunta.id], bloqueado: !!correccion, onSelect: seleccionar };
   const progreso = tablero ? preguntas.filter(p => respuestas[p.id]).length : paso+1;
 
+  if (intentoRapido && quick) return <Resultados reto={reto} intento={intentoRapido} quickExit={quick.exit}/>;
+
   return <section className="lumar-page retos-page">
     <header className="retos-run-header">
-      <div><p className="retos-meta">{modos[modo].label}</p><h1>{reto.titulo}</h1></div>
+      <div>{!quick && <p className="retos-meta">{modos[modo].label}</p>}<h1>{reto.titulo}</h1></div>
       <BottomSheet trigger="Salir" title="¿Salir del reto?">
         <p>Se perderá lo que respondiste en este intento.</p>
-        <a className="button button--primary lumar-link retos-quit" href={rutaRetos}><LogOut size={16} aria-hidden="true"/>Salir del reto</a>
+        {quick ? <Button onClick={quick.exit}><LogOut size={16} aria-hidden="true"/>Salir del reto</Button>
+          : <a className="button button--primary lumar-link retos-quit" href={rutaRetos}><LogOut size={16} aria-hidden="true"/>Salir del reto</a>}
       </BottomSheet>
     </header>
     <div className="retos-progress">
@@ -381,7 +391,7 @@ function Juego({ reto, modo }: { reto: Reto; modo: ModoReto }) {
   </section>;
 }
 
-function Resultados({ reto, intento }: { reto: Reto; intento: string }) {
+function Resultados({ reto, intento, quickExit }: { reto: Reto; intento: string; quickExit?: () => void }) {
   const resultado = leerResultado(reto,intento);
   const [soloErrores, setSoloErrores] = useState(false);
   const lista = useRef<HTMLHeadingElement>(null);
@@ -397,15 +407,17 @@ function Resultados({ reto, intento }: { reto: Reto; intento: string }) {
   const errores = correcciones.filter(row => !row.acierto || row.erroresPrevios.length > 0);
   const filas = soloErrores ? errores : correcciones;
   return <section className="lumar-page retos-page">
-    <header><p className="retos-meta">{modos[modo].label}</p><h1 tabIndex={-1} ref={titulo}>Resultado del reto</h1></header>
+    <header><p className="retos-meta">{registro.quick ? 'Práctica rápida' : modos[modo].label}</p><h1 tabIndex={-1} ref={titulo}>Resultado del reto</h1></header>
     <Card className="retos-score">
       <h2>{tituloResultadoReto(reto, registro)}</h2>
       <p className="retos-score-value">{registro.correct} de {registro.correct+registro.errors}</p>
       <p>{registro.errors} {registro.errors === 1 ? 'error final' : 'errores finales'} · {registro.hints} {registro.hints === 1 ? 'pista usada' : 'pistas usadas'}</p>
     </Card>
     <div className="retos-actions">
-      <a className="button button--primary lumar-link" href={repetir}>Repetir</a>
-      <a className="button button--secondary lumar-link" href={rutaRetos}>Otro reto</a>
+      {quickExit ? <Button onClick={quickExit}>Terminar práctica</Button> : <>
+        <a className="button button--primary lumar-link" href={repetir}>Repetir</a>
+        <a className="button button--secondary lumar-link" href={rutaRetos}>Otro reto</a>
+      </>}
       {errores.length > 0 && <Button variant="secondary" aria-pressed={soloErrores}
         onClick={() => { setSoloErrores(!soloErrores); lista.current?.focus(); }}>
         {soloErrores ? 'Ver todas las preguntas' : 'Repasar errores'}

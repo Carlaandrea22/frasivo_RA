@@ -23,7 +23,7 @@ function registrarSiEsNuevo(franja: FranjaRecordatorio, dia: number) {
   return true;
 }
 
-export function RecordatorioRacha({ pausado }: { pausado: boolean }) {
+export function RecordatorioRacha({ pausado, oculto = false }: { pausado: boolean; oculto?: boolean }) {
   const { events } = useSyncExternalStore(subscribeProgress, getProgress);
   const { completadosHoy, dias, fecha } = useRacha(events, horasDeRecordatorio);
   const [mostrado, setMostrado] = useState<string>();
@@ -40,7 +40,7 @@ export function RecordatorioRacha({ pausado }: { pausado: boolean }) {
     if (!document.hidden && registrarSiEsNuevo(franja, dia)) setMostrado(turno);
   }, [activo, fecha, turno, franja, dia]);
 
-  if (!activo || !franja || mostrado !== turno) return null;
+  if (oculto || !activo || !franja || mostrado !== turno) return null;
   const { actual } = obtenerEvolucion(dias);
   return <aside className="recordatorio-racha" aria-labelledby="recordatorio-racha-titulo">
     <div className="recordatorio-racha-retrato"><Mascota etapa={actual.id} animacion="estatica"/></div>

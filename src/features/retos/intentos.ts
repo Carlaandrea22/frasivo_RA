@@ -14,6 +14,7 @@ interface Resultado {
   modo: ModoReto;
   totalPistas: number;
   correcciones: readonly Correccion[];
+  quick?: boolean;
 }
 
 const claves = 'lumar.retos:resultado:v1:';
@@ -23,6 +24,7 @@ export const rutaReto = (id: string) => `${rutaRetos}/${id}`;
 export const rutaResultado = (reto: string, intento: string) => `${rutaReto(reto)}/resultado/${encodeURIComponent(intento)}`;
 export const rutaFicha = (id: string) => `#explorar/estructura/${id}`;
 export const nombreEstructura = (id: string) => estructuras.find(item => item.id === id)?.nombreEs ?? id;
+export const tituloRetoParaEstructura = (reto: Reto, id: string) => `${retoTypeLabels[reto.tipo]} · ${nombreEstructura(id)}`;
 
 export function modeloDelResultado(reto: Reto, registro: PracticeEvent) {
   return (reto.tipo === 'ubica-partes' || reto.tipo === 'senala-estructura') &&
@@ -31,9 +33,10 @@ export function modeloDelResultado(reto: Reto, registro: PracticeEvent) {
 }
 
 export function tituloResultadoReto(reto: Reto, registro: PracticeEvent) {
+  if (registro.quick) return tituloRetoParaEstructura(reto, registro.itemId);
   const modeloId = modeloDelResultado(reto, registro);
   return modeloId && reto.estructurasRelacionadas.length > 1
-    ? `${retoTypeLabels[reto.tipo]} · ${nombreEstructura(modeloId)}` : reto.titulo;
+    ? tituloRetoParaEstructura(reto, modeloId) : reto.titulo;
 }
 
 export function asignar(respuestas: Respuestas, pregunta: string, opcion: string): Respuestas {
@@ -70,13 +73,14 @@ export function guardarResultado(reto: Reto, resultado: Resultado) {
   const intento = recordPractice({
     ...target, correct, errors: resultado.correcciones.length - correct, hints: resultado.totalPistas,
     retried: resultado.correcciones.some(row => row.erroresPrevios.length > 0),
+    quick: resultado.quick,
     context: { kind: 'reto', mode: resultado.modo },
   });
   const key = claves + intento.id;
   const value = JSON.stringify(resultado.correcciones);
   try { localStorage.setItem(key, value); } catch { memoria.set(key, value); }
-  if (resultado.modo === 'evaluacion') recordDemonstration({ ...target, practiceEventId: intento.id });
-  return rutaResultado(reto.id, intento.id);
+  if (resultado.modo === 'evaluacion' && !resultado.quick) recordDemonstration({ ...target, practiceEventId: intento.id });
+  return intento;
 }
 
 export function ultimoIntento(reto: Reto) {

@@ -68,8 +68,8 @@ test('la investigación permite seguir una ruta débil, reiniciar y guardar solo
   await choose(page, 'Elegir una hipótesis');
   await page.getByText('Releer la conversación').click();
   await expect(page.getByText('Todavía no, no tengo termómetro en casa.')).toBeVisible();
-  await choose(page, /Una posible enfermedad transmitida por alimentos/);
-  await expect(page.getByRole('heading', { name: 'Revisa tu camino' })).toBeVisible();
+  await choose(page, /Un efecto de un medicamento reciente/);
+  await expect(page.getByRole('heading', { name: 'Revisa tu hipótesis' })).toBeVisible();
   await expect(page.getByText(/0 de 2 hallazgos clave/)).toBeVisible();
   await expect(page.getByText('Por qué encaja con el caso')).toHaveCount(0);
   await choose(page, 'Reintentar desde el primer turno');
@@ -81,8 +81,8 @@ test('la investigación permite seguir una ruta débil, reiniciar y guardar solo
   await choose(page, /Has notado cambios al ir al baño/);
   await choose(page, 'Elegir una hipótesis');
   await choose(page, /Una posible enfermedad transmitida por alimentos/);
-  await expect(page.getByRole('heading', { name: 'Investigación bien orientada' })).toBeVisible();
-  await expect(page.getByText(/2 de 2 hallazgos clave.*Hipótesis respaldada/)).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Hipótesis correcta' })).toBeVisible();
+  await expect(page.getByText(/2 de 2 hallazgos clave.*1 de 1 punto/)).toBeVisible();
   const stomach = page.getByRole('region', { name: 'Modelo 3D · Estómago' });
   await expect(stomach).toHaveAttribute('data-viewer-state', 'ready', { timeout: 15000 });
   await next(page);
@@ -149,12 +149,12 @@ test('completa los cuatro modos en cinco casos y muestra los resultados al final
   await choose(page, 'Ver resultados');
 
   await expect(page.getByRole('heading', { name: 'Completaste los cinco casos' })).toBeVisible();
-  await expect(page.getByText('87%')).toBeVisible();
+  await expect(page.getByText('92%')).toBeVisible();
   await expect(page.locator('.clinical-confetti')).toBeVisible();
   const distribution = page.getByRole('list', { name: 'Distribución del desempeño' });
   await expect(distribution.getByRole('listitem')).toHaveCount(3);
-  await expect(distribution).toContainText(/Buen dominio\s*3/);
-  await expect(distribution).toContainText(/En progreso\s*1/);
+  await expect(distribution).toContainText(/Buen dominio\s*4/);
+  await expect(distribution).toContainText(/En progreso\s*0/);
   await expect(distribution).toContainText(/Para repasar\s*1/);
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(375);
   await page.getByRole('link', { name: 'Ver mis prácticas' }).click();

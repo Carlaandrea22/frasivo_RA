@@ -97,7 +97,7 @@ describe('sesión de casos clínicos', () => {
     }
   });
 
-  it('ofrece 27 rutas por investigación y distingue una hipótesis con evidencia de una adivinanza', () => {
+  it('ofrece 27 rutas y da el punto completo por la hipótesis correcta', () => {
     for (const item of clinicalCases) {
       if (item.kind !== 'investigation') continue;
       expect(validateInterviewGraph(item)).toEqual({ valid: true, pathCount: 27, errors: [] });
@@ -106,8 +106,12 @@ describe('sesión de casos clínicos', () => {
           getInterviewChoices(item, [first.id, second.id]).map(third =>
             scoreInvestigation(item, [first.id, second.id, third.id], item.preferredHypothesisId))));
       expect(scores).toHaveLength(27);
-      expect(scores).toContainEqual(expect.objectContaining({ correct: 0, errors: 3, hypothesisSupported: false }));
-      expect(scores).toContainEqual(expect.objectContaining({ correct: 3, errors: 0, hypothesisSupported: true }));
+      expect(scores.some(score => score.findings.length === 0)).toBe(true);
+      expect(scores.every(score => score.correct === 1 && score.errors === 0)).toBe(true);
+      const incorrect = item.hypotheses.find(option => option.id !== item.preferredHypothesisId)!;
+      expect(scoreInvestigation(item, item.nodes.map(node => node.id), incorrect.id)).toMatchObject({
+        correct: 0, errors: 1, findings: item.findings,
+      });
     }
   });
 

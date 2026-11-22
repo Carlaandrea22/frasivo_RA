@@ -1,0 +1,20 @@
+.quick-practice-clock {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  margin: 0 auto var(--space-3);
+  padding: 8px 14px;
+  border: 1px solid #add1be;
+  border-radius: 14px;
+  background: #eff9f2;
+  color: var(--forest);
+}
+.quick-practice-clock strong { display: flex; align-items: center; gap: 7px; }
+.quick-practice-clock [role="timer"] { font-size: 1.1rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.quick-practice-clock[data-urgent="true"] { border-color: #d6a675; background: #fff2e1; color: #813b15; }
+.lumar-card.quick-timeout { display: grid; gap: var(--space-3); justify-items: start; }

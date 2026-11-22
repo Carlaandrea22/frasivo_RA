@@ -111,9 +111,8 @@ export function validateInterviewGraph(item: { roots: readonly string[]; nodes: 
 export function scoreInvestigation(item: InvestigationCase, path: readonly string[], hypothesisId: string) {
   const foundIds = new Set(path.map(id => item.nodes.find(node => node.id === id)?.findingId));
   const findings = item.findings.filter(finding => foundIds.has(finding.id));
-  const hypothesisSupported = findings.length > 0 && hypothesisId === item.preferredHypothesisId;
-  const correct = findings.length + Number(hypothesisSupported);
-  return { findings, hypothesisSupported, correct, errors: item.findings.length + 1 - correct };
+  const correct = Number(hypothesisId === item.preferredHypothesisId);
+  return { findings, correct, errors: 1 - correct };
 }
 
 export type PerformanceLevel = 'strong' | 'partial' | 'review';

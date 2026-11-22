@@ -89,6 +89,10 @@ export function InterviewCaseView({ item, ...step }: CaseStepProps<InterviewCase
   const [recall, setRecall] = useState<ReturnType<typeof createInterviewExchange>[]>([]);
   const [answers, setAnswers] = useState<string[]>([]);
   const exchange = recall[answers.length];
+  const grade = (values: readonly string[]) => {
+    const correct = recall.filter(({ recall: question }, index) => question.correctId === values[index]).length;
+    return { correct, errors: recall.length - correct };
+  };
 
   if (!recall.length) return <Conversation item={item} finishLabel="Comenzar preguntas de comprensión"
     onFinish={path => setRecall(path.map(node => createInterviewExchange(node)))}/>;
@@ -98,9 +102,9 @@ export function InterviewCaseView({ item, ...step }: CaseStepProps<InterviewCase
       ...entry,
       chosen: entry.recall.options.find(option => option.id === answers[index]),
     }]);
-    const correct = recall.length - missed.length;
-    return <CaseResult {...step} title={`${correct} de ${recall.length} respuestas correctas`}
-      score={{ correct, errors: missed.length }} onRetry={() => setAnswers([])}
+    const score = grade(answers);
+    return <CaseResult {...step} title={`${score.correct} de ${recall.length} respuestas correctas`}
+      score={score} onRetry={() => setAnswers([])}
       solutionLabel="Ver respuestas correctas" solution={missed.length > 0 && <ol className="clinical-correction-list" aria-label="Preguntas para repasar">
         {missed.map(({ prompt, chosen, response }) => <li key={prompt.id}>
           <strong><Bilingual es={prompt.promptEs} en={prompt.promptEn}/></strong>
@@ -122,7 +126,11 @@ export function InterviewCaseView({ item, ...step }: CaseStepProps<InterviewCase
         <h3><Bilingual es={prompt.promptEs} en={prompt.promptEn}/></h3>
       </div>
       <div className="clinical-answer-list" key={answers.length}>
-        {question.options.map(option => <Button key={option.id} variant="answer" onClick={() => setAnswers([...answers, option.id])}>
+        {question.options.map(option => <Button key={option.id} variant="answer" onClick={() => {
+          const values = [...answers, option.id];
+          if (values.length === recall.length && step.submitTimed && !step.submitTimed(grade(values))) return;
+          setAnswers(values);
+        }}>
           <Bilingual es={option.textEs} en={option.textEn}/>
         </Button>)}
       </div>
@@ -139,6 +147,11 @@ export function InvestigationCaseView({ item, ...step }: CaseStepProps<Investiga
   };
 
   if (!path) return <Conversation item={item} finishLabel="Elegir una hipótesis" onFinish={setPath}/>;
+  const questionIds = path.map(node => node.id);
+  const grade = (id: string) => {
+    const { findings, correct, errors } = scoreInvestigation(item, questionIds, id);
+    return { findings, correct, errors, investigation: { questionIds, hypothesisId: id } };
+  };
 
   if (!hypothesisId) return <Card className="clinical-question-card">
     <h2><Bilingual es="¿Qué investigarías primero?" en="What would you investigate first?"/></h2>
@@ -148,21 +161,23 @@ export function InvestigationCaseView({ item, ...step }: CaseStepProps<Investiga
       <Transcript item={item} path={path}/>
     </details>
     <div className="clinical-answer-list">
-      {item.hypotheses.map(option => <Button key={option.id} variant="answer" onClick={() => setHypothesisId(option.id)}>
+      {item.hypotheses.map(option => <Button key={option.id} variant="answer" onClick={() => {
+        if (step.submitTimed && !step.submitTimed(grade(option.id))) return;
+        setHypothesisId(option.id);
+      }}>
         <Bilingual es={option.textEs} en={option.textEn}/>
       </Button>)}
     </div>
-    <Button variant="text" className="clinical-retry" onClick={retry}><RotateCcw size={17}/> Volver al primer turno</Button>
+    {!step.submitTimed && <Button variant="text" className="clinical-retry" onClick={retry}><RotateCcw size={17}/> Volver al primer turno</Button>}
   </Card>;
 
-  const questionIds = path.map(node => node.id);
-  const { findings, hypothesisSupported, correct, errors } = scoreInvestigation(item, questionIds, hypothesisId);
-  const score = { correct, errors, investigation: { questionIds, hypothesisId } };
+  const score = grade(hypothesisId);
+  const { findings, correct, errors } = score;
   const preferred = item.hypotheses.find(option => option.id === item.preferredHypothesisId);
   const chosen = item.hypotheses.find(option => option.id === hypothesisId);
   const missing = item.findings.filter(finding => !findings.includes(finding));
 
-  return <CaseResult {...step} title={errors === 0 ? 'Investigación bien orientada' : 'Revisa tu camino'} score={score}
+  return <CaseResult {...step} title={errors === 0 ? 'Hipótesis correcta' : 'Revisa tu hipótesis'} score={score}
     onRetry={retry} retryLabel="Reintentar desde el primer turno" solutionLabel="Ver hipótesis de referencia" solution={preferred && <>
       <strong><Bilingual es={preferred.textEs} en={preferred.textEn}/></strong>
       <p><strong>Por qué encaja con el caso</strong><Bilingual es={item.debriefEs} en={item.debriefEn}/></p>
@@ -171,7 +186,7 @@ export function InvestigationCaseView({ item, ...step }: CaseStepProps<Investiga
         <ul className="clinical-findings">{missing.map(finding => <li key={finding.id}><Bilingual es={finding.textEs} en={finding.textEn}/></li>)}</ul>
       </>}
     </>}>
-    <p>{findings.length} de {item.findings.length} hallazgos clave · {hypothesisSupported ? 'Hipótesis respaldada' : 'Hipótesis por revisar'}</p>
+    <p>{findings.length} de {item.findings.length} hallazgos clave · {correct} de 1 punto</p>
     {chosen && chosen.id !== preferred?.id && <p><strong>Tu hipótesis</strong><Bilingual es={chosen.textEs} en={chosen.textEn}/></p>}
     {findings.length > 0 && <ul className="clinical-findings" aria-label="Hallazgos que obtuviste">
       {findings.map(finding => <li key={finding.id}><Bilingual es={finding.textEs} en={finding.textEn}/></li>)}

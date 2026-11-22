@@ -44,7 +44,9 @@ export function PracticeSummary({ event, history = false }: { event: PracticeEve
       <Heading>{practiceTitle(event)}</Heading>
       <time dateTime={event.timestamp}>{fecha.format(new Date(event.timestamp))}</time>
     </div>
-    {(group || mode) && <p className="progress-entry-type">{[group && practiceGroupLabels[group], type, mode].filter(Boolean).join(' · ')}</p>}
+    {(group || mode || event.quick) && <p className="progress-entry-type">
+      {[group && practiceGroupLabels[group], type, event.quick ? 'Práctica rápida' : mode].filter(Boolean).join(' · ')}
+    </p>}
     <PracticeMetrics {...event}/>
     {retried && <p className="progress-caption">
       {group === 'challenge' ? 'Incluye respuestas reintentadas' : event.errors ? 'Se volvió a intentar' : 'Resuelto en un reintento'}
