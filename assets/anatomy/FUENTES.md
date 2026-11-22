@@ -1,4 +1,4 @@
-# Fuentes de las capas del atlas corporal
+# Fuentes de los modelos anatómicos
 
 **Atribución**
 
@@ -12,13 +12,19 @@ La [licencia vigente del archivo oficial de DBCLS](https://dbarchive.bioscienced
 | [Elementos IS-A](https://dbarchive.biosciencedbc.jp/data/bodyparts3d/LATEST/isa_element_parts.txt), [elementos PART-OF](https://dbarchive.biosciencedbc.jp/data/bodyparts3d/LATEST/partof_element_parts.txt), [catálogo IS-A](https://dbarchive.biosciencedbc.jp/data/bodyparts3d/LATEST/isa_parts_list_e.txt) y [catálogo PART-OF](https://dbarchive.biosciencedbc.jp/data/bodyparts3d/LATEST/partof_parts_list_e.txt) | 4.0 · 19 de junio de 2013 | Selección de conceptos FMA y agrupación de mallas elementales |
 | [BodyParts3D · mallas OBJ 3.0, reducción publicada del 99 %](https://dbarchive.biosciencedbc.jp/data/bodyparts3d/20110915/BodyParts3D_3.0_obj_99.zip) y [catálogo 3.0](https://dbarchive.biosciencedbc.jp/data/bodyparts3d/20110915/parts_list_e.txt) | 3.0 · 15 de septiembre de 2011 | Rectos abdominales, cinco lóbulos pulmonares, dorsales anchos y siete grupos musculares de la cara. El compuesto pulmonar probado de 4.0 mostraba sobre todo el árbol bronquial y vascular en vista frontal. |
 
-Descargas y OBJ originales extraídos el 21 de noviembre de 2026 bajo `assets/_fuentes/`. Los elementos utilizados por nodo se conservan en [anchors.json](body/anchors.json). El archivo OBJ del oblicuo externo derecho 3.0 se descargó como referencia de alineación y no forma parte del modelo final. No se usó un segundo atlas ni se incorporaron modelos de pago, con cuenta o con licencia NC.
+Los OBJ originales de Cuerpo se extrajeron el 21 de noviembre de 2026 bajo `assets/_fuentes/`. Los elementos utilizados por nodo se conservan en [anchors.json](body/anchors.json). El OBJ del oblicuo externo derecho 3.0 sirvió como referencia de alineación.
 
-## Modificaciones
+## Explorar 3D
 
-Los [GLB con regiones seleccionables de Explorar](../../src/content/anatomy/modelos/README.md) conservan los triángulos, posiciones, normales y materiales originales. El [generador](../../scripts/generate-explorar-regions.mjs) agrupa superficies y estima los límites cuando las partes comparten una malla. Para el cráneo, la columna, el cerebro, el hígado y los intestinos, [el mapa de regiones](../../scripts/map-explorar-atlas-regions.py) reutiliza los elementos de la tabla PART-OF de BodyParts3D 4.0. Los derivados conservan la atribución y licencia CC BY 4.0. Las regiones y anclajes siguen pendientes de revisión anatómica.
+Las fichas de huesos, músculos y órganos usan principalmente BodyParts3D 3.0 `obj_95`, bajo la licencia CC BY 4.0 vigente de DBCLS. Se usaron piezas 4.0 donde aportaban mejor cobertura o continuidad, y como guía para delimitar regiones del hígado 3.0. El cráneo 3.0 reúne 22 huesos. El corazón en corte es un modelo didáctico original de LumAR. [Versión 3.0](https://dbarchive.biosciencedbc.jp/data/bodyparts3d/20110915/) · [Fuentes de las 24 fichas renovadas](../../docs/renovacion/explorar-modelos/fase2/b/FUENTES.md) · [Huesos nuevos](../../docs/renovacion/explorar-modelos/fase2/c/README.md) · [Músculos nuevos](../../docs/renovacion/explorar-modelos/fase2/d/README.md)
 
-Explorar incluye [clips de pronunciación en inglés estadounidense](../../src/content/anatomy/pronunciacion/README.md) generados con Piper y el modelo femenino LJ Speech, entrenado con grabaciones de dominio público.
+Kristen Browne y Heidi Schlehlein crearon los ocho archivos del Human Reference Atlas publicados por HuBMAP que se usaron para páncreas, bazo, laringe, vejiga, tráquea y bronquios principales, y uréteres. La licencia CC BY 4.0 se verificó por archivo. La tabla de procedencia identifica el nombre, la versión y la ficha oficial de cada modelo. [Licencia CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) · [Archivos y comparaciones de órganos](../../docs/renovacion/explorar-modelos/fase2/e/FUENTES.md)
+
+LumAR preparó las mallas en Blender con geometría reducida por ficha, normales ponderadas, materiales PBR y oclusión ambiental en `COLOR_0`. El generador asigna las regiones y coloca sus anclajes sobre la malla. Los GLB se exportan con cuantización y Meshopt. Las regiones y los anclajes siguen pendientes de revisión anatómica. [Manifiesto por archivo y malla de origen](../../scripts/explorar-detail-sources.json) · [Regeneración de los GLB](../../src/content/anatomy/modelos/README.md)
+
+Explorar incluye clips de pronunciación en inglés estadounidense generados con Piper y el modelo femenino LJ Speech, entrenado con grabaciones de dominio público. [Clips y modelo](../../src/content/anatomy/pronunciacion/README.md)
+
+## Modificaciones de Cuerpo
 
 En Blender 5.2.2 LTS se unieron mallas elementales por estructura, se eliminaron vértices coincidentes, se recalcularon normales y se redujeron triángulos con presupuestos por pieza. Se conservaron las proporciones del atlas, sus lados anatómicos y la vista anterior. El modelo usa metros y el origen vertical se desplazó hasta el extremo inferior de la tibia. Las dos mallas del recto abdominal 3.0 se desplazaron 16,6 mm hacia abajo a partir de la comparación del oblicuo externo con la edición 4.0. Los lóbulos 3.0 mantienen sus coordenadas originales en ese marco.
 

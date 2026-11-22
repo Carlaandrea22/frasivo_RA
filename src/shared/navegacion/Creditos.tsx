@@ -1,6 +1,17 @@
 import { Card } from '../ui/Card';
 import { OfflineReadiness } from '../pwa/OfflineReadiness';
 
+const hraModels = [
+  ['Páncreas', '3d-vh-m-pancreas.glb', '1.2', 'pancreas'],
+  ['Bazo', 'VH_M_Spleen.glb', '1.2', 'spleen'],
+  ['Laringe', '3d-vh-m-larynx.glb', '1.0', 'larynx'],
+  ['Vejiga urinaria', 'VH_M_Urinary_Bladder.glb', '1.1', 'urinary-bladder'],
+  ['Tráquea', '3d-vh-m-trachea.glb', '1.0', 'trachea'],
+  ['Bronquios principales', '3d-vh-m-main-bronchus.glb', '1.0', 'main-bronchus'],
+  ['Uréter derecho', 'VH_M_Ureter_R.glb', '1.1', 'ureter-r'],
+  ['Uréter izquierdo', 'VH_M_Ureter_L.glb', '1.1', 'ureter-l'],
+] as const;
+
 export function Creditos() {
   return <section className="lumar-page">
     <h1>Créditos</h1>
@@ -8,10 +19,19 @@ export function Creditos() {
     <Card>
       <h2>Modelos anatómicos</h2>
       <p lang="en">BodyParts3D, © The Database Center for Life Science licensed under CC Attribution 4.0 International.</p>
-      <p>LumAR adapta las mallas para móvil y renderiza las vistas del atlas en Blender.</p>
+      <p>Las fichas de Explorar usan BodyParts3D 3.0 y 4.0. LumAR prepara las regiones, los materiales y las vistas del atlas en Blender.</p>
       <ul>
         <li><a href="https://dbarchive.biosciencedbc.jp/en/bodyparts3d/download.html">Descargas de BodyParts3D</a></li>
         <li><a href="https://dbarchive.biosciencedbc.jp/en/bodyparts3d/lic.html">Licencia CC BY 4.0</a></li>
+      </ul>
+      <h3>Human Reference Atlas</h3>
+      <p>Kristen Browne y Heidi Schlehlein crearon estos ocho modelos, publicados por HuBMAP bajo <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0 Internacional</a>. LumAR adaptó las mallas para seis fichas de Explorar.</p>
+      <ul>
+        {hraModels.map(([name, file, version, slug]) => <li key={file}>
+          <a href={`https://cdn.humanatlas.io/hra-releases/v2.0/docs/ref-organs/3d-vh-m-${slug}.html`}>
+            {name} · {file} ({version})
+          </a>
+        </li>)}
       </ul>
       <h3>Corazón en corte</h3>
       <p>Modelo didáctico original de LumAR, creado en Blender.</p>
@@ -51,6 +71,7 @@ export function Creditos() {
         <li><a href="https://github.com/google/fonts/blob/main/ofl/manrope/OFL.txt">Manrope · SIL OFL 1.1</a></li>
         <li><a href="https://lucide.dev/license">Íconos de Lucide · ISC</a></li>
         <li><a href="https://github.com/mrdoob/three.js/blob/dev/LICENSE">three.js · MIT</a></li>
+        <li><a href="https://github.com/gkjohnson/three-mesh-bvh/blob/v0.9.18/LICENSE">three-mesh-bvh · MIT</a></li>
       </ul>
     </Card>
     <Card>

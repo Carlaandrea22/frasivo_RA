@@ -2,7 +2,7 @@
 
 LumAR es una PWA educativa de anatomía humana. Permite pasar del cuerpo en cámara a un modelo 3D, practicar lo observado y aplicar ese conocimiento en una entrevista clínica simulada. La interfaz, las definiciones y las explicaciones van en español. La pronunciación de los términos en inglés usa clips de audio generados con Piper.
 
-Cloudflare Pages publica LumAR desde `main`. El equipo integra los cambios en `Luis` y adelanta `main` cuando el commit pasa GitHub Actions y se comprueba en la vista previa. La URL pública está **pendiente**. [Configuración de Cloudflare Pages](HOSTING.md)
+Cloudflare Pages publica LumAR desde `main`. El equipo integra los cambios en `Luis` y adelanta `main` cuando el commit pasa GitHub Actions y se comprueba en la vista previa. [App pública](https://frasivo-ra.pages.dev) · [Vista previa de Luis](https://luis.frasivo-ra.pages.dev) · [Configuración de Cloudflare Pages](HOSTING.md)
 
 ## Recorrido
 

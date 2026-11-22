@@ -1,0 +1,55 @@
+id,ficha,triangulos,kB_glb,fps,p95_ms,regiones,etiquetas_visibles_al_inicio
+femur,Fémur,13202,77.560,60.02,18.00,3,3
+tibia,Tibia,6822,43.624,59.98,18.60,3,3
+humerus,Húmero,16492,93.768,60.01,18.30,3,3
+radius,Radio,2714,20.264,59.99,18.40,3,3
+pelvis,Hueso coxal,9470,59.772,59.98,18.20,4,3
+patella,Rótula,1338,13.116,59.99,18.50,3,2
+ulna,Cúbito,3538,25.112,59.97,18.10,3,3
+fibula,Peroné,4544,29.208,60.02,18.40,3,3
+sternum,Esternón,35884,206.820,60.03,18.50,3,3
+skull,Cráneo,59938,648.080,59.99,18.40,7,4
+spine,Columna vertebral,59924,452.400,60.00,17.90,7,7
+clavicle,Clavícula,10252,59.252,60.00,18.10,6,6
+scapula,Escápula,39993,224.220,59.98,18.30,8,6
+ribs,Costillas,59923,361.980,60.00,18.70,8,6
+mandible,Mandíbula,21658,117.720,60.00,18.40,5,4
+hand,Mano ósea derecha,36215,229.040,59.98,18.20,18,7
+foot,Pie óseo derecho,56428,367.868,60.02,18.10,17,7
+cervical_vertebra,Vértebra cervical típica,4224,33.900,60.00,18.40,5,2
+thoracic_lumbar_vertebrae,Vértebras torácica y lumbar típicas,25490,162.308,59.96,18.40,9,4
+sacrum,Sacro y cóccix,39997,247.616,60.03,18.30,5,5
+hyoid,Hioides,5534,33.464,59.99,18.50,3,2
+biceps_brachii,Bíceps braquial,39995,257.364,59.99,18.30,2,1
+quadriceps_femoris,Cuádriceps femoral,39986,406.348,60.00,18.20,4,2
+deltoid,Deltoides,39991,255.856,59.99,18.40,3,1
+triceps_brachii,Tríceps braquial,39990,258.048,59.98,18.30,3,2
+gastrocnemius,Gastrocnemio,39989,258.464,60.02,18.60,2,2
+pectoralis_major,Pectoral mayor,39990,266.356,59.99,18.10,3,2
+trapezius,Trapecio,39991,370.108,60.01,18.20,3,2
+rectus_abdominis,Recto del abdomen,39994,406.932,60.00,18.10,2,2
+external_oblique,Oblicuo externo del abdomen,39991,511.668,60.04,18.50,4,4
+latissimus_dorsi,Dorsal ancho,39991,545.240,60.00,18.60,4,4
+gluteus_maximus,Glúteo mayor,39995,279.564,60.04,18.40,4,4
+hamstrings,Isquiotibiales,39986,382.232,60.00,18.40,3,1
+tibialis_anterior,Tibial anterior,39981,314.348,60.00,18.20,4,4
+sternocleidomastoid,Esternocleidomastoideo,39997,246.772,60.04,18.60,2,2
+diaphragm,Diafragma,39997,265.628,59.98,18.10,3,3
+heart,Corazón,16604,129.204,59.96,18.30,15,3
+lungs,Pulmones,39986,333.480,60.01,18.30,5,3
+stomach,Estómago,9384,53.104,59.99,18.20,4,4
+kidneys,Riñones,27752,138.676,60.00,18.50,2,2
+brain,Cerebro,39826,449.012,60.02,18.50,4,3
+liver,Hígado,19416,104.408,60.00,18.30,3,2
+small_intestine,Intestino delgado,39993,254.632,59.99,18.30,3,2
+large_intestine,Intestino grueso,39855,362.272,60.00,18.30,6,5
+pancreas,Páncreas,38928,198.500,60.04,18.50,5,5
+spleen,Bazo,16872,97.564,59.99,18.50,5,5
+gallbladder,Vesícula biliar,2674,18.912,60.00,18.50,4,4
+esophagus,Esófago,2642,18.872,59.99,18.00,3,3
+trachea_bronchi,Tráquea y bronquios principales,39983,270.268,60.00,18.50,7,6
+urinary_bladder,Vejiga urinaria,10071,64.876,59.99,18.30,6,2
+larynx,Laringe,13238,83.744,59.98,18.40,7,3
+adrenal_glands,Glándulas suprarrenales,29662,141.344,60.00,18.30,2,2
+ureters,Uréteres,39917,237.656,59.99,18.40,6,6
+thymus,Timo,39994,214.692,60.05,18.40,2,2

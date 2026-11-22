@@ -71,5 +71,11 @@ test('la cámara de 375 px muestra los huesos de la espalda con etiquetas biling
   expect(ribU).toBeCloseTo(lateralU, 1);
   await page.screenshot({ path: testInfo.outputPath('huesos-espalda-375.png') });
   await scapula.getByRole('button', { name: 'Ver ficha de Escápula' }).click();
-  await expect(page.getByRole('dialog', { name: 'Escápula' })).toBeVisible();
+  const detail = page.getByRole('dialog', { name: 'Escápula' });
+  await expect(detail).toBeVisible();
+  const explore = detail.getByRole('link', { name: 'Ver en Explorar 3D' });
+  await expect(explore).toHaveAttribute('href', '#explorar/estructura/scapula');
+  await page.screenshot({ path: testInfo.outputPath('enlace-escapula.png') });
+  await explore.click();
+  await expect(page.getByRole('region', { name: 'Modelo 3D de Escápula' })).toHaveAttribute('data-viewer-state', 'ready');
 });

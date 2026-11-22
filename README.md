@@ -10,9 +10,11 @@ LumAR es una PWA educativa de anatomía humana en español. La pronunciación de
 
 Retos y Casos clínicos se abren desde **Practicar**.
 
+La renovación disponible en `Luis` reúne 54 fichas, con 24 modelos renovados y 30 fichas provisionales nuevas habilitadas en Retos y Repaso. Las etiquetas de Cuerpo enlazan a la ficha correspondiente cuando está disponible. [Capturas y mediciones de Explorar 3D](docs/renovacion/explorar-modelos/fase2/f/README.md)
+
 ## Alojamiento
 
-Cloudflare Pages publica LumAR desde `main`. El equipo integra y prueba los cambios en `Luis` antes de adelantar `main`. La URL pública está **pendiente**. [Configuración de Cloudflare Pages](docs/HOSTING.md)
+Cloudflare Pages publica LumAR desde `main`. El equipo integra y prueba los cambios en `Luis` antes de adelantar `main`. [App pública](https://frasivo-ra.pages.dev) · [Vista previa de Luis](https://luis.frasivo-ra.pages.dev) · [Configuración de Cloudflare Pages](docs/HOSTING.md)
 
 ## Desarrollo
 
@@ -36,4 +38,6 @@ npm run preview
 
 Las pruebas de navegador requieren Chrome. En producción, el service worker de LumAR precarga recursos de la app, Pose Lite y WASM con SIMD. Los navegadores sin SIMD descargan su variante al activar la cámara con conexión y la guardan para usos posteriores.
 
-Consulta la [visión del equipo](docs/LUMAR.md), la [arquitectura](docs/ARQUITECTURA.md) y la [guía de contribución](CONTRIBUTING.md). El [plan de renovación](docs/PLAN_RENOVACION.md) conserva el historial de Cuerpo y «Fijar».
+Explorar descarga el GLB de cada ficha al abrirla y lo guarda para consultas sin conexión. Los clips incorporados con las diez fichas nuevas de órganos quedan disponibles sin conexión tras la primera reproducción.
+
+Consulta la [visión del equipo](docs/LUMAR.md), la [arquitectura](docs/ARQUITECTURA.md), la [guía de contribución](CONTRIBUTING.md) y el [plan de renovación](docs/PLAN_RENOVACION.md).

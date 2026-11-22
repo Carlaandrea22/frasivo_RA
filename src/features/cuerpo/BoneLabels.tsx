@@ -25,6 +25,12 @@ export const mainAnatomyIds: Record<AnatomyLayer, readonly string[]> = {
 };
 const groups: Record<AnatomyLayer, string> = { bones: 'huesos', muscles: 'musculos', organs: 'organos' };
 const names = new Map([...anatomyParts, ...regionalBoneTerms].map(part => [part.id, part]));
+const exploreAliases: Partial<Record<string, string>> = {
+  carpals: 'hand', metacarpals: 'hand', hand_phalanges: 'hand', thumb: 'hand',
+  calcaneus: 'foot', talus: 'foot', tarsals: 'foot', metatarsals: 'foot', foot_phalanges: 'foot',
+  frontal: 'skull', parietal: 'skull', temporal: 'skull', maxilla: 'skull', zygomatic: 'skull', nasal: 'skull',
+  cervical: 'cervical_vertebra', trachea: 'trachea_bronchi',
+};
 const HeartViewer = lazy(() => import('../../shared/visor3d/Viewer3D'));
 
 export function BoneLabels({ targets, selected, showAll = false, layer = 'bones', reservedTop, reservedBottom, preferredIds, provisionalIds = [], detailRequest }: {
@@ -52,6 +58,8 @@ export function BoneLabels({ targets, selected, showAll = false, layer = 'bones'
   }, []);
   const opened = names.get(detail);
   const catalog = estructuras.find(item => item.id === detail);
+  const exploreAlias = exploreAliases[detail] ?? (detail.startsWith('phalanx_') ? 'hand' : undefined);
+  const explore = catalog ?? estructuras.find(item => item.id === exploreAlias);
   function openDetail(id: string, pending: boolean) {
     const part = names.get(id);
     if (!part || part.layer !== layer) return;
@@ -105,7 +113,7 @@ export function BoneLabels({ targets, selected, showAll = false, layer = 'bones'
         <EnglishTerm term={opened.en}/>
         <p><strong>Ubicación</strong> {provisional ? opened.location : catalog?.ubicacion ?? opened.location}</p>
         <p><strong>Función</strong> {provisional ? opened.description : catalog?.funcion ?? opened.description}</p>
-        {catalog && <a className="button button--primary lumar-link" href={`#explorar/estructura/${catalog.id}`}
+        {explore && <a className="button button--primary lumar-link" href={`#explorar/estructura/${explore.id}`}
           onClick={() => sheet.current?.close()}>{detail === 'heart' ? 'Ver corazón en 3D' : 'Ver en Explorar 3D'}</a>}
         {detail === 'heart' && !catalog && !heartOpen && <Button variant="secondary" onClick={() => setHeartOpen(true)}>
           Ver corazón en 3D

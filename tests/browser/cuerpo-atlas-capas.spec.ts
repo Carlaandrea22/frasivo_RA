@@ -76,6 +76,9 @@ test('el torso conserva solo los músculos con apoyo visible', async ({ page }, 
     expect(column.every((card, index) => index === 0 || card.top >= column[index-1].bottom)).toBe(true);
   }
   await page.screenshot({ path: testInfo.outputPath('musculos-torso.png') });
+  await page.getByRole('button', { name: 'Ver ficha de Pectoral mayor' }).click();
+  const detail = page.getByRole('dialog', { name: 'Pectoral mayor' });
+  await expect(detail.getByRole('link', { name: 'Ver en Explorar 3D' })).toHaveAttribute('href', '#explorar/estructura/pectoralis_major');
 });
 
 test('un brazo visible muestra los músculos de ese brazo y abre su ficha', async ({ page }, testInfo) => {
@@ -116,6 +119,13 @@ test('la ventana de órganos de cuerpo completo conserva el tórax y el abdomen'
   await page.screenshot({ path: testInfo.outputPath('organos-torso-completo.png') });
   await page.getByRole('button', { name: 'Etiquetas', exact: true }).click();
   await page.screenshot({ path: testInfo.outputPath('organos-375.png') });
+  await sprite(page, 'urinary_bladder').dispatchEvent('click');
+  const detail = page.getByRole('dialog', { name: 'Vejiga', exact: true });
+  const explore = detail.getByRole('link', { name: 'Ver en Explorar 3D' });
+  await expect(explore).toHaveAttribute('href', '#explorar/estructura/urinary_bladder');
+  await page.screenshot({ path: testInfo.outputPath('enlace-vejiga.png') });
+  await explore.click();
+  await expect(page.getByRole('region', { name: 'Modelo 3D de Vejiga urinaria' })).toHaveAttribute('data-viewer-state', 'ready');
 });
 
 test('la ventana conserva el tórax sin inventar el abdomen y abre el corazón en corte', async ({ page }, testInfo) => {

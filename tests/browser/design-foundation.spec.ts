@@ -23,6 +23,9 @@ test('la navegación de móvil abre las cuatro secciones y llega a Créditos des
   await nav.getByRole('button', { name: 'Mi progreso' }).click();
   await page.getByRole('link', { name: 'Créditos' }).click();
   await expect(page.getByRole('heading', { name: 'Créditos' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Human Reference Atlas' })).toBeVisible();
+  await expect(page.getByText(/Kristen Browne y Heidi Schlehlein/)).toBeVisible();
+  await expect(page.locator('a[href^="https://cdn.humanatlas.io/hra-releases/v2.0/docs/ref-organs/"]')).toHaveCount(8);
   await page.goBack();
   await expect(page.getByRole('heading', { name: 'Mi progreso' })).toBeVisible();
 });
@@ -224,6 +227,25 @@ test('las tres capas muestran WebP y el vocabulario en inglés y español', asyn
   await expect(page.locator('.anatomy-active-term')).toHaveText('Kidneys');
   await expect(page.locator('[data-rendered=organs]')).toHaveAttribute('data-focused-organ', 'kidneys');
   await expect(page.locator('[data-rendered=organs] image[data-part=lungs]')).toHaveAttribute('opacity', '0.19');
+});
+
+test('la etiqueta de las falanges del pie abre su ficha en Explorar', async ({ page }, testInfo) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto('/#cuerpo');
+  const falanges = page.locator('image[data-part=foot_phalanges_right]');
+  await expect(falanges).toBeVisible();
+  await falanges.dispatchEvent('click');
+  await page.getByRole('button', { name: 'Ver ficha de Falanges', exact: true }).click();
+  const detail = page.getByRole('dialog', { name: 'Falanges', exact: true });
+  const explore = detail.getByRole('link', { name: 'Ver en Explorar 3D' });
+  await expect(explore).toHaveAttribute('href', '#explorar/estructura/foot');
+  await page.screenshot({ path: testInfo.outputPath('enlace-pie.png') });
+  await explore.click();
+  const viewer = page.getByRole('region', { name: 'Modelo 3D de Pie óseo derecho' });
+  await expect(viewer).toHaveAttribute('data-viewer-state', 'ready');
+  await expect(viewer.locator('canvas')).toHaveAttribute('data-viewer-lighting', 'studio');
+  await expect(viewer.locator('.explorar-atlas-label').first()).toBeVisible();
+  await page.screenshot({ path: testInfo.outputPath('destino-pie.png') });
 });
 
 async function useBodyFixture(page: Page) {

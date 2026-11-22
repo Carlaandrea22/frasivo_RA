@@ -176,7 +176,7 @@ function Ficha({ item }: { item: Estructura }) {
           {related.map(i => <a key={i.id} href={`#explorar/estructura/${i.id}`}><img src={i.miniatura} alt="" width="48" height="48"/><span>{i.nombreEs}<small lang="en">{i.terminoEn}</small></span></a>)}
         </div></section>}
         <details className="explorar-sources"><summary>Fuentes y revisión</summary><Provisional item={item}/><ul>{item.revision.fuentes.map(f => <li key={f.url}><a href={f.url} target="_blank" rel="noreferrer">{f.titulo}</a></li>)}</ul>
-          <p>Recursos del atlas: BodyParts3D, © The Database Center for Life Science, CC BY 4.0. Corazón en corte: modelo esquemático del proyecto.</p>
+          <p>El atlas adapta mallas de BodyParts3D y Human Reference Atlas bajo CC BY 4.0. El corazón en corte es un modelo esquemático de LumAR. <a href="#progreso/creditos">Créditos de modelos</a></p>
         </details>
         <a className="button button--primary lumar-link explorar-practice" href={practiceLink}>Practicar esta estructura</a>
         {practices.length === 0 && <p className="explorar-help">Aún no hay un reto para esta estructura.</p>}

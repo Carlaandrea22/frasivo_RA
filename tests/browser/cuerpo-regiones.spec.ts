@@ -112,8 +112,12 @@ for (const scene of scenes) {
       await page.mouse.click(tip.x, tip.y);
       const detail = page.getByRole('dialog', { name: 'Falange proximal del índice' });
       await expect(detail.getByText('Provisional')).toBeVisible();
-      await expect(detail.getByRole('link', { name: 'Ver en Explorar 3D' })).toHaveCount(0);
+      const explore = detail.getByRole('link', { name: 'Ver en Explorar 3D' });
+      await expect(explore).toHaveAttribute('href', '#explorar/estructura/hand');
       expect(await page.evaluate(() => Object.keys(localStorage).some(key => key.startsWith('lumar.progress:v1:event:')))).toBe(true);
+      await page.screenshot({ path: testInfo.outputPath('enlace-mano.png') });
+      await explore.click();
+      await expect(page.getByRole('region', { name: 'Modelo 3D de Mano ósea derecha' })).toHaveAttribute('data-viewer-state', 'ready');
     }
   });
 }
