@@ -1,3 +1,6 @@
+import { Worker as NodeWorker } from 'node:worker_threads';
+import { fileURLToPath } from 'node:url';
+import { build } from 'esbuild';
 import {
   BackSide, BufferAttribute, BufferGeometry, FrontSide, Group, InterleavedBuffer, InterleavedBufferAttribute,
   Mesh, MeshBasicMaterial, Raycaster, Vector3,
@@ -9,8 +12,8 @@ import { createOcclusionScheduler } from '../src/shared/visor3d/occlusionSchedul
 function triangle(normalized = false) {
   const geometry = new BufferGeometry();
   if (normalized) {
-    const positions = new Int16Array([-32767, -32767, 0, 0, 32767, -32767, 0, 0, 0, 32767, 0, 0]);
-    geometry.setAttribute('position', new InterleavedBufferAttribute(new InterleavedBuffer(positions, 4), 3, 0, true));
+    const positions = new Int16Array([0, -32767, -32767, 16384, 0, 32767, -32767, 16384, 0, 0, 32767, 16384]);
+    geometry.setAttribute('position', new InterleavedBufferAttribute(new InterleavedBuffer(positions, 4), 3, 1, true));
   } else {
     geometry.setAttribute('position', new BufferAttribute(new Float32Array([-1, -1, 0, 1, -1, 0, 0, 1, 0]), 3));
   }
@@ -19,7 +22,9 @@ function triangle(normalized = false) {
 }
 
 describe('oclusión del visor', () => {
-  it('acelera un triángulo cuantizado conservando el alcance y el lado del raycast nativo', () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  it('acelera un triángulo cuantizado en un worker sin cambiar el índice ni el raycast nativo', async () => {
     const root = new Group();
     root.position.set(1, 2, -3);
     root.scale.set(2, .75, 3);
@@ -27,13 +32,42 @@ describe('oclusión del visor', () => {
     mesh.rotation.y = Math.PI / 5;
     root.add(mesh);
     root.updateMatrixWorld(true);
-    const hit = mesh.localToWorld(new Vector3(.1, -.1, 0));
-    const nearPoint = mesh.localToWorld(new Vector3(.1, -.1, 2));
+    const hit = mesh.localToWorld(new Vector3(.1, -.1, .5));
+    const nearPoint = mesh.localToWorld(new Vector3(.1, -.1, 2.5));
     const aim = hit.clone().sub(nearPoint);
     const ray = new Raycaster(nearPoint, aim.clone().normalize());
     const expectedDistance = aim.length();
     const occlusion = createModelOcclusion([mesh]);
     const original = vi.spyOn(mesh, 'raycast');
+    const index = mesh.geometry.index!;
+    expect(occlusion.blocks(ray, [mesh])).toBe(true);
+    expect(original).toHaveBeenCalledOnce();
+
+    const bundle = await build({
+      entryPoints: [fileURLToPath(new URL('../src/shared/visor3d/modelOcclusion.worker.ts', import.meta.url))],
+      bundle: true, write: false, platform: 'node',
+      banner: { js: `
+        const { parentPort } = require('node:worker_threads');
+        const self = {
+          set onmessage(fn) { parentPort.on('message', data => fn({ data })); },
+          postMessage(data, { transfer }) { parentPort.postMessage(data, transfer); },
+        };
+      ` },
+    });
+    vi.stubGlobal('Worker', class {
+      private worker = new NodeWorker(bundle.outputFiles[0].text, { eval: true });
+      set onmessage(listener: (event: { data: unknown }) => void) {
+        this.worker.on('message', data => listener({ data }));
+      }
+      set onerror(listener: () => void) { this.worker.on('error', listener); }
+      set onmessageerror(listener: () => void) { this.worker.on('messageerror', listener); }
+      postMessage(data: unknown, transfer: ArrayBuffer[]) { this.worker.postMessage(data, transfer); }
+      terminate() { void this.worker.terminate(); }
+    });
+    await new Promise<void>(resolve => occlusion.build(resolve));
+    expect(mesh.geometry.index).toBe(index);
+    expect(Array.from(index.array)).toEqual([0, 1, 2]);
+
     const expectParity = (expected: boolean) => {
       expect(ray.intersectObject(mesh, false).length > 0).toBe(expected);
       original.mockClear();
@@ -55,6 +89,7 @@ describe('oclusión del visor', () => {
     expect(occlusion.blocks(ray, [mesh])).toBe(false);
     expect(original).toHaveBeenCalledTimes(0);
     const otherViewer = createModelOcclusion([mesh]);
+    await new Promise<void>(resolve => otherViewer.build(resolve));
     occlusion.dispose();
     mesh.material.visible = true;
     expect(occlusion.blocks(ray, [mesh])).toBe(true);

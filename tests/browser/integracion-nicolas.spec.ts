@@ -6,6 +6,8 @@ test('el recordatorio de mediodía deja accesibles las acciones de Explorar', as
   await page.addInitScript(() => { Math.random = () => .99; });
   await page.goto('/#explorar/estructura/lungs');
   await expect(page.getByRole('complementary', { name: 'Tu racha de hoy' })).toBeVisible();
+  const clickStart = performance.now();
   await page.getByRole('link', { name: 'Practicar esta estructura' }).click({ timeout: 5_000 });
+  if (process.env.CI) console.log(`[lumar-practice-click] Pulmones ${Math.round(performance.now() - clickStart)} ms`);
   await expect(page.getByRole('link', { name: 'Elegir modelo para Señala la estructura' })).toBeVisible();
 });

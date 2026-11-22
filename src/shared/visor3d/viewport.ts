@@ -1,10 +1,9 @@
 import {
   ACESFilmicToneMapping, Color, DirectionalLight, HemisphereLight, Matrix4, MeshStandardMaterial, PerspectiveCamera,
-  PMREMGenerator, Raycaster, Scene, Sphere, SRGBColorSpace, Vector2, Vector3, WebGLRenderer,
-  type Material, type Object3D, type WebGLRenderTarget,
+  NoToneMapping, Raycaster, Scene, Sphere, Vector2, Vector3, WebGLRenderer,
+  type Material, type Object3D, type Texture,
 } from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import {
@@ -12,6 +11,7 @@ import {
   type ModelScene, type Viewer3DAnchor, type Viewer3DProjectedAnchor,
 } from './modelScene';
 import { createOcclusionScheduler } from './occlusionScheduler';
+import { createRoomEnvironment, loadRoomEnvironment } from './roomEnvironment';
 
 export type ViewerStatus = 'loading' | 'ready' | 'error' | 'webgl';
 
@@ -83,34 +83,18 @@ export function mountViewport(
   fill.position.set(studio ? 3 : -2, 1, studio ? -2 : -3);
   scene.add(new HemisphereLight(studio ? 0xffffff : 0xfff5e6, 0xbacdc7, studio ? .46 : 1.7), key, fill);
 
-  let environment: WebGLRenderTarget | undefined;
+  let environment: Texture | undefined;
+  let environmentAttempted = false;
+  let cancelAfterPaint: (() => void) | undefined;
+  let cancelEnvironment: (() => void) | undefined;
+
   function releaseEnvironment() {
     scene.environment = null;
     environment?.dispose();
     environment = undefined;
-  }
-
-  function setupEnvironment() {
-    if (!studio) return;
-    const room = new RoomEnvironment();
-    const generator = new PMREMGenerator(renderer);
-    try {
-      environment = generator.fromScene(room, .04, .1, 100, { size: 256 });
-      scene.environment = environment.texture;
-    } catch {
-      // Direct lights keep the viewer usable if the environment cannot be generated.
-    } finally {
-      room.dispose();
-      generator.dispose();
-    }
-  }
-
-  if (studio) {
-    renderer.outputColorSpace = SRGBColorSpace;
-    renderer.toneMapping = ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1;
-    scene.environmentIntensity = .4;
-    setupEnvironment();
+    environmentAttempted = false;
+    renderer.toneMapping = NoToneMapping;
+    if (studio) canvas.dataset.viewerLighting = 'basic';
   }
 
   const accent = style.getPropertyValue('--anatomy-highlight').trim() || '#fff3b0';
@@ -130,6 +114,7 @@ export function mountViewport(
   let disposed = false;
   let contextLost = false;
   let loadFailed = false;
+  let reportedReady = false;
   let tap: { pointerId: number; x: number; y: number } | undefined;
   let localSelection: string | null = null;
   let selection: string | null = null;
@@ -161,7 +146,7 @@ export function mountViewport(
     let points: Viewer3DProjectedAnchor[] = [];
     if (anchors?.length && projectedModel && width && height) {
       points = projectAnchors(projectedModel, camera, anchors, width, height, {
-        blocked: blockedAnchors, sample: refreshOcclusion || occlusion.sample(anchorsChanged),
+        blocked: blockedAnchors, sample: projectedModel.occlusion.ready && (refreshOcclusion || occlusion.sample(anchorsChanged)),
       });
     } else {
       occlusion.cancel();
@@ -174,9 +159,81 @@ export function mountViewport(
     onProject(points);
   }
 
+  function scheduleEnvironment() {
+    environmentAttempted = true;
+    let cancelled = false;
+    const applyEnvironment = () => {
+      void loadRoomEnvironment().then(faces => {
+        if (cancelled) return;
+        environment = createRoomEnvironment(faces);
+        scene.environment = environment;
+        scene.environmentIntensity = .4;
+        renderer.toneMapping = ACESFilmicToneMapping;
+        draw();
+        canvas.dataset.viewerLighting = 'studio';
+      }).catch(() => {
+        // Direct lights remain available when the environment cannot be loaded.
+        if (!cancelled && environment) {
+          releaseEnvironment();
+          environmentAttempted = true;
+        }
+      });
+    };
+    if (typeof requestIdleCallback === 'function') {
+      const idle = requestIdleCallback(applyEnvironment);
+      cancelEnvironment = () => {
+        cancelled = true;
+        cancelIdleCallback(idle);
+      };
+    } else {
+      const timer = setTimeout(applyEnvironment, 0);
+      cancelEnvironment = () => {
+        cancelled = true;
+        clearTimeout(timer);
+      };
+    }
+  }
+
+  function scheduleEnhancements(currentModel: ModelScene) {
+    const { anchors, onProject } = options();
+    const shouldBuild = Boolean(onProject && anchors?.length && !currentModel.occlusion.started);
+    const shouldLight = studio && !environmentAttempted;
+    if (cancelAfterPaint || (!shouldBuild && !shouldLight)) return;
+
+    // The second animation callback follows a browser paint opportunity for the model and labels.
+    let frame = requestAnimationFrame(() => {
+      frame = requestAnimationFrame(() => {
+        cancelAfterPaint = undefined;
+        if (disposed || contextLost) return;
+        const { anchors, onProject } = options();
+        if (onProject && anchors?.length) currentModel.occlusion.build(() => {
+          occlusion.sample(true);
+          reportProjection(true);
+        });
+        if (shouldLight) scheduleEnvironment();
+      });
+    });
+    cancelAfterPaint = () => cancelAnimationFrame(frame);
+  }
+
+  function cancelEnhancements() {
+    cancelAfterPaint?.();
+    cancelAfterPaint = undefined;
+    cancelEnvironment?.();
+    cancelEnvironment = undefined;
+    model?.occlusion.cancel();
+  }
+
   function draw() {
-    if (width && height && !contextLost) renderer.render(scene, camera);
+    const drawable = width > 0 && height > 0 && !contextLost;
+    if (drawable) renderer.render(scene, camera);
     reportProjection();
+    if (!drawable || !model || disposed) return;
+    if (!reportedReady) {
+      reportedReady = true;
+      onStatus('ready');
+    }
+    scheduleEnhancements(model);
   }
 
   function clearHighlight() {
@@ -223,7 +280,10 @@ export function mountViewport(
     camera.far = controls.maxDistance + radius * 3;
     camera.position.copy(sphere.center).addScaledVector(offset, fit * zoom);
     camera.updateProjectionMatrix();
+    // The caller draws once after framing; suppress OrbitControls' implicit draw.
+    controls.removeEventListener('change', draw);
     controls.update();
+    controls.addEventListener('change', draw);
   }
 
   function resize() {
@@ -295,7 +355,9 @@ export function mountViewport(
   function lost(event: Event) {
     event.preventDefault();
     contextLost = true;
+    reportedReady = false;
     occlusion.cancel();
+    cancelEnhancements();
     releaseEnvironment();
     controls.enabled = false;
     canvas.tabIndex = -1;
@@ -305,10 +367,9 @@ export function mountViewport(
 
   function restored() {
     contextLost = false;
-    setupEnvironment();
     controls.enabled = Boolean(model);
     canvas.tabIndex = model ? 0 : -1;
-    onStatus(model ? 'ready' : loadFailed ? 'error' : 'loading');
+    if (!model) onStatus(loadFailed ? 'error' : 'loading');
     draw();
   }
 
@@ -340,7 +401,6 @@ export function mountViewport(
     canvas.tabIndex = contextLost ? -1 : 0;
     frame();
     sync();
-    if (!contextLost) onStatus('ready');
   }).catch(() => {
     if (disposed) return;
     loadFailed = true;
@@ -352,6 +412,7 @@ export function mountViewport(
     dispose() {
       disposed = true;
       occlusion.cancel();
+      cancelEnhancements();
       observer.disconnect();
       controls.removeEventListener('change', draw);
       controls.dispose();

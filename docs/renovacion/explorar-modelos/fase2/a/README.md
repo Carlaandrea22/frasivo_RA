@@ -72,3 +72,76 @@ La comparación interactiva coincide en las etiquetas visibles y su selección e
 | Fémur | Bíceps braquial | Hígado |
 | --- | --- | --- |
 | ![Fémur con cabeza y cóndilos etiquetados](visor-femur-despues.png) | ![Bíceps con cabeza corta y cabeza larga etiquetadas](visor-biceps_brachii-despues.png) | ![Hígado con las dos porciones hepáticas etiquetadas](visor-liver-despues.png) |
+
+## Corrección del arranque del visor
+
+En `c594093`, la compilación y los tests unitarios pasaron en GitHub Actions. Dos pruebas de navegador agotaron sus límites. La prueba del catálogo dedicó **54,225 s** a esperar el visor de las primeras nueve fichas dentro de un límite de **60 s**. Sus esperas completas de `ready` duraron **5,790–6,598 s** por ficha. El clic en «Practicar esta estructura» de Pulmones encontró el enlace y agotó los **5 s** de la acción. [GitHub Actions 45034182615](https://github.com/Carlaandrea22/frasivo_RA/actions/runs/45034182615)
+
+La sonda local en SwiftShader midió una pausa de **494–759 ms** dentro del primer `renderer.setSize()` en Cráneo, Pulmones y Columna vertebral. Esa llamada se ejecutaba después de generar el PMREM y antes de solicitar el GLB.
+
+Con la corrección, el visor se declara listo al dibujar el modelo con luces directas y proyectar sus etiquetas. Después de dar al navegador una oportunidad de pintar, construye el BVH en un worker y carga el entorno prefiltrado de RoomEnvironment. Las etiquetas se vuelven a comprobar al instalar el BVH. Las 24 fichas sirvieron los mismos GLB individuales de `c594093`. El entorno prefiltrado pesa 1.090.447 bytes.
+
+La repetición local usa un contexto nuevo para cada ruta, el viewport táctil de 375 × 812 px, DPR 3 con tope 2 y CPU 4× en Chrome 157. El giro se mide en Metal con el protocolo anterior. Las mediciones de arranque incluyen Metal y SwiftShader en el mismo Mac.
+
+### Giro de las 24 fichas
+
+En Metal, **24/24** fichas cumplieron ambos límites durante el giro. El mínimo fue de **59,98 FPS** y el p95 más alto fue de **18,60 ms**. La muestra de giro comenzó con la iluminación y la oclusión instaladas.
+
+| Ficha | FPS antes → corrección | p95 antes → corrección (ms) | Ready SwiftShader (ms) | Ready Metal (ms) |
+| --- | ---: | ---: | ---: | ---: |
+| Fémur | 60,01 → 60,00 | 17,60 → 18,50 | 1.082,8 → 531,5 | 567,3 → 506,6 |
+| Tibia | 60,01 → 59,98 | 17,40 → 18,50 | 1.104,9 → 527,3 | 559,6 → 512,0 |
+| Húmero | 60,00 → 59,98 | 17,50 → 18,60 | 1.101,0 → 518,3 | 567,0 → 513,9 |
+| Radio | 60,00 → 60,03 | 17,70 → 18,10 | 1.083,8 → 520,1 | 556,8 → 508,9 |
+| Hueso coxal | 60,00 → 60,00 | 17,70 → 18,50 | 1.118,6 → 526,1 | 569,5 → 508,9 |
+| Rótula | 60,00 → 59,99 | 17,80 → 18,10 | 1.083,4 → 532,5 | 563,6 → 513,6 |
+| Cúbito | 60,00 → 59,99 | 17,40 → 18,60 | 1.111,5 → 520,8 | 558,5 → 508,8 |
+| Peroné | 60,00 → 60,02 | 17,90 → 18,20 | 1.079,4 → 525,7 | 570,2 → 505,0 |
+| Esternón | 60,00 → 60,04 | 17,30 → 18,20 | 1.092,6 → 521,2 | 563,2 → 512,8 |
+| Cráneo | 60,01 → 60,00 | 17,80 → 18,30 | 2.443,4 → 1.530,6 | 594,0 → 530,3 |
+| Columna vertebral | 60,00 → 60,02 | 17,40 → 18,40 | 1.112,0 → 525,2 | 582,5 → 510,6 |
+| Bíceps braquial | 60,00 → 60,04 | 17,50 → 18,50 | 1.094,9 → 528,7 | 562,2 → 513,5 |
+| Cuádriceps femoral | 60,00 → 59,99 | 17,80 → 18,60 | 1.090,7 → 522,8 | 573,5 → 506,2 |
+| Deltoides | 60,00 → 59,99 | 17,80 → 18,20 | 1.119,1 → 531,2 | 562,1 → 504,9 |
+| Tríceps braquial | 60,00 → 60,02 | 17,60 → 18,10 | 1.100,0 → 530,8 | 578,0 → 511,9 |
+| Gastrocnemio | 59,98 → 60,04 | 17,60 → 18,50 | 1.124,1 → 517,6 | 564,9 → 503,3 |
+| Corazón | 59,99 → 60,00 | 17,40 → 18,30 | 1.140,2 → 532,8 | 586,4 → 516,7 |
+| Pulmones | 60,03 → 59,99 | 17,40 → 18,40 | 1.127,1 → 525,6 | 591,9 → 514,6 |
+| Estómago | 60,01 → 60,00 | 17,60 → 18,40 | 1.093,7 → 528,8 | 563,9 → 504,3 |
+| Riñones | 60,02 → 59,99 | 17,80 → 18,00 | 1.089,6 → 525,8 | 577,3 → 511,2 |
+| Cerebro | 60,01 → 60,02 | 17,90 → 18,20 | 1.180,8 → 525,7 | 571,7 → 509,4 |
+| Hígado | 60,00 → 59,99 | 17,40 → 18,10 | 1.118,2 → 537,3 | 568,9 → 506,6 |
+| Intestino delgado | 60,00 → 60,03 | 17,40 → 17,90 | 1.104,6 → 525,9 | 576,1 → 508,1 |
+| Intestino grueso | 59,99 → 60,02 | 17,50 → 18,10 | 1.125,8 → 527,2 | 575,6 → 508,6 |
+
+### Arranque en producción
+
+Visor listo, partes y primera proyección se miden desde la navegación. PMREM indica el tiempo síncrono de generación antes de la corrección. La corrección usa iluminación prefiltrada y mide por separado la descarga, la descompresión y el primer dibujo con la textura. Para BVH, antes se suma la creación síncrona de los árboles y en la corrección se mide desde la preparación de los datos hasta su recepción e instalación desde el worker.
+
+| GPU (medianas de 24 fichas) | Visor listo (ms) | Partes en DOM (ms) | Primera proyección (ms) | Generación PMREM (ms) | Carga de entorno (ms) | BVH (ms) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| SwiftShader | 1.104,8 → 526,0 | 130,2 → 129,0 | 1.100,7 → 522,5 | 57,4 → 0,0 | 92,2 | 8,1 → 39,4 |
+| Metal | 569,2 → 509,1 | 128,3 → 126,6 | 565,2 → 504,4 | 55,3 → 0,0 | 43,7 | 7,2 → 50,2 |
+
+| Ficha | GPU | Visor listo (ms) | Partes en DOM (ms) | Primera proyección (ms) | Generación PMREM (ms) | Carga de entorno (ms) | BVH (ms) |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Cráneo | SwiftShader | 2.443,4 → 1.530,6 | 139,5 → 130,6 | 2.438,4 → 1.524,4 | 58,2 → 0,0 | 120,3 | 17,8 → 206,6 |
+| Cráneo | Metal | 594,0 → 530,3 | 125,2 → 132,1 | 589,1 → 525,7 | 58,8 → 0,0 | 48,9 | 19,6 → 38,1 |
+| Pulmones | SwiftShader | 1.127,1 → 525,6 | 131,9 → 130,8 | 1.122,3 → 521,8 | 58,1 → 0,0 | 123,4 | 18,9 → 38,4 |
+| Pulmones | Metal | 591,9 → 514,6 | 132,0 → 131,2 | 587,2 → 509,4 | 57,0 → 0,0 | 41,6 | 19,0 → 52,8 |
+| Columna vertebral | SwiftShader | 1.112,0 → 525,2 | 129,5 → 128,0 | 1.106,9 → 520,6 | 56,3 → 0,0 | 100,0 | 17,4 → 108,7 |
+| Columna vertebral | Metal | 582,5 → 510,6 | 130,2 → 126,9 | 577,4 → 505,2 | 54,6 → 0,0 | 43,2 | 19,1 → 51,6 |
+
+Las 24 fichas instalaron la textura y al menos un árbol BVH después del primer dibujo en ambos backends. La primera ficha de cada lote incluye el primer uso de WebGL del proceso de Chrome. [Mediciones por ficha y GPU](arranque-24-fichas.csv)
+
+### Capturas de la corrección a 375 px
+
+En Cráneo coincidieron las etiquetas visibles, la selección y las coordenadas de los anclajes en ocho estados. La vista inicial produjo el mismo PNG que en la primera ejecución de la etapa A. Se verificaron la selección de Mandíbula desde la etiqueta y al tocar la malla, y la oclusión del Frontal en la vista posterior. [Vista inicial de la etapa A](visor-skull-despues.png)
+
+| Cráneo | Pulmones |
+| --- | --- |
+| ![Cráneo con la mandíbula resaltada y su etiqueta seleccionada](visor-skull-correccion.png) | ![Pulmones con los lóbulos superior derecho, medio derecho y superior izquierdo etiquetados](visor-lungs-correccion.png) |
+
+### Pruebas de regresión
+
+Las dos pruebas que fallaron en Actions pasaron tres veces seguidas con Chrome en SwiftShader y CPU 4×. En la repetición con la ralentización aplicada desde la sesión CDP de Playwright, el clic de Pulmones se completó en 65–121 ms. Una prueba mínima con service worker aisló el efecto de abrir una segunda sesión CDP, que restablecía `navigator.onLine` al recargar. Usar una sola sesión conservó la desconexión simulada y los límites de tiempo originales. La suite completa pasó **110/110** en SwiftShader con CPU 4× y un worker. El build y las **142** pruebas unitarias pasaron. La comparación de píxeles del fémur espera a que se instale la misma iluminación para las dos capturas y conserva las comprobaciones de selección. La precarga de la corrección ocupa **17.918.577 bytes**. [Generador local de RoomEnvironment](../../../../../scripts/generate-explorar-environment.mjs)

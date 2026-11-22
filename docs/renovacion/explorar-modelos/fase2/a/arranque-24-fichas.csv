@@ -1,0 +1,97 @@
+id,ficha,gpu,version,visor_listo_ms,botones_partes_en_dom_ms,primera_proyeccion_ms,generacion_pmrem_ms,carga_entorno_prefiltrado_ms,construccion_bvh_ms
+skull,Cráneo,SwiftShader,c594093,2443.4,139.5,2438.4,58.2,,17.8
+lungs,Pulmones,SwiftShader,c594093,1127.1,131.9,1122.3,58.1,,18.9
+spine,Columna vertebral,SwiftShader,c594093,1112,129.5,1106.9,56.3,,17.4
+femur,Fémur,SwiftShader,c594093,1082.8,127.3,1079.6,54.4,,6.6
+tibia,Tibia,SwiftShader,c594093,1104.9,131.2,1100.4,57.2,,5.1
+humerus,Húmero,SwiftShader,c594093,1101,134.2,1097.4,58,,7.4
+radius,Radio,SwiftShader,c594093,1083.8,128,1079.8,55.8,,3.7
+pelvis,Hueso coxal,SwiftShader,c594093,1118.6,133.3,1114,57.6,,5.9
+patella,Rótula,SwiftShader,c594093,1083.4,128,1078.8,55.7,,2.3
+ulna,Cúbito,SwiftShader,c594093,1111.5,139.9,1108.3,62.3,,3.5
+fibula,Peroné,SwiftShader,c594093,1079.4,127.5,1075.7,55.8,,3.9
+sternum,Esternón,SwiftShader,c594093,1092.6,126.2,1088,56.8,,5.6
+biceps_brachii,Bíceps braquial,SwiftShader,c594093,1094.9,128.4,1092,59.6,,6.1
+quadriceps_femoris,Cuádriceps femoral,SwiftShader,c594093,1090.7,127.2,1086.3,54.9,,8.2
+deltoid,Deltoides,SwiftShader,c594093,1119.1,131.4,1114.8,57.9,,8
+triceps_brachii,Tríceps braquial,SwiftShader,c594093,1100,134.4,1096.3,57.7,,9.1
+gastrocnemius,Gastrocnemio,SwiftShader,c594093,1124.1,128.7,1120.4,62.2,,10
+heart,Corazón,SwiftShader,c594093,1140.2,131,1133.7,55.8,,15.5
+stomach,Estómago,SwiftShader,c594093,1093.7,132.5,1090.3,56.5,,4.5
+kidneys,Riñones,SwiftShader,c594093,1089.6,126.7,1085.7,56.2,,8.9
+brain,Cerebro,SwiftShader,c594093,1180.8,131.2,1176.1,63.6,,17.4
+liver,Hígado,SwiftShader,c594093,1118.2,129,1114.1,60.5,,15.6
+small_intestine,Intestino delgado,SwiftShader,c594093,1104.6,127.5,1101,55.3,,13.9
+large_intestine,Intestino grueso,SwiftShader,c594093,1125.8,137.5,1120.2,61.3,,10.6
+skull,Cráneo,SwiftShader,correccion,1530.6,130.6,1524.4,0,120.3,206.6
+lungs,Pulmones,SwiftShader,correccion,525.6,130.8,521.8,0,123.4,38.4
+spine,Columna vertebral,SwiftShader,correccion,525.2,128,520.6,0,100,108.7
+femur,Fémur,SwiftShader,correccion,531.5,134.5,527.9,0,92.6,38.8
+tibia,Tibia,SwiftShader,correccion,527.3,129,523.4,0,88.7,96
+humerus,Húmero,SwiftShader,correccion,518.3,125.9,514.2,0,92.7,102
+radius,Radio,SwiftShader,correccion,520.1,126.5,516.4,0,89.8,37.6
+pelvis,Hueso coxal,SwiftShader,correccion,526.1,129.9,522.2,0,89,98.6
+patella,Rótula,SwiftShader,correccion,532.5,136.7,528.7,0,92.8,37.6
+ulna,Cúbito,SwiftShader,correccion,520.8,126.7,517.6,0,89.2,37.5
+fibula,Peroné,SwiftShader,correccion,525.7,127.4,521.4,0,92.4,38.5
+sternum,Esternón,SwiftShader,correccion,521.2,129,517.7,0,87.5,36.3
+biceps_brachii,Bíceps braquial,SwiftShader,correccion,528.7,131.8,524.4,0,86.4,37.7
+quadriceps_femoris,Cuádriceps femoral,SwiftShader,correccion,522.8,125.5,519.3,0,80.5,13.4
+deltoid,Deltoides,SwiftShader,correccion,531.2,133.9,526.4,0,95.9,39.7
+triceps_brachii,Tríceps braquial,SwiftShader,correccion,530.8,136.8,527.9,0,92.9,39.8
+gastrocnemius,Gastrocnemio,SwiftShader,correccion,517.6,125.6,514.3,0,92,38.1
+heart,Corazón,SwiftShader,correccion,532.8,129.6,528.9,0,91.2,99.8
+stomach,Estómago,SwiftShader,correccion,528.8,129.3,524.9,0,81.8,12.8
+kidneys,Riñones,SwiftShader,correccion,525.8,128.1,523.1,0,89.5,39.2
+brain,Cerebro,SwiftShader,correccion,525.7,128.2,522.5,0,99.5,39.6
+liver,Hígado,SwiftShader,correccion,537.3,135.4,533.3,0,95.6,107.6
+small_intestine,Intestino delgado,SwiftShader,correccion,525.9,127,522.2,0,90.6,39.5
+large_intestine,Intestino grueso,SwiftShader,correccion,527.2,126.8,522.6,0,95.7,104.2
+skull,Cráneo,Metal,c594093,594,125.2,589.1,58.8,,19.6
+lungs,Pulmones,Metal,c594093,591.9,132,587.2,57,,19
+spine,Columna vertebral,Metal,c594093,582.5,130.2,577.4,54.6,,19.1
+femur,Fémur,Metal,c594093,567.3,127.6,563.7,55.2,,6.6
+tibia,Tibia,Metal,c594093,559.6,125,555.8,54.1,,5
+humerus,Húmero,Metal,c594093,567,128.9,562.7,54.8,,7.5
+radius,Radio,Metal,c594093,556.8,126,552.9,54.3,,2.8
+pelvis,Hueso coxal,Metal,c594093,569.5,127.1,566.1,59.5,,4.8
+patella,Rótula,Metal,c594093,563.6,126.3,559.1,60.1,,2.2
+ulna,Cúbito,Metal,c594093,558.5,128.8,554.2,54.4,,3.8
+fibula,Peroné,Metal,c594093,570.2,139.2,565.1,54.7,,3.6
+sternum,Esternón,Metal,c594093,563.2,128.4,559.3,56.8,,5.4
+biceps_brachii,Bíceps braquial,Metal,c594093,562.2,126.2,558.2,55.4,,7
+quadriceps_femoris,Cuádriceps femoral,Metal,c594093,573.5,129.4,569,59.2,,7
+deltoid,Deltoides,Metal,c594093,562.1,126.7,557.3,54.9,,7
+triceps_brachii,Tríceps braquial,Metal,c594093,578,125.3,573.5,61.1,,8.5
+gastrocnemius,Gastrocnemio,Metal,c594093,564.9,128.5,561.3,55.2,,8.1
+heart,Corazón,Metal,c594093,586.4,128.2,580.9,57,,13.8
+stomach,Estómago,Metal,c594093,563.9,131,559.4,53,,3.9
+kidneys,Riñones,Metal,c594093,577.3,127.3,572.6,59.1,,8.3
+brain,Cerebro,Metal,c594093,571.7,123.9,568.1,53.4,,15.6
+liver,Hígado,Metal,c594093,568.9,128.8,565.2,53.3,,13.2
+small_intestine,Intestino delgado,Metal,c594093,576.1,128.8,571.4,55.6,,12.9
+large_intestine,Intestino grueso,Metal,c594093,575.6,129.8,570.6,55.7,,10
+skull,Cráneo,Metal,correccion,530.3,132.1,525.7,0,48.9,38.1
+lungs,Pulmones,Metal,correccion,514.6,131.2,509.4,0,41.6,52.8
+spine,Columna vertebral,Metal,correccion,510.6,126.9,505.2,0,43.2,51.6
+femur,Fémur,Metal,correccion,506.6,125.5,502,0,45.2,37
+tibia,Tibia,Metal,correccion,512,130.7,507.3,0,49.4,37.2
+humerus,Húmero,Metal,correccion,513.9,133.9,508.8,0,41.4,50.7
+radius,Radio,Metal,correccion,508.9,127.9,503.9,0,49.1,37.3
+pelvis,Hueso coxal,Metal,correccion,508.9,125,504.4,0,41.7,51.1
+patella,Rótula,Metal,correccion,513.6,131.5,508.6,0,47.8,10.6
+ulna,Cúbito,Metal,correccion,508.8,127.7,504.2,0,42.2,49.7
+fibula,Peroné,Metal,correccion,505,124.9,500.1,0,40.6,51.4
+sternum,Esternón,Metal,correccion,512.8,127.2,507.6,0,45.9,37.9
+biceps_brachii,Bíceps braquial,Metal,correccion,513.5,130.9,509,0,44.2,36.2
+quadriceps_femoris,Cuádriceps femoral,Metal,correccion,506.2,124.7,501.5,0,42,50.9
+deltoid,Deltoides,Metal,correccion,504.9,125.1,499.8,0,42.1,52.8
+triceps_brachii,Tríceps braquial,Metal,correccion,511.9,132.4,507.2,0,43.6,51.7
+gastrocnemius,Gastrocnemio,Metal,correccion,503.3,125.3,498.7,0,43.7,36.1
+heart,Corazón,Metal,correccion,516.7,125.3,510.9,0,44,54.1
+stomach,Estómago,Metal,correccion,504.3,124.6,498.9,0,41.4,52.7
+kidneys,Riñones,Metal,correccion,511.2,129.8,506.5,0,42.7,51.6
+brain,Cerebro,Metal,correccion,509.4,125.4,504.4,0,49.5,38.6
+liver,Hígado,Metal,correccion,506.6,125.8,501.5,0,47.4,37.7
+small_intestine,Intestino delgado,Metal,correccion,508.1,125.5,503.6,0,46.7,37.5
+large_intestine,Intestino grueso,Metal,correccion,508.6,126.2,503.2,0,43.6,53.3

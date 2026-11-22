@@ -90,7 +90,9 @@ test('las fichas nuevas se encuentran en el catálogo y se conectan al selector 
     await page.goto(`/#explorar/${categoria}`);
     await page.getByRole('searchbox', { name: 'Busca en español o inglés' }).fill(termino);
     await page.getByRole('link', { name: `Ver ${nombre.toLowerCase()}`, exact: true }).click();
+    const readyStart = performance.now();
     await expect(page.locator('[data-viewer-state="ready"]')).toBeVisible();
+    if (process.env.CI) console.log(`[lumar-ready] ${nombre} ${Math.round(performance.now() - readyStart)} ms`);
     const botones = page.getByRole('group', { name: 'Seleccionar parte anatómica' }).getByRole('button');
     await expect(botones).toHaveCount(partes);
     await botones.first().click();
@@ -136,6 +138,7 @@ for (const width of [375,1440]) test(`resalta solo la cabeza del fémur a ${widt
   await expect(page.locator('[data-viewer-state="ready"]')).toBeVisible();
   await page.getByRole('button',{ name: 'Ocultar etiquetas' }).click();
   const canvas = page.locator('canvas');
+  await expect(canvas).toHaveAttribute('data-viewer-lighting', 'studio');
   const captureModel = async () => {
     await canvas.evaluate(element => element.scrollIntoView({ block: 'center', behavior: 'instant' }));
     return canvas.screenshot();
