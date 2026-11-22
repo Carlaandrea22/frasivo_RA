@@ -413,5 +413,585 @@
     0.0876985,
     0.9597374,
     0.1279114
+  ],
+  "clavicle__extremo_esternal_derecho": [
+    -0.0271646,
+    1.3447034,
+    0.1463913
+  ],
+  "clavicle__extremo_acromial_derecho": [
+    -0.1349023,
+    1.3604667,
+    0.0737704
+  ],
+  "clavicle__cuerpo_derecho": [
+    -0.0700401,
+    1.3488768,
+    0.129323
+  ],
+  "clavicle__extremo_esternal_izquierdo": [
+    0.0256281,
+    1.3455968,
+    0.1463223
+  ],
+  "clavicle__extremo_acromial_izquierdo": [
+    0.134298,
+    1.3598367,
+    0.073233
+  ],
+  "clavicle__cuerpo_izquierdo": [
+    0.0675834,
+    1.3498567,
+    0.1298453
+  ],
+  "scapula__acromion_derecho": [
+    -0.1534635,
+    1.3531136,
+    0.0733936
+  ],
+  "scapula__apofisis_coracoides_derecha": [
+    -0.1267521,
+    1.3380871,
+    0.0965279
+  ],
+  "scapula__cavidad_glenoidea_derecha": [
+    -0.1375738,
+    1.3170631,
+    0.0725282
+  ],
+  "scapula__espina_derecha": [
+    -0.1037864,
+    1.3290485,
+    0.0061589
+  ],
+  "scapula__acromion_izquierdo": [
+    0.151694,
+    1.3531257,
+    0.0733118
+  ],
+  "scapula__apofisis_coracoides_izquierda": [
+    0.1255584,
+    1.3382167,
+    0.0965178
+  ],
+  "scapula__cavidad_glenoidea_izquierda": [
+    0.1362811,
+    1.3169655,
+    0.0724487
+  ],
+  "scapula__espina_izquierda": [
+    0.10236,
+    1.3296319,
+    0.0065655
+  ],
+  "ribs__verdaderas": [
+    0.04795,
+    1.2634774,
+    0.1713217
+  ],
+  "ribs__cabeza": [
+    0.0176355,
+    1.3038039,
+    0.0485838
+  ],
+  "ribs__cuello": [
+    0.0223964,
+    1.3045574,
+    0.0425426
+  ],
+  "ribs__tuberculo": [
+    0.0359651,
+    1.3024224,
+    0.0343579
+  ],
+  "ribs__surco_costal": [
+    0.1098965,
+    1.2159119,
+    0.142354
+  ],
+  "ribs__cuerpo": [
+    0.0866583,
+    1.2100811,
+    0.1820773
+  ],
+  "ribs__falsas": [
+    -0.1097158,
+    1.101997,
+    0.1585217
+  ],
+  "ribs__flotantes": [
+    -0.022488,
+    1.0917377,
+    0.0740892
+  ],
+  "mandible__proceso_condilar": [
+    0.0338319,
+    1.5116968,
+    0.104332
+  ],
+  "mandible__proceso_coronoides": [
+    0.0365903,
+    1.4908901,
+    0.140388
+  ],
+  "mandible__angulo": [
+    -0.0322052,
+    1.4639467,
+    0.1259543
+  ],
+  "mandible__rama": [
+    -0.0292038,
+    1.4738267,
+    0.1350643
+  ],
+  "mandible__cuerpo": [
+    -0.0010117,
+    1.4570768,
+    0.178607
+  ],
+  "hand__trapezoide": [
+    -0.2681623,
+    0.7991494,
+    0.123388
+  ],
+  "hand__escafoides": [
+    -0.2631803,
+    0.814265,
+    0.1200827
+  ],
+  "hand__semilunar": [
+    -0.2454327,
+    0.8141617,
+    0.122781
+  ],
+  "hand__piramidal": [
+    -0.2379957,
+    0.8064871,
+    0.1252363
+  ],
+  "hand__pisiforme": [
+    -0.2365067,
+    0.8059224,
+    0.1337973
+  ],
+  "hand__trapecio": [
+    -0.2739307,
+    0.8069677,
+    0.1296247
+  ],
+  "hand__grande": [
+    -0.257185,
+    0.803054,
+    0.123204
+  ],
+  "hand__ganchoso": [
+    -0.2452003,
+    0.8014607,
+    0.12969
+  ],
+  "hand__falanges_pulgar": [
+    -0.315388,
+    0.750926,
+    0.1638413
+  ],
+  "hand__falanges_indice": [
+    -0.3042987,
+    0.6841614,
+    0.1717457
+  ],
+  "hand__falanges_medio": [
+    -0.2759273,
+    0.6757064,
+    0.1799057
+  ],
+  "hand__falanges_anular": [
+    -0.2496977,
+    0.683706,
+    0.1793537
+  ],
+  "hand__falanges_menique": [
+    -0.2262867,
+    0.7011324,
+    0.1672697
+  ],
+  "hand__metacarpiano_i": [
+    -0.2972187,
+    0.786075,
+    0.140554
+  ],
+  "hand__metacarpiano_ii": [
+    -0.2789747,
+    0.7603807,
+    0.127326
+  ],
+  "hand__metacarpiano_iii": [
+    -0.263634,
+    0.7576934,
+    0.127837
+  ],
+  "hand__metacarpiano_iv": [
+    -0.2486093,
+    0.7615434,
+    0.1261807
+  ],
+  "hand__metacarpiano_v": [
+    -0.2350083,
+    0.76512,
+    0.1302867
+  ],
+  "foot__astragalo": [
+    -0.0761483,
+    0.052288,
+    0.0909133
+  ],
+  "foot__calcaneo": [
+    -0.0837059,
+    0.0265919,
+    0.0765663
+  ],
+  "foot__navicular": [
+    -0.0748241,
+    0.0474689,
+    0.1051537
+  ],
+  "foot__metatarsiano_i": [
+    -0.0730184,
+    0.0178027,
+    0.1754557
+  ],
+  "foot__metatarsiano_ii": [
+    -0.0916381,
+    0.0154745,
+    0.174751
+  ],
+  "foot__metatarsiano_iii": [
+    -0.1051927,
+    0.015074,
+    0.1707983
+  ],
+  "foot__metatarsiano_iv": [
+    -0.1161257,
+    0.0115397,
+    0.1625073
+  ],
+  "foot__metatarsiano_v": [
+    -0.126846,
+    0.0049665,
+    0.1543687
+  ],
+  "foot__cuneiforme_medial": [
+    -0.0739466,
+    0.0377194,
+    0.1246543
+  ],
+  "foot__cuneiforme_intermedio": [
+    -0.085059,
+    0.0444355,
+    0.118806
+  ],
+  "foot__cuneiforme_lateral": [
+    -0.0948253,
+    0.0383483,
+    0.1163817
+  ],
+  "foot__cuboides": [
+    -0.0980791,
+    0.0282689,
+    0.1075103
+  ],
+  "foot__falanges_ii": [
+    -0.103404,
+    -0.0000987,
+    0.2293607
+  ],
+  "foot__falanges_iii": [
+    -0.1188747,
+    -0.0007617,
+    0.222202
+  ],
+  "foot__falanges_iv": [
+    -0.1315567,
+    -0.0013412,
+    0.207509
+  ],
+  "foot__falanges_v": [
+    -0.1416787,
+    -0.0011608,
+    0.1903713
+  ],
+  "foot__falanges_i": [
+    -0.0823408,
+    0.0016875,
+    0.226689
+  ],
+  "cervical_vertebra__foramenes_transversos": [
+    0.0109179,
+    1.4341034,
+    0.0905712
+  ],
+  "cervical_vertebra__apofisis_transversas": [
+    -0.0168358,
+    1.4390901,
+    0.0814451
+  ],
+  "cervical_vertebra__apofisis_espinosa": [
+    0.0020204,
+    1.4277267,
+    0.0646257
+  ],
+  "cervical_vertebra__cuerpo": [
+    -0.000162,
+    1.4349034,
+    0.0973674
+  ],
+  "cervical_vertebra__arco": [
+    -0.0008976,
+    1.4312034,
+    0.082985
+  ],
+  "thoracic_lumbar_vertebrae__carillas_costales_t7": [
+    -0.0406598,
+    1.2503235,
+    0.0386339
+  ],
+  "thoracic_lumbar_vertebrae__apofisis_transversas_t7": [
+    -0.0684929,
+    1.2357067,
+    0.0229431
+  ],
+  "thoracic_lumbar_vertebrae__apofisis_espinosa_t7": [
+    -0.0488978,
+    1.2226168,
+    0.0176579
+  ],
+  "thoracic_lumbar_vertebrae__cuerpo_t7": [
+    -0.0497362,
+    1.2393867,
+    0.0656847
+  ],
+  "thoracic_lumbar_vertebrae__arco_t7": [
+    -0.0478233,
+    1.2415367,
+    0.0369871
+  ],
+  "thoracic_lumbar_vertebrae__apofisis_transversas_l3": [
+    0.0270347,
+    1.2395834,
+    0.0367565
+  ],
+  "thoracic_lumbar_vertebrae__apofisis_espinosa_l3": [
+    0.0498572,
+    1.2237754,
+    0.0195093
+  ],
+  "thoracic_lumbar_vertebrae__cuerpo_l3": [
+    0.0508012,
+    1.2358304,
+    0.075218
+  ],
+  "thoracic_lumbar_vertebrae__arco_l3": [
+    0.0565087,
+    1.2313931,
+    0.0406223
+  ],
+  "sacrum__coccix": [
+    -0.000527,
+    0.8062694,
+    0.0275435
+  ],
+  "sacrum__promontorio": [
+    0.0001037,
+    0.905024,
+    0.0936914
+  ],
+  "sacrum__alas": [
+    0.0311458,
+    0.9094837,
+    0.078354
+  ],
+  "sacrum__foramenes_sacros": [
+    -0.0122385,
+    0.8900387,
+    0.0694585
+  ],
+  "sacrum__sacro": [
+    0.0001232,
+    0.8949427,
+    0.0775044
+  ],
+  "hyoid__astas_menores": [
+    -0.0097611,
+    1.4404834,
+    0.1293617
+  ],
+  "hyoid__astas_mayores": [
+    -0.0090464,
+    1.4396401,
+    0.127141
+  ],
+  "hyoid__cuerpo": [
+    -0.0006581,
+    1.4370701,
+    0.1350203
+  ],
+  "pectoralis_major__porcion_clavicular": [
+    0.1092099,
+    1.308911,
+    0.1384471
+  ],
+  "pectoralis_major__porcion_abdominal": [
+    0.1077495,
+    1.1931663,
+    0.1906874
+  ],
+  "pectoralis_major__porcion_esternocostal": [
+    0.0864809,
+    1.2441522,
+    0.2075749
+  ],
+  "trapezius__porcion_ascendente": [
+    0.0651508,
+    1.2081626,
+    -0.0177773
+  ],
+  "trapezius__porcion_transversa": [
+    0.1001894,
+    1.3662701,
+    0.0388357
+  ],
+  "trapezius__porcion_descendente": [
+    0.0414809,
+    1.4204982,
+    0.0676986
+  ],
+  "rectus_abdominis__recto_derecho": [
+    -0.0396755,
+    1.0115818,
+    0.1989581
+  ],
+  "rectus_abdominis__recto_izquierdo": [
+    0.0392148,
+    1.0105265,
+    0.1987475
+  ],
+  "external_oblique__superior_derecho": [
+    -0.0681665,
+    1.1133373,
+    0.2130401
+  ],
+  "external_oblique__inferior_derecho": [
+    -0.0559611,
+    0.9320268,
+    0.1889421
+  ],
+  "external_oblique__superior_izquierdo": [
+    0.0693319,
+    1.1236636,
+    0.2117625
+  ],
+  "external_oblique__inferior_izquierdo": [
+    0.0536856,
+    0.9289924,
+    0.188731
+  ],
+  "latissimus_dorsi__extremo_humeral_derecho": [
+    -0.1662588,
+    1.2593077,
+    0.0770324
+  ],
+  "latissimus_dorsi__dorsal_derecho": [
+    -0.1047227,
+    1.0674678,
+    0.0523765
+  ],
+  "latissimus_dorsi__extremo_humeral_izquierdo": [
+    0.1652066,
+    1.2619739,
+    0.0773858
+  ],
+  "latissimus_dorsi__dorsal_izquierdo": [
+    0.1023088,
+    1.0659648,
+    0.0524373
+  ],
+  "gluteus_maximus__superior_derecho": [
+    -0.0901566,
+    0.8778089,
+    0.0258093
+  ],
+  "gluteus_maximus__inferior_derecho": [
+    -0.0910675,
+    0.7419641,
+    0.0532025
+  ],
+  "gluteus_maximus__superior_izquierdo": [
+    0.0912119,
+    0.8762426,
+    0.0266422
+  ],
+  "gluteus_maximus__inferior_izquierdo": [
+    0.0892198,
+    0.7442651,
+    0.052995
+  ],
+  "hamstrings__semitendinoso": [
+    0.0451494,
+    0.5509767,
+    0.0409718
+  ],
+  "hamstrings__semimembranoso": [
+    0.0426254,
+    0.5624281,
+    0.0749448
+  ],
+  "hamstrings__biceps_femoral_cabeza_larga": [
+    0.0856355,
+    0.5756827,
+    0.0679658
+  ],
+  "tibialis_anterior__extremo_distal_derecho": [
+    -0.0612809,
+    0.0450217,
+    0.1190843
+  ],
+  "tibialis_anterior__vientre_derecho": [
+    -0.0952464,
+    0.2493364,
+    0.0964601
+  ],
+  "tibialis_anterior__extremo_distal_izquierdo": [
+    0.0602249,
+    0.0452462,
+    0.1185141
+  ],
+  "tibialis_anterior__vientre_izquierdo": [
+    0.0942994,
+    0.2493895,
+    0.0963844
+  ],
+  "sternocleidomastoid__cabeza_esternal": [
+    0.0113489,
+    1.3448367,
+    0.1525557
+  ],
+  "sternocleidomastoid__cabeza_clavicular": [
+    0.0333112,
+    1.3590034,
+    0.137229
+  ],
+  "diaphragm__centro_tendinoso": [
+    -0.0008874,
+    1.1883935,
+    0.185128
+  ],
+  "diaphragm__cupula_derecha": [
+    -0.0580035,
+    1.1017458,
+    0.1896793
+  ],
+  "diaphragm__cupula_izquierda": [
+    0.0574124,
+    1.1061488,
+    0.1914443
   ]
 }

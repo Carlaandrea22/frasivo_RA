@@ -3,6 +3,8 @@ import { gruposEtiquetasCorazon } from '../anatomy/corazon';
 import { anotaciones } from '../anotaciones/anatomia';
 import type { ModoReto, PreguntaReto, RespuestaReto, Reto } from '../types';
 import { preguntasRepasoAmpliacion } from './repasoAmpliacion';
+import { preguntasRepasoHuesos } from './repasoHuesos';
+import { preguntasRepasoMusculos } from './repasoMusculos';
 
 const modos = ['entrenamiento', 'evaluacion'] satisfies ModoReto[];
 const revision = (id: string) => estructuras.find(item => item.id === id)!.revision;
@@ -132,9 +134,17 @@ const recorridosAmpliacion = [
   { id: 'huesos-ampliacion', titulo: 'Cúbito, peroné y esternón', modelos: ['ulna', 'fibula', 'sternum'] },
   { id: 'musculos-ampliacion', titulo: 'Deltoides, tríceps y gastrocnemio', modelos: ['deltoid', 'triceps_brachii', 'gastrocnemius'] },
   { id: 'organos-ampliacion', titulo: 'Estómago y riñones', modelos: ['stomach', 'kidneys'] },
+  { id: 'hombro-torax', titulo: 'Clavícula, escápula y costillas', modelos: ['clavicle', 'scapula', 'ribs'] },
+  { id: 'mano-pie', titulo: 'Huesos de la mano y el pie', modelos: ['hand', 'foot'] },
+  { id: 'cabeza-cuello-columna', titulo: 'Mandíbula, hioides y columna', modelos: ['mandible', 'hyoid', 'cervical_vertebra', 'thoracic_lumbar_vertebrae', 'sacrum'] },
+  { id: 'hombro-espalda-cuello', titulo: 'Músculos del hombro, la espalda y el cuello', modelos: ['pectoralis_major', 'trapezius', 'latissimus_dorsi', 'sternocleidomastoid'] },
+  { id: 'abdomen-respiracion', titulo: 'Músculos del abdomen y la respiración', modelos: ['rectus_abdominis', 'external_oblique', 'diaphragm'] },
   { id: 'craneo-columna', titulo: 'Cráneo y columna vertebral', modelos: ['skull', 'spine'] },
   { id: 'cerebro-digestion', titulo: 'Cerebro, hígado e intestinos', modelos: ['brain', 'liver', 'small_intestine', 'large_intestine'] },
+  { id: 'cadera-muslo-pierna', titulo: 'Músculos de la cadera, el muslo y la pierna', modelos: ['gluteus_maximus', 'hamstrings', 'tibialis_anterior'] },
 ] as const;
+
+const preguntasRepasoRecorridos = [...preguntasRepasoAmpliacion, ...preguntasRepasoHuesos, ...preguntasRepasoMusculos];
 
 const partesParaRelacionar: Readonly<Partial<Record<string, PartesPorModelo>>> = {
   'craneo-columna': { skull: ['mandibula'], spine: ['atlas', 'axis', 'coccix'] },
@@ -282,6 +292,6 @@ export const retos: readonly Reto[] = [
     retoDeModelos(`senala-${id}`, titulo, 'senala-estructura', modelos, preguntasDeSenalar),
     retoDeFunciones(`funcion-${id}`, titulo, modelos, partesParaRelacionar[id]),
     retoDeModelos(`repaso-${id}`, titulo, 'repaso-breve', modelos, estructuraId =>
-      preguntasRepasoAmpliacion.filter(pregunta => pregunta.estructuraId === estructuraId)),
+      preguntasRepasoRecorridos.filter(pregunta => pregunta.estructuraId === estructuraId)),
   ]),
 ];

@@ -18,7 +18,10 @@ output = catalog / 'pronunciacion'
 output.mkdir(exist_ok=True)
 
 terms = set()
-for filename in ('catalogo.ts', 'partesAtlas.ts', 'corazon.ts', 'ampliacionAtlas.ts', 'atlasAxialDigestivo.ts'):
+for filename in (
+    'catalogo.ts', 'partesAtlas.ts', 'corazon.ts', 'ampliacionAtlas.ts',
+    'atlasAxialDigestivo.ts', 'atlasHuesosNuevos.ts', 'atlasMusculosNuevos.ts',
+):
     content = (catalog / filename).read_text(encoding='utf-8')
     terms.update(re.findall(r"terminoEn: '([^']+)'", content))
     if filename == 'catalogo.ts':

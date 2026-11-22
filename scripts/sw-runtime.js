@@ -1,5 +1,5 @@
 const DOWNLOADS = 'lumar-downloads-v1';
-const deferred = new Set([CONFIG.simd, ...CONFIG.nosimd, ...Object.values(CONFIG.layers).flat()]);
+const deferred = new Set([CONFIG.simd, ...CONFIG.nosimd, ...Object.values(CONFIG.layers).flat(), ...CONFIG.exploreOnDemand]);
 const pending = new Map();
 
 self.addEventListener('install', event => {
@@ -14,7 +14,7 @@ self.addEventListener('activate', event => {
       (/^lumar-(?:shell-)?[\da-f]{12}$/.test(key) || key.startsWith('frasivo-explore-')));
     // Builds before deferred downloads kept the atlas and fallback WASM with the shell.
     const downloads = await caches.open(DOWNLOADS);
-    const migratable = [...CONFIG.nosimd, ...Object.values(CONFIG.layers).flat()];
+    const migratable = [...CONFIG.nosimd, ...Object.values(CONFIG.layers).flat(), ...CONFIG.exploreOnDemand];
     if (typeof DecompressionStream !== 'function') migratable.push(CONFIG.simd);
     for (const key of previous) {
       const oldShell = await caches.open(key);

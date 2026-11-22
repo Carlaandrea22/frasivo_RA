@@ -3,6 +3,8 @@ import { partesCorazon, revisionCorazon } from './corazon';
 import { partesAtlas } from './partesAtlas';
 import { ampliacionAtlas } from './ampliacionAtlas';
 import { estructurasAxialesDigestivas } from './atlasAxialDigestivo';
+import { estructurasHuesosNuevos } from './atlasHuesosNuevos';
+import { estructurasMusculosNuevos } from './atlasMusculosNuevos';
 
 const thumbnails = import.meta.glob('./miniaturas/*.webp', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
 const thumbnail = (id: string) => thumbnails[`./miniaturas/${id}.webp`];
@@ -95,4 +97,4 @@ export const estructuras: readonly Estructura[] = [{
   id, categoria: 'musculos', nombreEs, terminoEn, definicion, ubicacion, funcion, relacionadas,
   modelo: { assetId: id, nodeId }, miniatura: thumbnail(nodeId), partes: partesAtlas[id],
   revision: { estado: 'provisional', fuentes: [{ titulo: 'OpenStax · Appendicular muscles', url: `https://openstax.org/books/anatomy-and-physiology-2e/pages/${id === 'biceps_brachii' ? '11-5-muscles-of-the-pectoral-girdle-and-upper-limbs' : '11-6-appendicular-muscles-of-the-pelvic-girdle-and-lower-limbs'}` }] },
-})), ...[...ampliacionAtlas, ...estructurasAxialesDigestivas].map(item => ({ ...item, miniatura: thumbnail(item.modelo.nodeId) }))];
+})), ...[...ampliacionAtlas, ...estructurasAxialesDigestivas, ...estructurasHuesosNuevos, ...estructurasMusculosNuevos].map(item => ({ ...item, miniatura: thumbnail(item.modelo.nodeId) }))];
