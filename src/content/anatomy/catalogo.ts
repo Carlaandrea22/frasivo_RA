@@ -44,7 +44,7 @@ export const estructuras: readonly Estructura[] = [{
   definicion: 'Hueso largo del muslo.',
   ubicacion: 'Ocupa el muslo, entre la cadera y la rodilla.',
   funcion: 'Soporta el peso y transmite fuerzas entre la cadera y la rodilla.',
-  modelo: { assetId: 'body-bones', nodeId: 'femur_left' },
+  modelo: { assetId: 'body-bones-regions', nodeId: 'femur_left' },
   miniatura: thumbnail('femur_left'),
   partes: [
     { id: 'cabeza', nombreEs: 'Cabeza del fémur', terminoEn: 'Femoral head', ubicacion: 'Extremo proximal del fémur, en la cadera.', funcion: 'Se articula con el acetábulo de la pelvis.' },
@@ -61,7 +61,7 @@ export const estructuras: readonly Estructura[] = [{
   ['patella', 'Rótula', 'Patella', 'patella_left', 'Hueso sesamoideo de la rodilla.', 'En el tendón del cuádriceps, delante de la rodilla.', 'Mejora la palanca del cuádriceps al extender la rodilla.', ['femur', 'tibia']],
 ] as const).map(([id, nombreEs, terminoEn, nodeId, definicion, ubicacion, funcion, relacionadas]): Estructura => ({
   id, categoria: 'huesos', nombreEs, terminoEn, definicion, ubicacion, funcion, relacionadas,
-  modelo: { assetId: 'body-bones', nodeId }, miniatura: thumbnail(nodeId),
+  modelo: { assetId: partesHuesos[id] ? 'body-bones-regions' : 'body-bones', nodeId }, miniatura: thumbnail(nodeId),
   partes: partesHuesos[id] ?? [],
   revision: { estado: 'provisional', fuentes: [{ titulo: 'OpenStax · The Appendicular Skeleton', url: `https://openstax.org/books/anatomy-and-physiology-2e/pages/${['humerus','radius'].includes(id) ? '8-2-bones-of-the-upper-limb' : '8-4-bones-of-the-lower-limb'}` }] },
 })), {

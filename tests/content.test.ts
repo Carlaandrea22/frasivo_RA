@@ -10,7 +10,7 @@ describe('contratos de las muestras de LumAR', () => {
     const femur = estructuras[0];
     const femurNotes = anotaciones.filter(note => note.estructuraId === femur.id);
     expect(femurNotes.map(note => note.parteId)).toEqual(femur.partes.map(part => part.id));
-    expect(femurNotes.every(note => note.nodeId === femur.modelo?.nodeId)).toBe(true);
+    expect(femurNotes.every(note => note.nodeId === `${femur.modelo?.nodeId}__${note.parteId}`)).toBe(true);
     expect(retos[0].preguntas[0].estructuraId).toBe(femur.id);
     expect(retos[0].preguntas[0].respuestas.filter(option => option.id === retos[0].preguntas[0].correctaId)).toHaveLength(1);
     for (const item of [...estructuras, ...anotaciones, ...retos, ...casos]) {

@@ -27,7 +27,7 @@
 .explorar-atlas-label { position: absolute; display: grid; align-content: center; gap: 2px; width: 102px; min-height: 44px; padding: 5px 6px; border: 1px solid var(--line); border-radius: 12px; background: rgb(255 255 255 / .95); color: var(--ink); font: .65rem/1.2 var(--font-text); text-align: left; cursor: pointer; pointer-events: auto; transform: translateY(-50%); box-shadow: var(--shadow-soft); }
 .explorar-atlas-label--right { transform: translate(-100%, -50%); }
 .explorar-atlas-label span { font-size: .6rem; color: var(--muted); }
-.explorar-atlas-label[aria-pressed="true"], .explorar-parts button[aria-pressed="true"] { background: var(--anatomy-highlight); border-color: var(--forest); }
+.explorar-atlas-label[aria-pressed="true"], .explorar-parts button[aria-pressed="true"] { background: var(--anatomy-highlight); color: var(--ink); border-color: var(--forest); }
 .explorar-help { color: var(--muted); font-size: .75rem; padding: 6px 4px; }
 .explorar-detail .explorar-info { gap: 16px; border-radius: 24px; }
 .explorar-detail .explorar-info h2 { font-size: 1.6rem; }

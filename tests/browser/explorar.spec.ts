@@ -47,3 +47,35 @@ test('cada ficha del catálogo abre su nodo GLB y ofrece salida ante un ID desco
   await page.goto('/#explorar/estructura/no-existe');
   await expect(page.getByRole('link', { name: 'Volver a Explorar 3D' })).toBeVisible();
 });
+
+for (const width of [375,1440]) test(`resalta solo la cabeza del fémur a ${width}px`, async ({ page }) => {
+  await page.setViewportSize({ width, height: 900 });
+  await page.goto('/#explorar/estructura/femur');
+  await expect(page.locator('[data-viewer-state="ready"]')).toBeVisible();
+  await page.getByRole('button',{ name: 'Ocultar etiquetas' }).click();
+  const before = await page.locator('canvas').screenshot();
+  await page.locator('.explorar-parts').getByRole('button',{ name: 'Cabeza del fémur', exact: true }).click();
+  const after = await page.locator('canvas').screenshot();
+  const difference = await page.evaluate(async ({ before, after }) => {
+    const read = async (base64: string) => {
+      const image = new Image(); image.src = `data:image/png;base64,${base64}`; await image.decode();
+      const canvas = document.createElement('canvas'); canvas.width = image.width; canvas.height = image.height;
+      const ctx = canvas.getContext('2d')!; ctx.drawImage(image,0,0);
+      return { width: canvas.width, height: canvas.height, pixels: ctx.getImageData(0,0,canvas.width,canvas.height).data };
+    };
+    const a = await read(before), b = await read(after);
+    let top = 0, bottom = 0;
+    for(let i = 0; i < a.pixels.length; i += 4) {
+      const changed = [0,1,2].some(c => Math.abs(a.pixels[i+c]-b.pixels[i+c]) > 8);
+      if(changed) { if(Math.floor(i/4/a.width) < a.height/2) top++; else bottom++; }
+    }
+    return { top, bottom };
+  },{ before: before.toString('base64'), after: after.toString('base64') });
+  expect(difference.top).toBeGreaterThan(30);
+  expect(difference.bottom).toBe(0);
+  await page.getByRole('button',{ name: 'Mostrar etiquetas' }).click();
+  await page.evaluate(() => window.scrollTo(0,0));
+  await page.screenshot({ path: `docs/capturas/carla/femur-region-${width}.png`, fullPage: true });
+  await page.getByRole('button',{ name: 'Ver estructura completa', exact: true }).click();
+  await expect(page.locator('.explorar-parts button[aria-pressed="true"]')).toHaveCount(0);
+});

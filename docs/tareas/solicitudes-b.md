@@ -8,14 +8,19 @@ el visor compartido pruebe la oclusión con raycasting desde la cámara antes
 de emitir `onProject`, con tolerancia para puntos de superficie. No se ha
 modificado `src/shared/` para resolverlo desde el módulo B.
 
-## Selección de regiones de un hueso
+## Selección de regiones de un hueso · resuelto en Explorar
 
-El corazón tiene quince mallas: sus piezas se seleccionan y resaltan de
-forma independiente. Los huesos del atlas tienen una sola malla por hueso.
-`selectedNodeId` resalta esa malla completa, no la cabeza, cuerpo o cóndilos.
-Los chips y etiquetas seleccionan la parte y destacan su punto; el resaltado
-de la región precisa requiere un contrato compartido para regiones/anclajes
-o mallas subdivididas, manteniendo los IDs existentes.
+Explorar ahora usa un GLB derivado de fémur, tibia, húmero y radio con tres
+regiones seleccionables por hueso. `selectedNodeId` apunta a la malla de la
+parte y resalta solo esa región. Los padres conservan los IDs de los nodos
+originales y las fichas conservan sus IDs públicos. El corazón mantiene sus
+quince piezas independientes. No se cambió el visor compartido ni Cuerpo.
+
+El generador `node scripts/generate-explorar-regions.mjs` conserva todos los
+triángulos originales, sin duplicarlos ni añadir cortes visibles. Los
+límites se estiman con máscaras geométricas y siguen pendientes de revisión
+profesional. La ficha advierte que el resaltado es orientativo. Procedencia
+y licencia del derivado registradas en `assets/anatomy/FUENTES.md`.
 
 ## Entrega de etapa 1
 
@@ -51,5 +56,16 @@ No se publica en `Luis`, `main` ni `codex/explorar-retos`.
   [fémur a 375 px](../capturas/carla/femur-375.png) y
   [fémur en escritorio](../capturas/carla/femur-1440.png).
 
-El avance no cierra los dos pendientes de Viewer3D indicados arriba. La
-revisión profesional de todo el contenido y los anclajes sigue pendiente.
+Sigue pendiente la visibilidad por oclusión de Viewer3D indicada arriba. La
+revisión profesional del contenido, regiones y anclajes sigue pendiente.
+
+## Verificación del resaltado por región
+
+- `npm test`: 50 pruebas aprobadas, incluida la conservación de todos los
+  triángulos originales sin duplicación ni pérdida de superficie.
+- `npm run build`: compilación y PWA correctas.
+- `npm run test:e2e -- --workers=1`: 22 pruebas aprobadas.
+- La comparación de píxeles a 375 y 1440 px comprueba que seleccionar la
+  cabeza del fémur cambia la zona superior y no modifica la mitad inferior.
+- [Región seleccionada a 375 px](../capturas/carla/femur-region-375.png) y
+  [en escritorio](../capturas/carla/femur-region-1440.png).
