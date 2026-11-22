@@ -108,9 +108,11 @@ function InterviewCaseView({ item, onComplete }: CaseViewProps<InterviewCase>) {
         <h3 lang="en">{question.promptEn}</h3>
         {showTranslation && <p className="clinical-translation" lang="es">{question.promptEs}</p>}
         <div className="clinical-answer-list">
-          {question.options.map(option => <Button key={option.id} variant="answer" lang="en" onClick={() => answer(option.id)}>
-            <span>{option.textEn}</span>
-            {showTranslation && <small lang="es">{option.textEs}</small>}
+          {question.options.map(option => <Button key={option.id} variant="answer" onClick={() => answer(option.id)}>
+            <span className="clinical-bilingual-option">
+              <span lang="en">{option.textEn}</span>
+              {showTranslation && <small lang="es">{option.textEs}</small>}
+            </span>
           </Button>)}
         </div>
         <div className="clinical-hint-row">
@@ -157,9 +159,11 @@ function InterviewCaseView({ item, onComplete }: CaseViewProps<InterviewCase>) {
 
     {path.length < 3 ? <section className="clinical-options" aria-labelledby="clinical-question-options">
       <p id="clinical-question-options" className="lumar-card-meta">Elige tu pregunta · Turno {exchanges.length + 1} de 3</p>
-      {available.map(prompt => <Button key={prompt.id} variant="answer" lang="en" disabled={!!pending} onClick={() => ask(prompt)}>
-        <span>{prompt.promptEn}</span>
-        {showConversationTranslation && <small lang="es">{prompt.promptEs}</small>}
+      {available.map(prompt => <Button key={prompt.id} variant="answer" disabled={!!pending} onClick={() => ask(prompt)}>
+        <span className="clinical-bilingual-option">
+          <span lang="en">{prompt.promptEn}</span>
+          {showConversationTranslation && <small lang="es">{prompt.promptEs}</small>}
+        </span>
       </Button>)}
       <div className="clinical-hint-row">
         <Button variant="secondary" disabled={showConversationTranslation || !!pending}
@@ -188,9 +192,10 @@ function OrderingCaseView({ item, onComplete }: CaseViewProps<OrderingCase>) {
   }, [expectedIds]);
   const [order, setOrder] = useState<string[]>(initialOrder);
   const [lockedIds, setLockedIds] = useState<string[]>([]);
-  const [draggedId, setDraggedId] = useState<string>();
+  const [drag, setDrag] = useState<{ id: string; pointerId: number; originX: number; originY: number; x: number; y: number; targetId: string }>();
   const [score, setScore] = useState<ReturnType<typeof scoreOrderedActions> | null>(null);
   const hintLimit = Math.min(3, item.actions.length - 1);
+  const hasIncorrectPosition = order.some((id, index) => id !== expectedIds[index]);
 
   const reorder = (fromIndex: number, toIndex: number) => {
     const locked = new Set(lockedIds);
@@ -227,18 +232,44 @@ function OrderingCaseView({ item, onComplete }: CaseViewProps<OrderingCase>) {
     setOrder(expectedIds.map(id => locked.has(id) ? id : remaining[cursor++]));
   };
 
-  const pointerMove = (event: React.PointerEvent<HTMLButtonElement>) => {
-    if (!draggedId) return;
-    const target = document.elementFromPoint(event.clientX, event.clientY)?.closest<HTMLElement>('[data-order-id]');
-    const targetId = target?.dataset.orderId;
-    if (!targetId || targetId === draggedId) return;
-    reorder(order.indexOf(draggedId), order.indexOf(targetId));
+  const beginDrag = (event: React.PointerEvent<HTMLElement>, id: string, locked: boolean) => {
+    if (locked) return;
+    const target = event.target as HTMLElement;
+    const usedHandle = !!target.closest('[data-drag-handle]');
+    if (target.closest('.clinical-order-moves') || (event.pointerType !== 'mouse' && !usedHandle)) return;
+    event.currentTarget.setPointerCapture(event.pointerId);
+    setDrag({ id, pointerId: event.pointerId, originX: event.clientX, originY: event.clientY, x: 0, y: 0, targetId: id });
   };
 
-  if (score) return <ResultCard title={`${score.correct} de ${item.actions.length} posiciones resueltas sin ayuda`} level={performanceLevel(score)}>
+  const continueDrag = (event: React.PointerEvent<HTMLElement>) => {
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    const candidates = [...document.querySelectorAll<HTMLElement>('[data-order-id]')]
+      .filter(card => card.dataset.orderId !== drag.id && card.dataset.locked !== 'true');
+    const nearest = candidates.reduce<HTMLElement | undefined>((best, card) => {
+      if (!best) return card;
+      const distance = Math.abs(card.getBoundingClientRect().top + card.getBoundingClientRect().height / 2 - event.clientY);
+      const bestDistance = Math.abs(best.getBoundingClientRect().top + best.getBoundingClientRect().height / 2 - event.clientY);
+      return distance < bestDistance ? card : best;
+    }, undefined);
+    setDrag(current => current ? {
+      ...current,
+      x: event.clientX - current.originX,
+      y: event.clientY - current.originY,
+      targetId: nearest?.dataset.orderId ?? current.targetId,
+    } : current);
+  };
+
+  const finishDrag = (event: React.PointerEvent<HTMLElement>) => {
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+    reorder(order.indexOf(drag.id), order.indexOf(drag.targetId));
+    setDrag(undefined);
+  };
+
+  if (score) return <ResultCard title={`${score.correct + score.assisted} de ${item.actions.length} posiciones correctas`} level={performanceLevel(score)}>
     <p lang="en">{item.explanationEn}</p>
     <p className="clinical-result-meta">
-      {score.assisted} {score.assisted === 1 ? 'posición colocada con pista' : 'posiciones colocadas con pistas'} · {score.errors} para revisar
+      {score.correct} sin ayuda · {score.assisted} {score.assisted === 1 ? 'con pista' : 'con pistas'} · {score.errors} para revisar
     </p>
     <NextCaseButton score={score} onComplete={onComplete}/>
   </ResultCard>;
@@ -257,17 +288,14 @@ function OrderingCaseView({ item, onComplete }: CaseViewProps<OrderingCase>) {
           const locked = lockedIds.includes(id);
           const unlocked = order.filter(actionId => !lockedIds.includes(actionId));
           const movableIndex = unlocked.indexOf(id);
-          return <article key={id} role="listitem" className="clinical-order-card" data-order-id={id} data-locked={locked || undefined}>
-            <button type="button" className="clinical-drag-handle" aria-label="Arrastrar acción" disabled={locked}
-              onPointerDown={event => {
-                setDraggedId(id);
-                event.currentTarget.setPointerCapture(event.pointerId);
-              }}
-              onPointerMove={pointerMove}
-              onPointerUp={event => {
-                if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
-                setDraggedId(undefined);
-              }}>
+          const isDragged = drag?.id === id;
+          return <article key={id} role="listitem" className="clinical-order-card" data-order-id={id}
+            data-locked={locked || undefined} data-dragging={isDragged || undefined}
+            data-drop-target={drag && drag.targetId === id && !isDragged || undefined}
+            style={isDragged ? { transform: `translate3d(${drag.x}px, ${drag.y}px, 0) scale(1.03) rotate(-0.5deg)` } : undefined}
+            onPointerDown={event => beginDrag(event, id, locked)} onPointerMove={continueDrag}
+            onPointerUp={finishDrag} onPointerCancel={() => setDrag(undefined)}>
+            <button type="button" className="clinical-drag-handle" data-drag-handle aria-label="Arrastrar acción" disabled={locked}>
               {locked ? <LockKeyhole size={19}/> : <GripVertical size={19}/>}
             </button>
             <span className="clinical-order-number">{index + 1}</span>
@@ -282,9 +310,16 @@ function OrderingCaseView({ item, onComplete }: CaseViewProps<OrderingCase>) {
       </div>
       <div className="lumar-actions">
         <Button variant="secondary" onClick={reset}><RotateCcw size={17}/> Reiniciar</Button>
-        <Button variant="secondary" disabled={lockedIds.length >= hintLimit} onClick={useHint}><Lightbulb size={17}/> Pista de orden</Button>
+        <Button variant="secondary" disabled={lockedIds.length >= hintLimit || !hasIncorrectPosition} onClick={useHint}><Lightbulb size={17}/> Pista de orden</Button>
         <Button onClick={() => setScore(scoreOrderedActions(order, expectedIds, lockedIds))}>Comprobar orden</Button>
       </div>
+      <p className="clinical-hint-status" role="status">
+        {lockedIds.length >= hintLimit
+          ? 'Ya usaste todas las pistas disponibles.'
+          : !hasIncorrectPosition
+            ? 'El orden ya está correcto; no necesitas más pistas.'
+            : `${hintLimit - lockedIds.length} ${hintLimit - lockedIds.length === 1 ? 'pista disponible' : 'pistas disponibles'}.`}
+      </p>
     </section>
   </div>;
 }
@@ -312,8 +347,8 @@ function MultipleChoiceCaseView({ item, onComplete }: CaseViewProps<MultipleChoi
           return <Button key={option.id} variant="answer" lang="en" disabled={isDiscarded}
             aria-pressed={isSelected} data-selected={isSelected || undefined} data-discarded={isDiscarded || undefined}
             onClick={() => setSelected(option.id)}>
-            <span className="clinical-choice-marker" aria-hidden="true">{isSelected ? <Check size={16}/> : <Circle size={16}/>}</span>
-            <span>{option.textEn}{isDiscarded && <small lang="es">Opción descartada</small>}</span>
+            <span className="clinical-choice-marker" aria-hidden="true">{isSelected ? <Check size={15}/> : <Circle size={15}/>}</span>
+            <span className="clinical-choice-copy">{option.textEn}{isDiscarded && <small lang="es">Opción descartada</small>}</span>
           </Button>;
         })}
       </div>
@@ -348,8 +383,8 @@ function CaseView({ item, onComplete }: CaseViewProps<ClinicalCase>) {
   return <MultipleChoiceCaseView item={item} onComplete={onComplete}/>;
 }
 
-export function ClinicalSession({ onExit }: { onExit: () => void }) {
-  const sessionIds = useMemo(() => buildCaseSession(clinicalCases.map(item => item.id)), []);
+export function ClinicalSession({ caseIds, onExit }: { caseIds: readonly string[]; onExit: () => void }) {
+  const sessionIds = useMemo(() => buildCaseSession(caseIds), [caseIds]);
   const caseMap = useMemo(() => new Map(clinicalCases.map(item => [item.id, item])), []);
   const [index, setIndex] = useState(0);
   const [total, setTotal] = useState<Score>({ correct: 0, errors: 0, hints: 0, assisted: 0 });
@@ -358,12 +393,12 @@ export function ClinicalSession({ onExit }: { onExit: () => void }) {
 
   if (!item) return <section className="lumar-page clinical-session clinical-complete">
     <p className="lumar-eyebrow">Sesión terminada</p>
-    <h1>Completaste los cinco casos</h1>
+    <h1>{sessionIds.length === 5 ? 'Completaste los cinco casos' : 'Completaste la práctica'}</h1>
     <p>{total.correct} respuestas o posiciones correctas · {total.assisted ?? 0} asistidas · {total.errors} para revisar · {total.hints ?? 0} pistas</p>
     <ul className="clinical-level-summary" aria-label="Distribución del desempeño">
-      <li><strong>{levels.strong}</strong> con buen dominio</li>
-      <li><strong>{levels.partial}</strong> en progreso</li>
-      <li><strong>{levels.review}</strong> para repasar</li>
+      <li className="clinical-level-card" data-level="strong" style={{ flexGrow: levels.strong + 1 }}><strong>{levels.strong}</strong><span>con buen dominio</span></li>
+      <li className="clinical-level-card" data-level="partial" style={{ flexGrow: levels.partial + 1 }}><strong>{levels.partial}</strong><span>en progreso</span></li>
+      <li className="clinical-level-card" data-level="review" style={{ flexGrow: levels.review + 1 }}><strong>{levels.review}</strong><span>para repasar</span></li>
     </ul>
     <Button onClick={onExit}>Volver a Casos clínicos</Button>
   </section>;

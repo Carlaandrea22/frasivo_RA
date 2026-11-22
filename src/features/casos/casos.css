@@ -16,6 +16,13 @@
 .clinical-intro p, .clinical-preview p, .clinical-disclaimer, .clinical-empty { color: var(--muted); line-height: 1.5; }
 .clinical-preview { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
 .clinical-preview .lumar-card { display: grid; align-content: start; gap: var(--space-2); }
+.clinical-mode-section { display: grid; gap: var(--space-3); }
+.clinical-mode-section > div:first-child { display: grid; gap: var(--space-1); }
+.clinical-mode-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2); }
+.clinical-mode-button { align-items: center; padding: 12px; }
+.clinical-mode-button > span:last-child { display: grid; min-width: 0; gap: 3px; text-align: left; }
+.clinical-mode-button strong { font: 800 .85rem/1.25 var(--font-title); }
+.clinical-mode-button small { color: var(--muted); font-size: .72rem; font-weight: 600; }
 .clinical-card-heading { display: flex; align-items: center; gap: var(--space-2); }
 .clinical-kind-icon, .clinical-result-icon {
   display: grid;
@@ -50,13 +57,18 @@
 .clinical-message--student { justify-self: end; background: var(--mint); }
 .clinical-options, .clinical-answer-list { display: grid; gap: var(--space-2); }
 .clinical-options .button, .clinical-answer-list .button { width: 100%; text-align: left; }
-.clinical-options .button > span, .clinical-answer-list .button > span { flex: 1; }
+.clinical-options .button, .clinical-answer-list .button { align-items: flex-start; }
+.clinical-bilingual-option, .clinical-choice-copy { flex: 1; min-width: 0; }
+.clinical-bilingual-option { display: grid; gap: 7px; width: 100%; }
+.clinical-bilingual-option > span { line-height: 1.35; }
 .clinical-options .button small, .clinical-answer-list .button small {
   display: block;
   width: 100%;
-  margin-top: 3px;
+  padding-top: 7px;
+  border-top: 1px solid color-mix(in srgb, var(--line) 80%, transparent);
   color: var(--muted);
   font-size: .78rem;
+  line-height: 1.4;
   font-weight: 600;
 }
 .clinical-answer-list .button[data-selected="true"] {
@@ -71,7 +83,17 @@
   opacity: .68;
   text-decoration: line-through;
 }
-.clinical-choice-marker { display: grid; width: 24px; height: 24px; flex: none; place-items: center; color: var(--forest); }
+.clinical-choice-marker {
+  display: grid;
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--forest);
+}
+.clinical-choice-copy { display: grid; gap: 3px; line-height: 1.4; }
+.clinical-choice-copy small { border: 0 !important; padding: 0 !important; }
 .clinical-choice-actions { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); }
 .clinical-translation {
   margin-top: calc(var(--space-2) * -1);
@@ -116,9 +138,23 @@
   border-radius: 14px;
   background: var(--white);
   box-shadow: 0 4px 14px rgb(28 60 48 / 6%);
+  cursor: grab;
+  touch-action: pan-y;
   transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
 }
-.clinical-order-card:has(.clinical-drag-handle:active) { border-color: var(--forest); box-shadow: 0 10px 24px rgb(28 60 48 / 16%); transform: scale(1.01); }
+.clinical-order-card[data-dragging="true"] {
+  z-index: 5;
+  border-color: var(--forest);
+  box-shadow: 0 18px 34px rgb(28 60 48 / 24%);
+  cursor: grabbing;
+  opacity: .96;
+  transition: none;
+}
+.clinical-order-card[data-drop-target="true"] {
+  border-color: var(--forest);
+  box-shadow: inset 0 0 0 2px var(--mint), 0 6px 18px rgb(28 60 48 / 12%);
+  transform: translateY(3px);
+}
 .clinical-order-card[data-locked="true"] { border-color: #c79b24; background: #fffaf0; }
 .clinical-order-card p { margin: 0; line-height: 1.4; }
 .clinical-drag-handle, .clinical-order-moves button {
@@ -141,6 +177,7 @@
 .clinical-order-moves button { min-width: 30px; min-height: 27px; cursor: pointer; }
 .clinical-order-moves button:disabled { opacity: .35; cursor: default; }
 .clinical-assisted-label { grid-column: 3 / 4; color: #8a5b00; font-size: .72rem; font-weight: 800; }
+.clinical-hint-status { color: var(--muted); font-size: .8rem; text-align: right; }
 .clinical-result { justify-items: start; }
 .clinical-result p { line-height: 1.5; }
 .clinical-result[data-level="strong"] { border-color: color-mix(in srgb, var(--forest) 35%, var(--line)); }
@@ -150,8 +187,23 @@
 .clinical-result[data-level="review"] .clinical-result-icon { background: #ffe0d6; color: #a23e24; }
 .clinical-result-meta { color: var(--muted); font-size: .85rem; }
 .clinical-complete { max-width: 38rem; align-content: center; justify-items: start; }
-.clinical-level-summary { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
-.clinical-level-summary li { padding: 8px 12px; border: 1px solid var(--line); border-radius: 12px; background: var(--white); }
+.clinical-level-summary { display: flex; width: 100%; align-items: stretch; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.clinical-level-summary li {
+  display: grid;
+  min-width: 4.5rem;
+  min-height: 6.5rem;
+  align-content: center;
+  gap: 4px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--white);
+  text-align: center;
+  flex-basis: 0;
+  transition: flex-grow 240ms ease, transform 240ms ease;
+}
+.clinical-level-summary strong { font: 800 clamp(1.6rem, 8vw, 2.5rem)/1 var(--font-title); }
+.clinical-level-summary span { font-size: clamp(.65rem, 2.4vw, .8rem); line-height: 1.2; }
 .clinical-level-summary li:nth-child(1) strong { color: var(--forest); }
 .clinical-level-summary li:nth-child(2) strong { color: #8a5b00; }
 .clinical-level-summary li:nth-child(3) strong { color: #a23e24; }
@@ -161,6 +213,7 @@
   .clinical-intro { grid-template-columns: auto 1fr; }
   .clinical-intro .button { grid-column: 1 / -1; width: 100%; }
   .clinical-preview { grid-template-columns: 1fr; }
+  .clinical-mode-grid { grid-template-columns: 1fr; }
   .clinical-session-topbar .button { min-height: 40px; }
   .clinical-order { padding: var(--space-3); }
   .clinical-order .lumar-actions { align-items: stretch; flex-direction: column; }
@@ -173,4 +226,5 @@
 @media (prefers-reduced-motion: reduce) {
   .clinical-typing-dots i { animation: none; opacity: .7; }
   .clinical-order-card { transition: none; }
+  .clinical-level-summary li { transition: none; }
 }

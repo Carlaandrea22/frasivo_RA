@@ -121,22 +121,24 @@ export function applyOrderingHint(
   order: readonly string[],
   expected: readonly string[],
   lockedIds: readonly string[],
+  random: RandomSource = Math.random,
 ): OrderingHintResult {
   const limit = Math.min(3, Math.max(0, expected.length - 1));
   if (lockedIds.length >= limit) return { order: [...order], lockedIds: [...lockedIds] };
   const locked = new Set(lockedIds);
-  const targetIndex = expected.findIndex((id, index) => !locked.has(id) && order[index] !== id);
-  if (targetIndex < 0) return { order: [...order], lockedIds: [...lockedIds] };
+  const incorrectIndexes = expected
+    .map((id, index) => ({ id, index }))
+    .filter(({ id, index }) => !locked.has(id) && order[index] !== id)
+    .map(({ index }) => index);
+  if (!incorrectIndexes.length) return { order: [...order], lockedIds: [...lockedIds] };
+  const targetIndex = incorrectIndexes[randomIndex(incorrectIndexes.length, random)];
   const hintedId = expected[targetIndex];
-  const movableIndexes = expected.map((_, index) => index).filter(index => !locked.has(expected[index]));
-  const movable = order.filter(id => !locked.has(id));
-  const fromIndex = movable.indexOf(hintedId);
-  const toIndex = movableIndexes.indexOf(targetIndex);
-  if (fromIndex < 0 || toIndex < 0) return { order: [...order], lockedIds: [...lockedIds] };
-  const moved = moveItem(movable, fromIndex, toIndex);
-  let cursor = 0;
+  const fromIndex = order.indexOf(hintedId);
+  if (fromIndex < 0 || locked.has(order[targetIndex])) return { order: [...order], lockedIds: [...lockedIds] };
+  const nextOrder = [...order];
+  [nextOrder[targetIndex], nextOrder[fromIndex]] = [nextOrder[fromIndex], nextOrder[targetIndex]];
   return {
-    order: expected.map(id => locked.has(id) ? id : moved[cursor++]),
+    order: nextOrder,
     lockedIds: [...lockedIds, hintedId],
     hintedId,
   };

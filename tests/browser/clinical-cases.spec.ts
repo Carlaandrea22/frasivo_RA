@@ -11,6 +11,12 @@ test('mantiene una conversación coherente, traduce solo la ronda actual y muest
 
   await page.getByRole('button', { name: 'Pista' }).click();
   await expect(page.getByText('¿Cuándo empezó el dolor?')).toBeVisible();
+  const translatedOption = page.getByRole('button', { name: /When did the pain begin.*Cuándo empezó el dolor/ });
+  const englishQuestion = await translatedOption.locator('[lang="en"]').boundingBox();
+  const spanishQuestion = await translatedOption.locator('[lang="es"]').boundingBox();
+  expect(englishQuestion).not.toBeNull();
+  expect(spanishQuestion).not.toBeNull();
+  expect(spanishQuestion!.y).toBeGreaterThanOrEqual(englishQuestion!.y + englishQuestion!.height);
 
   const onset = page.getByRole('button', { name: 'When did the pain begin?' });
   await onset.evaluate(button => {
@@ -35,6 +41,10 @@ test('mantiene una conversación coherente, traduce solo la ronda actual y muest
   await page.getByRole('button', { name: 'Pista' }).click();
   await expect(page.getByText('¿Qué respondió Alex?')).toBeVisible();
   await expect(page.getByText('Hace unas tres semanas')).toBeVisible();
+  const translatedAnswer = page.getByRole('button', { name: /About three weeks ago.*Hace unas tres semanas/ });
+  const englishAnswer = await translatedAnswer.locator('[lang="en"]').boundingBox();
+  const spanishAnswer = await translatedAnswer.locator('[lang="es"]').boundingBox();
+  expect(spanishAnswer!.y).toBeGreaterThanOrEqual(englishAnswer!.y + englishAnswer!.height);
   await page.getByRole('button', { name: 'About three weeks ago' }).click();
   await expect(page.getByText('¿Qué respondió Alex?')).toHaveCount(0);
   await page.getByRole('button', { name: 'There was no fall or sudden twist' }).click();
@@ -83,7 +93,7 @@ test('recorre las cinco modalidades de una sesión y conserva cada resultado', a
 
   await expect(page.getByText('Caso 3 de 5')).toBeVisible();
   await page.getByRole('button', { name: 'Comprobar orden' }).click();
-  await expect(page.getByText('5 de 5 posiciones resueltas sin ayuda')).toBeVisible();
+  await expect(page.getByText('5 de 5 posiciones correctas')).toBeVisible();
   await page.getByRole('button', { name: 'Siguiente caso' }).click();
 
   await expect(page.getByText('Caso 4 de 5')).toBeVisible();
@@ -107,12 +117,76 @@ test('recorre las cinco modalidades de una sesión y conserva cada resultado', a
 
   await expect(page.getByRole('heading', { name: 'Completaste los cinco casos' })).toBeVisible();
   await expect(page.getByText(/0 asistidas.*1 pista/)).toBeVisible();
-  await expect(page.getByText('4 con buen dominio')).toBeVisible();
-  await expect(page.getByText('0 en progreso')).toBeVisible();
-  await expect(page.getByText('1 para repasar')).toBeVisible();
+  const strongLevel = page.locator('.clinical-level-card[data-level="strong"]');
+  const partialLevel = page.locator('.clinical-level-card[data-level="partial"]');
+  const reviewLevel = page.locator('.clinical-level-card[data-level="review"]');
+  await expect(strongLevel).toContainText(/4.*con buen dominio/);
+  await expect(partialLevel).toContainText(/0.*en progreso/);
+  await expect(reviewLevel).toContainText(/1.*para repasar/);
+  const strongCard = await strongLevel.boundingBox();
+  const partialCard = await partialLevel.boundingBox();
+  const reviewCard = await reviewLevel.boundingBox();
+  expect(strongCard!.width).toBeGreaterThan(reviewCard!.width);
+  expect(reviewCard!.width).toBeGreaterThan(partialCard!.width);
   const practiceCount = await page.evaluate(() => Object.keys(localStorage)
     .filter(key => key.startsWith('lumar.progress:v1:event:')).length);
   expect(practiceCount).toBe(5);
+});
+
+test('permite practicar un modo y mantiene visible la tarjeta durante el arrastre', async ({ page }) => {
+  await page.addInitScript(() => { Math.random = () => 0.99; });
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto('/#practicar/casos');
+
+  await page.getByRole('button', { name: 'Practicar solo Ordenar actuaciones' }).click();
+  await expect(page.getByText('Caso 1 de 2')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Orden clínico · Evaluación inicial' })).toBeVisible();
+
+  const cards = page.locator('.clinical-order-card');
+  const firstText = await cards.first().locator('p').boundingBox();
+  const secondCard = await cards.nth(1).boundingBox();
+  if (!firstText || !secondCard) throw new Error('Ordering cards must have measurable positions');
+  await page.mouse.move(firstText.x + 12, firstText.y + firstText.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(secondCard.x + secondCard.width / 2, secondCard.y + secondCard.height / 2, { steps: 4 });
+  await expect(cards.first()).toHaveAttribute('data-dragging', 'true');
+  await expect(cards.nth(1)).toHaveAttribute('data-drop-target', 'true');
+  const heldTransform = await cards.first().evaluate(card => getComputedStyle(card).transform);
+  expect(heldTransform).not.toBe('none');
+  await page.mouse.up();
+  await expect(cards.first()).toContainText('Assess breathing and ventilation.');
+});
+
+test('muestra las pistas agotadas y cuenta como correctas las posiciones asistidas', async ({ page }) => {
+  await page.addInitScript(() => { Math.random = () => 0.99; });
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto('/#practicar/casos');
+  await page.getByRole('button', { name: 'Practicar solo Ordenar actuaciones' }).click();
+
+  const firstCard = page.locator('.clinical-order-card').filter({ hasText: 'Assess and manage the airway.' });
+  for (let step = 0; step < 4; step += 1) {
+    await firstCard.getByRole('button', { name: 'Mover abajo' }).click();
+  }
+  for (let hint = 0; hint < 3; hint += 1) {
+    await page.getByRole('button', { name: 'Pista de orden' }).click();
+  }
+  await expect(page.getByText('Ya usaste todas las pistas disponibles.')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Pista de orden' })).toBeDisabled();
+  await page.getByRole('button', { name: 'Comprobar orden' }).click();
+  await expect(page.getByRole('heading', { name: '3 de 5 posiciones correctas' })).toBeVisible();
+  await expect(page.getByText(/0 sin ayuda.*3 con pistas.*2 para revisar/)).toBeVisible();
+});
+
+test('usa un indicador compacto en la selección múltiple', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await page.goto('/#practicar/casos');
+  await page.getByRole('button', { name: 'Practicar solo Selección múltiple' }).click();
+  const option = page.getByRole('button', { name: 'Intramuscular adrenaline' });
+  await option.click();
+  const marker = await option.locator('.clinical-choice-marker').boundingBox();
+  const copy = await option.locator('.clinical-choice-copy').boundingBox();
+  expect(marker!.width).toBeLessThanOrEqual(28);
+  expect(copy!.width).toBeGreaterThan(marker!.width * 5);
 });
 
 test('reordena tarjetas, fija una posición con pista y refleja la ayuda en el resultado', async ({ page }) => {
@@ -158,12 +232,13 @@ test('reordena tarjetas, fija una posición con pista y refleja la ayuda en el r
 
   await page.getByRole('button', { name: 'Pista de orden' }).click();
   await expect(cards.first()).toContainText('Assess and manage the airway.');
-  await expect(cards.first()).toHaveAttribute('data-locked', 'true');
-  await expect(cards.first()).toContainText('Colocada con pista');
+  const assistedCard = cards.filter({ hasText: 'Colocada con pista' });
+  await expect(assistedCard).toHaveCount(1);
+  await expect(assistedCard).toHaveAttribute('data-locked', 'true');
 
-  await cards.nth(1).getByRole('button', { name: 'Mover abajo' }).click();
+  await cards.nth(2).getByRole('button', { name: 'Mover abajo' }).click();
   await page.getByRole('button', { name: 'Comprobar orden' }).click();
-  await expect(page.getByText('1 posición colocada con pista')).toBeVisible();
+  await expect(page.getByText(/1 con pista/)).toBeVisible();
   await expect(page.locator('.clinical-result[data-level="review"]')).toBeVisible();
   await page.getByRole('button', { name: 'Siguiente caso' }).click();
   const orderingPractice = await page.evaluate(() => Object.entries(localStorage)

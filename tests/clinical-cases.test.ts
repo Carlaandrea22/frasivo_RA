@@ -119,30 +119,30 @@ describe('sesión de casos clínicos', () => {
     expect(moveItem(original, -1, 2)).toEqual(original);
   });
 
-  it('coloca una pista en su posición correcta y conserva cada acción una vez', () => {
+  it('elige una posición incorrecta, la intercambia y conserva cada acción una vez', () => {
     const expected = ['a', 'b', 'c', 'd', 'e'];
-    const result = applyOrderingHint(['c', 'b', 'e', 'a', 'd'], expected, []);
+    const result = applyOrderingHint(['c', 'b', 'e', 'a', 'd'], expected, [], () => .99);
 
-    expect(result.order[0]).toBe('a');
-    expect(result.lockedIds).toEqual(['a']);
-    expect(result.hintedId).toBe('a');
+    expect(result.order).toEqual(['c', 'b', 'd', 'a', 'e']);
+    expect(result.lockedIds).toEqual(['e']);
+    expect(result.hintedId).toBe('e');
     expect(new Set(result.order)).toEqual(new Set(expected));
     expect(result.order).toHaveLength(expected.length);
   });
 
   it('limita las pistas de orden a tres y deja una acción en casos de dos pasos', () => {
     const expected = ['a', 'b', 'c', 'd', 'e'];
-    let order = ['e', 'd', 'c', 'b', 'a'];
+    let order = ['b', 'c', 'd', 'e', 'a'];
     let locked: string[] = [];
     for (let index = 0; index < 4; index += 1) {
-      const result = applyOrderingHint(order, expected, locked);
+      const result = applyOrderingHint(order, expected, locked, () => 0);
       order = result.order;
       locked = result.lockedIds;
     }
     expect(locked).toHaveLength(3);
 
-    const short = applyOrderingHint(['b', 'a'], ['a', 'b'], []);
-    const shortAgain = applyOrderingHint(short.order, ['a', 'b'], short.lockedIds);
+    const short = applyOrderingHint(['b', 'a'], ['a', 'b'], [], () => 0);
+    const shortAgain = applyOrderingHint(short.order, ['a', 'b'], short.lockedIds, () => 0);
     expect(short.lockedIds).toHaveLength(1);
     expect(shortAgain.lockedIds).toEqual(short.lockedIds);
   });
@@ -150,7 +150,7 @@ describe('sesión de casos clínicos', () => {
   it('una pista nueva conserva la posición absoluta de las tarjetas ya bloqueadas', () => {
     const expected = ['a', 'b', 'c', 'd', 'e'];
 
-    const result = applyOrderingHint(['d', 'b', 'a', 'c', 'e'], expected, ['b']);
+    const result = applyOrderingHint(['d', 'b', 'a', 'c', 'e'], expected, ['b'], () => 0);
 
     expect(result.order).toEqual(['a', 'b', 'd', 'c', 'e']);
     expect(result.lockedIds).toEqual(['b', 'a']);
