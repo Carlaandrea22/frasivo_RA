@@ -11,6 +11,7 @@
 .mascota[data-animacion="parpadeo"] .mascota__ojos { animation: mascota-parpadear 480ms ease-in-out both; }
 .mascota[data-animacion="saludo"] .mascota__brazo--saludo { animation: mascota-saludar 1.4s ease-in-out both; }
 .mascota[data-animacion="celebracion"] .mascota__brazo { animation: mascota-celebrar 1.5s ease-in-out both; }
+.mascota[data-animacion="celebracion"] .mascota__brazo--libro { animation-name: mascota-levantar-libro; }
 .mascota[data-animacion="celebracion"] .mascota__cuerpo { animation: mascota-elevar 1.5s ease-in-out both; }
 .mascota[data-animacion="celebracion"] .mascota__sonrisa { display: none; }
 .mascota[data-animacion="celebracion"] :is(.mascota__risa, .mascota__destellos) { display: inline; }
@@ -38,6 +39,11 @@
   25%, 72% { transform: rotate(-126deg); }
   46% { transform: rotate(-113deg); }
 }
+@keyframes mascota-levantar-libro {
+  0%, 100% { transform: rotate(0); }
+  25%, 72% { transform: rotate(142deg); }
+  46% { transform: rotate(130deg); }
+}
 @keyframes mascota-elevar {
   0%, 100% { transform: translateY(0); }
   34%, 60% { transform: translateY(-4px); }
@@ -50,4 +56,5 @@
   .mascota[data-animacion] :is(.mascota__cuerpo, .mascota__ojos, .mascota__brazo, .mascota__destellos) { animation: none; }
   .mascota[data-animacion="saludo"] .mascota__brazo--saludo,
   .mascota[data-animacion="celebracion"] .mascota__brazo { transform: rotate(-116deg); }
+  .mascota[data-animacion="celebracion"] .mascota__brazo--libro { transform: rotate(136deg); }
 }

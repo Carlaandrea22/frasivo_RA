@@ -44,15 +44,19 @@ function Rostro({ veterano = false }: { veterano?: boolean }) {
   </g>;
 }
 
-function Brazos({ hombro, manga, escala = 1 }: { hombro: number; manga: string; escala?: number }) {
-  return <g stroke={tinta} strokeWidth="2.2" strokeLinejoin="round" strokeLinecap="round">
-    {[-1, 1].map(lado => <g key={lado} transform={`translate(${lado * hombro} 7) scale(${lado * escala} ${escala})`}>
-      <g className={`mascota__brazo ${lado === 1 ? 'mascota__brazo--saludo' : ''}`}>
-        <path d="M19 33c6-4 9 1 9 4l2 5c3 7-1 11-6 10-5 0-7-4-7-9l-4-6z" fill={piel}/>
-        <path d="M-4-7C5-10 11-5 13 4l11 31c-3 4-9 7-15 6L-1 16Z" fill={manga}/>
-        <path d="m8 35 12-5" fill="none" opacity=".22"/>
-      </g>
-    </g>)}
+function BrazoLibre({ lado, hombro, manga, escala = 1 }: {
+  lado: -1 | 1;
+  hombro: number;
+  manga: string;
+  escala?: number;
+}) {
+  return <g transform={`translate(${lado * hombro} 7) scale(${lado * escala} ${escala})`} strokeWidth="2.2">
+    <g className={lado === 1 ? 'mascota__brazo mascota__brazo--saludo' : 'mascota__brazo'}>
+      <path d="m9 34 11-2 2 7c2 6 0 10-5 11-4 1-7-1-8-5l-1-4c-3 0-3-4 1-7Z" fill={piel}/>
+      <path d="M-5-7C4-10 9-6 11 3l10 33q-6 5-13 4L-2 16Z" fill={manga}/>
+      <path d="m8 35 10-3" fill="none" opacity=".26"/>
+      <path d="M12 45q2-1 2-3" fill="none" stroke="#af6e56" strokeWidth="1.2"/>
+    </g>
   </g>;
 }
 
@@ -61,7 +65,8 @@ function CuerpoMedico({ veterano = false }: { veterano?: boolean }) {
     <path d="M-28 49h56l-2 45H7L0 67l-7 27h-19Z" fill={veterano ? '#475060' : azul}/>
     <path d="M-26 91h19l-1 13h-25c-5-1-6-6-1-9ZM7 91h19l9 4c5 3 4 8-1 9H8Z" fill={veterano ? '#353b46' : '#f9fffc'}/>
     <path d="M-35 100h25m20 0h25" fill="none" stroke="#93a7ae" strokeWidth="1.6"/>
-    <Brazos hombro={24} manga={bata}/>
+    <BrazoLibre lado={-1} hombro={24} manga={bata}/>
+    <BrazoLibre lado={1} hombro={24} manga={bata}/>
     <path d="M-10-16h20v18L0 11-10 2Z" fill={piel}/>
     <path d="M-15-4 0 12 15-4l14 13-4 57h-50l-4-57Z" fill={veterano ? '#8eb1c3' : azul}/>
     <path d="M-13-8-29 2l-8 70q12 5 29 3l7-55ZM13-8 29 2l8 70q-12 5-29 3L1 20Z" fill={bata}/>
@@ -76,15 +81,33 @@ function CuerpoMedico({ veterano = false }: { veterano?: boolean }) {
 
 function CuerpoBebe() {
   return <g stroke={tinta} strokeWidth="2.2" strokeLinejoin="round" strokeLinecap="round">
-    <path d="M-23 25c-13-1-25 10-25 20 0 8 12 8 21 4l16-9m34-15c13-1 25 10 25 20 0 8-12 8-21 4l-16-9" fill={piel}/>
-    <path d="M-23 35c-6 0-14 5-16 11-2 7 7 11 17 6 10-6 9-15-1-17Zm46 0c6 0 14 5 16 11 2 7-7 11-17 6-10-6-9-15 1-17Z" fill="#f6fcfb"/>
-    <Brazos hombro={20} manga="#80b7d7" escala={.7}/>
-    <path d="M-10-5h20l13 11 5 31q-28 20-56 0l5-31Z" fill="#80b7d7"/>
+    <path d="M-24 26h48l-1 14q-3 7-23 7t-23-7Z" fill="#6496b8"/>
+    <BrazoLibre lado={-1} hombro={19} manga="#80b7d7" escala={.67}/>
+    <BrazoLibre lado={1} hombro={19} manga="#80b7d7" escala={.67}/>
+    <path d="M-10-5h20l13 11 3 25q-12 8-26 8t-26-8l3-25Z" fill="#80b7d7"/>
     <path d="M-10-7h20v8Q0 10-10 1Z" fill={piel}/>
     <g fill="#edf7f5" stroke="none">
       <circle cx="-7" cy="19" r="4"/><circle cx="7" cy="19" r="4"/><ellipse cy="25" rx="9" ry="7"/>
     </g>
     <path d="M-4 24h1m6 0h1m-6 4q2 2 4 0" stroke="#486d87" strokeWidth="1.6" fill="none"/>
+    <path d="M-23 35q6-6 15-3l4 12-16 3Zm46 0q-6-6-15-3L4 44l16 3Z" fill={piel}/>
+    <path d="M-23 40q5-4 12-1c4 1 7 6 5 11-2 6-18 6-21 0-2-4 0-8 4-10Zm46 0q-5-4-12-1c-4 1-7 6-5 11 2 6 18 6 21 0 2-4 0-8-4-10Z" fill="#f6fcfb"/>
+    <path d="M-23 48q6 2 13 0m20 0q7 2 13 0" stroke="#aec8d6" strokeWidth="1.6" fill="none"/>
+  </g>;
+}
+
+function BrazoConLibro({ manga, adolescente }: { manga: string; adolescente: boolean }) {
+  return <g transform="translate(-22 7)">
+    <g className="mascota__brazo mascota__brazo--libro">
+      <path d="M-4-7C4-9 9-4 7 4l-8 18-9 1C-12 17-9 3-4-7Z" fill={manga}/>
+      <g transform="translate(15 22) rotate(-12)">
+        <rect x="-13" y="-17" width="28" height="35" rx="3" fill="#edf5f8"/>
+        <path d="M-11-19h23v34h-23q-4 0-4 2v-32q0-4 4-4Z" fill={adolescente ? '#327c73' : '#345e83'}/>
+        <path d="M-9-14v24M1-11V1m-5-6H6" fill="none" stroke="#bedde4" strokeWidth="1.8"/>
+      </g>
+      <path d="M-10 21q4-5 9-3l5 6 8 4 3-3q4-2 4 1l-1 3q5 0 4 3-1 5-8 6-5 1-11-3l-9-5q-5-4-4-9Z" fill={piel}/>
+      <path d="m-9 22 7-3m16 13 4-2" fill="none" stroke="#af6e56" strokeWidth="1.3"/>
+    </g>
   </g>;
 }
 
@@ -98,18 +121,14 @@ function CuerpoEstudiante({ adolescente = false }: { adolescente?: boolean }) {
     </>}
     <path d="M-26 93h17l-1 11h-24c-5-1-6-6 0-8Zm52 0H9l1 11h24c5-1 6-6 0-8Z" fill="#4c7092"/>
     <path d="M-33 100h19m28 0h19m-20-4h6m-38 0h6" stroke="#e9f4f2" strokeWidth="1.6"/>
-    <Brazos hombro={22} manga={camisa} escala={.92}/>
+    <BrazoLibre lado={1} hombro={22} manga={camisa} escala={.92}/>
     <path d="M-9-13H9V1L0 10-9 1Z" fill={piel}/>
     <path d="M-12-5Q0 9 12-5l14 8 2 52q-28 8-56 0l2-52Z" fill={camisa}/>
     {adolescente && <>
       <path d="M-13-5q-13-9-14 7l10 9 7-11m23-5q13-9 14 7l-10 9-7-11" fill="#4d6585" strokeWidth="1.7"/>
       <path d="M0 10v47m-8-48-2 11m18-11 2 11" stroke="#a7bdd0" strokeWidth="1.6"/>
     </>}
-    <g transform="translate(-7 32) rotate(-12)">
-      <rect x="-15" y="-18" width="30" height="39" rx="3" fill="#edf5f8"/>
-      <path d="M-14-20h27v36h-27q-3 0-3 2v-35q0-3 3-3Z" fill={adolescente ? '#327c73' : '#345e83'}/>
-      <path d="M-8-15v26M1-12v14m-5-7h10" fill="none" stroke="#bedde4" strokeWidth="1.8"/>
-    </g>
+    <BrazoConLibro manga={camisa} adolescente={adolescente}/>
   </g>;
 }
 

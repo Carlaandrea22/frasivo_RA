@@ -94,6 +94,7 @@ test('la investigación permite seguir una ruta débil, reiniciar y guardar solo
 });
 
 test('completa los cuatro modos en cinco casos y dibuja cuadrados según el desempeño', async ({ page }) => {
+  await page.clock.setFixedTime(new Date(2026, 10, 22, 12));
   await choose(page, 'Empezar sesión de 5 casos');
   await expect(page.getByText('Caso 1 de 5')).toBeVisible();
   await choose(page, /When did the pain begin/);
@@ -150,6 +151,9 @@ test('completa los cuatro modos en cinco casos y dibuja cuadrados según el dese
   }
   await page.getByRole('link', { name: 'Ver mis prácticas' }).click();
   await expect(page.getByRole('article')).toHaveCount(5);
+  await page.getByRole('link', { name: 'Mi progreso' }).click();
+  await expect(page.getByText('1 día de racha')).toBeVisible();
+  await expect(page.getByText('Meta de hoy completada')).toBeVisible();
 });
 
 test('permite practicar un modo y mantiene visible la tarjeta durante el arrastre', async ({ page }) => {

@@ -1,42 +1,45 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 
-test('la mascota cruza un umbral con un acierto y conserva la etapa al volver a Mi progreso', async ({ page }) => {
+async function completarCaso(page: Page) {
+  await page.goto('/#practicar/casos');
+  await page.getByRole('button', { name: 'Practicar solo Selección múltiple' }).click();
+  await page.getByRole('button', { name: 'An oral antibiotic' }).click();
+  await page.getByRole('button', { name: 'Comprobar respuesta' }).click();
+  await page.getByRole('button', { name: 'Siguiente caso' }).click();
+  await page.getByRole('button', { name: 'Volver a Casos clínicos' }).click();
+}
+
+test('cinco casos sueltos cuentan como un día de racha aunque las respuestas sean incorrectas', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 });
-  await page.addInitScript(() => {
-    const seedKey = 'lumar.progress:v1:event:mascota-fixture';
-    if (localStorage.getItem(seedKey)) return;
-    localStorage.setItem('frasivo-explore:v1', JSON.stringify({
-      version: 1,
-      points: 80,
-      words: { femur: { attempts: 4, correct: 2 } },
-    }));
-    localStorage.setItem(seedKey, JSON.stringify({
-      id: 'mascota-fixture', timestamp: '2026-01-01T00:00:00.000Z', kind: 'practice',
-      areaId: 'anatomy', itemId: 'primary-assessment-order', correct: 7, assisted: 2, errors: 3, hints: 2,
-    }));
-  });
+  await page.clock.install({ time: new Date(2026, 10, 22, 12) });
+  for (let index = 0; index < 4; index += 1) await completarCaso(page);
 
   await page.goto('/#progreso');
   const mascota = page.locator('svg.mascota');
   await expect(mascota).toHaveAttribute('data-etapa', 'bebe');
-  await expect(page.getByText('Falta 1 acierto para Niño.')).toBeVisible();
+  await expect(page.getByText('Meta de hoy · 4 de 5 casos')).toBeVisible();
 
-  await page.goto('/#practicar/casos');
-  await page.getByRole('button', { name: 'Practicar solo Selección múltiple' }).click();
-  await page.getByRole('button', { name: 'Intramuscular adrenaline' }).click();
-  await page.getByRole('button', { name: 'Comprobar respuesta' }).click();
-  await page.getByRole('button', { name: 'Siguiente caso' }).click();
+  await completarCaso(page);
   await page.getByRole('navigation', { name: 'Navegación principal' }).getByRole('button', { name: 'Mi progreso' }).click();
-
   await expect(mascota).toHaveAttribute('data-etapa', 'nino');
   await expect(mascota).toHaveAttribute('data-animacion', 'celebracion');
-  await expect(page.getByText('Faltan 15 aciertos para Adolescente.')).toBeVisible();
+  await expect(page.getByText('1 día de racha')).toBeVisible();
+  await expect(page.getByText('Meta de hoy completada')).toBeVisible();
   await page.getByRole('button', { name: 'Saludar' }).click();
   await expect(mascota).toHaveAttribute('data-animacion', 'saludo');
-  await page.getByRole('button', { name: 'Celebrar' }).click();
-  await expect(mascota).toHaveAttribute('data-animacion', 'celebracion');
 
+  await completarCaso(page);
+  await page.goto('/#progreso');
   await page.reload();
-  await expect(mascota).toHaveAttribute('data-etapa', 'nino');
+  await expect(page.getByText('1 día de racha')).toBeVisible();
   await expect(mascota).toHaveAttribute('data-animacion', 'reposo');
+
+  await page.clock.setSystemTime(new Date(2026, 10, 23, 23, 59, 45));
+  await page.reload();
+  await expect(page.getByText('1 día de racha')).toBeVisible();
+  await expect(page.getByText('Meta de hoy · 0 de 5 casos')).toBeVisible();
+
+  await page.clock.fastForward(20_000);
+  await expect(page.getByText('0 días de racha')).toBeVisible();
+  await expect(mascota).toHaveAttribute('data-etapa', 'bebe');
 });

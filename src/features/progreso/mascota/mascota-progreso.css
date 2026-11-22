@@ -51,8 +51,9 @@
 .mascota-info h2 { font-size: clamp(1.45rem, 5vw, 2rem); line-height: 1.12; letter-spacing: -.025em; }
 .mascota-evolucion { display: grid; width: 100%; gap: 6px; }
 .mascota-evolucion p { color: var(--muted); font-size: .86rem; }
-.mascota-evolucion .mascota-aciertos { color: var(--ink); }
-.mascota-aciertos strong { font: 800 1.25rem/1 var(--font-title); }
+.mascota-evolucion .mascota-racha { color: var(--ink); }
+.mascota-racha strong { font: 800 1.25rem/1 var(--font-title); }
+.mascota-evolucion .mascota-meta { margin: 4px 0 0; color: var(--forest); font-weight: 700; }
 .mascota-evolucion progress {
   appearance: none;
   display: block;
