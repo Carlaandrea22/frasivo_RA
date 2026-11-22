@@ -1,5 +1,6 @@
 import type { CategoriaAnatomica, Estructura, Revision } from '../types';
 import { partesCorazon, revisionCorazon } from './corazon';
+import { partesAtlas } from './partesAtlas';
 
 const thumbnails = import.meta.glob('./miniaturas/*.webp', { eager: true, query: '?url', import: 'default' }) as Record<string, string>;
 const thumbnail = (id: string) => thumbnails[`./miniaturas/${id}.webp`];
@@ -19,6 +20,8 @@ export const revisionFemur: Revision = {
 };
 
 const partesHuesos: Record<string, Estructura['partes']> = {
+  pelvis: partesAtlas.pelvis,
+  patella: partesAtlas.patella,
   tibia: [
     { id: 'condilos', nombreEs: 'Cóndilos tibiales', terminoEn: 'Tibial condyles', ubicacion: 'Extremo proximal, debajo del fémur.', funcion: 'Reciben las superficies articulares de los cóndilos femorales.' },
     { id: 'cuerpo', nombreEs: 'Cuerpo de la tibia', terminoEn: 'Tibial shaft', ubicacion: 'Porción central de la tibia.', funcion: 'Transmite cargas y ofrece inserciones musculares.' },
@@ -34,6 +37,12 @@ const partesHuesos: Record<string, Estructura['partes']> = {
     { id: 'cuerpo', nombreEs: 'Cuerpo del radio', terminoEn: 'Radial shaft', ubicacion: 'Porción central del radio.', funcion: 'Participa en la rotación del antebrazo y transmite cargas.' },
     { id: 'estiloides', nombreEs: 'Apófisis estiloides', terminoEn: 'Radial styloid process', ubicacion: 'Extremo distal lateral del radio.', funcion: 'Ofrece inserción a ligamentos de la muñeca.' },
   ],
+};
+
+const fuentesHuesos: Record<string, string> = {
+  humerus: '8-2-bones-of-the-upper-limb',
+  radius: '8-2-bones-of-the-upper-limb',
+  pelvis: '8-3-the-pelvic-girdle-and-pelvis',
 };
 
 export const estructuras: readonly Estructura[] = [{
@@ -61,9 +70,9 @@ export const estructuras: readonly Estructura[] = [{
   ['patella', 'Rótula', 'Patella', 'patella_left', 'Hueso sesamoideo de la rodilla.', 'En el tendón del cuádriceps, delante de la rodilla.', 'Mejora la palanca del cuádriceps al extender la rodilla.', ['femur', 'tibia']],
 ] as const).map(([id, nombreEs, terminoEn, nodeId, definicion, ubicacion, funcion, relacionadas]): Estructura => ({
   id, categoria: 'huesos', nombreEs, terminoEn, definicion, ubicacion, funcion, relacionadas,
-  modelo: { assetId: partesHuesos[id] ? 'body-bones-regions' : 'body-bones', nodeId }, miniatura: thumbnail(nodeId),
-  partes: partesHuesos[id] ?? [],
-  revision: { estado: 'provisional', fuentes: [{ titulo: 'OpenStax · The Appendicular Skeleton', url: `https://openstax.org/books/anatomy-and-physiology-2e/pages/${['humerus','radius'].includes(id) ? '8-2-bones-of-the-upper-limb' : '8-4-bones-of-the-lower-limb'}` }] },
+  modelo: { assetId: 'body-bones-regions', nodeId }, miniatura: thumbnail(nodeId),
+  partes: partesHuesos[id],
+  revision: { estado: 'provisional', fuentes: [{ titulo: 'OpenStax · The Appendicular Skeleton', url: `https://openstax.org/books/anatomy-and-physiology-2e/pages/${fuentesHuesos[id] ?? '8-4-bones-of-the-lower-limb'}` }] },
 })), {
   id: 'heart', categoria: 'organos', nombreEs: 'Corazón', terminoEn: 'Heart',
   definicion: 'Órgano muscular que impulsa la sangre. Este modelo en corte es esquemático y simplifica la anatomía.',
@@ -75,13 +84,13 @@ export const estructuras: readonly Estructura[] = [{
   id: 'lungs', categoria: 'organos', nombreEs: 'Pulmones', terminoEn: 'Lungs',
   definicion: 'Órganos respiratorios pares.', ubicacion: 'En el tórax, a ambos lados del mediastino.',
   funcion: 'Permiten intercambiar oxígeno y dióxido de carbono entre el aire y la sangre.',
-  modelo: { assetId: 'body-organs', nodeId: 'lungs' }, miniatura: thumbnail('lungs'), partes: [], relacionadas: ['heart'],
+  modelo: { assetId: 'lung-regions', nodeId: 'lungs' }, miniatura: thumbnail('lungs'), partes: partesAtlas.lungs, relacionadas: ['heart'],
   revision: { estado: 'provisional', fuentes: [{ titulo: 'OpenStax · The Lungs', url: 'https://openstax.org/books/anatomy-and-physiology-2e/pages/22-2-the-lungs' }] },
 }, ...([
   ['biceps_brachii', 'Bíceps braquial', 'Biceps brachii', 'biceps_brachii_left', 'Músculo anterior del brazo con dos cabezas.', 'En la cara anterior del brazo.', 'Flexiona el codo y supina el antebrazo.', ['humerus', 'radius']],
   ['quadriceps_femoris', 'Cuádriceps femoral', 'Quadriceps femoris', 'quadriceps_femoris_left', 'Grupo muscular anterior del muslo.', 'En la cara anterior del muslo.', 'Extiende la rodilla; el recto femoral también flexiona la cadera.', ['femur', 'patella']],
 ] as const).map(([id, nombreEs, terminoEn, nodeId, definicion, ubicacion, funcion, relacionadas]): Estructura => ({
   id, categoria: 'musculos', nombreEs, terminoEn, definicion, ubicacion, funcion, relacionadas,
-  modelo: { assetId: 'body-muscles', nodeId }, miniatura: thumbnail(nodeId), partes: [],
+  modelo: { assetId: 'muscle-regions', nodeId }, miniatura: thumbnail(nodeId), partes: partesAtlas[id],
   revision: { estado: 'provisional', fuentes: [{ titulo: 'OpenStax · Appendicular muscles', url: `https://openstax.org/books/anatomy-and-physiology-2e/pages/${id === 'biceps_brachii' ? '11-5-muscles-of-the-pectoral-girdle-and-upper-limbs' : '11-6-appendicular-muscles-of-the-pelvic-girdle-and-lower-limbs'}` }] },
 }))];

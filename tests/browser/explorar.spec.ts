@@ -10,6 +10,7 @@ for (const width of [375, 1440]) test(`Explorar: catálogo y corazón a ${width}
   await expect(page.getByRole('button', { name: 'Limpiar búsqueda' })).toBeVisible();
   await page.getByRole('button', { name: 'Limpiar búsqueda' }).click();
   await expect(page.locator('.explorar-grid > article')).toHaveCount(2);
+  await expect(page.locator('.explorar-grid').getByText('Provisional', { exact: true })).toHaveCount(0);
   await page.screenshot({ path: `docs/capturas/carla/catalogo-organos-${width}.png`, fullPage: true });
   await page.getByRole('link', { name: /Ver corazón/i }).click();
   await expect(page.locator('[data-viewer-state="ready"]')).toBeVisible();
@@ -37,6 +38,20 @@ for (const width of [375, 1440]) test(`Explorar: catálogo y corazón a ${width}
   await expect(page.locator('[data-viewer-state="ready"]')).toBeVisible();
   const consultations = await page.evaluate(() => Object.keys(localStorage).filter(k => k.startsWith('lumar.progress:v1:event:')).map(k => JSON.parse(localStorage[k])).filter(e => e.kind === 'consultation'));
   expect(consultations.length).toBeGreaterThan(0);
+});
+
+test('las fichas ampliadas muestran sus partes y reproducen el audio del atlas', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 900 });
+  for (const [id, partCount] of [['pelvis', 4], ['patella', 3], ['biceps_brachii', 2], ['quadriceps_femoris', 4], ['lungs', 5]] as const) {
+    await page.goto(`/#explorar/estructura/${id}`);
+    await expect(page.locator('[data-viewer-state="ready"]')).toBeVisible();
+    await expect(page.locator('.explorar-parts button')).toHaveCount(partCount);
+    await page.locator('.explorar-parts button').last().click();
+    await expect(page.getByRole('region', { name: 'Parte seleccionada' })).toBeVisible();
+  }
+  const response = page.waitForResponse(r => /left-lower-lobe.*\.mp3/.test(r.url()) && r.ok());
+  await page.getByRole('button', { name: 'Escuchar Left lower lobe' }).click();
+  expect((await response).headers()['content-type']).toContain('audio/');
 });
 
 test('cada ficha del catálogo abre su nodo GLB y ofrece salida ante un ID desconocido', async ({ page }) => {

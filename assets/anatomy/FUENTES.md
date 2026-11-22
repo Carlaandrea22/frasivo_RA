@@ -16,7 +16,9 @@ Descargas y OBJ originales extraídos el 21 de noviembre de 2026 bajo `assets/_f
 
 ## Modificaciones
 
-Explorar añade un [GLB derivado de cuatro huesos con regiones seleccionables](../../src/content/anatomy/modelos/README.md), generado con [generate-explorar-regions.mjs](../../scripts/generate-explorar-regions.mjs). Conserva todos los triángulos, posiciones, normales y materiales originales. Divide las superficies mediante máscaras geométricas orientativas para resaltar por separado partes de fémur, tibia, húmero y radio. Los límites siguen provisionales y pendientes de revisión anatómica; no constituyen una segmentación anatómica validada. Este derivado conserva la atribución y licencia CC BY 4.0 de BodyParts3D.
+Los [GLB con regiones seleccionables de Explorar](../../src/content/anatomy/modelos/README.md) conservan los triángulos, posiciones, normales y materiales originales. El [generador](../../scripts/generate-explorar-regions.mjs) agrupa superficies y estima los límites cuando las partes comparten una malla. Incluye los seis huesos del catálogo, bíceps, cuádriceps y pulmones. Los derivados de BodyParts3D conservan la atribución y licencia CC BY 4.0. Las regiones y anclajes siguen pendientes de revisión anatómica.
+
+Explorar incluye [clips de pronunciación en inglés estadounidense](../../src/content/anatomy/pronunciacion/README.md) generados con Piper y el modelo femenino LJ Speech, entrenado con grabaciones de dominio público.
 
 En Blender 5.2.2 LTS se unieron mallas elementales por estructura, se eliminaron vértices coincidentes, se recalcularon normales y se redujeron triángulos con presupuestos por pieza. Se conservaron las proporciones del atlas, sus lados anatómicos y la vista anterior. El modelo usa metros y el origen vertical se desplazó hasta el extremo inferior de la tibia. Las dos mallas del recto abdominal 3.0 se desplazaron 16,6 mm hacia abajo a partir de la comparación del oblicuo externo con la edición 4.0. Los lóbulos 3.0 mantienen sus coordenadas originales en ese marco.
 

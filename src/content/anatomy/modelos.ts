@@ -3,6 +3,8 @@ import musculos from '../../../assets/anatomy/body/muscles.glb?url';
 import organos from '../../../assets/anatomy/body/organs.glb?url';
 import corazon from '../../../assets/anatomy/cardiovascular/heart-cutaway.glb?url';
 import regiones from './modelos/huesos-regiones.glb?url';
+import regionesMusculos from './modelos/musculos-regiones.glb?url';
+import regionesPulmones from './modelos/pulmones-regiones.glb?url';
 
 export const modelos: Readonly<Record<string, string>> = {
   'body-bones': huesos,
@@ -10,4 +12,6 @@ export const modelos: Readonly<Record<string, string>> = {
   'body-organs': organos,
   'heart-cutaway': corazon,
   'body-bones-regions': regiones,
+  'muscle-regions': regionesMusculos,
+  'lung-regions': regionesPulmones,
 };

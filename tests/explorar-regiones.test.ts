@@ -16,7 +16,13 @@ function glb(path: string) {
   return { data, indices };
 }
 
-describe('regiones seleccionables de los huesos', () => {
+const atlases = [
+  ['bones', 'huesos', 'femur', 'tibia', 'humerus', 'radius', 'pelvis', 'patella'],
+  ['muscles', 'musculos', 'biceps_brachii', 'quadriceps_femoris'],
+  ['organs', 'pulmones', 'lungs'],
+] as const;
+
+describe('regiones seleccionables del atlas', () => {
   it('cada parte apunta a su propia malla y mantiene el ID de la estructura', () => {
     for (const id of ['femur','tibia','humerus','radius']) {
       const item = estructuras.find(i => i.id === id)!;
@@ -26,15 +32,20 @@ describe('regiones seleccionables de los huesos', () => {
       expect(notes.every(a => a.nodeId.startsWith(`${item.modelo?.nodeId}__`))).toBe(true);
     }
   });
-  it('separa triángulos sin duplicarlos ni perder superficie del hueso original', () => {
-    const original = glb('assets/anatomy/body/bones.glb');
-    const regions = glb('src/content/anatomy/modelos/huesos-regiones.glb');
-    for (const id of ['femur_left','tibia_left','humerus_left','radius_left']) {
-      const oldNode = original.data.nodes.find((n: { name: string }) => n.name === id);
+  it.each(atlases)('separa triángulos de %s sin duplicarlos ni perder superficie', (source, output, ...ids) => {
+    const original = glb(`assets/anatomy/body/${source}.glb`);
+    const regions = glb(`src/content/anatomy/modelos/${output}-regiones.glb`);
+    for (const id of ids) {
+      const item = estructuras.find(i => i.id === id)!;
+      const nodeId = item.modelo?.nodeId;
+      const oldNode = original.data.nodes.find((n: { name: string }) => n.name === nodeId);
       const expected = original.indices(original.data.meshes[oldNode.mesh].primitives[0]);
-      const parent = regions.data.nodes.find((n: { name: string }) => n.name === id);
+      const parent = regions.data.nodes.find((n: { name: string }) => n.name === nodeId);
       const pieces = parent.children.map((index: number) => regions.data.nodes[index]);
-      expect(pieces.filter((n: { name: string }) => !n.name.endsWith('__base'))).toHaveLength(3);
+      const notes = anotaciones.filter(a => a.estructuraId === id);
+      expect(notes.map(n => n.parteId).sort()).toEqual(item.partes.map(p => p.id).sort());
+      expect(pieces.filter((n: { name: string }) => !n.name.endsWith('__base')).map((n: { name: string }) => n.name).sort())
+        .toEqual(notes.map(n => n.nodeId).sort());
       const actual: number[] = [];
       for (const piece of pieces) {
         const indices = regions.indices(regions.data.meshes[piece.mesh].primitives[0]);

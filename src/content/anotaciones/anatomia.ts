@@ -1,8 +1,9 @@
-import type { Anotacion } from '../types';
-import { revisionFemur } from '../anatomy/catalogo';
-import { estructuras } from '../anatomy/catalogo';
+import type { Anotacion, Punto3D } from '../types';
+import { estructuras, revisionFemur } from '../anatomy/catalogo';
 import { partesCorazon, revisionCorazon } from '../anatomy/corazon';
 import puntosCorazon from './puntos-corazon.json';
+import puntosRegiones from './puntos-regiones.json';
+import { partesAtlas } from '../anatomy/partesAtlas';
 
 export const anotaciones: readonly Anotacion[] = [
   { id: 'femur-cabeza', estructuraId: 'femur', parteId: 'cabeza', etiquetaEs: 'Cabeza del fémur', etiquetaEn: 'Femoral head', nodeId: 'femur_left__cabeza', punto: [.083, .826, .104], revision: revisionFemur },
@@ -25,4 +26,15 @@ export const anotaciones: readonly Anotacion[] = [
       nodeId: `${item.modelo!.nodeId}__${parte.id}`, punto: points[index], revision: item.revision,
     }));
   }),
+  ...estructuras.filter(item => Object.hasOwn(partesAtlas, item.id)).flatMap(item =>
+    item.partes.map((parte): Anotacion => {
+      const nodeId = `${item.modelo!.nodeId}__${parte.id}`;
+      return {
+        id: `${item.id}-${parte.id}`, estructuraId: item.id, parteId: parte.id,
+        etiquetaEs: parte.nombreEs, etiquetaEn: parte.terminoEn, nodeId,
+        punto: puntosRegiones[nodeId as keyof typeof puntosRegiones] as unknown as Punto3D,
+        revision: item.revision,
+      };
+    }),
+  ),
 ];

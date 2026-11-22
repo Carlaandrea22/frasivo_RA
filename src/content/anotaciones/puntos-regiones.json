@@ -1,0 +1,152 @@
+{
+  "femur_left__condilos": [
+    0.0737474,
+    0.3987157,
+    0.106847
+  ],
+  "femur_left__cuerpo": [
+    0.096776,
+    0.6512333,
+    0.1039893
+  ],
+  "femur_left__cabeza": [
+    0.082437,
+    0.8205453,
+    0.1009157
+  ],
+  "tibia_left__condilos": [
+    0.0733009,
+    0.363016,
+    0.1096553
+  ],
+  "tibia_left__cuerpo": [
+    0.0790916,
+    0.207085,
+    0.0999012
+  ],
+  "tibia_left__maleolo": [
+    0.0546022,
+    0.0103607,
+    0.0933268
+  ],
+  "humerus_left__cabeza": [
+    0.1621993,
+    1.3218353,
+    0.0988045
+  ],
+  "humerus_left__cuerpo": [
+    0.2004147,
+    1.1837653,
+    0.0793582
+  ],
+  "humerus_left__troclea": [
+    0.198957,
+    1.0524887,
+    0.082508
+  ],
+  "radius_left__estiloides": [
+    0.26753,
+    0.820326,
+    0.123149
+  ],
+  "radius_left__cuerpo": [
+    0.2456367,
+    0.9261946,
+    0.0913203
+  ],
+  "radius_left__cabeza": [
+    0.231536,
+    1.0330953,
+    0.0807696
+  ],
+  "pelvis_left__isquion": [
+    0.059934,
+    0.8087013,
+    0.090875
+  ],
+  "pelvis_left__pubis": [
+    0.0284585,
+    0.807007,
+    0.132614
+  ],
+  "pelvis_left__acetabulo": [
+    0.1026263,
+    0.8440003,
+    0.1037677
+  ],
+  "pelvis_left__ilion": [
+    0.124206,
+    0.9018883,
+    0.1357153
+  ],
+  "patella_left__cara_articular": [
+    0.0761049,
+    0.386406,
+    0.103343
+  ],
+  "patella_left__base_superior": [
+    0.0869312,
+    0.4021233,
+    0.1192513
+  ],
+  "patella_left__vertice": [
+    0.082202,
+    0.3730643,
+    0.1142787
+  ],
+  "biceps_brachii_left__cabeza_larga": [
+    0.199293,
+    1.1696153,
+    0.1073907
+  ],
+  "biceps_brachii_left__cabeza_corta": [
+    0.1795303,
+    1.1925587,
+    0.1084433
+  ],
+  "quadriceps_femoris_left__recto_femoral": [
+    0.1077182,
+    0.6217354,
+    0.1516636
+  ],
+  "quadriceps_femoris_left__vasto_intermedio": [
+    0.1030934,
+    0.5537833,
+    0.1342977
+  ],
+  "quadriceps_femoris_left__vasto_lateral": [
+    0.128195,
+    0.5595786,
+    0.1351873
+  ],
+  "quadriceps_femoris_left__vasto_medial": [
+    0.0741948,
+    0.5278072,
+    0.1449426
+  ],
+  "lungs__superior_derecho": [
+    -0.0392247,
+    1.287406,
+    0.1608128
+  ],
+  "lungs__medio_derecho": [
+    -0.0509245,
+    1.2140261,
+    0.1916722
+  ],
+  "lungs__inferior_derecho": [
+    -0.0705485,
+    1.167837,
+    0.1889491
+  ],
+  "lungs__superior_izquierdo": [
+    0.0388721,
+    1.261497,
+    0.171661
+  ],
+  "lungs__inferior_izquierdo": [
+    0.0711571,
+    1.1792812,
+    0.1855599
+  ]
+}

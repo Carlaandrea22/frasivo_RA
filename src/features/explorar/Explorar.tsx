@@ -11,7 +11,7 @@ import { BottomSheet } from '../../shared/ui/BottomSheet';
 import { Button } from '../../shared/ui/Button';
 import { Card } from '../../shared/ui/Card';
 import { ContentState } from '../../shared/ui/ContentState';
-import { EnglishTerm } from '../../shared/ui/EnglishTerm';
+import { Pronunciacion as EnglishTerm } from './Pronunciacion';
 import { SearchField } from '../../shared/ui/SearchField';
 import { Segmented } from '../../shared/ui/Segmented';
 import type { Viewer3DProjectedAnchor } from '../../shared/visor3d/Viewer3D';
@@ -38,7 +38,7 @@ export function Catalogo({ params }: RouteProps) {
       {results.map(item => <Card className="explorar-preview" key={item.id}>
         <a href={`#explorar/estructura/${item.id}`} aria-label={`Ver ${item.nombreEs.toLocaleLowerCase('es')}`}>
           <img src={item.miniatura} alt="" className="explorar-thumb" width="256" height="256" loading="lazy"/>
-          <div className="explorar-card-text"><h2>{item.nombreEs}</h2><p lang="en">{item.terminoEn}</p><Provisional item={item}/></div>
+          <div className="explorar-card-text"><h2>{item.nombreEs}</h2><p lang="en-US">{item.terminoEn}</p></div>
         </a>
       </Card>)}
     </div>
@@ -138,7 +138,7 @@ function Ficha({ item }: { item: Estructura }) {
           </div>
           {selected && <section className="explorar-part-detail" aria-label="Parte seleccionada" aria-live="polite">
             <h3>{selected.nombreEs}</h3><EnglishTerm term={selected.terminoEn}/><p>{selected.ubicacion}</p><p>{selected.funcion}</p>
-            {item.modelo?.assetId === 'body-bones-regions' && <p className="explorar-help">Resaltado orientativo: límites de la región pendientes de revisión anatómica.</p>}
+            {item.categoria === 'huesos' && <p className="explorar-help">Resaltado orientativo: límites de la región pendientes de revisión anatómica.</p>}
             <Button variant="text" onClick={() => setSelectedPart(undefined)}>Ver estructura completa</Button>
           </section>}
           <BottomSheet trigger="Ver partes" title="Partes anatómicas">

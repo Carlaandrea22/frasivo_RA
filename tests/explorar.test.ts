@@ -2,8 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { estructuras } from '../src/content/anatomy/catalogo';
 import { anotaciones } from '../src/content/anotaciones/anatomia';
 import { filtrarEstructuras, distribuirEtiquetas } from '../src/features/explorar/atlas';
+import { pronunciacionUrl } from '../src/features/explorar/Pronunciacion';
 
 describe('atlas de Explorar', () => {
+  it('incluye un audio para cada término visible del atlas', () => {
+    for (const item of estructuras) {
+      for (const { terminoEn } of [item, ...item.partes]) expect(pronunciacionUrl(terminoEn), terminoEn).toBeTruthy();
+    }
+  });
   it('busca sin tildes ni mayúsculas en ambos idiomas y respeta la categoría', () => {
     expect(filtrarEstructuras(estructuras, 'huesos', ' FÉMUR ').map(i => i.id)).toEqual(['femur']);
     expect(filtrarEstructuras(estructuras, 'organos', 'HEART').map(i => i.id)).toEqual(['heart']);

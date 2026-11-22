@@ -69,3 +69,14 @@ revisión profesional del contenido, regiones y anclajes sigue pendiente.
   cabeza del fémur cambia la zona superior y no modifica la mitad inferior.
 - [Región seleccionada a 375 px](../capturas/carla/femur-region-375.png) y
   [en escritorio](../capturas/carla/femur-region-1440.png).
+
+## Partes y pronunciación en el catálogo actual
+
+Las diez fichas del catálogo tienen partes seleccionables. Se añadieron
+dieciocho al hueso coxal, la rótula, el bíceps, el cuádriceps y los pulmones.
+En los huesos y en el lóbulo medio derecho, algunos límites del resaltado
+son orientativos. La ficha conserva su estado y fuentes para la revisión
+profesional. El catálogo muestra las miniaturas y los nombres.
+
+Los 55 términos de Explorar incluyen [audio sintetizado con voz femenina en
+inglés estadounidense](../../src/content/anatomy/pronunciacion/README.md).
