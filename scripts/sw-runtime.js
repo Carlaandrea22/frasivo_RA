@@ -47,6 +47,15 @@ async function audioRange(response, range) {
   return new Response(audio.slice(start, end + 1), { status: 206, headers });
 }
 
+function withoutRedirect(response) {
+  if (!response.redirected) return response;
+  return new Response(response.body, {
+    headers: response.headers,
+    status: response.status,
+    statusText: response.statusText,
+  });
+}
+
 function download(path) {
   if (!pending.has(path)) {
     const result = (async () => {
@@ -72,7 +81,10 @@ async function respond(request, url) {
   const shell = await caches.open(NAME);
   // Requests for scripts/styles may add Origin while precache requests do not.
   const cached = await shell.match(request, { ignoreVary: true, ignoreSearch: request.mode === 'navigate' });
-  if (cached) return range ? audioRange(cached, range) : cached;
+  if (cached) {
+    const response = withoutRedirect(cached);
+    return range ? audioRange(response, range) : response;
+  }
   if (url.pathname === CONFIG.simd && typeof DecompressionStream === 'function') {
     const compressed = await shell.match(CONFIG.packedSimd);
     if (compressed?.body) {
@@ -80,11 +92,14 @@ async function respond(request, url) {
       return new Response(binary, { headers: { 'Content-Type': 'application/wasm' } });
     }
   }
-  if (deferred.has(url.pathname)) return (await download(url.pathname)).clone();
+  if (deferred.has(url.pathname)) return withoutRedirect((await download(url.pathname)).clone());
   try {
     return await fetch(request);
   } catch (error) {
-    if (request.mode === 'navigate') return (await shell.match('/index.html')) || Response.error();
+    if (request.mode === 'navigate') {
+      const home = await shell.match('/');
+      return home ? withoutRedirect(home) : Response.error();
+    }
     throw error;
   }
 }

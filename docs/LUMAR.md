@@ -2,6 +2,8 @@
 
 LumAR, antes Frasivo Explore, es una PWA educativa de anatomía humana. Permite pasar del cuerpo en cámara a un modelo 3D, practicar lo observado y aplicar ese conocimiento en una entrevista clínica simulada. La interfaz, las definiciones y las explicaciones van en español. Cada estructura incluye su término en inglés y un botón para escucharlo con la voz inglesa del dispositivo cuando esté disponible.
 
+**URL pública** · pendiente: la crea Carla. [Configuración de Cloudflare Pages](HOSTING.md)
+
 ## Recorrido
 
 | Sección | Qué hace el estudiante |

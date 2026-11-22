@@ -84,6 +84,44 @@ test('instala interfaz, Pose Lite y Huesos bajo 20 MB y difiere el resto', async
   })).toBe(true);
 });
 
+test('reabre LumAR sin conexión cuando el alojamiento redirige index.html', async ({ baseURL, page, context }) => {
+  const index = new URL('/index.html', baseURL).href;
+  await page.route(index, route => route.fulfill({ status: 308, headers: { Location: '/' } }));
+  await page.route('**/pages-redirect-fixture', route => route.fulfill({
+    contentType: 'text/html', body: '<!doctype html><title>Redirección de prueba</title>',
+  }));
+  await page.goto('/pages-redirect-fixture');
+  expect(await page.evaluate(async () => {
+    const response = await fetch('/index.html');
+    const fixture = await caches.open('pages-redirect-fixture');
+    await fixture.put('/', response);
+    return response.redirected;
+  })).toBe(true);
+
+  const online = await page.goto('/index.html#cuerpo');
+  expect(online?.request().redirectedFrom()?.url()).toBe(index);
+  await page.waitForFunction(() => Boolean(navigator.serviceWorker.controller));
+  const paths = await page.evaluate(async () => {
+    const name = (await caches.keys()).find(key => key.startsWith('lumar-shell-'))!;
+    const shell = await caches.open(name);
+    const paths = (await shell.keys()).map(request => new URL(request.url).pathname);
+    const redirected = (await caches.match('/', { cacheName: 'pages-redirect-fixture' }))!;
+    await shell.put('/', redirected);
+    return paths;
+  });
+  expect(paths).toContain('/');
+  expect(paths).not.toContain('/index.html');
+  expect(paths).not.toContain('/_headers');
+  expect(paths).not.toContain('/_redirects');
+
+  await page.unroute(index);
+  await context.setOffline(true);
+  await page.reload();
+  await expect(page.getByRole('button', { name: 'Activar cámara' })).toBeVisible();
+  await page.goto('/index.html#explorar');
+  await expect(page.getByRole('heading', { name: 'Explorar 3D' })).toBeVisible();
+});
+
 test('espera una acción para actualizar y conserva los recursos descargados', async ({ baseURL, page, context }) => {
   await page.setViewportSize(mobile);
   let version = 1;

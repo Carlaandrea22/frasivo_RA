@@ -13,9 +13,11 @@ async function walk(dir) {
 }
 
 // Vite does not copy public/ wholesale, so stale detector assets stay out.
+const pagesConfig = new Set(['_headers', '_redirects']);
 const publicFiles = [
   'manifest.webmanifest', 'favicon.ico', 'apple-touch-icon.png',
   'icon.svg', 'icon-192.png', 'icon-512.png', 'icon-maskable.png', 'body-tracking',
+  ...(await readdir('public')).filter(name => pagesConfig.has(name)),
 ];
 for (const file of publicFiles) {
   await cp(`public/${file}`, `dist/${file}`, { recursive: true });
@@ -36,7 +38,9 @@ const nosimd = [
 await writeFile(`dist${packedSimd}`, gzipSync(await readFile(`dist${simd}`)));
 
 const files = (await walk('dist')).sort();
-const urls = files.map(file => file.slice(4));
+// Pages consumes these config files and redirects /index.html to /.
+const urls = files.map(file => file.slice(4))
+  .filter(url => url !== '/index.html' && !pagesConfig.has(url.slice(1)));
 for (const required of ['/body-tracking/pose_landmarker_lite.task', ...Object.values(tracking).map(([url]) => url)]) {
   if (!urls.includes(required)) throw new Error(`Falta ${required}. Ejecuta npm run assets antes de compilar.`);
 }

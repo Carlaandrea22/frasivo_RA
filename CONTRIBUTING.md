@@ -30,6 +30,12 @@ npm run test:e2e
 
 Revisa el flujo en móvil y escritorio, la navegación con teclado y Atrás/Adelante, los enlaces directos y la persistencia tras recargar. Para probar cámara y AR en un teléfono compatible, sirve la compilación por HTTPS. Documenta en el PR las comprobaciones físicas que sigan pendientes.
 
+### Probar un PR en el celular
+
+1. Abre el PR hacia `Luis` y espera el despliegue de vista previa de Cloudflare Pages. Busca el enlace del último commit en el PR o en **Deployments** en Pages.
+2. Abre ese enlace HTTPS en el navegador del celular. Si vas a probar Cuerpo, concede el permiso de cámara cuando la app lo solicite.
+3. Anota en el PR el dispositivo, el navegador y el recorrido que probaste. La vista previa y GitHub Actions tienen estados independientes. [Configuración del alojamiento](docs/HOSTING.md)
+
 ## Contenido didáctico
 
 - Escribe la interfaz y las explicaciones en español. Usa `EnglishTerm` para el término inglés de cada estructura y genera su clip con la voz compartida.
