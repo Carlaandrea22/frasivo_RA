@@ -47,7 +47,7 @@ export default function App() {
     if (previous.hash === hash) return;
     setOffer(undefined);
     if (previous.hash === quickHash) setQuick(undefined);
-    if (!canInvite || !previous.canInvite || previous.tab === tab || document.hidden) return;
+    if (tab === 'cuerpo' || !canInvite || !previous.canInvite || previous.tab === tab || document.hidden) return;
     const now = Date.now();
     if (now < nextInvitation.current || Math.random() >= quickInviteProbability) return;
     nextInvitation.current = now + quickInviteCooldown;
@@ -101,7 +101,7 @@ export default function App() {
           ))}
         </div>
       </nav>
-      <RecordatorioRacha pausado={tab === 'practicar'} oculto={!!invitation}/>
+      <RecordatorioRacha pausado={body || tab === 'practicar'} oculto={!!invitation}/>
       {invitation && <QuickInvitation activity={invitation} accept={startQuick} dismiss={() => setOffer(undefined)}/>}
     </div>
   );

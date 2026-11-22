@@ -51,6 +51,19 @@ const layers = [
   { layer: 'organs', name: 'Órganos', part: 'heart', other: 'skull', download: 'organos.usdz' },
 ] as const;
 
+test('Cuerpo no recibe una invitación a práctica rápida', async ({ page }) => {
+  await page.clock.setFixedTime(new Date(2026, 10, 22, 8));
+  await page.goto('/#explorar');
+  await page.evaluate(() => { Math.random = () => .1; });
+  const nav = page.getByRole('navigation', { name: 'Navegación principal' });
+  const invitation = page.getByRole('button', { name: 'Aceptar práctica rápida' });
+  await nav.getByRole('button', { name: 'Cuerpo', exact: true }).click();
+  await expect(page.getByRole('button', { name: 'Activar cámara' })).toBeVisible();
+  await expect(invitation).toHaveCount(0);
+  await nav.getByRole('button', { name: 'Explorar 3D', exact: true }).click();
+  await expect(invitation).toBeVisible();
+});
+
 test('cambia de capa con la pose fijada sobre la cámara, en el visor y en el USDZ', async ({ page }, testInfo) => {
   test.setTimeout(90_000);
   await capturedBody(page, true);
@@ -151,6 +164,7 @@ for (const { layer, name } of layers.slice(1)) {
 }
 
 test('cambia la capa en AR de Android y mantiene la sesión y su anclaje', async ({ page }) => {
+  await page.clock.setFixedTime(new Date(2026, 10, 22, 11, 50));
   await page.addInitScript(() => {
     const calls = { sessions: 0, anchors: 0, deleted: 0, reads: 0, hits: 0 };
     const space = {};
@@ -213,13 +227,23 @@ test('cambia la capa en AR de Android y mantiene la sesión y su anclaje', async
     testXR: { calls: { sessions: number; anchors: number; deleted: number; reads: number; hits: number } };
   }).testXR.calls);
   await capturedBody(page);
+  await page.clock.setFixedTime(new Date(2026, 10, 22, 12));
+  await page.evaluate(async () => {
+    window.dispatchEvent(new Event('focus'));
+    await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+  });
+  const reminder = page.getByRole('complementary', { name: 'Tu racha de hoy' });
+  await expect(reminder).toHaveCount(0);
   await page.getByRole('button', { name: /^Fijar/ }).click();
+  await expect(page.locator('.anatomy-camera-skeleton canvas')).toBeVisible();
+  await expect(reminder).toHaveCount(0);
   await page.getByRole('button', { name: 'Ver en mi espacio' }).click();
   const overlay = page.locator('.anatomy-android-space');
   await expect(overlay.getByText('Apunta al piso', { exact: false })).toBeVisible({ timeout: 20_000 });
   await expect.poll(async () => (await xr()).hits).toBeGreaterThan(0);
   await page.evaluate(() => (window as unknown as { testXR: { select: () => void } }).testXR.select());
   await expect(overlay.getByRole('button', { name: 'Mover' })).toBeVisible();
+  await expect(reminder).toHaveCount(0);
   await overlay.getByRole('button', { name: 'Etiquetas' }).click();
   const anchored = await xr();
   expect(anchored).toMatchObject({ sessions: 1, anchors: 1, deleted: 0 });
