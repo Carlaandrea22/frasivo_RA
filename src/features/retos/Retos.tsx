@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, Box, CheckCircle2, CircleHelp, Layers, Link2, ListChecks, LogOut } from 'lucide-react';
 import { categorias, estructuras } from '../../content/anatomy/catalogo';
 import { retos } from '../../content/ejercicios/retos';
@@ -265,12 +265,20 @@ function Juego({ reto, modo }: { reto: Reto; modo: ModoReto }) {
   const [terminadas, setTerminadas] = useState<Correccion[]>([]);
   const guardado = useRef(false);
   const heading = useRef<HTMLHeadingElement>(null);
+  const ayudaId = useId();
   const preguntas = rondas[paso];
   const pregunta = preguntas[0];
   const pistas = preguntas.flatMap(p => p.pistas);
   const completas = preguntas.every(p => respuestas[p.id]);
   const ultima = paso === rondas.length-1;
   const fallo = correccion?.some(row => !row.acierto) ?? false;
+  const accionEvaluacion = ultima ? 'Ver resultado' : ubicar ? 'Siguiente modelo' : 'Siguiente';
+  const faltaResponder = {
+    'ubica-partes': 'Coloca todas las etiquetas de este modelo para continuar.',
+    'relaciona-funcion': 'Forma todas las parejas para continuar.',
+    'senala-estructura': 'Toca una pieza del modelo para continuar.',
+    'repaso-breve': 'Elige una respuesta para continuar.',
+  }[reto.tipo];
 
   useEffect(() => heading.current?.focus(), [paso]);
 
@@ -330,6 +338,7 @@ function Juego({ reto, modo }: { reto: Reto; modo: ModoReto }) {
       {ubicar && rondas.length > 1 && <p>Modelo {paso + 1} de {rondas.length}</p>}
       <p>{tablero ? `${progreso} de ${preguntas.length} ${reto.tipo === 'relaciona-funcion' ? 'parejas formadas' : 'etiquetas colocadas'}` : `Pregunta ${progreso} de ${reto.preguntas.length}`}</p>
       <progress aria-label="Progreso del reto" max={reto.preguntas.length} value={tablero ? terminadas.length + progreso : progreso}/>
+      {!entrenamiento && <p className="retos-meta">Verás los aciertos y la corrección al terminar.</p>}
     </div>
     <Card className="retos-card">
       <h2 tabIndex={-1} ref={heading}>{ubicar && rondas.length > 1 ? nombreEstructura(pregunta.estructuraId) : tablero ? tipos[reto.tipo].nombre : pregunta.enunciado}</h2>
@@ -355,9 +364,10 @@ function Juego({ reto, modo }: { reto: Reto; modo: ModoReto }) {
           </div>;
         })}
       </div>}
+      {!completas && <p id={ayudaId} className="retos-meta">{faltaResponder}</p>}
       <div className="retos-actions">
-        {!correccion ? <Button disabled={!completas} onClick={comprobar}>
-          {entrenamiento || tablero ? 'Comprobar' : ultima ? 'Ver resultado' : 'Siguiente'}
+        {!correccion ? <Button disabled={!completas} aria-describedby={!completas ? ayudaId : undefined} onClick={comprobar}>
+          {entrenamiento ? 'Comprobar' : accionEvaluacion}
         </Button> : <>
           {fallo && <Button onClick={reintentar}>Reintentar</Button>}
           <Button variant={fallo ? 'secondary' : 'primary'} onClick={() => avanzar(correccion)}>

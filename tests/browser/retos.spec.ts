@@ -12,12 +12,15 @@ test('agrupa las variantes de Ubica las partes y permite elegir un modelo o empe
   await expect(page.getByRole('region', { name: 'Modelo 3D de Pulmones' })).toHaveAttribute('data-viewer-state', 'ready');
   await expect(page.getByRole('button', { name: /^Pista/ })).toHaveCount(0);
   await expect(page.locator('.retos-drop--overlay')).toHaveCount(5);
+  const verResultado = page.getByRole('button', { name: 'Ver resultado', exact: true });
+  await expect(verResultado).toBeDisabled();
+  await expect(verResultado).toHaveAccessibleDescription('Coloca todas las etiquetas de este modelo para continuar.');
   const etiquetas = ['Lóbulo superior derecho', 'Lóbulo medio derecho', 'Lóbulo inferior derecho', 'Lóbulo superior izquierdo', 'Lóbulo inferior izquierdo'];
   for (const [i, etiqueta] of etiquetas.entries()) {
     await page.getByRole('group', { name: 'Etiquetas de partes' }).getByRole('button', { name: etiqueta, exact: true }).click();
     await page.getByRole('button', { name: `Recuadro ${i+1}, vacío`, exact: true }).click();
   }
-  await page.getByRole('button', { name: 'Comprobar' }).click();
+  await verResultado.click();
   await expect(page.getByText('5 de 5', { exact: true })).toBeVisible();
   await page.reload();
   await page.getByRole('link', { name: 'Repetir', exact: true }).click();
@@ -201,11 +204,13 @@ test('Relaciona permite escoger temas de las tres categorías o empezar al azar'
     await tema.selectOption(id);
     await page.getByRole('button', { name: 'Evaluación', exact: true }).click();
     await page.getByRole('button', { name: 'Empezar reto' }).click();
+    const verResultado = page.getByRole('button', { name: 'Ver resultado', exact: true });
+    await expect(verResultado).toHaveAccessibleDescription('Forma todas las parejas para continuar.');
     for (const [estructura, funcion] of parejas) {
       await page.getByRole('group', { name: 'Estructuras' }).getByRole('button', { name: estructura, exact: true }).click();
       await page.getByRole('group', { name: 'Funciones' }).getByRole('button', { name: funcion }).click();
     }
-    await page.getByRole('button', { name: 'Comprobar' }).click();
+    await verResultado.click();
     await expect(page.getByText(`${parejas.length} de ${parejas.length}`, { exact: true })).toBeVisible();
     await page.getByRole('link', { name: 'Otro reto' }).click();
     await abrir.click();
@@ -286,14 +291,16 @@ test.describe('Ubica las partes con varios modelos', () => {
       await expect(page.getByText(`Modelo ${index+1} de ${modelos.length}`, { exact: true })).toBeVisible();
       await expect(page.getByRole('region', { name: `Modelo 3D de ${modelo}`, exact: true })).toHaveAttribute('data-viewer-state', 'ready');
       await expect(page.locator('.retos-drop--overlay')).toHaveCount(partes.length);
-      await expect(page.getByRole('button', { name: 'Comprobar' })).toBeDisabled();
+      const accionEvaluacion = index === modelos.length-1 ? 'Ver resultado' : 'Siguiente modelo';
+      const avanzar = page.getByRole('button', { name: entrenamiento ? 'Comprobar' : accionEvaluacion, exact: true });
+      await expect(avanzar).toBeDisabled();
       const etiquetas = page.getByRole('group', { name: 'Etiquetas de partes' });
       for (const [position, parte] of partes.entries()) {
         await etiquetas.getByRole('button', { name: parte, exact: true }).tap();
         await page.getByRole('button', { name: `Recuadro ${position+1}, vacío`, exact: true }).tap();
       }
       total += partes.length;
-      await page.getByRole('button', { name: 'Comprobar' }).tap();
+      await avanzar.tap();
       if (entrenamiento) {
         await expect(page.getByText('¡Correcto!', { exact: true })).toBeVisible();
         const accion = index === modelos.length-1 ? 'Ver resultado' : 'Siguiente';
