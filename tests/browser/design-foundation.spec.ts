@@ -1,4 +1,4 @@
-import { activateBodyCamera } from './body-camera';
+import { activateBodyCamera, expectPoseReadyToFix } from './body-camera';
 import { readFile, writeFile } from 'node:fs/promises';
 import { expect, test, type Page } from '@playwright/test';
 
@@ -345,12 +345,14 @@ test('fija la pose de cuerpo completo, muestra el visor y vuelve a la cámara al
   await page.goto('/?fps=1');
   await activateBodyCamera(page);
   const pin = page.getByRole('button', { name: 'Fijar esqueleto' });
+  await expectPoseReadyToFix(page);
   await expect(pin).toBeEnabled();
   await page.getByRole('button', { name: 'Minimizar controles' }).click();
   await expect(page.getByRole('slider', { name: 'Opacidad' })).toHaveCount(0);
   await page.reload();
   await expect(page.getByRole('button', { name: 'Expandir controles' })).toBeVisible();
   await activateBodyCamera(page);
+  await expectPoseReadyToFix(page);
   await expect(pin).toBeEnabled();
   await expect(page.locator('[data-fps-detection]')).toBeVisible();
   await page.screenshot({ path: testInfo.outputPath('captura.png') });

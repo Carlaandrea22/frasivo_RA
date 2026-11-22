@@ -54,6 +54,12 @@ export function captureIssue(sample: PoseSample | undefined, aspect: number, vie
   return '';
 }
 
+export function poseFixReadiness(samples: readonly PoseSample[], aspect: number, viewportAspect: number) {
+  const issue = captureIssue(samples.at(-1), aspect, viewportAspect);
+  const ready = !issue && !captureIssue(samples.at(-2), aspect, viewportAspect);
+  return { ready, issue };
+}
+
 export function averagePose(history: PoseSample[], now: number, aspect: number, viewportAspect: number): BodyPoint[] | null {
   const latest = history.at(-1);
   if (!latest || now - latest.time > 300) return null;

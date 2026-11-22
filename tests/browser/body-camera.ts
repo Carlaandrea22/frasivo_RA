@@ -28,3 +28,7 @@ export async function expectLiveLiteCpu(page: Page) {
   await expect(stage).toHaveAttribute('data-pose-model', 'lite');
   await expect(stage).toHaveAttribute('data-pose-delegate', 'CPU');
 }
+
+export async function expectPoseReadyToFix(page: Page) {
+  await expect(page.locator('.anatomy-stage')).toHaveAttribute('data-pose-fix-state', 'ready');
+}

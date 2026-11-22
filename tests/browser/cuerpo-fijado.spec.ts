@@ -1,4 +1,4 @@
-import { activateBodyCamera, expectLiveLiteCpu } from './body-camera';
+import { activateBodyCamera, expectLiveLiteCpu, expectPoseReadyToFix } from './body-camera';
 import { spawnSync } from 'node:child_process';
 import { readFile, writeFile } from 'node:fs/promises';
 import { expect, test, type Page } from '@playwright/test';
@@ -235,6 +235,7 @@ test('cambia la capa en AR de Android y mantiene la sesión y su anclaje', async
   });
   const reminder = page.getByRole('complementary', { name: 'Tu racha de hoy' });
   await expect(reminder).toHaveCount(0);
+  await expectPoseReadyToFix(page);
   await page.getByRole('button', { name: /^Fijar/ }).click();
   await expect(page.locator('.anatomy-camera-skeleton')).toHaveAttribute('data-calibration-max-px', /^\d/);
   await expect(reminder).toHaveCount(0);

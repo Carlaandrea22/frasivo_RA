@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { BodyDiagnostic, PoseEngine } from './bodyDiagnostic';
 import { stabilizeLivePose, type LivePose } from './livePose';
 import { useBodyCamera } from './useBodyCamera';
-import { captureWindow, type PoseSample } from './poseCapture';
+import type { PoseSample } from './poseCapture';
 import {
   chooseDetector, type DetectorKind, type DetectorStat, type DetectorState,
   type FaceRegion, type HandRegion, type RegionalHint, type Specialist,
@@ -46,7 +46,8 @@ export function usePoseCamera(
 
   useEffect(() => {
     if (status !== 'active') return;
-    let disposed = false, busy = false, lastVideoTime = -1, started = 0, lastPoseResult = 0;
+    let disposed = false, lastVideoTime = -1, started = 0, lastPoseResult = 0;
+    let inFlight: DetectorKind | undefined;
     let poseFrames = 0, fullLosses = 0;
     let engine = '', adaptive = true, triedFull = false, fullTrial = true;
     const rates: { time: number; inference: number }[] = [];
@@ -111,9 +112,9 @@ export function usePoseCamera(
           const kind: Specialist = data.kind;
           states[kind] = data.type === 'detector-ready' ? 'ready' : 'unavailable';
           if (kind === 'hand' && data.type === 'detector-unavailable') setHandChecked(true);
-          if (data.frame) busy = false;
+          if (data.frame) inFlight = undefined;
         } else if (data.type === 'pose' || data.type === 'hand' || data.type === 'face') {
-          busy = false;
+          inFlight = undefined;
           const kind: DetectorKind = data.type;
           const arrived = performance.now();
           if (onDetection) {
@@ -163,8 +164,7 @@ export function usePoseCamera(
               }
             } else rates.length = 0;
             const sample: PoseSample = { time: data.time, points: data.points, world: data.world };
-            setHistory(previous => sample.points.length
-              ? [...previous.filter(frame => sample.time - frame.time <= captureWindow), sample] : []);
+            setHistory(previous => sample.points.length ? [...previous.slice(-1), sample] : []);
             const video = videoRef.current;
             if (video?.videoHeight) {
               const aspect = video.videoWidth/video.videoHeight, viewportAspect = viewport.current;
@@ -197,7 +197,8 @@ export function usePoseCamera(
       if (disposed || pauseInference.current) return;
       const now = performance.now();
       const hint = highDetail.current ? hints.current?.current : undefined;
-      if (lastPoseResult && now - lastPoseResult > 720) {
+      // A slow inference still represents a frame from the active camera.
+      if (lastPoseResult && now - lastPoseResult > 720 && inFlight !== 'pose') {
         lastPoseResult = 0;
         setHistory(previous => previous.length ? [] : previous);
         setLivePose(undefined);
@@ -211,12 +212,12 @@ export function usePoseCamera(
           else setFace(null);
         }
       }
-      if (busy && now - started > 15000) {
+      if (inFlight && now - started > 15000) {
         fail('El seguimiento dejó de responder. Vuelve a activar la cámara.');
         return;
       }
       const video = videoRef.current;
-      if (states.pose !== 'ready' || busy || !video || video.readyState < 2 || video.currentTime === lastVideoTime) return;
+      if (states.pose !== 'ready' || inFlight || !video || video.readyState < 2 || video.currentTime === lastVideoTime) return;
       // Give the region arbiter time to confirm a complete body before loading specialists.
       if (hint && poseFrames >= 3 && states.hand !== 'loading' && states.face !== 'loading') {
         let prepare: Specialist | undefined;
@@ -232,7 +233,7 @@ export function usePoseCamera(
       if (now - started < interval) return;
       const active = lastSeen.hand > lastSeen.face ? 'hand' : lastSeen.face ? 'face' : null;
       const detector = hint ? chooseDetector(hint, states, last, now, active) : 'pose';
-      busy = true;
+      inFlight = detector;
       started = now;
       last[detector] = now;
       lastVideoTime = video.currentTime;

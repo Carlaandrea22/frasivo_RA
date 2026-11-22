@@ -11,7 +11,7 @@ import { posteriorBoneLabels } from './boneLabelPlacement';
 import FixedSkeleton from './FixedSkeleton';
 import type { CameraFraming } from './cameraFraming';
 import { capturePrecisePose } from './precisePoseCapture';
-import { captureIssue, type PrecisePose } from './poseCapture';
+import { poseFixReadiness, type PrecisePose } from './poseCapture';
 import { usePoseCamera } from './usePoseCamera';
 import { useFrameRate } from './useFrameRate';
 import { createBodyDiagnostic, readBodyDrawing, shareBodyDiagnostic } from './bodyDiagnostic';
@@ -176,8 +176,9 @@ export default function MedicineExplorer() {
   useEffect(() => {
     diagnostic?.captureDrawing();
   }, [diagnostic, camera.poseTime, status, placement, boneRejections]);
-  const poseIssue = captureIssue(camera.samples.at(-1), aspect, viewportAspect, performance.now());
-  const canFix = live && !fixedPose && placement.facing === 'front' && !poseIssue && regions?.fullBody;
+  const { ready: poseReady, issue: poseIssue } = poseFixReadiness(camera.samples, aspect, viewportAspect);
+  const canFix = live && !fixedPose && placement.facing === 'front' && poseReady && regions?.fullBody;
+  const fixState = captureProgress !== null ? 'capturing' : canFix ? 'ready' : 'waiting';
   const showFramingGuide = live && !fixedPose && (status === 'Buscando…' || status === 'Preparando seguimiento');
   useEffect(() => () => pendingCapture.current?.abort(), []);
   useEffect(() => {
@@ -329,7 +330,7 @@ export default function MedicineExplorer() {
     );
   };
   const pinButton = (
-    <Button disabled={!canFix || captureProgress !== null} aria-describedby={hint ? 'anatomy-pin-reason' : undefined} onClick={() => {
+    <Button disabled={fixState !== 'ready'} aria-describedby={hint ? 'anatomy-pin-reason' : undefined} onClick={() => {
       const video = camera.videoRef.current;
       if (!video || pendingCapture.current) return;
       setDetailRequest(undefined);
@@ -374,6 +375,7 @@ export default function MedicineExplorer() {
       <CameraGuide sheet={guide} onUnderstand={acknowledgeGuide} onClose={() => { startAfterGuide.current = false; }}/>
       <div ref={stageRef} className={live ? 'anatomy-stage anatomy-stage--live' : 'anatomy-stage'}
         data-pose-state={live ? (camera.tracking === 'loading' ? 'loading' : 'ready') : undefined}
+        data-pose-fix-state={live ? fixState : undefined}
         data-pose-model={live ? camera.poseEngine?.model : undefined} data-pose-delegate={live ? camera.poseEngine?.delegate : undefined}
         data-body-region={live && !fixedPose ? status : undefined}
         data-pose-time={live && !fixedPose ? camera.poseTime : undefined} data-pose-layer={debug ? layer : undefined}>

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { demoPose } from '../src/features/cuerpo/anatomy';
-import { averagePose, averagePreciseCapture, averagePrecisePose, captureIssue, type PoseSample } from '../src/features/cuerpo/poseCapture';
+import { averagePose, averagePreciseCapture, averagePrecisePose, captureIssue, poseFixReadiness, type PoseSample } from '../src/features/cuerpo/poseCapture';
 
 const points = demoPose.map(point => ({ ...point, z: 0 }));
 points[2] = { x: .525, y: .105, z: 0, visibility: 1 };
@@ -35,6 +35,25 @@ describe('captura tridimensional de la pose', () => {
       points: frame.points.map((point, i) => i === 27 ? { ...point, y: 1.05 } : point),
     }));
     expect(averagePose(cropped, 910, .8, .8)).toBeNull();
+  });
+});
+
+describe('disponibilidad de Fijar', () => {
+  it('confirma dos observaciones completas consecutivas a cualquier ritmo de inferencia', () => {
+    const first = sample(1000, 0);
+    const second = sample(2050, 0);
+    expect(poseFixReadiness([first], .8, .8)).toMatchObject({ ready: false, issue: '' });
+    expect(poseFixReadiness([first, second], .8, .8)).toMatchObject({ ready: true, issue: '' });
+  });
+
+  it('pide dos observaciones nuevas después de perder el encuadre', () => {
+    const first = sample(1000, 0);
+    const cropped = sample(1200, 0);
+    cropped.points = cropped.points.map((point, index) => index === 31 ? { ...point, y: 1.04 } : point);
+    const next = sample(1400, 0);
+    expect(poseFixReadiness([first, cropped], .8, .8)).toMatchObject({ ready: false, issue: expect.stringMatching(/pies/) });
+    expect(poseFixReadiness([cropped, next], .8, .8)).toMatchObject({ ready: false, issue: '' });
+    expect(poseFixReadiness([next, sample(1550, 0)], .8, .8).ready).toBe(true);
   });
 });
 

@@ -11,9 +11,13 @@ permissions:
 
 jobs:
   checks:
-    name: Build y pruebas en Chrome
+    name: Build y pruebas en Chrome (${{ matrix.shard }}/2)
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2]
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
@@ -24,14 +28,14 @@ jobs:
       - run: npm run build
       - run: npm test
       - run: npx playwright install --with-deps chrome
-      - run: npm run test:e2e -- --workers=1 --reporter=line,html
+      - run: npm run test:e2e -- --workers=1 --shard=${{ matrix.shard }}/2 --reporter=line,html
         env:
           PLAYWRIGHT_HTML_OPEN: never
       - name: Guardar evidencia de Playwright
-        if: failure()
+        if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v7
         with:
-          name: playwright-evidence
+          name: playwright-evidence-${{ matrix.shard }}-de-2
           path: |
             playwright-report/
             test-results/**/test-failed-*.png
