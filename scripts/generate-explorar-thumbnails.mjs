@@ -10,10 +10,11 @@ import { chromium } from '@playwright/test';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const output = new URL('../src/content/anatomy/miniaturas/', import.meta.url);
 const targets = [
-  ['body/bones', ['femur_left','tibia_left','humerus_left','radius_left','pelvis_left','patella_left','ulna_left','fibula_left','sternum','skull','spine']],
-  ['body/muscles', ['biceps_brachii_left','quadriceps_femoris_left','deltoid_left','triceps_brachii_left','gastrocnemius_left']],
-  ['body/organs', ['lungs','stomach','kidneys','brain','liver','small_intestine','large_intestine']],
-  ['cardiovascular/heart-cutaway', [null]],
+  ['/assets/anatomy/body/bones.glb', ['femur_left','tibia_left','humerus_left','radius_left','pelvis_left','patella_left','ulna_left','fibula_left','sternum']],
+  ['/src/content/anatomy/modelos/huesos-regiones.glb', ['skull','spine']],
+  ['/assets/anatomy/body/muscles.glb', ['biceps_brachii_left','quadriceps_femoris_left','deltoid_left','triceps_brachii_left','gastrocnemius_left']],
+  ['/assets/anatomy/body/organs.glb', ['lungs','stomach','kidneys','brain','liver','small_intestine','large_intestine']],
+  ['/assets/anatomy/cardiovascular/heart-cutaway.glb', [null]],
 ];
 const server = await createServer({ root, server: { host: '127.0.0.1', port: 4186, strictPort: true } });
 let browser;
@@ -29,7 +30,7 @@ try {
     const result = await page.evaluate(async ({ file, nodeId }) => {
       const THREE = await import('/node_modules/three/build/three.module.js');
       const { GLTFLoader } = await import('/node_modules/three/examples/jsm/loaders/GLTFLoader.js');
-      const gltf = await new GLTFLoader().loadAsync(`/assets/anatomy/${file}.glb`);
+      const gltf = await new GLTFLoader().loadAsync(file);
       const model = nodeId ? gltf.scene.getObjectByName(nodeId) : gltf.scene;
       if (!model) throw Error(`Nodo ausente: ${nodeId}`);
       const points = {};

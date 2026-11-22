@@ -33,10 +33,10 @@ describe('atlas de Explorar', () => {
       expect(note.punto.every(Number.isFinite)).toBe(true);
     }
   });
-  it('separa seis etiquetas, conserva la seleccionada y descarta puntos fuera de vista', () => {
+  it('separa siete etiquetas en móvil, conserva la seleccionada y descarta puntos fuera de vista', () => {
     const points = Array.from({ length: 15 }, (_, i) => ({ id: String(i), x: 150 + i, y: 140, visible: true }));
     const labels = distribuirEtiquetas([...points, { id: 'hidden', x: 2, y: 2, visible: false }], 343, 420, '14');
-    expect(labels).toHaveLength(6);
+    expect(labels).toHaveLength(7);
     expect(labels.some(l => l.id === '14')).toBe(true);
     expect(labels.some(l => l.id === 'hidden')).toBe(false);
     for (const side of ['left', 'right']) {

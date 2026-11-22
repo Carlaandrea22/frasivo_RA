@@ -74,7 +74,7 @@ test('las fichas nuevas se encuentran en el catálogo y se conectan al selector 
     ['huesos', 'cubito', 'Cúbito', 3], ['huesos', 'fibula', 'Peroné', 3], ['huesos', 'sternum', 'Esternón', 3],
     ['musculos', 'deltoid', 'Deltoides', 3], ['musculos', 'triceps', 'Tríceps braquial', 3], ['musculos', 'gastrocnemius', 'Gastrocnemio', 2],
     ['organos', 'stomach', 'Estómago', 4], ['organos', 'kidneys', 'Riñones', 2],
-    ['huesos', 'skull', 'Cráneo', 6], ['huesos', 'columna', 'Columna vertebral', 4],
+    ['huesos', 'skull', 'Cráneo', 7], ['huesos', 'columna', 'Columna vertebral', 7],
     ['organos', 'brain', 'Cerebro', 4], ['organos', 'higado', 'Hígado', 3],
     ['organos', 'small intestine', 'Intestino delgado', 3], ['organos', 'intestino grueso', 'Intestino grueso', 6],
   ] as const;
@@ -102,6 +102,24 @@ test('cada ficha del catálogo abre su nodo GLB y ofrece salida ante un ID desco
   }
   await page.goto('/#explorar/estructura/no-existe');
   await expect(page.getByRole('link', { name: 'Volver a Explorar 3D' })).toBeVisible();
+});
+
+test('la columna deja espacio entre sus etiquetas y los controles del visor', async ({ page }) => {
+  for (const width of [375, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/#explorar/estructura/spine');
+    const visor = page.locator('.explorar-view');
+    await expect(visor.locator('.explorar-atlas-label')).toHaveCount(7);
+    const tapadas = await visor.evaluate(frame => {
+      const controles = Array.from(frame.querySelectorAll('.explorar-toggle, .viewer3d__controls button'), button => button.getBoundingClientRect());
+      return Array.from(frame.querySelectorAll('.explorar-atlas-label')).filter(label => {
+        const box = label.getBoundingClientRect();
+        return controles.some(control => box.left < control.right && control.left < box.right &&
+          box.top < control.bottom && control.top < box.bottom);
+      }).map(label => label.textContent);
+    });
+    expect(tapadas).toEqual([]);
+  }
 });
 
 for (const width of [375,1440]) test(`resalta solo la cabeza del fémur a ${width}px`, async ({ page }) => {

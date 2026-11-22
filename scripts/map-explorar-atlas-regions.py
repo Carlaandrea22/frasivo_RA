@@ -98,6 +98,11 @@ def map_atlas(partof_path, meshes_path):
                     scores.append(np.square(distances[triangles]).sum(axis=1))
                 names = np.array(list(members), dtype='U32')
                 regions = names[np.argmin(scores, axis=0)]
+                if node_id == 'spine':
+                    # FJ3393 includes the coccygeal tip in one continuous surface.
+                    # The narrow sacrococcygeal transition is about 816 mm in source coordinates.
+                    y = vertices[triangles, 1].mean(axis=1)
+                    regions[(regions == 'sacro') & (y < .816 + height_offset)] = 'coccix'
                 if node_id == 'large_intestine':
                     x, y, _ = vertices[triangles].mean(axis=1).T
                     # This source combines the sigmoid with the descending colon.

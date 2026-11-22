@@ -8,12 +8,16 @@ export const partesAxialesDigestivas = {
     { id: 'occipital', nombreEs: 'Occipital', terminoEn: 'Occipital bone', ubicacion: 'Detrás y debajo del cráneo. Gira el modelo para verlo.', funcion: 'Rodea el foramen magno, por donde el tronco encefálico se continúa con la médula espinal.' },
     { id: 'cigomaticos', nombreEs: 'Cigomáticos', terminoEn: 'Zygomatic bones', ubicacion: 'En los pómulos y en el borde lateral de las órbitas.', funcion: 'Dan forma a los pómulos y contribuyen a la pared lateral de cada órbita.' },
     { id: 'maxilares', nombreEs: 'Maxilares', terminoEn: 'Maxillae', ubicacion: 'En el centro de la cara, por encima de los dientes superiores.', funcion: 'Sostienen los dientes superiores y forman la parte anterior del paladar duro.' },
+    { id: 'mandibula', nombreEs: 'Mandíbula', terminoEn: 'Mandible', ubicacion: 'En la parte inferior de la cara. Se une a los temporales a ambos lados, delante de los oídos.', funcion: 'Sostiene los dientes inferiores y se mueve al masticar y hablar.' },
   ],
   spine: [
-    { id: 'cervical', nombreEs: 'Región cervical', terminoEn: 'Cervical spine', ubicacion: 'En el cuello. En este modelo se muestran las vértebras C3 a C7.', funcion: 'Sostiene la cabeza y permite movimientos del cuello.' },
+    { id: 'atlas', nombreEs: 'Atlas (C1)', terminoEn: 'Atlas vertebra', ubicacion: 'Primera vértebra cervical, justo debajo del cráneo y encima del axis.', funcion: 'Sostiene el cráneo y permite inclinar la cabeza hacia delante y hacia atrás.' },
+    { id: 'axis', nombreEs: 'Axis (C2)', terminoEn: 'Axis vertebra', ubicacion: 'Segunda vértebra cervical, entre el atlas y C3.', funcion: 'Su apófisis odontoides sirve de pivote para girar la cabeza junto con el atlas.' },
+    { id: 'cervical', nombreEs: 'Región cervical', terminoEn: 'Cervical spine', ubicacion: 'En el cuello. Este resaltado abarca C3 a C7. El atlas y el axis se seleccionan por separado.', funcion: 'Sostiene la cabeza y permite movimientos del cuello.' },
     { id: 'toracica', nombreEs: 'Región torácica', terminoEn: 'Thoracic spine', ubicacion: 'En la parte media de la espalda, a la altura de las costillas.', funcion: 'Sus vértebras se articulan con las costillas y sostienen la caja torácica.' },
     { id: 'lumbar', nombreEs: 'Región lumbar', terminoEn: 'Lumbar spine', ubicacion: 'En la espalda baja, por encima del sacro.', funcion: 'Soporta cargas del tronco y permite movimientos como inclinarse hacia delante.' },
     { id: 'sacro', nombreEs: 'Sacro', terminoEn: 'Sacrum', ubicacion: 'Entre los dos huesos coxales, debajo de la región lumbar.', funcion: 'Transmite el peso de la columna hacia la pelvis.' },
+    { id: 'coccix', nombreEs: 'Cóccix', terminoEn: 'Coccyx', ubicacion: 'Extremo inferior de la columna, debajo del sacro.', funcion: 'Sirve de inserción a músculos y ligamentos del suelo pélvico.' },
   ],
   brain: [
     { id: 'hemisferio_derecho', nombreEs: 'Hemisferio derecho', terminoEn: 'Right cerebral hemisphere', ubicacion: 'Mitad derecha de la parte superior del encéfalo.', funcion: 'Participa en la percepción, el pensamiento y el control de movimientos, principalmente del lado izquierdo del cuerpo.' },
@@ -50,7 +54,7 @@ const revisionIntestinos = fuente('The Small and Large Intestines', '23-5-the-sm
 export const estructurasAxialesDigestivas = [
   {
     id: 'skull', categoria: 'huesos', nombreEs: 'Cráneo', terminoEn: 'Skull',
-    definicion: 'Conjunto de huesos de la cabeza. El modelo muestra seis grupos óseos seleccionables y se presenta sin mandíbula.',
+    definicion: 'Conjunto de huesos de la cabeza. El modelo permite seleccionar la mandíbula y otros seis grupos óseos.',
     ubicacion: 'En la cabeza, por encima de la columna cervical.',
     funcion: 'Protege el encéfalo y da soporte a las órbitas y a los huesos de la cara.',
     modelo: { assetId: 'body-bones-regions', nodeId: 'skull' },
@@ -59,7 +63,7 @@ export const estructurasAxialesDigestivas = [
   },
   {
     id: 'spine', categoria: 'huesos', nombreEs: 'Columna vertebral', terminoEn: 'Vertebral column',
-    definicion: 'Eje óseo segmentado del tronco. El modelo muestra desde la tercera vértebra cervical hasta el sacro.',
+    definicion: 'Eje óseo segmentado del tronco. El modelo abarca desde el atlas hasta el cóccix.',
     ubicacion: 'En la línea media de la espalda, entre el cráneo y la pelvis.',
     funcion: 'Sostiene el tronco, permite mover la espalda y protege la médula espinal.',
     modelo: { assetId: 'body-bones-regions', nodeId: 'spine' },

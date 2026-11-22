@@ -11,6 +11,17 @@ Regenerar desde la raíz del repositorio:
 node scripts/generate-explorar-regions.mjs
 ```
 
+El cráneo incorpora la mandíbula del GLB de huesos. La columna incorpora
+el atlas (`FJ3176`) y el axis (`FJ3177`) del archivo OBJ de BodyParts3D 4.0.
+El mapa separa el cóccix en el estrechamiento inferior de la superficie
+sacrococcígea `FJ3393`. Ese límite es orientativo y conserva todos los
+triángulos de la malla de origen. Para regenerar el GLB que aporta las dos
+vértebras, coloca sus OBJ en un directorio y usa el generador desde la raíz.
+
+```sh
+node scripts/generate-explorar-vertebrae.mjs directorio-con-los-obj
+```
+
 Cada estructura conserva su nodo raíz. Los hijos identifican las partes de
 la ficha y `__base` contiene la superficie restante. Se conservan los
 triángulos, posiciones, normales y materiales originales. El visor resalta

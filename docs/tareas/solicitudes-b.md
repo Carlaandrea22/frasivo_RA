@@ -183,11 +183,10 @@ que incluye esa estructura.
 
 ### Cráneo, columna, cerebro, hígado e intestinos
 
-Explorar reúne 24 fichas. Las seis últimas incorporan 26 partes y regiones
-seleccionables con etiquetas bilingües, audio y fuentes. El cráneo se muestra
-sin mandíbula y la columna va de C3 al sacro. El hígado incluye dos porciones
-funcionales y el lóbulo caudado. El cambio de tramo en el ciego y el colon
-sigmoide es orientativo.
+Explorar reúne 24 fichas. Las seis últimas incorporan partes y regiones
+seleccionables con etiquetas bilingües, audio y fuentes. El hígado incluye
+dos porciones funcionales y el lóbulo caudado. El cambio de tramo en el ciego
+y el colon sigmoide es orientativo.
 
 Los seis modelos se pueden elegir en «Ubica las partes» y «Señala la
 estructura». En «Relaciona estructura y función» y «Repaso breve» aparecen
@@ -195,3 +194,11 @@ los temas «Cráneo y columna vertebral» y «Cerebro, hígado e intestinos». L
 selectores también pueden elegirlos al azar.
 
 - [Cerebro a 375 px](../capturas/carla/atlas-cerebro-375.png) y [colon sigmoide resaltado en escritorio](../capturas/carla/atlas-intestino-grueso-1440.png).
+
+El cráneo incluye la mandíbula y la columna abarca desde el atlas (C1)
+hasta el cóccix. El atlas, el axis (C2) y el cóccix se eligen por separado
+en la ficha y en los retos «Ubica las partes» y «Señala la estructura». Los
+dos modelos tienen siete partes seleccionables cada uno. El límite del
+resaltado entre el sacro y el cóccix es orientativo.
+
+- [Mandíbula resaltada en móvil](../capturas/carla/atlas-mandibula-375.png) y [columna con el cóccix resaltado en escritorio](../capturas/carla/atlas-columna-completa-1440.png).

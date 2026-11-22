@@ -24,6 +24,12 @@ const atlases = [
 ];
 
 describe('regiones seleccionables del atlas', () => {
+  it('registra las cuatro piezas óseas agregadas con un anclaje cada una', () => {
+    for (const [estructuraId, parteId] of [['skull', 'mandibula'], ['spine', 'atlas'], ['spine', 'axis'], ['spine', 'coccix']]) {
+      expect(estructuras.find(item => item.id === estructuraId)?.partes.some(parte => parte.id === parteId), parteId).toBe(true);
+      expect(anotaciones.filter(note => note.estructuraId === estructuraId && note.parteId === parteId)).toHaveLength(1);
+    }
+  });
   it('cada parte apunta a su propia malla y mantiene el ID de la estructura', () => {
     for (const id of ['femur','tibia','humerus','radius']) {
       const item = estructuras.find(i => i.id === id)!;
@@ -36,6 +42,13 @@ describe('regiones seleccionables del atlas', () => {
   it.each(atlases)('separa triángulos de $output sin duplicarlos ni perder superficie', ({ source, output, ids }) => {
     const original = glb(`assets/anatomy/body/${source}.glb`);
     const regions = glb(`src/content/anatomy/modelos/${output}-regiones.glb`);
+    const additions: Record<string, { asset: ReturnType<typeof glb>; nodeName: string }> = {};
+    if (source === 'bones') {
+      const vertebrae = glb('src/content/anatomy/modelos/vertebras-adicionales.glb');
+      additions.skull__mandibula = { asset: original, nodeName: 'mandible' };
+      additions.spine__atlas = { asset: vertebrae, nodeName: 'atlas' };
+      additions.spine__axis = { asset: vertebrae, nodeName: 'axis' };
+    }
     for (const id of ids) {
       const item = estructuras.find(i => i.id === id);
       if (!item) throw new Error(`Falta la ficha ${id}`);
@@ -52,6 +65,12 @@ describe('regiones seleccionables del atlas', () => {
       for (const piece of pieces) {
         const indices = regions.indices(regions.data.meshes[piece.mesh].primitives[0]);
         expect(indices.length).toBeGreaterThan(0);
+        const addition = additions[piece.name];
+        if (addition) {
+          const sourceNode = addition.asset.data.nodes.find((n: { name: string }) => n.name === addition.nodeName);
+          expect(indices).toEqual(addition.asset.indices(addition.asset.data.meshes[sourceNode.mesh].primitives[0]));
+          continue;
+        }
         expect(indices.length).toBeLessThan(expected.length);
         actual.push(...indices);
       }

@@ -20,6 +20,8 @@ import { distribuirEtiquetas, filtrarEstructuras } from './atlas';
 import './explorar.css';
 
 const Viewer3D = lazy(() => import('../../shared/visor3d/Viewer3D'));
+// The visibility toggle occupies the left corner. Zoom and reset stack on the right.
+const margenControles = { left: 90, right: 146 };
 const options = categorias.map(({ id, nombre }) => ({ id, label: `${nombre} (${estructuras.filter(i => i.categoria === id).length})`, href: `#explorar/${id}` }));
 function Provisional({ item }: { item: Estructura }) {
   return item.revision.estado === 'provisional' ? <span className="explorar-provisional">Provisional</span> : null;
@@ -68,7 +70,7 @@ function Ficha({ item }: { item: Estructura }) {
   const groupPoints = group ? screenPoints.filter(point =>
     annotations.some(note => note.id === point.id && group.partes.includes(note.parteId)),
   ) : screenPoints;
-  const labels = distribuirEtiquetas(groupPoints, size.width, size.height, selectedAnnotation?.id);
+  const labels = distribuirEtiquetas(groupPoints, size.width, size.height, selectedAnnotation?.id, margenControles);
   const related = estructuras.filter(i => item.relacionadas.includes(i.id));
   const practices = retos.filter(r => r.estructurasRelacionadas.includes(item.id));
   const practiceLink = `#practicar/retos/estructura/${item.id}`;

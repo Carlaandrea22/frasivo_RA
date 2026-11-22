@@ -81,6 +81,24 @@ test('un modelo elegido en Señala guarda su resultado y se puede repetir', asyn
   await expect(selector).toHaveValue('lungs');
 });
 
+test('Señala ofrece siete piezas numeradas en el cráneo y la columna', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 900 });
+  for (const [id, nombre] of [['skull', 'Cráneo'], ['spine', 'Columna vertebral']]) {
+    await page.goto(`/#practicar/retos/senalar/estructura/${id}`);
+    await expect(page.getByRole('combobox', { name: 'Modelo o recorrido' })).toHaveValue(id);
+    await page.getByRole('button', { name: 'Evaluación', exact: true }).click();
+    await page.getByRole('button', { name: 'Empezar reto' }).click();
+    await expect(page.getByRole('region', { name: `Modelo 3D de ${nombre}`, exact: true })).toHaveAttribute('data-viewer-state', 'ready');
+    await page.getByRole('button', { name: 'Mostrar números para seleccionar' }).click();
+    await expect(page.getByRole('button', { name: /^Pieza \d+$/ })).toHaveCount(7);
+    for (let i = 1; i <= 7; i++) {
+      await page.getByRole('button', { name: `Pieza ${i}`, exact: true }).click();
+      await page.getByRole('button', { name: i === 7 ? 'Ver resultado' : 'Siguiente', exact: true }).click();
+    }
+    await expect(page.getByText('7 de 7', { exact: true })).toBeVisible();
+  }
+});
+
 test('Entrenamiento permite usar una pista, corregir la respuesta y repasar el error guardado', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 900 });
   await page.goto('/#practicar/retos/repaso-musculos');
@@ -307,8 +325,8 @@ test.describe('Ubica las partes con varios modelos', () => {
       ['Pulmones', 'Lóbulo superior derecho', 'Lóbulo medio derecho', 'Lóbulo inferior derecho', 'Lóbulo superior izquierdo', 'Lóbulo inferior izquierdo'],
     ] },
     { id: 'partes-craneo-columna', modelos: [
-      ['Cráneo', 'Frontal', 'Parietales', 'Temporales', 'Occipital', 'Cigomáticos', 'Maxilares'],
-      ['Columna vertebral', 'Región cervical', 'Región torácica', 'Región lumbar', 'Sacro'],
+      ['Cráneo', 'Frontal', 'Parietales', 'Temporales', 'Occipital', 'Cigomáticos', 'Maxilares', 'Mandíbula'],
+      ['Columna vertebral', 'Atlas (C1)', 'Axis (C2)', 'Región cervical', 'Región torácica', 'Región lumbar', 'Sacro', 'Cóccix'],
     ] },
     { id: 'partes-cerebro-digestion', modelos: [
       ['Cerebro', 'Hemisferio derecho', 'Hemisferio izquierdo', 'Cerebelo', 'Tronco encefálico'],

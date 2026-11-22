@@ -7,7 +7,7 @@ import type { PreguntaReto } from '../../content/types';
 import { Button } from '../../shared/ui/Button';
 import { ContentState } from '../../shared/ui/ContentState';
 import type { Viewer3DProjectedAnchor } from '../../shared/visor3d/Viewer3D';
-import { distribuirEtiquetas } from '../explorar/atlas';
+import { distribuirEtiquetas, maxEtiquetasMovil } from '../explorar/atlas';
 import { nombreEstructura, type Respuestas } from './intentos';
 
 const Viewer3D = lazy(() => import('../../shared/visor3d/Viewer3D'));
@@ -188,10 +188,11 @@ export function Senalar({ pregunta, respuesta, bloqueado, onSelect }: {
   // Rotate through the available projections in small batches to keep the labels readable.
   const [grupo, setGrupo] = useState(0);
   const visibles = projection.points.filter(p => p.visible);
-  const grupos = Math.max(1, Math.ceil(visibles.length/6));
+  const grupos = Math.max(1, Math.ceil(visibles.length/maxEtiquetasMovil));
   const grupoActivo = grupo % grupos;
-  const marcadoresNumerados = numeradas && visibles.length > 6
-    ? distribuirEtiquetas(visibles.slice(grupoActivo*6, grupoActivo*6+6), projection.width, projection.height)
+  const inicioGrupo = grupoActivo * maxEtiquetasMovil;
+  const marcadoresNumerados = numeradas && grupos > 1
+    ? distribuirEtiquetas(visibles.slice(inicioGrupo, inicioGrupo + maxEtiquetasMovil), projection.width, projection.height)
     : markers;
   return <>
     <div className="retos-viewer" ref={frame}>
