@@ -10,8 +10,11 @@ import { readGlb, writeGlb } from './explorar-glb.mjs';
 const repo = new URL('../', import.meta.url);
 const work = 'assets/_fuentes/explorar-fase2/b';
 const args = process.argv.slice(2);
-const projectMetadata = args.includes('--write-project-metadata');
-const [manifestPath, prepared = join(work, 'preparados'), output = join(work, 'regiones')] = args.filter(arg => arg !== '--write-project-metadata');
+const replaceProjectMetadata = args.includes('--write-project-metadata');
+const mergeProjectMetadata = args.includes('--merge-project-metadata');
+if (replaceProjectMetadata && mergeProjectMetadata) throw new Error('Elige si quieres sustituir o incorporar las fichas al mapa.');
+const [manifestPath, prepared = join(work, 'preparados'), output = join(work, 'regiones')] = args.filter(arg =>
+  arg !== '--write-project-metadata' && arg !== '--merge-project-metadata');
 if (!manifestPath) throw new Error('Indica el manifiesto de fuentes y, si corresponde, las carpetas de GLB.');
 const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
 const models = {};
@@ -52,7 +55,8 @@ for (const model of manifest.fichas) {
   const total = { triangles: 0, surfaceArea: 0 };
   for (const [part, primitives] of regions) {
     const name = model.retainedAsset ? part : `${root}__${part}`;
-    const coverage = measure(primitives, data, binary, posterior.has(part));
+    const back = posterior.has(part) || model.posteriorParts?.includes(part);
+    const coverage = measure(primitives, data, binary, back);
     bounds.union(coverage.box);
     measured[name] = { triangles: coverage.triangles, surfaceArea: coverage.surfaceArea };
     total.triangles += coverage.triangles;
@@ -79,9 +83,22 @@ for (const model of manifest.fichas) {
 
 await writeFile(join(output, 'mapa.json'), JSON.stringify({ version: 2, models }, null, 2) + '\n');
 await writeFile(join(output, 'puntos-regiones.json'), JSON.stringify(points, null, 2) + '\n');
-if (projectMetadata) {
-  await writeFile(new URL('scripts/explorar-atlas-triangle-regions.json', repo), JSON.stringify({ version: 2, models }, null, 2) + '\n');
-  await writeFile(new URL('src/content/anotaciones/puntos-regiones.json', repo), JSON.stringify(points, null, 2) + '\n');
+if (replaceProjectMetadata || mergeProjectMetadata) {
+  const mapPath = new URL('scripts/explorar-atlas-triangle-regions.json', repo);
+  const pointsPath = new URL('src/content/anotaciones/puntos-regiones.json', repo);
+  let oldModels = {}, oldPoints = {};
+  if (mergeProjectMetadata) {
+    const current = JSON.parse(await readFile(mapPath, 'utf8'));
+    if (current.version !== 2) throw new Error('El mapa existente debe tener versión 2.');
+    oldModels = current.models;
+    oldPoints = JSON.parse(await readFile(pointsPath, 'utf8'));
+    for (const { id } of manifest.fichas) {
+      for (const name of Object.keys(oldModels[id]?.regions ?? {})) delete oldPoints[name];
+    }
+  }
+  const updatedMap = { version: 2, models: { ...oldModels, ...models } };
+  await writeFile(mapPath, JSON.stringify(updatedMap, null, 2) + '\n');
+  await writeFile(pointsPath, JSON.stringify({ ...oldPoints, ...points }, null, 2) + '\n');
 }
 
 function measure(primitives, data, binary, back) {

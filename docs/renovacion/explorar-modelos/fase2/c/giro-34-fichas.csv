@@ -1,0 +1,35 @@
+id,ficha,triangulos,bytes_glb,fps,p95_ms,regiones,etiquetas_visibles_al_inicio
+femur,Fémur,13202,77560,59.99,17.4,3,3
+tibia,Tibia,6822,43624,60.01,17.6,3,3
+humerus,Húmero,16492,93768,60,17.6,3,3
+radius,Radio,2714,20264,60.01,17.5,3,3
+pelvis,Hueso coxal,9470,59772,59.99,17.5,4,3
+patella,Rótula,1338,13116,60.02,17.7,3,2
+ulna,Cúbito,3538,25112,60,17.4,3,3
+fibula,Peroné,4544,29208,60,17.7,3,3
+sternum,Esternón,35884,206820,59.99,18.2,3,3
+skull,Cráneo,59938,648080,60,18.6,7,4
+spine,Columna vertebral,59924,452400,59.99,18.2,7,7
+clavicle,Clavícula,10252,59252,59.97,18.4,6,6
+scapula,Escápula,39993,224220,60,18.1,8,6
+ribs,Costillas,59923,361980,60,18.4,8,6
+mandible,Mandíbula,21658,117720,60.03,18.5,5,4
+hand,Mano ósea derecha,36215,229040,60,18.4,18,7
+foot,Pie óseo derecho,56428,367868,60,18.6,17,7
+cervical_vertebra,Vértebra cervical típica,4224,33900,60.03,18.6,5,2
+thoracic_lumbar_vertebrae,Vértebras torácica y lumbar típicas,25490,162308,60.02,18.5,9,4
+sacrum,Sacro y cóccix,39997,247616,60,18.3,5,5
+hyoid,Hioides,5534,33464,59.99,18.5,3,2
+biceps_brachii,Bíceps braquial,39995,257364,60,18.4,2,1
+quadriceps_femoris,Cuádriceps femoral,39986,406348,60.03,18.1,4,2
+deltoid,Deltoides,39991,255856,60,18.4,3,1
+triceps_brachii,Tríceps braquial,39990,258048,60.02,18.2,3,2
+gastrocnemius,Gastrocnemio,39989,258464,59.98,18.3,2,2
+heart,Corazón,16604,129204,59.98,18.3,15,3
+lungs,Pulmones,39986,333480,60,18.1,5,3
+stomach,Estómago,9384,53104,59.97,18.3,4,4
+kidneys,Riñones,27752,138676,60.02,18.3,2,2
+brain,Cerebro,39826,449012,60.03,18.4,4,3
+liver,Hígado,19416,104408,59.99,18.5,3,2
+small_intestine,Intestino delgado,39993,254632,60.04,18.4,3,2
+large_intestine,Intestino grueso,39855,362272,59.99,18.5,6,5
