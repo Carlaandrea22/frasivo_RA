@@ -1,7 +1,7 @@
 import { ClipboardList, MessagesSquare } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { Segmented } from '../ui/Segmented';
-import { RachaPruebas } from './RachaPruebas';
+import { controlesRachaVisibles } from '../progreso/useRacha';
 
 const options = [
   { id: 'retos', label: 'Retos de anatomía', href: '#practicar/retos' },
@@ -25,6 +25,8 @@ export function PracticarHome() {
       <p>Entrevista a un paciente virtual y prepara una explicación de tu hipótesis.</p>
       <a className="button button--secondary lumar-link" href={options[1].href}>{options[1].label}</a>
     </Card>
-    {import.meta.env.DEV && <RachaPruebas/>}
+    {controlesRachaVisibles() && <div>
+      <a className="button button--secondary lumar-link" href="#progreso">Probar racha de la mascota</a>
+    </div>}
   </section>;
 }

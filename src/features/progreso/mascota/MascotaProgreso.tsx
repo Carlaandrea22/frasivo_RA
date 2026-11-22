@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Hand, PartyPopper } from 'lucide-react';
 import { metaDiaria } from '../../../shared/progreso/racha';
+import { controlesRachaVisibles, simularRacha } from '../../../shared/progreso/useRacha';
 import { Button } from '../../../shared/ui/Button';
 import { Mascota } from './Mascota';
 import { etapasMascota, obtenerEvolucion } from './evolucion';
@@ -44,6 +45,17 @@ export function MascotaProgreso({ dias, completadosHoy, diasSimulados }: {
   const faltan = siguiente ? siguiente.dias - rachaVisible : 0;
 
   return <section className="lumar-card mascota-panel" aria-labelledby="mascota-titulo">
+    {controlesRachaVisibles() && <section className="mascota-qa" aria-label="Prueba de etapas">
+      <div className="mascota-qa-texto">
+        <h3>Prueba de etapas</h3>
+        <p aria-live="polite">{diasSimulados === null ? `Racha real: ${dias}` : `Simulación: ${rachaVisible} · Racha real: ${dias}`}</p>
+      </div>
+      <div className="mascota-qa-botones">
+        <Button variant="secondary" disabled={rachaVisible === 0} onClick={() => simularRacha(rachaVisible - 1)}>−1 día</Button>
+        <Button variant="secondary" onClick={() => simularRacha(rachaVisible + 1)}>+1 día</Button>
+        {diasSimulados !== null && <Button variant="text" onClick={() => simularRacha(null)}>Restaurar racha real</Button>}
+      </div>
+    </section>}
     <div className="mascota-escena">
       <span className="mascota-etapa">Etapa {indice + 1} de {etapasMascota.length}</span>
       <Mascota key={gesto?.turno ?? 0} etapa={actual.id} animacion={gesto?.nombre ?? 'reposo'}/>

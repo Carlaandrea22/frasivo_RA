@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react';
 import { Activity, BookOpen, Box, ScanLine } from 'lucide-react';
 import { anatomyArea } from './content/anatomy/area';
+import { RecordatorioRacha } from './features/progreso/mascota/RecordatorioRacha';
 import { hashSnapshot, resolveRoute, subscribeHash, type RouteDefinition } from './shared/navegacion';
 import { baseRoutes } from './shared/navegacion/baseRoutes';
 import { Button } from './shared/ui/Button';
@@ -55,6 +56,7 @@ export default function App() {
           ))}
         </div>
       </nav>
+      <RecordatorioRacha pausado={match?.route.tab === 'practicar'}/>
     </div>
   );
 }

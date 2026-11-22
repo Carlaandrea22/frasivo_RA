@@ -90,23 +90,28 @@ function CuerpoBebe() {
       <circle cx="-7" cy="19" r="4"/><circle cx="7" cy="19" r="4"/><ellipse cy="25" rx="9" ry="7"/>
     </g>
     <path d="M-4 24h1m6 0h1m-6 4q2 2 4 0" stroke="#486d87" strokeWidth="1.6" fill="none"/>
-    <path d="M-23 35q6-6 15-3l4 12-16 3Zm46 0q-6-6-15-3L4 44l16 3Z" fill={piel}/>
+    <path d="M-22 34q7-4 15 0v12h-15Zm44 0q-7-4-15 0v12h15Z" fill="#6496b8"/>
     <path d="M-23 40q5-4 12-1c4 1 7 6 5 11-2 6-18 6-21 0-2-4 0-8 4-10Zm46 0q-5-4-12-1c-4 1-7 6-5 11 2 6 18 6 21 0 2-4 0-8-4-10Z" fill="#f6fcfb"/>
     <path d="M-23 48q6 2 13 0m20 0q7 2 13 0" stroke="#aec8d6" strokeWidth="1.6" fill="none"/>
   </g>;
 }
 
-function BrazoConLibro({ manga, adolescente }: { manga: string; adolescente: boolean }) {
-  return <g transform="translate(-22 7)">
+function BrazoConLibro({ adolescente, capa }: { adolescente: boolean; capa: 'manga' | 'libro' | 'mano' }) {
+  const manga = adolescente ? '#405778' : '#76afd1';
+  return <g transform="translate(-22 7)" stroke={tinta} strokeWidth="2.3" strokeLinejoin="round" strokeLinecap="round">
     <g className="mascota__brazo mascota__brazo--libro">
-      <path d="M-4-7C4-9 9-4 7 4l-8 18-9 1C-12 17-9 3-4-7Z" fill={manga}/>
-      <g transform="translate(15 22) rotate(-12)">
+      {capa === 'manga' && <path d="M-4-7C4-9 9-4 7 4L1 19q-1 4 3 6l9 3-4 9-11-4q-10-4-10-11l3-17q2-9 5-12Z" fill={manga}/>}
+      {capa === 'libro' && <g className="mascota__libro" transform="translate(15 22) rotate(-12)">
         <rect x="-13" y="-17" width="28" height="35" rx="3" fill="#edf5f8"/>
         <path d="M-11-19h23v34h-23q-4 0-4 2v-32q0-4 4-4Z" fill={adolescente ? '#327c73' : '#345e83'}/>
         <path d="M-9-14v24M1-11V1m-5-6H6" fill="none" stroke="#bedde4" strokeWidth="1.8"/>
-      </g>
-      <path d="M-10 21q4-5 9-3l5 6 8 4 3-3q4-2 4 1l-1 3q5 0 4 3-1 5-8 6-5 1-11-3l-9-5q-5-4-4-9Z" fill={piel}/>
-      <path d="m-9 22 7-3m16 13 4-2" fill="none" stroke="#af6e56" strokeWidth="1.3"/>
+      </g>}
+      {capa === 'mano' && <>
+        <path d="M0 24q5 3 13 4l-3 9-10-4q-3-1-6-3" fill={manga} stroke="none"/>
+        <path d="M-5 30q2 2 5 3l10 4m-2-10-3 8" fill="none"/>
+        <path d="M12 28l3-3q3-2 4 0l-1 3q5 0 5 3 0 5-6 6l-7-1Z" fill={piel}/>
+        <path d="m16 32 3-2" fill="none" stroke="#af6e56" strokeWidth="1.3"/>
+      </>}
     </g>
   </g>;
 }
@@ -128,7 +133,7 @@ function CuerpoEstudiante({ adolescente = false }: { adolescente?: boolean }) {
       <path d="M-13-5q-13-9-14 7l10 9 7-11m23-5q13-9 14 7l-10 9-7-11" fill="#4d6585" strokeWidth="1.7"/>
       <path d="M0 10v47m-8-48-2 11m18-11 2 11" stroke="#a7bdd0" strokeWidth="1.6"/>
     </>}
-    <BrazoConLibro manga={camisa} adolescente={adolescente}/>
+    <BrazoConLibro adolescente={adolescente} capa="manga"/>
   </g>;
 }
 
@@ -155,8 +160,9 @@ export function Mascota({ etapa, animacion = 'reposo', className }: {
   className?: string;
 }) {
   const dibujo = dibujos[etapa];
+  const conLibro = etapa === 'nino' || etapa === 'adolescente';
   return <svg className={className ? `mascota ${className}` : 'mascota'} viewBox="0 0 240 248"
-    aria-hidden="true" focusable="false" data-etapa={etapa} data-animacion={animacion}>
+    aria-hidden="true" focusable="false" data-etapa={etapa} data-animacion={animacion} data-libro={conLibro || undefined}>
     <ellipse cx="120" cy="230" rx="51" ry="7" fill="#1b6251" opacity=".13"/>
     <g className="mascota__destellos" fill="#db9b3d">
       <path d="M48 61q0 11 11 12-11 0-11 11-1-11-12-11 11-1 12-12ZM190 53q0 10 10 11-10 0-10 11-1-11-11-11 10-1 11-11ZM172 30q0 7 7 8-7 0-7 7-1-7-8-7 7-1 8-8Z"/>
@@ -165,6 +171,10 @@ export function Mascota({ etapa, animacion = 'reposo', className }: {
       <g transform={dibujo.cuerpo}>{dibujo.silueta}</g>
       <g transform={dibujo.cabeza}><Rostro veterano={etapa === 'medico_veterano'}/></g>
       {etapa === 'adolescente' && <g transform="translate(120 40) rotate(-8)"><Birrete/></g>}
+      {conLibro && <g transform={dibujo.cuerpo}>
+        <BrazoConLibro adolescente={etapa === 'adolescente'} capa="libro"/>
+        <BrazoConLibro adolescente={etapa === 'adolescente'} capa="mano"/>
+      </g>}
     </g>
   </svg>;
 }

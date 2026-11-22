@@ -73,6 +73,21 @@
 
 .mascota-gestos { display: flex; flex-wrap: wrap; gap: 8px; }
 .mascota-gestos .button { gap: 6px; }
+.mascota-qa {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 14px;
+  padding: 10px 12px;
+  border: 1px dashed #a6c5b8;
+  border-radius: 14px;
+  background: #f0f7f3;
+}
+.mascota-qa h3 { margin: 0; font: 800 .92rem var(--font-title); }
+.mascota-qa p { color: var(--muted); font-size: .8rem; }
+.mascota-qa-botones { display: flex; flex-wrap: wrap; gap: 6px; }
 
 @media (max-width: 520px) {
   .lumar-card.mascota-panel { grid-template-columns: 1fr; }

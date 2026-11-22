@@ -5,9 +5,18 @@ import { calcularRacha } from './racha';
 const clavePruebas = 'lumar.racha:simulada';
 const listeners = new Set<() => void>();
 let simulacion: number | null | undefined;
+const medianoche = [24] as const;
+
+export function modoRachaQA() {
+  return new URLSearchParams(window.location.search).get('qa') === 'racha';
+}
+
+export function controlesRachaVisibles() {
+  return import.meta.env.DEV || modoRachaQA();
+}
 
 function leerSimulacion(): number | null {
-  if (!import.meta.env.DEV) return null;
+  if (!controlesRachaVisibles()) return null;
   if (simulacion !== undefined) return simulacion;
   try {
     const guardada = window.sessionStorage.getItem(clavePruebas);
@@ -25,7 +34,7 @@ function suscribirSimulacion(listener: () => void) {
 }
 
 export function simularRacha(dias: number | null) {
-  if (!import.meta.env.DEV) return;
+  if (!controlesRachaVisibles()) return;
   simulacion = dias === null ? null : Math.max(0, dias);
   try {
     if (simulacion === null) window.sessionStorage.removeItem(clavePruebas);
@@ -36,7 +45,7 @@ export function simularRacha(dias: number | null) {
   for (const listener of listeners) listener();
 }
 
-export function useRacha(events: readonly ProgressEvent[]) {
+export function useRacha(events: readonly ProgressEvent[], horas: readonly number[] = medianoche) {
   const [fecha, setFecha] = useState(() => new Date());
   const diasSimulados = useSyncExternalStore(suscribirSimulacion, leerSimulacion);
 
@@ -46,9 +55,9 @@ export function useRacha(events: readonly ProgressEvent[]) {
       window.clearTimeout(timer);
       const ahora = new Date();
       setFecha(ahora);
-      const medianoche = new Date(ahora);
-      medianoche.setHours(24, 0, 0, 0);
-      timer = window.setTimeout(revisar, medianoche.getTime() - ahora.getTime());
+      const proxima = new Date(ahora);
+      proxima.setHours(horas.find(hora => hora > ahora.getHours()) ?? 24, 0, 0, 0);
+      timer = window.setTimeout(revisar, proxima.getTime() - ahora.getTime());
     };
     revisar();
     window.addEventListener('focus', revisar);
@@ -58,7 +67,7 @@ export function useRacha(events: readonly ProgressEvent[]) {
       window.removeEventListener('focus', revisar);
       document.removeEventListener('visibilitychange', revisar);
     };
-  }, []);
+  }, [horas]);
 
-  return { ...calcularRacha(events, fecha), diasSimulados };
+  return { ...calcularRacha(events, fecha), fecha, diasSimulados };
 }

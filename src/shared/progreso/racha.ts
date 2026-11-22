@@ -2,7 +2,7 @@ import type { ProgressEvent } from './index';
 
 export const metaDiaria = 5;
 
-function diaLocal(fecha: Date) {
+export function diaLocal(fecha: Date) {
   // UTC here gives a consecutive index to the device's calendar dates, even at DST.
   return Date.UTC(fecha.getFullYear(), fecha.getMonth(), fecha.getDate()) / 86_400_000;
 }
