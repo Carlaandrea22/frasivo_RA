@@ -1,0 +1,80 @@
+import type { MultipleChoiceCase, OrderingCase } from './sessionTypes';
+
+export const additionalOrderingCases: readonly OrderingCase[] = [{
+  id: 'soap-handwashing-order', kind: 'ordering', titleEs: 'Orden clínico · Higiene de manos',
+  summaryEs: 'Ordena el lavado con agua y jabón antes de una evaluación.',
+  instructionsEs: 'Lee la escena y ordena la secuencia.',
+  scenarioEn: 'Before seeing a patient at an outpatient clinic, a student washes their hands with soap and water.',
+  actions: [
+    { id: 'wet', textEn: 'Wet your hands under clean running water.' },
+    { id: 'lather', textEn: 'Apply soap and lather all hand surfaces.' },
+    { id: 'scrub', textEn: 'Scrub for at least 20 seconds.' },
+    { id: 'rinse', textEn: 'Rinse under clean running water.' },
+    { id: 'dry', textEn: 'Dry your hands with a clean towel or air dryer.' },
+  ],
+  explanationEn: 'Soap and friction help remove germs. Rinsing carries them away, and drying completes the sequence.',
+  structuresRelated: [],
+  revision: { estado: 'provisional', fuentes: [{ titulo: 'CDC · Hand Hygiene', url: 'https://www.cdc.gov/clean-hands/faq/' }] },
+}, {
+  id: 'seated-pressure-order', kind: 'ordering', titleEs: 'Orden clínico · Presión arterial',
+  summaryEs: 'Prepara una toma de presión en una persona sentada.',
+  instructionsEs: 'Ordena esta secuencia de preparación y registro.',
+  scenarioEn: 'A patient arrives for a routine blood pressure check. In this demonstration, set up the cuff before the quiet rest period.',
+  actions: [
+    { id: 'seat', textEn: 'Seat the patient with their back supported, legs uncrossed and feet flat.' },
+    { id: 'cuff', textEn: 'Place the cuff on the bare upper arm and support the arm at heart level.' },
+    { id: 'rest', textEn: 'Let the patient rest quietly in that position for at least five minutes.' },
+    { id: 'measure', textEn: 'Take the reading while the patient stays still and quiet.' },
+    { id: 'record', textEn: 'Record the reading.' },
+  ],
+  explanationEn: 'For this exercise, the position and cuff are set up before the quiet rest and measurement.',
+  structuresRelated: ['heart'],
+  revision: { estado: 'provisional', fuentes: [{ titulo: 'CDC · Measuring Your Blood Pressure', url: 'https://www.cdc.gov/high-blood-pressure/measure/' }] },
+}];
+
+export const additionalMultipleChoiceCases: readonly MultipleChoiceCase[] = [{
+  id: 'pulse-oximetry-choice', kind: 'multiple-choice', titleEs: 'Decisión clínica · Pulsioxímetro',
+  summaryEs: 'Identifica qué mide un dispositivo en el dedo.',
+  instructionsEs: 'Lee la situación en inglés y elige la mejor respuesta.',
+  scenarioEn: 'During a respiratory assessment, the clinician places a small pulse oximeter on a patient’s finger.',
+  promptEn: 'What does the percentage marked SpO₂ estimate?',
+  options: [
+    { id: 'pressure', textEn: 'Blood pressure in the arm' },
+    { id: 'oxygen', textEn: 'Blood oxygen saturation' },
+    { id: 'glucose', textEn: 'Blood glucose concentration' },
+  ],
+  correctId: 'oxygen',
+  explanationEn: 'SpO₂ is an estimate of blood oxygen saturation. The device may also report the pulse rate as a separate number.',
+  structuresRelated: ['lungs'],
+  revision: { estado: 'provisional', fuentes: [{ titulo: 'MedlinePlus · Pulse Oximetry', url: 'https://medlineplus.gov/lab-tests/pulse-oximetry/' }] },
+}, {
+  id: 'teach-back-choice', kind: 'multiple-choice', titleEs: 'Decisión clínica · Comprensión de indicaciones',
+  summaryEs: 'Elige una manera de comprobar si explicaste bien una instrucción.',
+  instructionsEs: 'Lee la situación en inglés y elige la mejor respuesta.',
+  scenarioEn: 'After a routine visit, the nurse explains how a patient should use a new home monitoring device.',
+  promptEn: 'Which question is the best example of teach-back?',
+  options: [
+    { id: 'yes', textEn: 'Do you understand everything?' },
+    { id: 'repeat', textEn: 'Can you repeat the instructions word for word?' },
+    { id: 'own', textEn: 'How will you use the device when you get home? Tell me in your own words.' },
+  ],
+  correctId: 'own',
+  explanationEn: 'Asking the patient to explain the plan in their own words helps the nurse check how clearly it was explained.',
+  structuresRelated: [],
+  revision: { estado: 'provisional', fuentes: [{ titulo: 'AHRQ · Use the Teach-Back Method', url: 'https://www.ahrq.gov/health-literacy/improve/precautions/tool5.html' }] },
+}, {
+  id: 'spirometry-choice', kind: 'multiple-choice', titleEs: 'Decisión clínica · Flujo de aire',
+  summaryEs: 'Identifica qué prueba mide el aire que sale de los pulmones.',
+  instructionsEs: 'Lee la situación en inglés y elige la mejor respuesta.',
+  scenarioEn: 'A clinician is evaluating a patient with repeated episodes of wheezing. The patient is comfortable at this visit.',
+  promptEn: 'Which test measures how much air the patient can breathe out and how fast?',
+  options: [
+    { id: 'ecg', textEn: 'Electrocardiogram' },
+    { id: 'xray', textEn: 'Chest X-ray' },
+    { id: 'spirometry', textEn: 'Spirometry' },
+  ],
+  correctId: 'spirometry',
+  explanationEn: 'Spirometry measures exhaled air volume and flow. The results are interpreted with the rest of the assessment.',
+  structuresRelated: ['lungs'],
+  revision: { estado: 'provisional', fuentes: [{ titulo: 'NHLBI · Asthma Diagnosis', url: 'https://www.nhlbi.nih.gov/health/asthma/diagnosis' }] },
+}];

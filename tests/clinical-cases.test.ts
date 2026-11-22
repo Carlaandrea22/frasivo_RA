@@ -15,6 +15,8 @@ import {
 } from '../src/features/casos/clinicalEngine';
 import type { InterviewCase, InterviewNode } from '../src/content/casos/sessionTypes';
 import { clinicalCases } from '../src/content/casos/session';
+import { caseAnatomy } from '../src/content/casos/caseAnatomy';
+import { atlasParts } from '../src/features/cuerpo/atlasAlignment';
 
 const node: InterviewNode = {
   id: 'onset',
@@ -39,12 +41,11 @@ function countPaths(item: InterviewCase, path: readonly string[] = []): number {
 }
 
 describe('sesión de casos clínicos', () => {
-  it('ofrece siete casos en cuatro modos, con conversaciones bilingües', () => {
-    expect(clinicalCases).toHaveLength(7);
-    expect(clinicalCases.filter(item => item.kind === 'interview')).toHaveLength(2);
-    expect(clinicalCases.filter(item => item.kind === 'investigation')).toHaveLength(2);
-    expect(clinicalCases.filter(item => item.kind === 'ordering')).toHaveLength(2);
-    expect(clinicalCases.filter(item => item.kind === 'multiple-choice')).toHaveLength(1);
+  it('ofrece cuatro casos por modo, con conversaciones bilingües', () => {
+    expect(clinicalCases).toHaveLength(16);
+    for (const kind of ['interview', 'investigation', 'ordering', 'multiple-choice']) {
+      expect(clinicalCases.filter(item => item.kind === kind)).toHaveLength(4);
+    }
     expect(new Set(clinicalCases.map(item => item.id)).size).toBe(clinicalCases.length);
 
     for (const item of clinicalCases) {
@@ -59,15 +60,35 @@ describe('sesión de casos clínicos', () => {
       if (item.kind === 'interview' || item.kind === 'investigation') {
         expect(item.openingEs && item.openingEn).toBeTruthy();
       }
+      if (item.kind === 'multiple-choice') {
+        expect(item.options.filter(option => option.id === item.correctId)).toHaveLength(1);
+      }
+      if (item.kind === 'ordering') {
+        expect(new Set(item.actions.map(action => action.id)).size).toBe(item.actions.length);
+      }
     }
   });
 
   it('incluye los cuatro modos dentro de cada sesión mixta de cinco casos', () => {
+    const selections = new Set<string>();
     for (const seed of [0, .25, .5, .75, .99]) {
       const ids = buildMixedCaseSession(clinicalCases, () => seed);
       expect(new Set(ids).size).toBe(5);
       const kinds = clinicalCases.filter(item => ids.includes(item.id)).map(item => item.kind);
       expect(new Set(kinds)).toEqual(new Set(['interview', 'investigation', 'ordering', 'multiple-choice']));
+      selections.add([...ids].sort().join('|'));
+    }
+    expect(selections.size).toBeGreaterThan(1);
+  });
+
+  it('vincula las investigaciones a nodos e ilustraciones que ya existen en el atlas', () => {
+    for (const item of clinicalCases) {
+      if (item.kind !== 'investigation') continue;
+      for (const id of item.anatomy) {
+        const model = caseAnatomy[id];
+        expect(atlasParts.some(part => part.id === model.nodeId && `body-${part.layer}` === model.assetId)).toBe(true);
+        expect(model.imagen).toContain('.webp');
+      }
     }
   });
 

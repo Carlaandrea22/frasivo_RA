@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
-import { AlertCircle, Check } from 'lucide-react';
+import { AlertCircle, ArrowRight, Check } from 'lucide-react';
+import type { ClinicalCase } from '../../content/casos/sessionTypes';
 import { Button } from '../../shared/ui/Button';
 import { Card } from '../../shared/ui/Card';
 import { performanceLevel } from './clinicalEngine';
@@ -12,8 +13,14 @@ export interface Score {
   investigation?: { questionIds: readonly string[]; hypothesisId: string };
 }
 
-export function NextCaseButton({ onComplete, score }: { onComplete: (score: Score) => void; score: Score }) {
-  return <Button onClick={() => onComplete(score)}>Siguiente caso</Button>;
+export interface CaseStepProps<T extends ClinicalCase> {
+  item: T;
+  onComplete: (score: Score) => void;
+  last: boolean;
+}
+
+export function NextCaseButton({ onComplete, score, last }: Pick<CaseStepProps<ClinicalCase>, 'onComplete' | 'last'> & { score: Score }) {
+  return <Button onClick={() => onComplete(score)}>{last ? 'Ver resultados' : 'Siguiente caso'} <ArrowRight size={17}/></Button>;
 }
 
 export function ResultCard({ title, children, score }: { title: string; children: ReactNode; score: Score }) {

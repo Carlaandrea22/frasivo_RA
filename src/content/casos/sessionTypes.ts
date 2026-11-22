@@ -1,4 +1,5 @@
 import type { Revision } from '../types';
+import type { CaseAnatomyId } from './caseAnatomy';
 
 export interface InterviewResponse {
   patientEn: string;
@@ -54,6 +55,7 @@ export interface InvestigationNode extends ConversationNode {
 
 export interface InvestigationCase extends ConversationCaseBase<InvestigationNode> {
   kind: 'investigation';
+  anatomy: readonly [CaseAnatomyId, ...CaseAnatomyId[]];
   findings: readonly [InterviewRecallOption, InterviewRecallOption];
   hypotheses: ClinicalTriple<InterviewRecallOption>;
   preferredHypothesisId: string;

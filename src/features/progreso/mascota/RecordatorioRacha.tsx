@@ -2,7 +2,7 @@ import { useEffect, useState, useSyncExternalStore } from 'react';
 import { ArrowRight, X } from 'lucide-react';
 import { getProgress, subscribeProgress } from '../../../shared/progreso';
 import { metaDiaria } from '../../../shared/progreso/racha';
-import { modoRachaQA, useRacha } from '../../../shared/progreso/useRacha';
+import { useRacha } from '../../../shared/progreso/useRacha';
 import { Mascota } from './Mascota';
 import { obtenerEvolucion } from './evolucion';
 import { horasDeRecordatorio, mensajesDeRacha, turnoDeRecordatorio, type FranjaRecordatorio } from './recordatorios';
@@ -25,12 +25,12 @@ function registrarSiEsNuevo(franja: FranjaRecordatorio, dia: number) {
 
 export function RecordatorioRacha({ pausado }: { pausado: boolean }) {
   const { events } = useSyncExternalStore(subscribeProgress, getProgress);
-  const { completadosHoy, dias, diasSimulados, fecha } = useRacha(events, horasDeRecordatorio);
+  const { completadosHoy, dias, fecha } = useRacha(events, horasDeRecordatorio);
   const [mostrado, setMostrado] = useState<string>();
   const { franja, dia } = turnoDeRecordatorio(fecha) ?? {};
   const turno = franja && `${franja}:${dia}`;
   const faltan = metaDiaria - completadosHoy;
-  const activo = !pausado && faltan > 0 && diasSimulados === null && !modoRachaQA();
+  const activo = !pausado && faltan > 0;
 
   useEffect(() => {
     if (!activo || !turno || !franja || dia === undefined) {

@@ -1,0 +1,55 @@
+import { interviewRevision, nodeFactory } from './interviewNodes';
+import type { InterviewCase } from './sessionTypes';
+
+const wrist = nodeFactory('Maya');
+const back = nodeFactory('Leo');
+const instructionsEs = 'Haz tres preguntas y luego identifica qué respondió el paciente.';
+
+export const additionalInterviewCases: readonly InterviewCase[] = [{
+  id: 'wrist-conversation', kind: 'interview', titleEs: 'Entrevista · Molestia en la muñeca',
+  summaryEs: 'Escucha cómo cambió la rutina de Maya y cómo afecta a su muñeca.',
+  instructionsEs, patientName: 'Maya',
+  openingEs: 'Me molesta la muñeca izquierda cuando trabajo en la computadora.',
+  openingEn: 'My left wrist bothers me when I work at the computer.',
+  roots: ['start', 'tasks', 'site'],
+  nodes: [
+    wrist('start', ['When did it first bother you?', '¿Cuándo empezó la molestia?'], ['I first noticed it last Tuesday.', 'La noté por primera vez el martes pasado.'], ['Last Tuesday', 'El martes pasado'], [['Yesterday evening', 'Ayer por la tarde'], ['Last month', 'El mes pasado']], ['routine', 'impact', 'pattern']),
+    wrist('tasks', ['Which task makes it worse?', '¿Qué tarea empeora la molestia?'], ['Typing for a long time without a break.', 'Escribir mucho tiempo sin hacer una pausa.'], ['Typing without breaks', 'Escribir sin pausas'], [['Opening doors', 'Abrir puertas'], ['Holding a cup', 'Sostener una taza']], ['pause', 'routine', 'pattern']),
+    wrist('site', ['Where in the wrist do you feel it?', '¿En qué parte de la muñeca la sientes?'], ['On the back of the left wrist.', 'En la parte de atrás de la muñeca izquierda.'], ['At the back of her left wrist', 'En la parte de atrás de la muñeca izquierda'], [['In the center of her right palm', 'En el centro de la palma derecha'], ['Near her elbow', 'Cerca del codo']], ['spread', 'impact', 'pause']),
+    wrist('routine', ['Did your routine at work change?', '¿Cambió tu rutina de trabajo?'], ['Yes. I spent longer than usual entering records for a project.', 'Sí. Pasé más tiempo de lo habitual ingresando registros para un proyecto.'], ['She spent more time entering records', 'Pasó más tiempo ingresando registros'], [['She took a week off', 'Se tomó una semana libre'], ['She started lifting boxes', 'Empezó a levantar cajas']], ['rating', 'dominant', 'prior']),
+    wrist('impact', ['Did you hit or twist the wrist?', '¿Te golpeaste o torciste la muñeca?'], ['No, I do not remember an injury.', 'No, no recuerdo haberme lesionado.'], ['She did not remember an injury', 'No recordaba una lesión'], [['She fell off a bike', 'Se cayó de una bicicleta'], ['She twisted it in a game', 'Se la torció en un partido']], ['swelling', 'tingle', 'prior']),
+    wrist('pattern', ['Is it worse in the morning or after work?', '¿Empeora por la mañana o después del trabajo?'], ['It is more noticeable at the end of the workday.', 'La noto más al final de la jornada.'], ['At the end of the workday', 'Al final de la jornada'], [['Before breakfast', 'Antes del desayuno'], ['Only at night', 'Solo de noche']], ['rating', 'swelling', 'prior']),
+    wrist('pause', ['What happens when you take a break?', '¿Qué pasa cuando haces una pausa?'], ['After several minutes away from the keyboard, it eases.', 'Después de varios minutos lejos del teclado, disminuye.'], ['It eased after a few minutes', 'Disminuía después de unos minutos'], [['It got much worse', 'Empeoraba mucho'], ['It moved to her elbow', 'Se movía hacia el codo']], ['rating', 'dominant', 'tingle']),
+    wrist('spread', ['Does it spread to the fingers?', '¿La molestia se extiende a los dedos?'], ['No. It stays around the wrist.', 'No. Se queda alrededor de la muñeca.'], ['It stayed near the wrist', 'Se quedaba cerca de la muñeca'], [['It spread to her thumb', 'Llegaba hasta el pulgar'], ['It spread to all fingers', 'Llegaba a todos los dedos']], ['tingle', 'dominant', 'swelling']),
+    wrist('rating', ['How strong is it from zero to ten when typing?', '¿Qué tan fuerte es del cero al diez cuando escribes?'], ['About four out of ten.', 'Aproximadamente cuatro de diez.'], ['Four out of ten', 'Cuatro de diez'], [['One out of ten', 'Uno de diez'], ['Nine out of ten', 'Nueve de diez']]),
+    wrist('dominant', ['Which hand do you write with?', '¿Con qué mano escribes?'], ['I write with my right hand.', 'Escribo con la mano derecha.'], ['With her right hand', 'Con la derecha'], [['With her left hand', 'Con la izquierda'], ['With either hand', 'Con ambas']]),
+    wrist('prior', ['Has the wrist bothered you before?', '¿Te había molestado la muñeca antes?'], ['No, this is the first time.', 'No, es la primera vez.'], ['It was the first time', 'Era la primera vez'], [['It happened every month', 'Pasaba todos los meses'], ['It happened last winter', 'Pasó el invierno pasado']]),
+    wrist('swelling', ['Have you noticed swelling?', '¿Has notado hinchazón?'], ['I have not seen it swell.', 'No la he visto hinchada.'], ['She had not seen swelling', 'No había notado hinchazón'], [['It swelled every evening', 'Se hinchaba todas las tardes'], ['Her fingers became swollen', 'Se le hincharon los dedos']]),
+    wrist('tingle', ['Have you felt any tingling?', '¿Has sentido hormigueo?'], ['No, I have not felt any.', 'No, no he sentido hormigueo.'], ['She had not felt tingling', 'No había sentido hormigueo'], [['Her fingertips tingled', 'Sentía hormigueo en las puntas de los dedos'], ['Her forearm tingled', 'Sentía hormigueo en el antebrazo']]),
+  ],
+  structuresRelated: [], revision: interviewRevision,
+}, {
+  id: 'back-conversation', kind: 'interview', titleEs: 'Entrevista · Dolor lumbar',
+  summaryEs: 'Reconstruye lo que Leo hizo antes de notar el dolor.',
+  instructionsEs, patientName: 'Leo',
+  openingEs: 'Estoy en plena mudanza y desde ayer me duele la parte baja de la espalda.',
+  openingEn: 'I am in the middle of a move, and my lower back has been hurting since yesterday.',
+  roots: ['activity', 'movement', 'location'],
+  nodes: [
+    back('activity', ['What were you doing when it started?', '¿Qué hacías cuando empezó?'], ['I was carrying boxes up to my apartment.', 'Estaba subiendo cajas a mi departamento.'], ['He was carrying boxes', 'Estaba cargando cajas'], [['He was cycling', 'Andaba en bicicleta'], ['He was lying down', 'Estaba acostado']], ['timing', 'weight', 'help']),
+    back('movement', ['Which movement makes it worse?', '¿Qué movimiento hace que duela más?'], ['I notice it most when I bend forward.', 'Lo noto sobre todo cuando me inclino hacia delante.'], ['Bending forward', 'Inclinarse hacia delante'], [['Turning his head', 'Girar la cabeza'], ['Moving one ankle', 'Mover un tobillo']], ['standing', 'help', 'walking']),
+    back('location', ['Is the pain in the middle or to one side?', '¿El dolor está en el centro o hacia un lado?'], ['It is mostly to the right, just above my hip.', 'Está sobre todo a la derecha, justo encima de la cadera.'], ['On the right, above his hip', 'A la derecha, encima de la cadera'], [['On his left shoulder', 'En el hombro izquierdo'], ['In the center of his neck', 'En el centro del cuello']], ['spread', 'timing', 'walking']),
+    back('timing', ['When during the move did you first feel it?', '¿En qué momento de la mudanza lo sentiste por primera vez?'], ['Near the end, when I lifted one of the last boxes.', 'Casi al final, cuando levanté una de las últimas cajas.'], ['Near the end of the move', 'Casi al final de la mudanza'], [['Before carrying any boxes', 'Antes de cargar cajas'], ['The next morning', 'A la mañana siguiente']], ['rated', 'prior', 'sleep']),
+    back('weight', ['What was inside that box?', '¿Qué había dentro de esa caja?'], ['It was full of books.', 'Estaba llena de libros.'], ['Books', 'Libros'], [['Blankets', 'Mantas'], ['Kitchen utensils', 'Utensilios de cocina']], ['rated', 'prior', 'today']),
+    back('help', ['What position feels more comfortable?', '¿En qué posición te sientes más cómodo?'], ['I feel better when I lie on my side.', 'Me siento mejor cuando me acuesto de lado.'], ['Lying on his side', 'Acostarse de lado'], [['Sitting on the floor', 'Sentarse en el suelo'], ['Standing on one leg', 'Pararse en una pierna']], ['sleep', 'rated', 'today']),
+    back('standing', ['How do you feel when standing upright?', '¿Cómo te sientes al estar de pie sin inclinarte?'], ['It is much less painful than bending forward.', 'Me duele mucho menos que al inclinarme.'], ['Standing upright hurt less', 'Estar de pie le dolía menos'], [['Standing was impossible', 'No podía estar de pie'], ['Standing hurt more', 'Estar de pie le dolía más']], ['rated', 'prior', 'today']),
+    back('walking', ['Can you walk as usual?', '¿Puedes caminar como de costumbre?'], ['Yes, I can walk normally.', 'Sí, puedo caminar normalmente.'], ['He could walk normally', 'Podía caminar con normalidad'], [['He needed a cane', 'Necesitaba un bastón'], ['He could not take a step', 'No podía dar un paso']], ['rated', 'prior', 'sleep']),
+    back('spread', ['Does the pain travel down one leg?', '¿El dolor baja por una pierna?'], ['No, it stays in my lower back.', 'No, se queda en la parte baja de la espalda.'], ['It stayed in his lower back', 'Se quedaba en la parte baja de la espalda'], [['It reached his foot', 'Llegaba hasta el pie'], ['It reached both knees', 'Llegaba a ambas rodillas']], ['tingle', 'sleep', 'today']),
+    back('rated', ['How strong is it from zero to ten when you bend?', '¿Qué tan fuerte es del cero al diez cuando te agachas?'], ['About five out of ten.', 'Aproximadamente cinco de diez.'], ['Five out of ten', 'Cinco de diez'], [['Two out of ten', 'Dos de diez'], ['Eight out of ten', 'Ocho de diez']]),
+    back('prior', ['Have you had this kind of pain before?', '¿Has tenido antes un dolor así?'], ['Once, after moving furniture last year.', 'Una vez, después de mover muebles el año pasado.'], ['After moving furniture last year', 'Después de mover muebles el año pasado'], [['After swimming last month', 'Después de nadar el mes pasado'], ['It was the first time', 'Era la primera vez']]),
+    back('sleep', ['Did the pain wake you up last night?', '¿El dolor te despertó anoche?'], ['No. I slept through the night.', 'No. Dormí toda la noche.'], ['He slept through the night', 'Durmió toda la noche'], [['He woke every hour', 'Se despertó cada hora'], ['He could not sleep at all', 'No pudo dormir nada']]),
+    back('today', ['How does it compare with yesterday?', '¿Cómo se compara con ayer?'], ['It is a little better today.', 'Hoy está un poco mejor.'], ['It was a little better', 'Estaba un poco mejor'], [['It was much worse', 'Estaba mucho peor'], ['It disappeared completely', 'Desapareció por completo']]),
+    back('tingle', ['Have you felt any tingling in your feet?', '¿Has sentido hormigueo en los pies?'], ['No, both feet feel normal.', 'No, ambos pies se sienten normales.'], ['Both feet felt normal', 'Ambos pies se sentían normales'], [['Only the left foot tingled', 'Solo sentía hormigueo en el pie izquierdo'], ['Both feet tingled', 'Sentía hormigueo en ambos pies']]),
+  ],
+  structuresRelated: [], revision: interviewRevision,
+}];

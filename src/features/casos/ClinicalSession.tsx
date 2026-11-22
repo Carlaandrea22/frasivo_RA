@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowLeft,
   Check,
@@ -29,12 +29,8 @@ import {
   type PerformanceLevel,
 } from './clinicalEngine';
 import { InterviewCaseView, InvestigationCaseView } from './ClinicalConversationCase';
-import { NextCaseButton, ResultCard, type Score } from './ClinicalResult';
-
-interface CaseViewProps<T extends ClinicalCase> {
-  item: T;
-  onComplete: (score: Score) => void;
-}
+import { NextCaseButton, ResultCard, type CaseStepProps, type Score } from './ClinicalResult';
+import { ClinicalSummary } from './ClinicalSummary';
 
 const casesById = new Map(clinicalCases.map(item => [item.id, item]));
 const sessionLabels = {
@@ -43,13 +39,7 @@ const sessionLabels = {
   ordering: 'Orden clínico',
   'multiple-choice': 'Decisión clínica',
 };
-const levelLabels = {
-  strong: 'con buen dominio',
-  partial: 'en progreso',
-  review: 'para repasar',
-} satisfies Record<PerformanceLevel, string>;
-
-function OrderingCaseView({ item, onComplete }: CaseViewProps<OrderingCase>) {
+function OrderingCaseView({ item, onComplete, last }: CaseStepProps<OrderingCase>) {
   const actionMap = useMemo(() => new Map(item.actions.map(action => [action.id, action])), [item]);
   const expectedIds = useMemo(() => item.actions.map(action => action.id), [item]);
   const initialOrder = useMemo(() => {
@@ -141,7 +131,7 @@ function OrderingCaseView({ item, onComplete }: CaseViewProps<OrderingCase>) {
     <p className="clinical-result-meta">
       {score.correct} sin ayuda · {score.assisted} {score.assisted === 1 ? 'con pista' : 'con pistas'} · {score.errors} para revisar
     </p>
-    <NextCaseButton score={score} onComplete={onComplete}/>
+    <NextCaseButton score={score} onComplete={onComplete} last={last}/>
   </ResultCard>;
 
   return <div className="clinical-case-body">
@@ -194,7 +184,7 @@ function OrderingCaseView({ item, onComplete }: CaseViewProps<OrderingCase>) {
   </div>;
 }
 
-function MultipleChoiceCaseView({ item, onComplete }: CaseViewProps<MultipleChoiceCase>) {
+function MultipleChoiceCaseView({ item, onComplete, last }: CaseStepProps<MultipleChoiceCase>) {
   const [selected, setSelected] = useState<string>();
   const [discarded, setDiscarded] = useState<string>();
   const [hintUsed, setHintUsed] = useState(false);
@@ -203,7 +193,7 @@ function MultipleChoiceCaseView({ item, onComplete }: CaseViewProps<MultipleChoi
   if (score) return <ResultCard title={score.correct ? 'Respuesta correcta' : 'Respuesta para revisar'} score={score}>
     <p lang="en">{item.explanationEn}</p>
     <p className="clinical-result-meta">{hintUsed ? '1 pista utilizada' : 'Sin pistas'}</p>
-    <NextCaseButton score={score} onComplete={onComplete}/>
+    <NextCaseButton score={score} onComplete={onComplete} last={last}/>
   </ResultCard>;
 
   return <div className="clinical-case-body">
@@ -237,11 +227,11 @@ function MultipleChoiceCaseView({ item, onComplete }: CaseViewProps<MultipleChoi
   </div>;
 }
 
-function CaseView({ item, onComplete }: CaseViewProps<ClinicalCase>) {
-  if (item.kind === 'interview') return <InterviewCaseView item={item} onComplete={onComplete}/>;
-  if (item.kind === 'investigation') return <InvestigationCaseView item={item} onComplete={onComplete}/>;
-  if (item.kind === 'ordering') return <OrderingCaseView item={item} onComplete={onComplete}/>;
-  return <MultipleChoiceCaseView item={item} onComplete={onComplete}/>;
+function CaseView({ item, ...step }: CaseStepProps<ClinicalCase>) {
+  if (item.kind === 'interview') return <InterviewCaseView item={item} {...step}/>;
+  if (item.kind === 'investigation') return <InvestigationCaseView item={item} {...step}/>;
+  if (item.kind === 'ordering') return <OrderingCaseView item={item} {...step}/>;
+  return <MultipleChoiceCaseView item={item} {...step}/>;
 }
 
 export function ClinicalSession({ caseIds: sessionIds, onExit }: { caseIds: readonly string[]; onExit: () => void }) {
@@ -253,27 +243,7 @@ export function ClinicalSession({ caseIds: sessionIds, onExit }: { caseIds: read
 
   useEffect(() => { window.scrollTo(0, 0); }, [index]);
 
-  if (!item) {
-    const tiles = (Object.keys(levelLabels) as PerformanceLevel[]).sort((a, b) => levels[b] - levels[a]);
-    return <section className="lumar-page clinical-session clinical-complete">
-      <header>
-        <p className="lumar-eyebrow">Sesión terminada</p>
-        <h1>{sessionIds.length === 5 ? 'Completaste los cinco casos' : 'Completaste la práctica'}</h1>
-        <p className="lumar-subtitle">Así te fue en esta sesión.</p>
-      </header>
-      <ul className="clinical-level-summary" aria-label="Distribución del desempeño">
-        {tiles.map(level => <li key={level} className="clinical-level-card" data-level={level}
-          style={{ '--cases': levels[level] } as CSSProperties}>
-          <strong>{levels[level]}</strong><span>{levelLabels[level]}</span>
-        </li>)}
-      </ul>
-      <p className="clinical-session-totals">{total.correct} aciertos · {total.assisted ?? 0} asistidas · {total.errors} para revisar · {total.hints ?? 0} pistas</p>
-      <div className="clinical-result-actions">
-        <Button onClick={onExit}>Volver a Casos clínicos</Button>
-        <a className="button button--secondary lumar-link" href="#progreso/practicas">Ver mis prácticas</a>
-      </div>
-    </section>;
-  }
+  if (!item) return <ClinicalSummary total={total} count={sessionIds.length} levels={levels} onExit={onExit}/>;
 
   const complete = (score: Score) => {
     if (lastRecordedId.current === item.id) return;
@@ -313,7 +283,7 @@ export function ClinicalSession({ caseIds: sessionIds, onExit }: { caseIds: read
       <h1>{item.titleEs}</h1>
       <p className="lumar-subtitle">{item.instructionsEs}</p>
     </header>
-    <CaseView key={item.id} item={item} onComplete={complete}/>
+    <CaseView key={item.id} item={item} onComplete={complete} last={index === sessionIds.length - 1}/>
     <p className="clinical-disclaimer">Material educativo provisional basado en la fuente indicada. No sustituye formación clínica supervisada.</p>
   </section>;
 }

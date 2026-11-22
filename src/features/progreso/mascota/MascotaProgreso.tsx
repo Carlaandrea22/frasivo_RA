@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Hand, PartyPopper } from 'lucide-react';
 import { metaDiaria } from '../../../shared/progreso/racha';
-import { controlesRachaVisibles, simularRacha } from '../../../shared/progreso/useRacha';
 import { Button } from '../../../shared/ui/Button';
 import { Mascota } from './Mascota';
 import { etapasMascota, obtenerEvolucion } from './evolucion';
@@ -11,13 +10,11 @@ type Gesto = 'saludo' | 'celebracion';
 const duracion: Record<Gesto, number> = { saludo: 1400, celebracion: 1500 };
 const ultimaEtapaVista = 'lumar.mascota:etapa-por-racha';
 
-export function MascotaProgreso({ dias, completadosHoy, diasSimulados }: {
+export function MascotaProgreso({ dias, completadosHoy }: {
   dias: number;
   completadosHoy: number;
-  diasSimulados: number | null;
 }) {
-  const rachaVisible = diasSimulados ?? dias;
-  const { indice, actual, siguiente } = obtenerEvolucion(rachaVisible);
+  const { indice, actual, siguiente } = obtenerEvolucion(dias);
   const [gesto, setGesto] = useState<{ nombre: Gesto; turno: number }>();
 
   const activar = useCallback((nombre: Gesto) => {
@@ -25,7 +22,6 @@ export function MascotaProgreso({ dias, completadosHoy, diasSimulados }: {
   }, []);
 
   useEffect(() => {
-    if (diasSimulados !== null) return;
     try {
       const vista = window.localStorage.getItem(ultimaEtapaVista);
       const indiceVisto = etapasMascota.findIndex(etapa => etapa.id === vista);
@@ -34,7 +30,7 @@ export function MascotaProgreso({ dias, completadosHoy, diasSimulados }: {
     } catch {
       // The stage still follows practice history when storage is unavailable.
     }
-  }, [activar, actual.id, diasSimulados, indice]);
+  }, [activar, actual.id, indice]);
 
   useEffect(() => {
     if (!gesto) return;
@@ -42,20 +38,9 @@ export function MascotaProgreso({ dias, completadosHoy, diasSimulados }: {
     return () => window.clearTimeout(timer);
   }, [gesto]);
 
-  const faltan = siguiente ? siguiente.dias - rachaVisible : 0;
+  const faltan = siguiente ? siguiente.dias - dias : 0;
 
   return <section className="lumar-card mascota-panel" aria-labelledby="mascota-titulo">
-    {controlesRachaVisibles() && <section className="mascota-qa" aria-label="Prueba de etapas">
-      <div className="mascota-qa-texto">
-        <h3>Prueba de etapas</h3>
-        <p aria-live="polite">{diasSimulados === null ? `Racha real: ${dias}` : `Simulación: ${rachaVisible} · Racha real: ${dias}`}</p>
-      </div>
-      <div className="mascota-qa-botones">
-        <Button variant="secondary" disabled={rachaVisible === 0} onClick={() => simularRacha(rachaVisible - 1)}>−1 día</Button>
-        <Button variant="secondary" onClick={() => simularRacha(rachaVisible + 1)}>+1 día</Button>
-        {diasSimulados !== null && <Button variant="text" onClick={() => simularRacha(null)}>Restaurar racha real</Button>}
-      </div>
-    </section>}
     <div className="mascota-escena">
       <span className="mascota-etapa">Etapa {indice + 1} de {etapasMascota.length}</span>
       <Mascota key={gesto?.turno ?? 0} etapa={actual.id} animacion={gesto?.nombre ?? 'reposo'}/>
@@ -66,10 +51,9 @@ export function MascotaProgreso({ dias, completadosHoy, diasSimulados }: {
         <h2 id="mascota-titulo">{actual.nombre}</h2>
       </header>
       <div className="mascota-evolucion">
-        <p className="mascota-racha"><strong>{rachaVisible}</strong> {rachaVisible === 1 ? 'día' : 'días'} de racha
-          {diasSimulados !== null && <> · Simulación</>}</p>
+        <p className="mascota-racha"><strong>{dias}</strong> {dias === 1 ? 'día' : 'días'} de racha</p>
         {siguiente ? <>
-          <progress aria-label={`Progreso hacia ${siguiente.nombre}`} value={rachaVisible - actual.dias} max={siguiente.dias - actual.dias}/>
+          <progress aria-label={`Progreso hacia ${siguiente.nombre}`} value={dias - actual.dias} max={siguiente.dias - actual.dias}/>
           <p>{faltan === 1 ? 'Falta 1 día' : `Faltan ${faltan} días`} para <strong>{siguiente.nombre}</strong>.</p>
         </> : <p>Alcanzaste la última etapa.</p>}
         <p className="mascota-meta">

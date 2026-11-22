@@ -1,34 +1,8 @@
-import type { Revision } from '../types';
 import { investigationCases } from './investigations';
-import type { ClinicalCase, ClinicalTriple, InterviewNode } from './sessionTypes';
-
-type Pair = readonly [english: string, spanish: string];
-
-function nodeFactory(patientName: string) {
-  return (
-    id: string,
-    prompt: Pair,
-    patient: Pair,
-    correct: Pair,
-    alternatives: readonly [Pair, Pair],
-    nextIds?: ClinicalTriple<string>,
-  ): InterviewNode => ({
-    id,
-    promptEn: prompt[0],
-    promptEs: prompt[1],
-    patientEn: patient[0],
-    patientEs: patient[1],
-    recallPromptEn: `What did ${patientName} say in response?`,
-    recallPromptEs: `¿Qué respondió ${patientName}?`,
-    recallCorrectId: `${id}-correct`,
-    recallOptions: [
-      { id: `${id}-correct`, textEn: correct[0], textEs: correct[1] },
-      { id: `${id}-alt-1`, textEn: alternatives[0][0], textEs: alternatives[0][1] },
-      { id: `${id}-alt-2`, textEn: alternatives[1][0], textEs: alternatives[1][1] },
-    ],
-    nextIds,
-  });
-}
+import { interviewRevision, nodeFactory } from './interviewNodes';
+import { additionalInterviewCases } from './readings';
+import { additionalMultipleChoiceCases, additionalOrderingCases } from './shortCases';
+import type { ClinicalCase, InterviewNode } from './sessionTypes';
 
 const knee = nodeFactory('Alex');
 const kneeNodes: readonly InterviewNode[] = [
@@ -81,11 +55,6 @@ const shoulderNodes: readonly InterviewNode[] = [
   shoulder('s-history', ['Have you ever injured that shoulder?', '¿Te has lesionado ese hombro antes?'], ['No, I have never had a significant injury there.', 'No, nunca he tenido una lesión importante ahí.'], ['There was no significant previous injury', 'No había una lesión previa importante'], [['There was a fracture last year', 'Hubo una fractura el año pasado'], ['There was a dislocation last week', 'Hubo una luxación la semana pasada']]),
   shoulder('s-numbness', ['Do you have numbness or tingling in the arm?', '¿Tienes adormecimiento u hormigueo en el brazo?'], ['No, the sensation in my arm and hand feels normal.', 'No, la sensibilidad del brazo y la mano se siente normal.'], ['Sensation felt normal', 'La sensibilidad se sentía normal'], [['The hand was numb', 'La mano estaba adormecida'], ['Every finger tingled', 'Todos los dedos hormigueaban']]),
 ];
-
-const interviewRevision = {
-  estado: 'provisional',
-  fuentes: [{ titulo: 'WHO–ICRC · Basic Emergency Care: SAMPLE history', url: 'https://www.who.int/publications/i/item/basic-emergency-care-approach-to-the-acutely-ill-and-injured' }],
-} satisfies Revision;
 
 export const clinicalCases: readonly ClinicalCase[] = [{
   id: 'knee-conversation', kind: 'interview', titleEs: 'Entrevista · Dolor de rodilla',
@@ -148,4 +117,4 @@ export const clinicalCases: readonly ClinicalCase[] = [{
   explanationEn: 'Intramuscular adrenaline is the first-line treatment for anaphylaxis. Emergency help and continued assessment are also required.',
   structuresRelated: [],
   revision: { estado: 'provisional', fuentes: [{ titulo: 'Resuscitation Council UK · Emergency treatment of anaphylaxis', url: 'https://www.resus.org.uk/library/additional-guidance/guidance-anaphylaxis/emergency-treatment-anaphylactic-reactions' }] },
-}, ...investigationCases];
+}, ...investigationCases, ...additionalInterviewCases, ...additionalOrderingCases, ...additionalMultipleChoiceCases];

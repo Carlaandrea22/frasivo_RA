@@ -11,6 +11,7 @@ export interface Viewer3DProps extends ViewportOptions {
   nodeId?: string;
   label?: string;
   children?: ReactNode;
+  fallback?: ReactNode;
 }
 
 const messages: Record<Exclude<ViewerStatus, 'ready'>, string> = {
@@ -20,7 +21,7 @@ const messages: Record<Exclude<ViewerStatus, 'ready'>, string> = {
 };
 
 export function Viewer3D(props: Viewer3DProps) {
-  const { src, nodeId, label = 'Visor 3D', anchors, onProject, selectedNodeId, children } = props;
+  const { src, nodeId, label = 'Visor 3D', anchors, onProject, selectedNodeId, children, fallback } = props;
   const host = useRef<HTMLDivElement>(null);
   const runtime = useRef<ReturnType<typeof mountViewport>>(undefined);
   const current = useRef(props);
@@ -51,7 +52,9 @@ export function Viewer3D(props: Viewer3DProps) {
       </span>
       <div ref={host} className="viewer3d__stage">
         {ready && children && <div className="viewer3d__overlay">{children}</div>}
-        {!ready && <p className="viewer3d__message" role={status === 'loading' ? 'status' : 'alert'}>{messages[status]}</p>}
+        {!ready && (status !== 'loading' && fallback
+          ? <div className="viewer3d__message">{fallback}<p role="status">{messages[status]}</p></div>
+          : <p className="viewer3d__message" role={status === 'loading' ? 'status' : 'alert'}>{messages[status]}</p>)}
       </div>
       <div className="viewer3d__controls" role="group" aria-label="Controles del visor 3D">
         <Button variant="secondary" aria-label="Acercar" disabled={!ready} onClick={() => runtime.current?.zoomIn()}>

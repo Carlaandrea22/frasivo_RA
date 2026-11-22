@@ -4,7 +4,8 @@ import type { ConversationNode, InterviewCase, InvestigationCase, InvestigationN
 import { Button } from '../../shared/ui/Button';
 import { Card } from '../../shared/ui/Card';
 import { createInterviewExchange, getInterviewChoices, scoreInvestigation } from './clinicalEngine';
-import { NextCaseButton, ResultCard, type Score } from './ClinicalResult';
+import { NextCaseButton, ResultCard, type CaseStepProps } from './ClinicalResult';
+import { ClinicalAnatomy } from './ClinicalAnatomy';
 
 function Bilingual({ es, en }: { es: string; en: string }) {
   return <span className="clinical-bilingual">
@@ -90,32 +91,34 @@ function Conversation<Node extends ConversationNode>({ item, finishLabel, onFini
   </div>;
 }
 
-type CompleteCase = (score: Score) => void;
-
-export function InterviewCaseView({ item, onComplete }: { item: InterviewCase; onComplete: CompleteCase }) {
+export function InterviewCaseView({ item, onComplete, last }: CaseStepProps<InterviewCase>) {
   const [recall, setRecall] = useState<ReturnType<typeof createInterviewExchange>[]>([]);
   const [answers, setAnswers] = useState<string[]>([]);
-  const question = recall[answers.length]?.recall;
+  const exchange = recall[answers.length];
 
   if (!recall.length) return <Conversation item={item} finishLabel="Comenzar preguntas de comprensión"
     onFinish={path => setRecall(path.map(node => createInterviewExchange(node)))}/>;
 
-  if (!question) {
+  if (!exchange) {
     const correct = recall.filter(({ recall: entry }, index) => entry.correctId === answers[index]).length;
     const score = { correct, errors: recall.length - correct };
     return <ResultCard title={`${correct} de ${recall.length} respuestas correctas`} score={score}>
       <p>La puntuación corresponde a lo que recordaste de esta conversación.</p>
-      <NextCaseButton score={score} onComplete={onComplete}/>
+      <NextCaseButton score={score} onComplete={onComplete} last={last}/>
     </ResultCard>;
   }
 
+  const { prompt, recall: question } = exchange;
   return <div className="clinical-case-body">
     <header>
       <p className="lumar-eyebrow">Comprensión · {answers.length + 1} de {recall.length}</p>
       <h2>Comprueba lo que entendiste</h2>
     </header>
     <Card className="clinical-question-card">
-      <h3><Bilingual es={question.promptEs} en={question.promptEn}/></h3>
+      <div className="clinical-recall-prompt">
+        <p><Bilingual es={question.promptEs} en={question.promptEn}/></p>
+        <h3><Bilingual es={prompt.promptEs} en={prompt.promptEn}/></h3>
+      </div>
       <div className="clinical-answer-list" key={answers.length}>
         {question.options.map(option => <Button key={option.id} variant="answer" onClick={() => setAnswers([...answers, option.id])}>
           <Bilingual es={option.textEs} en={option.textEn}/>
@@ -125,7 +128,7 @@ export function InterviewCaseView({ item, onComplete }: { item: InterviewCase; o
   </div>;
 }
 
-export function InvestigationCaseView({ item, onComplete }: { item: InvestigationCase; onComplete: CompleteCase }) {
+export function InvestigationCaseView({ item, onComplete, last }: CaseStepProps<InvestigationCase>) {
   const [path, setPath] = useState<InvestigationNode[]>();
   const [hypothesisId, setHypothesisId] = useState<string>();
   const retry = () => {
@@ -167,9 +170,10 @@ export function InvestigationCaseView({ item, onComplete }: { item: Investigatio
         <Bilingual es={item.debriefEs} en={item.debriefEn}/>
       </div>
     </details>}
+    <ClinicalAnatomy structures={item.anatomy}/>
     <div className="clinical-result-actions">
       <Button variant="secondary" onClick={retry}><RotateCcw size={17}/> Volver al primer turno</Button>
-      <NextCaseButton score={score} onComplete={onComplete}/>
+      <NextCaseButton score={score} onComplete={onComplete} last={last}/>
     </div>
   </ResultCard>;
 }

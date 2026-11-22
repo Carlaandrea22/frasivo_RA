@@ -23,6 +23,12 @@ const kindIcon = {
   ordering: ListOrdered,
   'multiple-choice': CircleHelp,
 } as const;
+const modeDescription = {
+  interview: 'Recuerda los detalles de una conversación con el paciente.',
+  investigation: 'Haz preguntas, reúne hallazgos y elige una hipótesis.',
+  ordering: 'Organiza las actuaciones de una situación clínica.',
+  'multiple-choice': 'Elige la respuesta que mejor encaja con el caso.',
+} as const;
 
 export function Casos(_props: RouteProps) {
   const [sessionCaseIds, setSessionCaseIds] = useState<string[] | null>(null);
@@ -31,7 +37,8 @@ export function Casos(_props: RouteProps) {
 
   const startMixedSession = () => setSessionCaseIds(buildMixedCaseSession(clinicalCases));
   const startModeSession = (kind: ClinicalCase['kind']) => {
-    setSessionCaseIds(buildCaseSession(clinicalCases.filter(item => item.kind === kind).map(item => item.id)));
+    const ids = clinicalCases.filter(item => item.kind === kind).map(item => item.id);
+    setSessionCaseIds(buildCaseSession(ids).slice(0, kind === 'multiple-choice' ? 1 : 2));
   };
 
   return <section className="lumar-page clinical-home">
@@ -55,33 +62,16 @@ export function Casos(_props: RouteProps) {
       <div className="clinical-mode-grid">
         {(Object.keys(kindLabel) as ClinicalCase['kind'][]).map(kind => {
           const Icon = kindIcon[kind];
-          const available = clinicalCases.filter(item => item.kind === kind).length;
           return <Button key={kind} variant="answer" className="clinical-mode-button"
             aria-label={`Practicar solo ${kindLabel[kind]}`} onClick={() => startModeSession(kind)}>
             <span className="clinical-kind-icon" aria-hidden="true"><Icon size={19}/></span>
-            <span className="clinical-mode-copy"><strong>{kindLabel[kind]}</strong><small>{available} {available === 1 ? 'caso disponible' : 'casos disponibles'}</small></span>
+            <span className="clinical-mode-copy"><strong>{kindLabel[kind]}</strong><small>{modeDescription[kind]}</small></span>
             <ArrowRight className="clinical-mode-arrow" size={16} aria-hidden="true"/>
           </Button>;
         })}
       </div>
     </section>
 
-    <details className="lumar-card clinical-catalog">
-      <summary>Ver catálogo de casos</summary>
-      <div className="clinical-preview" aria-label="Catálogo de casos">
-      {clinicalCases.map(item => {
-        const Icon = kindIcon[item.kind];
-        return <Card key={item.id}>
-          <div className="clinical-card-heading">
-            <span className="clinical-kind-icon" aria-hidden="true"><Icon size={19}/></span>
-            <span className="lumar-card-meta">{kindLabel[item.kind]}</span>
-          </div>
-          <h3>{item.titleEs}</h3>
-          <p>{item.summaryEs}</p>
-        </Card>;
-      })}
-      </div>
-    </details>
     <p className="clinical-disclaimer">Material educativo provisional. No sustituye formación clínica supervisada.</p>
   </section>;
 }

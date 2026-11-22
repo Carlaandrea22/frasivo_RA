@@ -39,7 +39,8 @@ test('presenta preguntas, respuestas y mensajes en español con el inglés debaj
   await choose(page, /Does your knee ever lock or get stuck/);
   await choose(page, 'Comenzar preguntas de comprensión');
 
-  await expect(page.getByRole('heading', { name: /Qué respondió Alex/ })).toBeVisible();
+  await expect(page.getByText('¿Qué respondió Alex?')).toBeVisible();
+  await expect(page.getByRole('heading', { name: /Cuándo empezó el dolor.*When did the pain begin/ })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Pista', exact: true })).toHaveCount(0);
   const answer = page.getByRole('button', { name: /Hace unas tres semanas.*About three weeks ago/ });
   const spanishAnswer = await answer.locator('[lang="es"]').boundingBox();
@@ -81,8 +82,18 @@ test('la investigación permite seguir una ruta débil, reiniciar y guardar solo
   await choose(page, /Una posible enfermedad transmitida por alimentos/);
   await expect(page.getByRole('heading', { name: 'Investigación bien orientada' })).toBeVisible();
   await expect(page.getByText(/2 de 2 hallazgos clave.*Hipótesis respaldada/)).toBeVisible();
+  const stomach = page.getByRole('region', { name: 'Modelo 3D · Estómago' });
+  await expect(stomach).toHaveAttribute('data-viewer-state', 'ready', { timeout: 15000 });
   await next(page);
   await expect(page.getByRole('heading', { name: 'Investigación · Dolor de cabeza' })).toBeVisible();
+  await choose(page, /Qué estabas haciendo antes/);
+  await choose(page, /Te diste algún golpe/);
+  await choose(page, /Qué pasó justo antes del primer dolor/);
+  await choose(page, 'Elegir una hipótesis');
+  await choose(page, /Una posible lesión relacionada con el golpe/);
+  await expect(page.getByRole('region', { name: 'Modelo 3D · Cerebro' })).toHaveAttribute('data-viewer-state', 'ready', { timeout: 15000 });
+  await choose(page, 'Cráneo');
+  await expect(page.getByRole('region', { name: 'Modelo 3D · Cráneo' })).toHaveAttribute('data-viewer-state', 'ready', { timeout: 15000 });
 
   await page.goto('/#progreso/practicas');
   const entry = page.getByRole('article').filter({ hasText: 'Investigación · Dolor abdominal' });
@@ -93,7 +104,7 @@ test('la investigación permite seguir una ruta débil, reiniciar y guardar solo
   await expect(entry.getByText('¿Tienes alguna enfermedad conocida?')).toHaveCount(0);
 });
 
-test('completa los cuatro modos en cinco casos y dibuja cuadrados según el desempeño', async ({ page }) => {
+test('completa los cuatro modos en cinco casos y muestra los resultados al finalizar', async ({ page }) => {
   await page.clock.setFixedTime(new Date(2026, 10, 22, 12));
   await choose(page, 'Empezar sesión de 5 casos');
   await expect(page.getByText('Caso 1 de 5')).toBeVisible();
@@ -131,24 +142,17 @@ test('completa los cuatro modos en cinco casos y dibuja cuadrados según el dese
   await choose(page, /Two days after changing the gym routine/);
   await choose(page, /Heavier overhead presses/);
   await choose(page, /Seven out of ten/);
-  await next(page);
+  await expect(page.getByRole('button', { name: 'Siguiente caso' })).toHaveCount(0);
+  await choose(page, 'Ver resultados');
 
   await expect(page.getByRole('heading', { name: 'Completaste los cinco casos' })).toBeVisible();
-  const tiles = page.getByRole('list', { name: 'Distribución del desempeño' });
-  await expect(tiles.getByRole('listitem')).toHaveCount(3);
-  await expect(tiles).toContainText(/3\s*con buen dominio/);
-  await expect(tiles).toContainText(/1\s*en progreso/);
-  await expect(tiles).toContainText(/1\s*para repasar/);
-  const boxes = await tiles.getByRole('listitem').evaluateAll(elements => elements.map(element => {
-    const { width, height, right } = element.getBoundingClientRect();
-    return { width, height, right, color: getComputedStyle(element).backgroundColor };
-  }));
-  expect(boxes[0].width).toBeGreaterThan(boxes[1].width);
-  expect(new Set(boxes.map(box => box.color)).size).toBe(3);
-  for (const box of boxes) {
-    expect(box.width).toBeCloseTo(box.height, 0);
-    expect(box.right).toBeLessThanOrEqual(375);
-  }
+  await expect(page.getByText('87%')).toBeVisible();
+  const distribution = page.getByRole('list', { name: 'Distribución del desempeño' });
+  await expect(distribution.getByRole('listitem')).toHaveCount(3);
+  await expect(distribution).toContainText(/Buen dominio\s*3/);
+  await expect(distribution).toContainText(/En progreso\s*1/);
+  await expect(distribution).toContainText(/Para repasar\s*1/);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(375);
   await page.getByRole('link', { name: 'Ver mis prácticas' }).click();
   await expect(page.getByRole('article')).toHaveCount(5);
   await page.getByRole('link', { name: 'Mi progreso' }).click();

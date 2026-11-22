@@ -162,7 +162,7 @@ export function Mascota({ etapa, animacion = 'reposo', className }: {
   const dibujo = dibujos[etapa];
   const conLibro = etapa === 'nino' || etapa === 'adolescente';
   return <svg className={className ? `mascota ${className}` : 'mascota'} viewBox="0 0 240 248"
-    aria-hidden="true" focusable="false" data-etapa={etapa} data-animacion={animacion} data-libro={conLibro || undefined}>
+    aria-hidden="true" focusable="false" data-etapa={etapa} data-animacion={animacion}>
     <ellipse cx="120" cy="230" rx="51" ry="7" fill="#1b6251" opacity=".13"/>
     <g className="mascota__destellos" fill="#db9b3d">
       <path d="M48 61q0 11 11 12-11 0-11 11-1-11-12-11 11-1 12-12ZM190 53q0 10 10 11-10 0-10 11-1-11-11-11 10-1 11-11ZM172 30q0 7 7 8-7 0-7 7-1-7-8-7 7-1 8-8Z"/>
