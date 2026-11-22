@@ -73,10 +73,24 @@ const geometryLayers = {
     .filter(name => name.endsWith('.glb')).map(name => name.slice(0, -4))),
 };
 const layers = { muscles: [], organs: [], explore: [] };
+const { fichas, pronunciationOnDemand = [] } = JSON.parse(await readFile('scripts/explorar-detail-sources.json', 'utf8'));
+const detailThumbnails = new Map(await Promise.all(fichas.filter(ficha => ficha.thumbnailOnDemand)
+  .map(async ({ root }) => [root, await readFile(`src/content/anatomy/miniaturas/${root}.webp`)])));
+const detailAudio = new Set(pronunciationOnDemand);
+const exploreOnDemand = [];
 for (const url of urls) {
-  const asset = /^\/assets\/(.+)-[\w-]{8}\.(glb|webp)$/.exec(url);
+  const asset = /^\/assets\/(.+)-[\w-]{8}\.(glb|webp|mp3)$/.exec(url);
   if (!asset) continue;
   const [, name, format] = asset;
+  if (format === 'mp3') {
+    if (detailAudio.has(name)) exploreOnDemand.push(url);
+    continue;
+  }
+  const thumbnail = format === 'webp' && detailThumbnails.get(name);
+  if (thumbnail && thumbnail.equals(await readFile(output + url))) {
+    exploreOnDemand.push(url);
+    continue;
+  }
   const layer = format === 'webp' ? spriteLayers.get(name) :
     Object.keys(geometryLayers).find(key => geometryLayers[key].has(name));
   if (format === 'glb' && !layer) throw new Error(`No se asignó una capa a ${url}.`);
@@ -84,14 +98,14 @@ for (const url of urls) {
 }
 if (layers.explore.length !== geometryLayers.explore.size) throw new Error('Faltan modelos de Explorar en la compilación.');
 
-const optional = new Set([simd, ...nosimd, ...Object.values(tracking).map(([url]) => url), ...Object.values(layers).flat()]);
+const optional = new Set([simd, ...nosimd, ...Object.values(tracking).map(([url]) => url), ...Object.values(layers).flat(), ...exploreOnDemand]);
 const shell = ['/', ...urls.filter(url => !optional.has(url))];
 const bytes = (await Promise.all(shell.map(url => stat(`${output}${url === '/' ? '/index.html' : url}`))))
   .reduce((total, info) => total + info.size, 0);
 if (bytes > 20_000_000) throw new Error(`La precaché de LumAR supera 20 MB (${bytes} bytes).`);
 
 const runtime = await readFile(new URL('./sw-runtime.js', import.meta.url), 'utf8');
-const config = { shell, layers, simd, packedSimd, nosimd, tracking };
+const config = { shell, layers, exploreOnDemand, simd, packedSimd, nosimd, tracking };
 const hash = createHash('sha256');
 hash.update(runtime).update(JSON.stringify(config)).update(pushWorker);
 for (const file of files) hash.update(await readFile(file));

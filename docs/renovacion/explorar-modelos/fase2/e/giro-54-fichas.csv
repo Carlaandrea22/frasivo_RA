@@ -1,0 +1,55 @@
+id,ficha,triangulos,bytes_glb,fps,p95_ms,regiones,etiquetas_visibles_al_inicio
+femur,Fémur,13202,77560,60.01,17.5,3,3
+tibia,Tibia,6822,43624,60,17.5,3,3
+humerus,Húmero,16492,93768,60.02,17.7,3,3
+radius,Radio,2714,20264,59.99,17.6,3,3
+pelvis,Hueso coxal,9470,59772,59.99,17.3,4,3
+patella,Rótula,1338,13116,60,17.7,3,2
+ulna,Cúbito,3538,25112,59.99,17.5,3,3
+fibula,Peroné,4544,29208,60.01,17.9,3,3
+sternum,Esternón,35884,206820,59.99,17.7,3,3
+skull,Cráneo,59938,648080,60.01,17.4,7,4
+spine,Columna vertebral,59924,452400,60.01,17.3,7,7
+clavicle,Clavícula,10252,59252,59.99,17.5,6,6
+scapula,Escápula,39993,224220,60,17.6,8,6
+ribs,Costillas,59923,361980,59.99,17.8,8,6
+mandible,Mandíbula,21658,117720,59.99,17.6,5,4
+hand,Mano ósea derecha,36215,229040,59.99,17.6,18,7
+foot,Pie óseo derecho,56428,367868,60.01,17.3,17,7
+cervical_vertebra,Vértebra cervical típica,4224,33900,59.99,17.5,5,2
+thoracic_lumbar_vertebrae,Vértebras torácica y lumbar típicas,25490,162308,60,18,9,4
+sacrum,Sacro y cóccix,39997,247616,59.99,17.6,5,5
+hyoid,Hioides,5534,33464,59.98,17.8,3,2
+biceps_brachii,Bíceps braquial,39995,257364,60,17.7,2,1
+quadriceps_femoris,Cuádriceps femoral,39986,406348,60,17.5,4,2
+deltoid,Deltoides,39991,255856,60.01,18,3,1
+triceps_brachii,Tríceps braquial,39990,258048,59.99,17.6,3,2
+gastrocnemius,Gastrocnemio,39989,258464,60.02,17.7,2,2
+pectoralis_major,Pectoral mayor,39990,266356,60.02,17.9,3,2
+trapezius,Trapecio,39991,370108,60,17.9,3,2
+rectus_abdominis,Recto del abdomen,39994,406932,60,17.7,2,2
+external_oblique,Oblicuo externo del abdomen,39991,511668,60,17.7,4,4
+latissimus_dorsi,Dorsal ancho,39991,545240,60,17.7,4,4
+gluteus_maximus,Glúteo mayor,39995,279564,60.01,17.6,4,4
+hamstrings,Isquiotibiales,39986,382232,59.98,17.5,3,1
+tibialis_anterior,Tibial anterior,39981,314348,60.02,17.5,4,4
+sternocleidomastoid,Esternocleidomastoideo,39997,246772,60,17.8,2,2
+diaphragm,Diafragma,39997,265628,59.98,17.8,3,3
+heart,Corazón,16604,129204,60,17.4,15,3
+lungs,Pulmones,39986,333480,60.01,17.9,5,3
+stomach,Estómago,9384,53104,60.03,17.6,4,4
+kidneys,Riñones,27752,138676,60.01,18,2,2
+brain,Cerebro,39826,449012,60,17.4,4,3
+liver,Hígado,19416,104408,59.99,17.8,3,2
+small_intestine,Intestino delgado,39993,254632,59.99,17.7,3,2
+large_intestine,Intestino grueso,39855,362272,60,17.5,6,5
+pancreas,Páncreas,38928,198500,60,17.9,5,5
+spleen,Bazo,16872,97564,59.98,17.4,5,5
+gallbladder,Vesícula biliar,2674,18912,60,17.7,4,4
+esophagus,Esófago,2642,18872,60,17.8,3,3
+trachea_bronchi,Tráquea y bronquios principales,39983,270268,60,17.8,7,6
+urinary_bladder,Vejiga urinaria,10071,64876,60.01,17.6,6,2
+larynx,Laringe,13238,83744,60,17.6,7,3
+adrenal_glands,Glándulas suprarrenales,29662,141344,60,17.8,2,2
+ureters,Uréteres,39917,237656,60,17.7,6,6
+thymus,Timo,39994,214692,60.01,17.4,2,2

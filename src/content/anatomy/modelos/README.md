@@ -4,16 +4,18 @@ Cada GLB de `fichas/` corresponde a una ficha y se descarga al abrirla. El manif
 
 ## Regenerar
 
-Descarga los OBJ en las rutas del manifiesto bajo `assets/_fuentes/`. En Blender, carga el contenido de `scripts/prepare-explorar-detail.py` y llama a `prepare(model, repo, output)` para cada entrada de `fichas` del manifiesto. `repo` es la raíz absoluta del repositorio y `output`, el GLB de preparación con nombre `<id>.glb` en `assets/_fuentes/explorar-fase2/b/preparados/`. El script limpia la geometría, aplica el presupuesto de triángulos y exporta normales ponderadas, materiales PBR y oclusión ambiental en `COLOR_0`.
+Descarga los OBJ en las rutas del manifiesto bajo `assets/_fuentes/`. En Blender, carga el contenido de `scripts/prepare-explorar-detail.py` y llama a `prepare(model, repo, output)` para cada entrada de `fichas` del manifiesto. `repo` es la raíz absoluta del repositorio y `output`, el GLB de preparación con nombre `<id>.glb` en el directorio `preparados`. El script limpia la geometría, aplica el presupuesto de triángulos y exporta normales ponderadas, materiales PBR y oclusión ambiental en `COLOR_0`.
 
 Desde la raíz del repositorio:
 
 ```sh
-node scripts/generate-explorar-regions.mjs scripts/explorar-detail-sources.json --write-project-metadata
-npm exec --yes --package=gltfpack@1.3.0 -- node scripts/generate-explorar-fichas.mjs
+atlas=assets/_fuentes/explorar-fase2
+node scripts/generate-explorar-regions.mjs scripts/explorar-detail-sources.json \
+  "$atlas/preparados" "$atlas/regiones" --write-project-metadata
+npm exec --yes --package=gltfpack@1.3.0 -- node scripts/generate-explorar-fichas.mjs "$atlas/regiones"
 node scripts/generate-explorar-thumbnails.mjs
 ```
 
-El generador asigna los triángulos preparados a los nodos de cada ficha, calcula los anclajes sobre su superficie y registra el recuento, el área y los límites de la fuente preparada. Para una prueba parcial, omite `--write-project-metadata` y pasa directorios de entrada y salida alternativos. La compresión Meshopt conserva los nombres de los nodos y cuantiza posiciones y normales. El corazón en corte de LumAR conserva sus 15 partes y coordenadas.
+El generador asigna los triángulos preparados a los nodos de cada ficha, calcula los anclajes sobre su superficie y registra el recuento, el área y los límites de la fuente preparada. Un manifiesto parcial con `--merge-project-metadata` actualiza únicamente los modelos y anclajes de esa tanda. Pasa el mismo manifiesto al generador de miniaturas para regenerar esa selección. La compresión Meshopt conserva los nombres de los nodos y cuantiza posiciones y normales. El corazón en corte de LumAR conserva sus 15 partes y coordenadas.
 
 Cuando hay OBJ separados, los nombres de región siguen la clasificación del manifiesto. Cuando comparten una superficie, el script transfiere las regiones de referencia a los nuevos triángulos. Las regiones estimadas y los anclajes siguen pendientes de revisión anatómica. [Procedencia por ficha y mediciones](../../../../docs/renovacion/explorar-modelos/fase2/b/README.md)

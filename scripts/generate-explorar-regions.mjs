@@ -10,8 +10,11 @@ import { readGlb, writeGlb } from './explorar-glb.mjs';
 const repo = new URL('../', import.meta.url);
 const work = 'assets/_fuentes/explorar-fase2/b';
 const args = process.argv.slice(2);
-const projectMetadata = args.includes('--write-project-metadata');
-const [manifestPath, prepared = join(work, 'preparados'), output = join(work, 'regiones')] = args.filter(arg => arg !== '--write-project-metadata');
+const replaceProjectMetadata = args.includes('--write-project-metadata');
+const mergeProjectMetadata = args.includes('--merge-project-metadata');
+if (replaceProjectMetadata && mergeProjectMetadata) throw new Error('Elige si quieres sustituir o incorporar las fichas al mapa.');
+const [manifestPath, prepared = join(work, 'preparados'), output = join(work, 'regiones')] = args.filter(arg =>
+  arg !== '--write-project-metadata' && arg !== '--merge-project-metadata');
 if (!manifestPath) throw new Error('Indica el manifiesto de fuentes y, si corresponde, las carpetas de GLB.');
 const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
 const models = {};
@@ -52,7 +55,8 @@ for (const model of manifest.fichas) {
   const total = { triangles: 0, surfaceArea: 0 };
   for (const [part, primitives] of regions) {
     const name = model.retainedAsset ? part : `${root}__${part}`;
-    const coverage = measure(primitives, data, binary, posterior.has(part));
+    const back = posterior.has(part) || model.posteriorParts?.includes(part);
+    const coverage = measure(primitives, data, binary, back, model.anchorHints?.[part]);
     bounds.union(coverage.box);
     measured[name] = { triangles: coverage.triangles, surfaceArea: coverage.surfaceArea };
     total.triangles += coverage.triangles;
@@ -65,7 +69,8 @@ for (const model of manifest.fichas) {
   const maxTriangles = model.maxTriangles ?? (['skull', 'spine', 'ribs', 'hand', 'foot'].includes(id) ? 60_000 : 40_000);
   if (total.triangles > maxTriangles) throw new Error(id + ': supera el límite de triángulos.');
   const asset = { ...data.asset, generator: 'Blender y LumAR' };
-  if (!model.retainedAsset) asset.copyright = 'BodyParts3D, © The Database Center for Life Science licensed under CC Attribution 4.0 International';
+  if (model.attribution) asset.copyright = model.attribution;
+  else if (!model.retainedAsset) asset.copyright = 'BodyParts3D, © The Database Center for Life Science licensed under CC Attribution 4.0 International';
   const result = { ...data, asset, scene: 0, scenes: [{ name: 'Explorar 3D', nodes: [0] }], nodes, meshes };
   await writeFile(join(output, id + '.glb'), writeGlb(result, binary));
   models[id] = {
@@ -79,12 +84,25 @@ for (const model of manifest.fichas) {
 
 await writeFile(join(output, 'mapa.json'), JSON.stringify({ version: 2, models }, null, 2) + '\n');
 await writeFile(join(output, 'puntos-regiones.json'), JSON.stringify(points, null, 2) + '\n');
-if (projectMetadata) {
-  await writeFile(new URL('scripts/explorar-atlas-triangle-regions.json', repo), JSON.stringify({ version: 2, models }, null, 2) + '\n');
-  await writeFile(new URL('src/content/anotaciones/puntos-regiones.json', repo), JSON.stringify(points, null, 2) + '\n');
+if (replaceProjectMetadata || mergeProjectMetadata) {
+  const mapPath = new URL('scripts/explorar-atlas-triangle-regions.json', repo);
+  const pointsPath = new URL('src/content/anotaciones/puntos-regiones.json', repo);
+  let oldModels = {}, oldPoints = {};
+  if (mergeProjectMetadata) {
+    const current = JSON.parse(await readFile(mapPath, 'utf8'));
+    if (current.version !== 2) throw new Error('El mapa existente debe tener versión 2.');
+    oldModels = current.models;
+    oldPoints = JSON.parse(await readFile(pointsPath, 'utf8'));
+    for (const { id } of manifest.fichas) {
+      for (const name of Object.keys(oldModels[id]?.regions ?? {})) delete oldPoints[name];
+    }
+  }
+  const updatedMap = { version: 2, models: { ...oldModels, ...models } };
+  await writeFile(mapPath, JSON.stringify(updatedMap, null, 2) + '\n');
+  await writeFile(pointsPath, JSON.stringify({ ...oldPoints, ...points }, null, 2) + '\n');
 }
 
-function measure(primitives, data, binary, back) {
+function measure(primitives, data, binary, back, hint) {
   const box = new Box3();
   const candidates = [];
   const triangle = new Triangle();
@@ -103,8 +121,8 @@ function measure(primitives, data, binary, back) {
     }
   }
   if (!candidates.length) throw new Error('Región sin triángulos.');
-  const target = box.getCenter(new Vector3());
-  target.z = back ? box.min.z : box.max.z;
+  const target = hint ? new Vector3(...hint) : box.getCenter(new Vector3());
+  if (!hint) target.z = back ? box.min.z : box.max.z;
   let point = candidates[0];
   for (const center of candidates) if (center.distanceToSquared(target) < point.distanceToSquared(target)) point = center;
   return { box, triangles: candidates.length, surfaceArea, point: point.toArray() };
