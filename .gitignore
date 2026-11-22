@@ -1,5 +1,6 @@
 node_modules/
 dist/
+dist-push-test/
 *.tsbuildinfo
 public/body-tracking/
 # Recursos generados en instalaciones del producto anterior

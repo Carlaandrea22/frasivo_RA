@@ -84,6 +84,9 @@ export function Progreso() {
       </ul>
     </Card>
     <MascotaProgreso {...racha}/>
+    {import.meta.env.MODE === 'push-test' && <div>
+      <a className="button button--secondary lumar-link" href="#progreso/notificaciones">Prueba de notificaciones</a>
+    </div>}
     {last && <Card className="progress-entry">
       <p className="progress-caption"><History size={16} aria-hidden="true"/> Última práctica registrada</p>
       <PracticeSummary event={last}/>
