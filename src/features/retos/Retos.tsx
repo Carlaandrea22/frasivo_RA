@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, ArrowRight, Box, CheckCircle2, CircleHelp, Clock, Layers, Link2, ListChecks, LogOut } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Box, CheckCircle2, CircleHelp, Layers, Link2, ListChecks, LogOut } from 'lucide-react';
 import { categorias, estructuras } from '../../content/anatomy/catalogo';
 import { retos } from '../../content/ejercicios/retos';
 import type { CategoriaAnatomica, ModoReto, PreguntaReto, Reto, TipoReto } from '../../content/types';
@@ -31,14 +31,14 @@ const modos: Record<ModoReto, { label: string; descripcion: string }> = {
 };
 
 type TipoConModelo = 'ubica-partes' | 'senala-estructura';
-type TipoConSelector = TipoConModelo | 'relaciona-funcion';
-const tiposConSelector = ['ubica-partes', 'senala-estructura', 'relaciona-funcion'] satisfies TipoConSelector[];
+const ordenDelCatalogo = ['ubica-partes', 'senala-estructura', 'relaciona-funcion', 'repaso-breve'] satisfies TipoReto[];
 const selectorPorTipo = {
   'ubica-partes': { ruta: 'ubicar', descripcion: 'Coloca etiquetas en el modelo 3D. Elige qué quieres practicar o prueba un modelo al azar.' },
   'senala-estructura': { ruta: 'senalar', descripcion: 'Gira un modelo 3D y toca la pieza indicada.' },
   'relaciona-funcion': { ruta: 'relacionar', descripcion: 'Empareja huesos, músculos u órganos con la función que cumplen.' },
+  'repaso-breve': { ruta: 'repasar', descripcion: 'Responde preguntas rápidas sobre huesos, músculos u órganos.' },
 };
-const rutaSelector = (tipo: TipoConSelector, estructuraId?: string) =>
+const rutaSelector = (tipo: TipoReto, estructuraId?: string) =>
   `${rutaRetos}/${selectorPorTipo[tipo].ruta}${estructuraId ? `/estructura/${estructuraId}` : ''}`;
 
 function usaModelo(tipo: TipoReto): tipo is TipoConModelo {
@@ -53,7 +53,7 @@ interface OpcionPractica {
   modeloId?: string;
 }
 
-function opcionesDePractica(tipo: TipoConSelector): readonly OpcionPractica[] {
+function opcionesDePractica(tipo: TipoReto): readonly OpcionPractica[] {
   const actividades = retos.filter(reto => reto.tipo === tipo);
   if (!usaModelo(tipo)) return actividades.flatMap(reto => {
     const estructura = estructuras.find(item => item.id === reto.estructurasRelacionadas[0]);
@@ -114,11 +114,10 @@ function Fuentes({ reto }: { reto: Reto }) {
 
 function Lista({ estructuraId }: { estructuraId?: string }) {
   const disponibles = estructuraId ? retos.filter(reto => reto.estructurasRelacionadas.includes(estructuraId)) : retos;
-  const [ubicar, ...secundarias] = tiposConSelector.map(tipo => ({
+  const [ubicar, ...secundarias] = ordenDelCatalogo.map(tipo => ({
     tipo, actividades: disponibles.filter(reto => reto.tipo === tipo),
   }));
   const gruposSecundarios = secundarias.filter(grupo => grupo.actividades.length > 0);
-  const repasos = disponibles.filter(reto => reto.tipo === 'repaso-breve');
   return <section className="lumar-page retos-page">
     <header>
       <h1>Retos de anatomía</h1>
@@ -127,21 +126,8 @@ function Lista({ estructuraId }: { estructuraId?: string }) {
     <PracticeTabs active="retos"/>
     {estructuraId && <a className="retos-back" href={rutaRetos}>Ver todos los retos</a>}
     {ubicar.actividades.length > 0 && <TarjetaSelector {...ubicar} estructuraId={estructuraId}/>}
-    {(repasos.length > 0 || gruposSecundarios.length > 0) && <div className="retos-grid">
+    {gruposSecundarios.length > 0 && <div className="retos-grid">
       {gruposSecundarios.map(grupo => <TarjetaSelector key={grupo.tipo} {...grupo} estructuraId={estructuraId}/>)}
-      {repasos.map(reto => {
-        const resultado = ultimoIntento(reto);
-        return <Card key={reto.id} className="retos-card">
-          <Tipo tipo={reto.tipo}/>
-          <h2>{reto.titulo}</h2>
-          <p>{reto.estructurasRelacionadas.map(nombreEstructura).join(', ')}</p>
-          <p className="retos-meta"><Clock size={15} aria-hidden="true"/> ~{duracion(reto)} min · {reto.modos.map(modo => modos[modo].label).join(' y ')}</p>
-          {resultado?.kind === 'practice' && <a className="retos-history" href={rutaResultado(reto.id, resultado.id)}>
-            Último resultado: {resultado.correct} de {resultado.correct+resultado.errors}
-          </a>}
-          <a className="button button--primary lumar-link" href={rutaReto(reto.id)} aria-label={`Abrir reto: ${reto.titulo}`}>Abrir reto</a>
-        </Card>;
-      })}
     </div>}
     {disponibles.length === 0 && <ContentState state="empty" title="Aún no hay un reto para esta estructura">
       <a href={rutaRetos}>Ver todos los retos</a>
@@ -149,7 +135,7 @@ function Lista({ estructuraId }: { estructuraId?: string }) {
   </section>;
 }
 
-function TarjetaSelector({ tipo, actividades, estructuraId }: { tipo: TipoConSelector; actividades: readonly Reto[]; estructuraId?: string }) {
+function TarjetaSelector({ tipo, actividades, estructuraId }: { tipo: TipoReto; actividades: readonly Reto[]; estructuraId?: string }) {
   const { icon: Icon, nombre } = tipos[tipo];
   const principal = tipo === 'ubica-partes';
   const accion = principal ? 'Elegir práctica' : tipo === 'senala-estructura' ? 'Elegir modelo' : 'Elegir tema';
@@ -192,9 +178,13 @@ export function RelacionaInicio({ params }: RouteProps) {
   return <ConfigurarPractica key={params.estructuraId ?? 'todos'} tipo="relaciona-funcion" estructuraId={params.estructuraId}/>;
 }
 
+export function RepasoInicio({ params }: RouteProps) {
+  return <ConfigurarPractica key={params.estructuraId ?? 'todos'} tipo="repaso-breve" estructuraId={params.estructuraId}/>;
+}
+
 const gruposDeOpciones = [...categorias, { id: 'recorridos', nombre: 'Recorridos de varios modelos' }] as const;
 
-function ConfigurarPractica({ tipo, estructuraId }: { tipo: TipoConSelector; estructuraId?: string }) {
+function ConfigurarPractica({ tipo, estructuraId }: { tipo: TipoReto; estructuraId?: string }) {
   const porModelo = usaModelo(tipo);
   const opciones = useMemo(() => opcionesDePractica(tipo), [tipo]);
   const [seleccion, setSeleccion] = useState(() => estructuraId ? opciones.find(opcion =>

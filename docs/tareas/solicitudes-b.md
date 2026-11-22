@@ -136,3 +136,12 @@ opción «Aleatorio» elige un tema al empezar. Las parejas usan las funciones
 de las fichas del atlas. Se conserva el reto original del fémur y su enlace.
 
 - Selector de «Relaciona estructura y función» a [375 px](../capturas/carla/retos-relaciona-selector-375.png) y en [escritorio](../capturas/carla/retos-relaciona-selector-1440.png).
+
+### Ampliación de «Repaso breve»
+
+El catálogo reúne las preguntas de opción múltiple en una sola tarjeta.
+Se puede elegir huesos y articulaciones, músculos en acción o corazón y
+respiración. «Aleatorio» elige uno de esos temas. El repaso muscular conserva
+su enlace, sus preguntas y sus resultados previos.
+
+- Selector de «Repaso breve» a [375 px](../capturas/carla/retos-repaso-selector-375.png) y en [escritorio](../capturas/carla/retos-repaso-selector-1440.png).

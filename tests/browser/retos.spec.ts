@@ -102,6 +102,41 @@ test('Entrenamiento permite usar una pista, corregir la respuesta y repasar el e
   await expect(page.getByRole('link', { name: 'Ver en Explorar 3D' })).toHaveAttribute('href', '#explorar/estructura/biceps_brachii');
 });
 
+test('Repaso breve permite elegir huesos, músculos u órganos y empezar al azar', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 900 });
+  await page.goto('/#practicar/retos');
+  await expect(page.locator('.retos-page article')).toHaveCount(4);
+  const abrir = page.getByRole('link', { name: 'Elegir tema para Repaso breve', exact: true });
+  await abrir.click();
+  const tema = page.getByRole('combobox', { name: 'Tema', exact: true });
+  await expect(tema.locator('optgroup')).toHaveCount(3);
+
+  const repasos = [
+    ['repaso-huesos', ['Tibia', 'Radio', 'Acetábulo', 'Tróclea humeral']],
+    ['repaso-musculos', ['Bíceps braquial', 'Recto femoral']],
+    ['repaso-organos', ['Ventrículo izquierdo', 'Tres', 'Intercambiar oxígeno y dióxido de carbono entre el aire y la sangre.']],
+  ] as const;
+  for (const [id, respuestas] of repasos) {
+    await tema.selectOption(id);
+    await page.getByRole('button', { name: 'Evaluación', exact: true }).click();
+    await page.getByRole('button', { name: 'Empezar reto' }).click();
+    await expect(page.getByRole('button', { name: /^Pista/ })).toHaveCount(0);
+    for (const [i, respuesta] of respuestas.entries()) {
+      await page.getByRole('group', { name: 'Respuestas' }).getByRole('button', { name: respuesta, exact: true }).click();
+      await page.getByRole('button', { name: i === respuestas.length-1 ? 'Ver resultado' : 'Siguiente', exact: true }).click();
+    }
+    await expect(page.getByText(`${respuestas.length} de ${respuestas.length}`, { exact: true })).toBeVisible();
+    await page.getByRole('link', { name: 'Otro reto' }).click();
+    await abrir.click();
+  }
+
+  await page.getByRole('button', { name: 'Aleatorio', exact: true }).click();
+  await expect(tema).toHaveCount(0);
+  await page.getByRole('button', { name: 'Empezar reto' }).click();
+  await expect(page.getByRole('group', { name: 'Respuestas' })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(375);
+});
+
 test('coloca etiquetas por arrastre y por toques en el modelo', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/#practicar/retos/partes-femur');

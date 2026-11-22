@@ -180,6 +180,66 @@ export const retos: readonly Reto[] = [
       fuentes: [revision('biceps_brachii').fuentes[0], revision('quadriceps_femoris').fuentes[0]],
     },
   },
+  {
+    id: 'repaso-huesos', titulo: 'Huesos y articulaciones', tipo: 'repaso-breve', modos,
+    estructurasRelacionadas: ['tibia', 'radius', 'pelvis', 'humerus'],
+    preguntas: [
+      {
+        id: 'peso-pierna', enunciado: '¿Qué hueso soporta gran parte del peso entre la rodilla y el tobillo?', estructuraId: 'tibia',
+        respuestas: [{ id: 'rotula', texto: 'Rótula' }, { id: 'femur', texto: 'Fémur' }, { id: 'tibia', texto: 'Tibia' }],
+        correctaId: 'tibia', pistas: ['Busca el hueso largo de la pierna, por debajo de la rodilla.'],
+        feedbackError: 'La tibia soporta gran parte del peso en la pierna. El fémur está en el muslo y la rótula está delante de la rodilla.',
+      },
+      {
+        id: 'lado-pulgar', enunciado: 'En posición anatómica, ¿qué hueso del antebrazo queda del lado del pulgar?', estructuraId: 'radius',
+        respuestas: [{ id: 'radio', texto: 'Radio' }, { id: 'ulna', texto: 'Ulna' }, { id: 'humero', texto: 'Húmero' }],
+        correctaId: 'radio', pistas: ['El húmero está en el brazo, por encima del codo.'],
+        feedbackError: 'El radio queda del lado del pulgar en posición anatómica. La ulna queda del lado del meñique.',
+      },
+      {
+        id: 'cavidad-cadera', enunciado: '¿Qué cavidad del hueso coxal recibe la cabeza del fémur?', estructuraId: 'pelvis',
+        respuestas: [{ id: 'pubis', texto: 'Pubis' }, { id: 'acetabulo', texto: 'Acetábulo' }, { id: 'ilion', texto: 'Ilion' }],
+        correctaId: 'acetabulo', pistas: ['Busca en la cara lateral del hueso coxal, donde se forma la articulación de la cadera.'],
+        feedbackError: 'El acetábulo es la cavidad donde encaja la cabeza del fémur. Allí confluyen el ilion, el isquion y el pubis.',
+      },
+      {
+        id: 'parte-codo', enunciado: '¿Qué parte del húmero se articula con la ulna en el codo?', estructuraId: 'humerus',
+        respuestas: [{ id: 'cabeza', texto: 'Cabeza del húmero' }, { id: 'cuerpo', texto: 'Cuerpo del húmero' }, { id: 'troclea', texto: 'Tróclea humeral' }],
+        correctaId: 'troclea', pistas: ['Está en el extremo más cercano al codo.'],
+        feedbackError: 'La tróclea humeral forma parte del extremo distal del húmero y se articula con la ulna.',
+      },
+    ],
+    revision: { estado: 'provisional', fuentes: [revision('tibia').fuentes[0], revision('radius').fuentes[0], revision('pelvis').fuentes[0]] },
+  },
+  {
+    id: 'repaso-organos', titulo: 'Corazón y respiración', tipo: 'repaso-breve', modos,
+    estructurasRelacionadas: ['heart', 'lungs'],
+    preguntas: [
+      {
+        id: 'camara-aorta', enunciado: '¿Qué cámara del corazón impulsa sangre hacia la aorta?', estructuraId: 'heart',
+        respuestas: [{ id: 'ad', texto: 'Aurícula derecha' }, { id: 'vi', texto: 'Ventrículo izquierdo' }, { id: 'vd', texto: 'Ventrículo derecho' }],
+        correctaId: 'vi', pistas: ['La aorta sale de una cámara inferior del lado izquierdo.'],
+        feedbackError: 'El ventrículo izquierdo impulsa sangre hacia la aorta. El ventrículo derecho la impulsa hacia el tronco pulmonar.',
+      },
+      {
+        id: 'lobulos-derechos', enunciado: '¿Cuántos lóbulos tiene el pulmón derecho?', estructuraId: 'lungs',
+        respuestas: [{ id: 'dos', texto: 'Dos' }, { id: 'cuatro', texto: 'Cuatro' }, { id: 'tres', texto: 'Tres' }],
+        correctaId: 'tres', pistas: ['En el lado derecho hay un lóbulo medio, además del superior y el inferior.'],
+        feedbackError: 'El pulmón derecho tiene un lóbulo superior, uno medio y uno inferior. El izquierdo tiene dos.',
+      },
+      {
+        id: 'intercambio-gases', enunciado: '¿Qué función cumplen los pulmones?', estructuraId: 'lungs',
+        respuestas: [
+          { id: 'gases', texto: 'Intercambiar oxígeno y dióxido de carbono entre el aire y la sangre.' },
+          { id: 'aorta', texto: 'Bombear sangre hacia la aorta.' },
+          { id: 'valvulas', texto: 'Evitar el retroceso de sangre entre las cámaras cardíacas.' },
+        ],
+        correctaId: 'gases', pistas: ['Piensa en qué gases entran y salen del cuerpo al respirar.'],
+        feedbackError: 'Los pulmones permiten el intercambio de gases. El bombeo y las válvulas corresponden al corazón.',
+      },
+    ],
+    revision: { estado: 'provisional', fuentes: [revision('heart').fuentes[0], revision('lungs').fuentes[0]] },
+  },
   retoDeUbicar('partes-huesos', 'Cinco huesos del atlas', ['tibia', 'humerus', 'radius', 'pelvis', 'patella']),
   retoDeUbicar('partes-musculos', 'Partes del bíceps y el cuádriceps', ['biceps_brachii', 'quadriceps_femoris']),
   retoDeUbicar('partes-organos', 'Partes del corazón y los pulmones', ['heart', 'lungs']),
