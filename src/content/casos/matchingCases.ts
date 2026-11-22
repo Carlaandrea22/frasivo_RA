@@ -15,6 +15,7 @@ const base = {
 
 export const matchingCases: readonly MatchingCase[] = [{
   ...base, id: 'matching-daily', titleEs: 'Empareja · Tres pistas cotidianas',
+  structuresRelated: ['quadriceps_femoris'],
   patients: [
     patient('alex', 'Alex', ['Me dieron náuseas al leer durante un viaje con muchas curvas. Al bajarme me sentí mejor.', 'I felt nauseated while reading on a winding trip. I felt better after getting out.'], 'motion',
       ['Las náuseas aparecieron durante el movimiento y cedieron al terminar el trayecto.', 'The nausea started during motion and eased once the ride ended.']),
@@ -51,6 +52,7 @@ export const matchingCases: readonly MatchingCase[] = [{
   ] },
 }, {
   ...base, id: 'matching-outdoors', titleEs: 'Empareja · Pistas de un viaje',
+  structuresRelated: ['kidneys'],
   patients: [
     patient('ana', 'Ana', ['Al aterrizar el avión se me tapó un oído y sentí presión. Se destapó después de tragar saliva.', 'As the plane landed, one ear felt blocked and under pressure. It cleared after I swallowed.'], 'pressure',
       ['La molestia empezó con el cambio de altitud y cedió al equilibrarse la presión al tragar.', 'The discomfort began with the altitude change and eased when swallowing equalized the pressure.']),

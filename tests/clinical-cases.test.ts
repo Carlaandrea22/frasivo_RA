@@ -4,6 +4,7 @@ import {
   applyOrderingHint,
   buildCaseSession,
   buildMixedCaseSession,
+  casesForTopic,
   createInterviewExchange,
   discardIncorrectChoice,
   getInterviewChoices,
@@ -94,6 +95,22 @@ describe('sesión de casos clínicos', () => {
       selections.add([...ids].sort().join('|'));
     }
     expect(selections.size).toBeGreaterThan(1);
+  });
+
+  it('permite diez casos mixtos distintos y conserva la variedad de tipos', () => {
+    const ids = buildMixedCaseSession(clinicalCases, () => .99, 10);
+    expect(new Set(ids).size).toBe(10);
+    const kinds = clinicalCases.filter(item => ids.includes(item.id)).map(item => item.kind);
+    expect(new Set(kinds).size).toBe(5);
+  });
+
+  it('elige la categoría a partir de referencias del atlas y conserva todos los casos en Aleatorio', () => {
+    const investigations = clinicalCases.filter(item => item.kind === 'investigation');
+    expect(casesForTopic(investigations, 'huesos').map(item => item.id))
+      .toEqual(['headache-investigation', 'shin-investigation']);
+    expect(casesForTopic(investigations, 'organos').map(item => item.id))
+      .toEqual(['abdominal-investigation', 'headache-investigation', 'breathing-investigation']);
+    expect(casesForTopic(clinicalCases, 'aleatorio')).toHaveLength(clinicalCases.length);
   });
 
   it('vincula cada investigación a una parte del modelo y conserva la mandíbula del cráneo', () => {

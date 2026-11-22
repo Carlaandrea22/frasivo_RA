@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowLeft,
-  Check,
-  Circle,
   ChevronDown,
   ChevronUp,
   GripVertical,
@@ -17,6 +15,7 @@ import type {
   OrderingCase,
 } from '../../content/casos/sessionTypes';
 import { recordPractice, type PracticeSessionMode } from '../../shared/progreso';
+import { EvaluationOption } from '../../shared/evaluacion/EvaluationOption';
 import { Button } from '../../shared/ui/Button';
 import { Card } from '../../shared/ui/Card';
 import {
@@ -227,15 +226,12 @@ function MultipleChoiceCaseView({ item, ...step }: CaseStepProps<MultipleChoiceC
         {item.options.map(option => {
           const isSelected = selected === option.id;
           const isDiscarded = discarded === option.id;
-          return <Button key={option.id} variant="answer" disabled={isDiscarded}
-            aria-pressed={isSelected} data-selected={isSelected || undefined} data-discarded={isDiscarded || undefined}
+          return <EvaluationOption key={option.id} disabled={isDiscarded}
+            aria-pressed={isSelected} data-discarded={isDiscarded || undefined}
             onClick={() => setSelected(option.id)}>
-            <span className="clinical-choice-marker" aria-hidden="true">{isSelected ? <Check size={15}/> : <Circle size={15}/>}</span>
-            <span className="clinical-choice-copy">
-              <Bilingual es={option.textEs} en={option.textEn}/>
-              {isDiscarded && <small lang="es">Opción descartada</small>}
-            </span>
-          </Button>;
+            <Bilingual es={option.textEs} en={option.textEn}/>
+            {isDiscarded && <small lang="es">Opción descartada</small>}
+          </EvaluationOption>;
         })}
       </div>
       <div className="clinical-choice-actions">
@@ -264,12 +260,20 @@ function CaseView({ item, onComplete, last, submitTimed, mode }: Pick<CaseStepPr
   return <MultipleChoiceCaseView item={item} {...step}/>;
 }
 
-export function ClinicalSession({ caseIds: sessionIds, onExit, finishTimed, mode = 'entrenamiento' }: {
+interface ClinicalSessionProps {
   caseIds: readonly string[];
   onExit: () => void;
   finishTimed?: (score: Score) => boolean;
   mode?: PracticeSessionMode;
-}) {
+}
+
+export function ClinicalSession(props: ClinicalSessionProps) {
+  const [attempt, setAttempt] = useState(0);
+  return <ClinicalAttempt key={attempt} {...props} onRepeat={() => setAttempt(current => current + 1)}/>;
+}
+
+function ClinicalAttempt({ caseIds: sessionIds, onExit, finishTimed, mode = 'entrenamiento', onRepeat }:
+  ClinicalSessionProps & { onRepeat: () => void }) {
   const [index, setIndex] = useState(0);
   const [total, setTotal] = useState<Score>({ correct: 0, errors: 0, hints: 0, assisted: 0 });
   const [levels, setLevels] = useState<Record<PerformanceLevel, number>>({ strong: 0, partial: 0, review: 0 });
@@ -278,7 +282,7 @@ export function ClinicalSession({ caseIds: sessionIds, onExit, finishTimed, mode
 
   useEffect(() => { window.scrollTo(0, 0); }, [index]);
 
-  if (!item) return <ClinicalSummary total={total} count={sessionIds.length} levels={levels} onExit={onExit}/>;
+  if (!item) return <ClinicalSummary total={total} count={sessionIds.length} levels={levels} mode={mode} onExit={onExit} onRepeat={onRepeat}/>;
 
   const save = (score: Score) => {
     if (lastRecordedId.current === item.id) return false;
@@ -314,7 +318,7 @@ export function ClinicalSession({ caseIds: sessionIds, onExit, finishTimed, mode
 
   return <section className="lumar-page clinical-session">
     <div className="clinical-session-topbar">
-      <Button variant="text" onClick={onExit}><ArrowLeft size={17}/> Salir</Button>
+      <Button variant="secondary" onClick={onExit}><ArrowLeft size={17} aria-hidden="true"/> Salir</Button>
       <strong>Caso {index + 1} de {sessionIds.length}</strong>
     </div>
     <div className="clinical-progress" aria-label={`Caso ${index + 1} de ${sessionIds.length}`}>

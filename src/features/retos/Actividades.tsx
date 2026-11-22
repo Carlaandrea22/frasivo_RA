@@ -4,6 +4,7 @@ import { estructuras } from '../../content/anatomy/catalogo';
 import { modelos } from '../../content/anatomy/modelos';
 import { anotaciones } from '../../content/anotaciones/anatomia';
 import type { PreguntaReto } from '../../content/types';
+import { EvaluationOption } from '../../shared/evaluacion/EvaluationOption';
 import { Button } from '../../shared/ui/Button';
 import { ContentState } from '../../shared/ui/ContentState';
 import type { Viewer3DProjectedAnchor } from '../../shared/visor3d/Viewer3D';
@@ -81,14 +82,14 @@ export function Relacionar({ preguntas, respuestas, bloqueado, onAssign }: Omit<
           const asignada = preguntas.find(pregunta => respuestas[pregunta.id] === opcion.id);
           if (asignada && !editando) return null;
           const actual = asignada?.id === activa.id;
-          return <Button key={opcion.id} variant="answer" className="retos-pair-option"
+          return <EvaluationOption key={opcion.id}
             aria-pressed={editando ? actual : undefined} onClick={() => {
               onAssign(activa.id, opcion.id);
               editar(undefined);
             }}>
             <span>{opcion.texto}</span>
             {asignada && <small>{actual ? 'Función actual' : `Intercambiar con ${nombrePareja(asignada)}`}</small>}
-          </Button>;
+          </EvaluationOption>;
         })}
       </div>
       {editando && <Button variant="text" className="retos-start" onClick={() => editar(undefined)}>Cancelar edición</Button>}
@@ -244,7 +245,7 @@ export function Repasar({ pregunta, respuesta, bloqueado, onSelect }: {
   pregunta: PreguntaReto; respuesta?: string; bloqueado: boolean; onSelect: (id: string) => void;
 }) {
   return <div className="retos-option-list" role="group" aria-label="Respuestas">
-    {pregunta.respuestas.map(opcion => <Button key={opcion.id} variant="answer" disabled={bloqueado}
-      aria-pressed={opcion.id === respuesta} onClick={() => onSelect(opcion.id)}>{opcion.texto}</Button>)}
+    {pregunta.respuestas.map(opcion => <EvaluationOption key={opcion.id} disabled={bloqueado}
+      aria-pressed={opcion.id === respuesta} onClick={() => onSelect(opcion.id)}>{opcion.texto}</EvaluationOption>)}
   </div>;
 }

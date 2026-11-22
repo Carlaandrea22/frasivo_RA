@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { ArrowRight, RotateCcw, UserRound } from 'lucide-react';
 import type { ConversationNode, InterviewCase, InvestigationCase, InvestigationNode } from '../../content/casos/sessionTypes';
+import { EvaluationOption } from '../../shared/evaluacion/EvaluationOption';
 import { Button } from '../../shared/ui/Button';
 import { Card } from '../../shared/ui/Card';
 import { createInterviewExchange, getInterviewChoices, scoreInvestigation } from './clinicalEngine';
@@ -78,9 +79,9 @@ function Conversation<Node extends ConversationNode>({ item, finishLabel, onFini
         <h2 id="clinical-question-options">Elige tu pregunta</h2>
         <span>Turno {path.length + 1} de 3</span>
       </div>
-      {choices.map(node => <Button key={node.id} variant="answer" disabled={!!pending} onClick={() => ask(node)}>
+      {choices.map(node => <EvaluationOption key={node.id} disabled={!!pending} onClick={() => ask(node)}>
         <Bilingual es={node.promptEs} en={node.promptEn}/>
-      </Button>)}
+      </EvaluationOption>)}
     </section> : <Button className="clinical-finish-dialogue" onClick={() => onFinish(path)}>{finishLabel}<ArrowRight size={17}/></Button>}
   </div>;
 }
@@ -126,13 +127,13 @@ export function InterviewCaseView({ item, ...step }: CaseStepProps<InterviewCase
         <h3><Bilingual es={prompt.promptEs} en={prompt.promptEn}/></h3>
       </div>
       <div className="clinical-answer-list" key={answers.length}>
-        {question.options.map(option => <Button key={option.id} variant="answer" onClick={() => {
+        {question.options.map(option => <EvaluationOption key={option.id} onClick={() => {
           const values = [...answers, option.id];
           if (values.length === recall.length && step.submitTimed && !step.submitTimed(grade(values))) return;
           setAnswers(values);
         }}>
           <Bilingual es={option.textEs} en={option.textEn}/>
-        </Button>)}
+        </EvaluationOption>)}
       </div>
     </Card>
   </div>;
@@ -161,12 +162,12 @@ export function InvestigationCaseView({ item, ...step }: CaseStepProps<Investiga
       <Transcript item={item} path={path}/>
     </details>
     <div className="clinical-answer-list">
-      {item.hypotheses.map(option => <Button key={option.id} variant="answer" onClick={() => {
+      {item.hypotheses.map(option => <EvaluationOption key={option.id} onClick={() => {
         if (step.submitTimed && !step.submitTimed(grade(option.id))) return;
         setHypothesisId(option.id);
       }}>
         <Bilingual es={option.textEs} en={option.textEn}/>
-      </Button>)}
+      </EvaluationOption>)}
     </div>
     {!step.submitTimed && step.mode === 'entrenamiento' && <Button variant="text" className="clinical-retry" onClick={retry}><RotateCcw size={17}/> Volver al primer turno</Button>}
   </Card>;

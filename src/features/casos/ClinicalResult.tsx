@@ -5,7 +5,7 @@ import type { PracticeSessionMode } from '../../shared/progreso';
 import { Button } from '../../shared/ui/Button';
 import { Card } from '../../shared/ui/Card';
 import { isPerfectWithoutHints, performanceLevel } from './clinicalEngine';
-import { ClinicalConfetti } from './ClinicalConfetti';
+import { EvaluationConfetti } from '../../shared/evaluacion/EvaluationConfetti';
 
 export interface Score {
   correct: number;
@@ -44,7 +44,7 @@ export function CaseResult({ title, children, score, retried, markRetry, last, o
   useEffect(() => { heading.current?.focus(); }, []);
   useEffect(() => { if (revealed) solutionHeading.current?.focus(); }, [revealed]);
   return <Card className="clinical-result" data-level={level}>
-    {!submitTimed && isPerfectWithoutHints({ ...score, retried }) && <ClinicalConfetti/>}
+    {!submitTimed && isPerfectWithoutHints({ ...score, retried }) && <EvaluationConfetti/>}
     <span className="clinical-result-icon" aria-hidden="true">
       {level === 'strong' ? <Check size={24}/> : <AlertCircle size={24}/>}
     </span>

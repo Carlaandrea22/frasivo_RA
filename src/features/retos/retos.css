@@ -1,18 +1,11 @@
 .lumar-page.retos-page { width: min(100%, 61rem); }
 .retos-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); }
-.retos-page .retos-card, .retos-score, .retos-result-card { border-radius: var(--radius-panel); }
+.retos-page .retos-card, .retos-result-card { border-radius: var(--radius-panel); }
 .retos-page .retos-card { gap: 14px; }
 .retos-grid .retos-card { grid-template-rows: auto 1fr auto; }
 .retos-grid .retos-card:nth-child(odd) { background: var(--mint); }
 .retos-card-title { display: flex; align-items: center; gap: 10px; color: var(--forest); }
 .retos-card-title svg { flex: none; }
-.retos-page .retos-configurar { width: min(100%, 38rem); }
-.retos-model-select { display: grid; gap: 6px; min-width: 0; font-weight: 700; }
-.retos-model-select select {
-  width: 100%; min-height: var(--target); padding: 7px 12px; border-radius: var(--radius-soft);
-  border: 1px solid var(--line); background: var(--paper); color: var(--ink); font: inherit;
-  text-overflow: ellipsis;
-}
 .retos-tipo, .retos-meta, .retos-selection, .retos-result-status { display: flex; align-items: center; gap: 6px; }
 .retos-tipo { width: fit-content; border-radius: var(--radius-soft); background: var(--mint); padding: 7px 10px; color: var(--forest); font-size: .83rem; font-weight: 700; }
 .retos-meta { color: var(--muted); font-size: .84rem; }
@@ -28,8 +21,7 @@
 .retos-progress progress::-moz-progress-bar { background: var(--forest); }
 .retos-option-list { display: grid; gap: 10px; align-content: start; }
 .retos-option-list h3, .retos-result-card h3 { margin: 0; font: 700 1rem var(--font-title); }
-.retos-option-list .button { justify-content: space-between; text-align: left; }
-.retos-page .button--answer[aria-pressed="true"], .retos-page .retos-token[aria-pressed="true"] {
+.retos-page .retos-token[aria-pressed="true"] {
   --button-face: var(--mint-hover); --button-ink: var(--ink); --button-stroke: var(--forest); --button-edge: var(--forest);
 }
 .retos-pairs { display: grid; gap: 14px; min-width: 0; }
@@ -38,8 +30,6 @@
 }
 .retos-pair-current h3 { margin: 2px 0 0; color: var(--forest); font: 750 clamp(1.3rem, 3vw, 1.7rem) var(--font-title); }
 .retos-pair-current h3, .retos-pair-summary h3 { scroll-margin-top: 16px; }
-.retos-pairs .retos-pair-option { display: grid; justify-content: stretch; gap: 3px; }
-.retos-pair-option small { color: var(--muted); font-size: .8rem; }
 .retos-pair-summary { display: grid; gap: 8px; }
 .retos-pair-summary h3 { margin: 0; font: 700 1.05rem var(--font-title); }
 .retos-pair-summary .retos-pair-list { display: grid; gap: 8px; list-style: none; margin: 0; padding: 0; }
@@ -78,8 +68,6 @@
 .retos-hints { display: grid; gap: 10px; justify-items: start; }
 .retos-fuentes { color: var(--muted); font-size: .87rem; }
 .retos-fuentes summary { min-height: var(--target); align-content: center; cursor: pointer; }
-.retos-score { background: var(--mint); }
-.retos-score .retos-score-value { color: var(--forest); font: 800 clamp(2.25rem, 9vw, 4.4rem)/1.1 var(--font-title); }
 .retos-resultados { display: grid; gap: 10px; }
 .retos-result-card[data-ok="false"] { background: var(--wrong-face); }
 .retos-result-status { color: var(--forest); font-size: .85rem; font-weight: 800; }

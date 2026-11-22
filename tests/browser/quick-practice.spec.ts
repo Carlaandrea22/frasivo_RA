@@ -105,6 +105,7 @@ test('una hipótesis correcta vale el punto completo sin reunir hallazgos', asyn
 test('una prueba en curso y un aviso reciente bloquean nuevas invitaciones', async ({ page }) => {
   await page.goto('/#practicar/casos');
   await page.getByRole('button', { name: 'Practicar solo Selección múltiple' }).click();
+  await page.getByRole('button', { name: 'Empezar práctica', exact: true }).click();
   await draw(page, .1, .1, .99, 0, .1, .1, .99, 0);
   await page.getByRole('button', { name: 'Mi progreso', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Mi progreso' })).toBeVisible();

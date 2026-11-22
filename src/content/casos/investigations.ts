@@ -62,7 +62,7 @@ export const investigationCases: readonly InvestigationCase[] = [{
   preferredHypothesisId: 'foodborne',
   debriefEs: 'Los síntomas digestivos y el antecedente de una comida compartida orientan la investigación. Haría falta más información para identificar la causa o atribuirla a un alimento concreto.',
   debriefEn: 'The digestive symptoms and the shared meal help guide the investigation. More information would be needed to identify the cause or link it to a specific food.',
-  structuresRelated: ['stomach'],
+  structuresRelated: ['stomach', 'small_intestine'],
   revision: { estado: 'provisional', fuentes: [{ titulo: 'CDC · Food Poisoning Symptoms', url: 'https://www.cdc.gov/food-safety/signs-symptoms/index.html' }] },
 }, {
   id: 'headache-investigation',
@@ -111,7 +111,7 @@ export const investigationCases: readonly InvestigationCase[] = [{
   preferredHypothesisId: 'head-injury',
   debriefEs: 'El golpe y el momento en que empezó el dolor orientan la evaluación hacia una posible lesión. Haría falta una valoración clínica para determinar qué ocurrió.',
   debriefEn: 'The impact and the timing of the headache point toward assessing a possible injury. A clinical evaluation would be needed to determine what happened.',
-  structuresRelated: ['brain'],
+  structuresRelated: ['brain', 'skull'],
   revision: { estado: 'provisional', fuentes: [{ titulo: 'CDC · Symptoms of Mild TBI and Concussion', url: 'https://www.cdc.gov/traumatic-brain-injury/signs-symptoms/index.html' }] },
 }, {
   id: 'shin-investigation', kind: 'investigation', titleEs: 'Investigación · Dolor al correr',
@@ -151,7 +151,7 @@ export const investigationCases: readonly InvestigationCase[] = [{
   preferredHypothesisId: 'training',
   debriefEs: 'El aumento reciente del entrenamiento y el dolor repartido por la espinilla orientan a explorar la carga repetida. La entrevista por sí sola no distingue todas las causas de dolor en esa zona.',
   debriefEn: 'The recent increase in training and pain spread along the shin suggest looking into repetitive loading. An interview alone cannot distinguish all causes of pain in that area.',
-  structuresRelated: ['tibia_left'],
+  structuresRelated: ['tibia'],
   revision: { estado: 'provisional', fuentes: [{ titulo: 'NHS · Shin splints', url: 'https://www.nhs.uk/conditions/shin-splints/' }] },
 }, {
   id: 'breathing-investigation', kind: 'investigation', titleEs: 'Investigación · Respiración entrecortada',

@@ -1,8 +1,10 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
-import { ArrowLeft, ArrowRight, Box, CheckCircle2, CircleHelp, Layers, Link2, ListChecks, LogOut } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Box, CheckCircle2, CircleHelp, Layers, Lightbulb, Link2, ListChecks, LogOut, RotateCcw } from 'lucide-react';
 import { categorias, estructuras } from '../../content/anatomy/catalogo';
 import { retos } from '../../content/ejercicios/retos';
 import { retoModeLabels, retoTypeLabels, type CategoriaAnatomica, type ModoReto, type PreguntaReto, type Reto, type TipoReto } from '../../content/types';
+import { EvaluationMode } from '../../shared/evaluacion/EvaluationMode';
+import { EvaluationHistoryLink, EvaluationSummary } from '../../shared/evaluacion/EvaluationSummary';
 import type { RouteProps } from '../../shared/navegacion';
 import { PracticeTabs } from '../../shared/navegacion/PracticarHome';
 import { BottomSheet } from '../../shared/ui/BottomSheet';
@@ -25,10 +27,7 @@ const tipos = {
   'repaso-breve': { nombre: retoTypeLabels['repaso-breve'], icon: ListChecks, minutos: 1, objetivo: 'Elige la respuesta que mejor contesta cada pregunta.' },
 } satisfies Record<TipoReto, { nombre: string; icon: typeof Box; minutos: number; objetivo: string }>;
 
-const modos: Record<ModoReto, { label: string; descripcion: string }> = {
-  entrenamiento: { label: retoModeLabels.entrenamiento, descripcion: 'Con pistas, reintentos y respuesta inmediata' },
-  evaluacion: { label: retoModeLabels.evaluacion, descripcion: 'Sin ayuda y con la corrección al final' },
-};
+const evaluationDescription = 'Sin pistas. Verás los aciertos y la corrección al terminar.';
 
 type TipoConModelo = 'ubica-partes' | 'senala-estructura';
 const ordenDelCatalogo = ['ubica-partes', 'senala-estructura', 'relaciona-funcion', 'repaso-breve'] satisfies TipoReto[];
@@ -154,16 +153,6 @@ function TarjetaSelector({ tipo, actividades, estructuraId }: { tipo: TipoReto; 
   </Card>;
 }
 
-function SelectorModo({ opciones, modo, onChange }: { opciones: readonly ModoReto[]; modo: ModoReto; onChange: (id: ModoReto) => void }) {
-  return <>
-    <h2>Elige un modo</h2>
-    <Segmented label="Modo del reto" value={modo}
-      options={opciones.map(id => ({ id, label: modos[id].label }))}
-      onChange={id => onChange(id as ModoReto)}/>
-    <p role="status">{modos[modo].descripcion}.</p>
-  </>;
-}
-
 export function UbicaInicio({ params }: RouteProps) {
   return <ConfigurarPractica key={params.estructuraId ?? 'todos'} tipo="ubica-partes" estructuraId={params.estructuraId}/>;
 }
@@ -204,12 +193,12 @@ function ConfigurarPractica({ tipo, estructuraId }: { tipo: TipoReto; estructura
     <header><a className="retos-back" href={estructuraId ? `${rutaRetos}/estructura/${estructuraId}` : rutaRetos}>
       <ArrowLeft size={18} aria-hidden="true"/>Volver a los retos
     </a><h1>{tipos[tipo].nombre}</h1></header>
-    <Card className="retos-card retos-configurar">
+    <Card className="retos-card evaluation-config">
       <h2>¿Qué quieres practicar?</h2>
       <Segmented label="Selección de práctica" value={aleatorio ? 'azar' : 'elegir'}
         options={[{ id: 'elegir', label: 'Elegir' }, { id: 'azar', label: 'Aleatorio' }]}
         onChange={id => setAleatorio(id === 'azar')}/>
-      {aleatorio ? <p role="status">{porModelo ? 'El reto elegirá un modelo del atlas cuando empieces.' : 'El reto elegirá un tema cuando empieces.'}</p> : <label className="retos-model-select">
+      {aleatorio ? <p role="status">{porModelo ? 'El reto elegirá un modelo del atlas cuando empieces.' : 'El reto elegirá un tema cuando empieces.'}</p> : <label className="evaluation-select">
         {porModelo ? 'Modelo o recorrido' : 'Tema'}
         <select value={seleccion} onChange={event => setSeleccion(event.target.value)}>
           <option value="">Elige una opción</option>
@@ -221,7 +210,7 @@ function ConfigurarPractica({ tipo, estructuraId }: { tipo: TipoReto; estructura
           })}
         </select>
       </label>}
-      <SelectorModo opciones={['entrenamiento','evaluacion']} modo={modo} onChange={setModo}/>
+      <EvaluationMode mode={modo} onChange={setModo} evaluationDescription={evaluationDescription}/>
       <Button className="retos-start" disabled={aleatorio ? azar.length === 0 : !elegida} onClick={empezar}>Empezar reto</Button>
       {!aleatorio && elegida && <Fuentes reto={elegida.reto}/>}
     </Card>
@@ -243,7 +232,7 @@ function Preparar({ reto }: { reto: Reto }) {
       <h2>Objetivo</h2>
       <p>{tipos[reto.tipo].objetivo}</p>
       <p className="retos-meta">{reto.preguntas.length} {reto.tipo === 'ubica-partes' ? 'etiquetas' : 'preguntas'} · ~{duracion(reto)} min</p>
-      <SelectorModo opciones={reto.modos} modo={modo} onChange={setModo}/>
+      <EvaluationMode options={reto.modos} mode={modo} onChange={setModo} evaluationDescription={evaluationDescription}/>
       <Button className="retos-start" onClick={() => setIniciado(true)}>Empezar reto</Button>
       {ultimo?.kind === 'practice' && <a className="retos-history" href={rutaResultado(reto.id, ultimo.id)}>Ver último resultado</a>}
       <Fuentes reto={reto}/>
@@ -339,7 +328,7 @@ export function Juego({ reto, modo, quick }: {
 
   return <section className="lumar-page retos-page">
     <header className="retos-run-header">
-      <div>{!quick && <p className="retos-meta">{modos[modo].label}</p>}<h1>{reto.titulo}</h1></div>
+      <div>{!quick && <p className="retos-meta">{retoModeLabels[modo]}</p>}<h1>{reto.titulo}</h1></div>
       <BottomSheet trigger="Salir" title="¿Salir del reto?">
         <p>Se perderá lo que respondiste en este intento.</p>
         {quick ? <Button onClick={quick.exit}><LogOut size={16} aria-hidden="true"/>Salir del reto</Button>
@@ -362,7 +351,7 @@ export function Juego({ reto, modo, quick }: {
       {entrenamiento && <div className="retos-hints">
         <Button variant="secondary" disabled={reveladas >= pistas.length || !!correccion}
           onClick={() => { setReveladas(reveladas+1); setPistasTotales(pistasTotales+1); }}>
-          <CircleHelp size={17} aria-hidden="true"/>Pista ({pistas.length-reveladas})
+          <Lightbulb size={17} aria-hidden="true"/>Pista ({pistas.length-reveladas})
         </Button>
         {reveladas > 0 && <div role="status">{pistas.slice(0,reveladas).map((pista,index) => <p key={index}>{pista}</p>)}</div>}
       </div>}
@@ -381,7 +370,7 @@ export function Juego({ reto, modo, quick }: {
         {!correccion ? <Button disabled={!completas} aria-describedby={!completas ? ayudaId : undefined} onClick={comprobar}>
           {entrenamiento ? 'Comprobar' : accionEvaluacion}
         </Button> : <>
-          {fallo && <Button onClick={reintentar}>Reintentar</Button>}
+          {fallo && <Button variant="secondary" onClick={reintentar}><RotateCcw size={17} aria-hidden="true"/> Reintentar</Button>}
           <Button variant={fallo ? 'secondary' : 'primary'} onClick={() => avanzar(correccion)}>
             {ultima ? 'Ver resultado' : 'Siguiente'}
           </Button>
@@ -395,8 +384,6 @@ function Resultados({ reto, intento, quickExit }: { reto: Reto; intento: string;
   const resultado = leerResultado(reto,intento);
   const [soloErrores, setSoloErrores] = useState(false);
   const lista = useRef<HTMLHeadingElement>(null);
-  const titulo = useRef<HTMLHeadingElement>(null);
-  useEffect(() => titulo.current?.focus(), [intento]);
   if (!resultado) return <section className="lumar-page"><ContentState state="unavailable" title="Resultado no disponible en este dispositivo">
     <a href={rutaReto(reto.id)}>Abrir el reto</a>
   </ContentState></section>;
@@ -406,17 +393,14 @@ function Resultados({ reto, intento, quickExit }: { reto: Reto; intento: string;
   const repetir = modeloId ? rutaSelector(reto.tipo, modeloId) : rutaReto(reto.id);
   const errores = correcciones.filter(row => !row.acierto || row.erroresPrevios.length > 0);
   const filas = soloErrores ? errores : correcciones;
-  return <section className="lumar-page retos-page">
-    <header><p className="retos-meta">{registro.quick ? 'Práctica rápida' : modos[modo].label}</p><h1 tabIndex={-1} ref={titulo}>Resultado del reto</h1></header>
-    <Card className="retos-score">
-      <h2>{tituloResultadoReto(reto, registro)}</h2>
-      <p className="retos-score-value">{registro.correct} de {registro.correct+registro.errors}</p>
-      <p>{registro.errors} {registro.errors === 1 ? 'error final' : 'errores finales'} · {registro.hints} {registro.hints === 1 ? 'pista usada' : 'pistas usadas'}</p>
-    </Card>
-    <div className="retos-actions">
+  return <section className="lumar-page retos-page evaluation-results">
+    <EvaluationSummary key={intento} title="Resultado del reto" subtitle={tituloResultadoReto(reto, registro)}
+      label={registro.quick ? 'Práctica rápida' : retoModeLabels[modo]} score={registro}/>
+    <div className="evaluation-actions">
       {quickExit ? <Button onClick={quickExit}>Terminar práctica</Button> : <>
-        <a className="button button--primary lumar-link" href={repetir}>Repetir</a>
+        <a className="button button--primary lumar-link" href={repetir}><RotateCcw size={17} aria-hidden="true"/> Repetir</a>
         <a className="button button--secondary lumar-link" href={rutaRetos}>Otro reto</a>
+        <EvaluationHistoryLink/>
       </>}
       {errores.length > 0 && <Button variant="secondary" aria-pressed={soloErrores}
         onClick={() => { setSoloErrores(!soloErrores); lista.current?.focus(); }}>

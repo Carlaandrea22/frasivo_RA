@@ -8,6 +8,10 @@ test.beforeEach(async ({ page }) => {
 
 const choose = (page: Page, name: string | RegExp) => page.getByRole('button', { name }).click();
 const next = (page: Page) => choose(page, 'Siguiente caso');
+const start = async (page: Page, kind: string) => {
+  await choose(page, kind);
+  await choose(page, 'Empezar práctica');
+};
 
 async function finishKneeInterview(page: Page) {
   await choose(page, 'Comenzar preguntas de comprensión');
@@ -17,7 +21,7 @@ async function finishKneeInterview(page: Page) {
 }
 
 test('presenta preguntas, respuestas y mensajes en español con el inglés debajo', async ({ page }) => {
-  await choose(page, 'Practicar solo Conversación y comprensión');
+  await start(page, 'Practicar solo Conversación y comprensión');
   const chat = page.getByRole('region', { name: 'Conversación con Alex' });
   await expect(chat.getByText('Me duele la rodilla derecha cada vez que me pongo en cuclillas.')).toBeVisible();
   await expect(chat.getByText('My right knee hurts whenever I squat.')).toBeVisible();
@@ -60,7 +64,7 @@ test('presenta preguntas, respuestas y mensajes en español con el inglés debaj
 });
 
 test('la investigación permite seguir una ruta débil, reiniciar y guardar solo el camino elegido', async ({ page }) => {
-  await choose(page, 'Practicar solo Investigación clínica');
+  await start(page, 'Practicar solo Investigación clínica');
   await expect(page.getByText('Caso 1 de 2')).toBeVisible();
   await choose(page, /Tienes alguna enfermedad conocida/);
   await choose(page, /Has tomado algún medicamento nuevo/);
@@ -109,8 +113,9 @@ test('la investigación permite seguir una ruta débil, reiniciar y guardar solo
 });
 
 test('Evaluación desactiva las pistas y corrige solo tras comprobar', async ({ page }) => {
-  await choose(page, 'Evaluación');
   await choose(page, 'Practicar solo Ordenar actuaciones');
+  await choose(page, 'Evaluación');
+  await choose(page, 'Empezar práctica');
   await expect(page.getByRole('button', { name: 'Pista de orden' })).toHaveCount(0);
   await expect(page.getByRole('list', { name: 'Orden correcto' })).toHaveCount(0);
   await choose(page, 'Comprobar orden');
@@ -119,18 +124,13 @@ test('Evaluación desactiva las pistas y corrige solo tras comprobar', async ({ 
   await expect(page.getByRole('button', { name: 'Reintentar' })).toHaveCount(0);
 
   await choose(page, 'Salir');
-  await expect(page.getByRole('button', { name: 'Evaluación' })).toHaveAttribute('aria-pressed', 'true');
-  await choose(page, 'Practicar solo Selección múltiple');
-  await expect(page.getByRole('button', { name: 'Descartar una opción' })).toHaveCount(0);
-  await choose(page, 'Salir');
-  await choose(page, 'Entrenamiento');
-  await choose(page, 'Practicar solo Selección múltiple');
+  await start(page, 'Practicar solo Selección múltiple');
   await expect(page.getByRole('button', { name: 'Descartar una opción' })).toBeEnabled();
 });
 
 test('completa los cinco modos y muestra los resultados al finalizar', async ({ page }) => {
   await page.clock.setFixedTime(new Date(2026, 10, 22, 12));
-  await choose(page, 'Empezar sesión de 5 casos');
+  await start(page, 'Configurar sesión mixta');
   await expect(page.getByText('Caso 1 de 5')).toBeVisible();
   await choose(page, /When did the pain begin/);
   await choose(page, /Did you fall or twist your knee before it started/);
@@ -140,7 +140,7 @@ test('completa los cinco modos y muestra los resultados al finalizar', async ({ 
 
   await choose(page, 'Comprobar orden');
   await expect(page.getByText('5 de 5 posiciones correctas')).toBeVisible();
-  await expect(page.locator('.clinical-confetti span').first()).toHaveCSS('animation-name', 'clinical-confetti-fall');
+  await expect(page.locator('.evaluation-confetti span').first()).toHaveCSS('animation-name', 'evaluation-confetti-fall');
   await next(page);
 
   const wrongChoice = page.getByRole('button', { name: 'An oral antibiotic' });
@@ -173,7 +173,7 @@ test('completa los cinco modos y muestra los resultados al finalizar', async ({ 
 
   await expect(page.getByRole('heading', { name: 'Completaste los cinco casos' })).toBeVisible();
   await expect(page.getByText('92%')).toBeVisible();
-  await expect(page.locator('.clinical-confetti')).toBeVisible();
+  await expect(page.locator('.evaluation-confetti')).toBeVisible();
   const distribution = page.getByRole('list', { name: 'Distribución del desempeño' });
   await expect(distribution.getByRole('listitem')).toHaveCount(3);
   await expect(distribution).toContainText(/Buen dominio\s*4/);
@@ -192,7 +192,7 @@ test('completa los cinco modos y muestra los resultados al finalizar', async ({ 
 
 test('permite practicar un modo y mantiene visible la tarjeta durante el arrastre', async ({ page }) => {
 
-  await page.getByRole('button', { name: 'Practicar solo Ordenar actuaciones' }).click();
+  await start(page, 'Practicar solo Ordenar actuaciones');
   await expect(page.getByText('Caso 1 de 2')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Orden clínico · Evaluación inicial' })).toBeVisible();
 
@@ -215,7 +215,7 @@ test('permite practicar un modo y mantiene visible la tarjeta durante el arrastr
 });
 
 test('tres pistas corrigen un orden sin aciertos y permiten obtener 5 de 5 sin confeti', async ({ page }) => {
-  await page.getByRole('button', { name: 'Practicar solo Ordenar actuaciones' }).click();
+  await start(page, 'Practicar solo Ordenar actuaciones');
 
   const firstCard = page.locator('.clinical-order-card').filter({ hasText: 'Assess and manage the airway.' });
   for (let step = 0; step < 4; step += 1) {
@@ -234,11 +234,11 @@ test('tres pistas corrigen un orden sin aciertos y permiten obtener 5 de 5 sin c
   await expect(page.getByRole('heading', { name: '5 de 5 posiciones correctas' })).toBeVisible();
   await expect(page.getByText(/2 sin ayuda.*3 con pistas.*0 para revisar/)).toBeVisible();
   await expect(page.locator('.clinical-result')).toHaveAttribute('data-level', 'strong');
-  await expect(page.locator('.clinical-confetti')).toHaveCount(0);
+  await expect(page.locator('.evaluation-confetti')).toHaveCount(0);
 });
 
 test('guarda un solo resultado aunque se reintente el orden', async ({ page }) => {
-  await choose(page, 'Practicar solo Ordenar actuaciones');
+  await start(page, 'Practicar solo Ordenar actuaciones');
   const firstCard = page.locator('[data-order-id="airway"]');
   await firstCard.getByRole('button', { name: 'Mover abajo' }).click();
   await choose(page, 'Comprobar orden');
@@ -248,7 +248,7 @@ test('guarda un solo resultado aunque se reintente el orden', async ({ page }) =
   await firstCard.getByRole('button', { name: 'Mover arriba' }).click();
   await choose(page, 'Comprobar orden');
   await expect(page.getByText('5 de 5 posiciones correctas')).toBeVisible();
-  await expect(page.locator('.clinical-confetti')).toHaveCount(0);
+  await expect(page.locator('.evaluation-confetti')).toHaveCount(0);
   await next(page);
   await page.goto('/#progreso');
   await expect(page.getByText('Resuelto en un reintento')).toHaveCount(1);
@@ -256,7 +256,7 @@ test('guarda un solo resultado aunque se reintente el orden', async ({ page }) =
 });
 
 test('revelar el orden correcto cierra el intento', async ({ page }) => {
-  await choose(page, 'Practicar solo Ordenar actuaciones');
+  await start(page, 'Practicar solo Ordenar actuaciones');
   await page.locator('[data-order-id="airway"]').getByRole('button', { name: 'Mover abajo' }).click();
   await choose(page, 'Comprobar orden');
   await expect(page.getByRole('button', { name: 'Reintentar' })).toBeVisible();
@@ -268,7 +268,7 @@ test('revelar el orden correcto cierra el intento', async ({ page }) => {
 });
 
 test('permite revisar las respuestas que se fallaron en comprensión', async ({ page }) => {
-  await choose(page, 'Practicar solo Conversación y comprensión');
+  await start(page, 'Practicar solo Conversación y comprensión');
   await choose(page, /When did the pain begin/);
   await choose(page, /Did you fall or twist your knee before it started/);
   await choose(page, /Does your knee ever lock or get stuck/);
@@ -284,7 +284,7 @@ test('permite revisar las respuestas que se fallaron en comprensión', async ({ 
 });
 
 test('revela la respuesta de selección múltiple y permite terminar con un resultado para repasar', async ({ page }) => {
-  await choose(page, 'Practicar solo Selección múltiple');
+  await start(page, 'Practicar solo Selección múltiple');
   await choose(page, /An oral antibiotic/);
   await choose(page, 'Comprobar respuesta');
   await choose(page, 'Ver respuesta correcta');
@@ -292,18 +292,18 @@ test('revela la respuesta de selección múltiple y permite terminar con un resu
   await expect(page.getByRole('button', { name: 'Reintentar' })).toHaveCount(0);
   await choose(page, 'Ver resultados');
   await expect(page.getByRole('heading', { name: 'Completaste la práctica' })).toBeVisible();
-  await expect(page.locator('.clinical-confetti')).toHaveCount(0);
+  await expect(page.locator('.evaluation-confetti')).toHaveCount(0);
 });
 
 test('usa un indicador compacto en la selección múltiple', async ({ page }) => {
-  await page.getByRole('button', { name: 'Practicar solo Selección múltiple' }).click();
+  await start(page, 'Practicar solo Selección múltiple');
   const option = page.getByRole('button', { name: 'Intramuscular adrenaline' });
   await expect(option.locator('[lang="es"]')).toHaveText('Adrenalina intramuscular');
   await expect(option.locator('[lang="en"]')).toHaveText('Intramuscular adrenaline');
   await expect(page.getByRole('heading', { name: /qué medicamento es el tratamiento.*first-line treatment/i })).toBeVisible();
   await option.click();
-  const marker = await option.locator('.clinical-choice-marker').boundingBox();
-  const copy = await option.locator('.clinical-choice-copy').boundingBox();
+  const marker = await option.locator('.evaluation-option-marker').boundingBox();
+  const copy = await option.locator('.evaluation-option-copy').boundingBox();
   expect(marker!.width).toBeLessThanOrEqual(28);
   expect(copy!.width).toBeGreaterThan(marker!.width * 5);
 });
@@ -313,7 +313,7 @@ test('reordena tarjetas, fija una posición con pista y refleja la ayuda en el r
   page.on('console', message => {
     if (message.type() === 'error') consoleErrors.push(message.text());
   });
-  await choose(page, 'Practicar solo Ordenar actuaciones');
+  await start(page, 'Practicar solo Ordenar actuaciones');
 
   const cards = page.locator('.clinical-order-card');
   await expect(cards).toHaveCount(5);
@@ -352,11 +352,11 @@ test('reordena tarjetas, fija una posición con pista y refleja la ayuda en el r
 
 test('la mascota baja la cabeza y cierra los ojos al mostrar un resultado bajo', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await choose(page, 'Practicar solo Selección múltiple');
+  await start(page, 'Practicar solo Selección múltiple');
   await choose(page, 'An oral antibiotic');
   await choose(page, 'Comprobar respuesta');
   await choose(page, 'Ver resultados');
-  const mascota = page.locator('.clinical-summary-mascot');
+  const mascota = page.locator('.evaluation-summary-mascot');
   await expect(mascota).toHaveAttribute('data-animacion', 'triste');
   await expect(mascota.locator('.mascota__gesto-triste')).toBeVisible();
   await expect(mascota.locator('.mascota__ojos')).toBeHidden();

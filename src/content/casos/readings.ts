@@ -27,7 +27,7 @@ export const additionalInterviewCases: readonly InterviewCase[] = [{
     wrist('swelling', ['Have you noticed swelling?', '¿Has notado hinchazón?'], ['I have not seen it swell.', 'No la he visto hinchada.'], ['She had not seen swelling', 'No había notado hinchazón'], [['It swelled every evening', 'Se hinchaba todas las tardes'], ['Her fingers became swollen', 'Se le hincharon los dedos']]),
     wrist('tingle', ['Have you felt any tingling?', '¿Has sentido hormigueo?'], ['No, I have not felt any.', 'No, no he sentido hormigueo.'], ['She had not felt tingling', 'No había sentido hormigueo'], [['Her fingertips tingled', 'Sentía hormigueo en las puntas de los dedos'], ['Her forearm tingled', 'Sentía hormigueo en el antebrazo']]),
   ],
-  structuresRelated: [], revision: interviewRevision,
+  structuresRelated: ['radius', 'ulna'], revision: interviewRevision,
 }, {
   id: 'back-conversation', kind: 'interview', titleEs: 'Entrevista · Dolor lumbar',
   summaryEs: 'Reconstruye lo que Leo hizo antes de notar el dolor.',
@@ -51,5 +51,5 @@ export const additionalInterviewCases: readonly InterviewCase[] = [{
     back('today', ['How does it compare with yesterday?', '¿Cómo se compara con ayer?'], ['It is a little better today.', 'Hoy está un poco mejor.'], ['It was a little better', 'Estaba un poco mejor'], [['It was much worse', 'Estaba mucho peor'], ['It disappeared completely', 'Desapareció por completo']]),
     back('tingle', ['Have you felt any tingling in your feet?', '¿Has sentido hormigueo en los pies?'], ['No, both feet feel normal.', 'No, ambos pies se sienten normales.'], ['Both feet felt normal', 'Ambos pies se sentían normales'], [['Only the left foot tingled', 'Solo sentía hormigueo en el pie izquierdo'], ['Both feet tingled', 'Sentía hormigueo en ambos pies']]),
   ],
-  structuresRelated: [], revision: interviewRevision,
+  structuresRelated: ['spine'], revision: interviewRevision,
 }];
