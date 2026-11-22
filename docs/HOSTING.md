@@ -28,3 +28,16 @@ Activa los despliegues de vista previa para `Luis` y las demás ramas del equipo
 - Si falla una compilación, abre **Workers & Pages → LumAR → Deployments**, elige el despliegue y entra en **View details → Build log**. [Diagnóstico de Pages](https://developers.cloudflare.com/pages/configuration/debugging-pages/)
 - Para volver a una versión publicada, abre **Deployments**, busca un despliegue de producción que funcionara y selecciona **⋯ → Rollback to this deployment**. Confirma el cambio. [Rollback en Pages](https://developers.cloudflare.com/pages/configuration/rollbacks/)
 - Cloudflare Pages y GitHub Actions ejecutan sus comprobaciones por separado. Revisa **Checks** antes de integrar un PR y comprueba el resultado de Actions en `main` y del despliegue en Pages después de publicar.
+
+## Activar el chatbot (Carla)
+
+1. En Cloudflare, abre **Workers & Pages → frasivo-ra → Settings → Variables and Secrets**.
+2. Selecciona **Production** y pulsa **Add**. Escribe `OPENROUTER_API_KEY` como nombre, pega la clave en el valor y elige **Secret** o **Encrypt**, según cómo aparezca el control. Pulsa **Save**.
+3. Selecciona **Preview** y repite el paso para guardar el secreto de ese entorno. Si quieres elegir otro modelo, agrega `OPENROUTER_MODEL` como variable de texto con un identificador de OpenRouter. `OPENROUTER_FALLBACK_MODELS` admite identificadores separados por comas. Elige modelos con proveedores que acepten la política de privacidad. [Secretos de Pages](https://developers.cloudflare.com/pages/functions/bindings/#secrets) · [Enrutamiento de OpenRouter](https://openrouter.ai/docs/guides/routing/provider-selection)
+4. En **Settings → Functions → Compatibility Flags**, agrega `enable_request_signal` en **Production** y **Preview** si la fecha de compatibilidad es anterior al 17 de noviembre de 2026. Así el servidor recibe la cancelación cuando el estudiante pulsa «Detener». [Compatibilidad de `Request.signal`](https://developers.cloudflare.com/workers/configuration/compatibility-flags/#enable-requestsignal-for-incoming-requests)
+5. En **Deployments**, vuelve a desplegar el último commit que incluya Chat, en cada entorno donde guardaste el secreto. Abre el menú del despliegue y elige **Retry deployment**. Pages genera `_routes.json` a partir de `functions/api/chat.ts` y limita la invocación a `/api/chat`. [Enrutamiento de Pages](https://developers.cloudflare.com/pages/functions/routing/#functions-invocation-routes)
+6. Abre la pestaña **Chat**, elige «Explícame el fémur» y comprueba que se muestre la respuesta a medida que llega. Si aparece «El chat aún no está activado», revisa el secreto y confirma que el despliegue se volvió a ejecutar en el entorno correcto.
+
+El modelo predeterminado es `qwen/qwen3-30b-a3b-instruct-2507`. Nebius Token Factory, un proveedor compatible con la política de privacidad, publica USD 0,10 por millón de tokens de entrada y USD 0,30 por millón de salida. [Catálogo y proveedores del modelo](https://openrouter.ai/qwen/qwen3-30b-a3b-instruct-2507)
+
+Para probar localmente, guarda `OPENROUTER_API_KEY` en `.dev.vars`, en la raíz del worktree, y reinicia `npm run dev` o `npm run preview`. Git ignora el archivo. Usa los mismos nombres de variable que en Pages y conserva la clave fuera del código y de las variables públicas de Vite.

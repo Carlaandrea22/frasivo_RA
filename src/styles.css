@@ -222,9 +222,10 @@ a { color: var(--forest); }
   position: sticky;
   z-index: 1;
   bottom: 0;
-  padding: var(--space-2) max(var(--space-3), env(safe-area-inset-right, 0px))
-    calc(var(--space-2) + var(--press-depth) + env(safe-area-inset-bottom, 0px))
-    max(var(--space-3), env(safe-area-inset-left, 0px));
+  flex-shrink: 0;
+  padding: 3px max(var(--space-1), env(safe-area-inset-right, 0px))
+    calc(var(--space-1) + env(safe-area-inset-bottom, 0px))
+    max(var(--space-1), env(safe-area-inset-left, 0px));
   border-top: 1px solid var(--line);
   background: var(--paper);
 }
@@ -232,9 +233,49 @@ a { color: var(--forest); }
 .app-navigation-inner {
   display: grid;
   width: min(100%, 42rem);
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--space-2);
+  grid-template-columns: repeat(5, minmax(48px, 1fr));
   margin-inline: auto;
+}
+
+.app-nav-tab {
+  display: grid;
+  justify-items: center;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.app-navigation .button--nav {
+  --button-face: transparent;
+  --button-hover: var(--mint);
+  --button-ink: var(--muted);
+  width: min(100%, 56px);
+  height: 48px;
+  padding: 0;
+  border: 0;
+  border-block: 5px solid transparent;
+  border-radius: var(--radius-soft);
+  background-clip: padding-box;
+  box-shadow: none;
+}
+
+.app-navigation .button--nav[aria-current="page"] {
+  --button-face: var(--forest);
+  --button-hover: var(--forest-hover);
+  --button-ink: var(--white);
+  filter: drop-shadow(0 2px 1px rgb(24 60 52 / .24));
+}
+
+.app-navigation .button--nav:enabled:hover { background-clip: padding-box; }
+.app-navigation .button--nav[aria-current="page"]:active { filter: none; }
+
+.app-nav-caption {
+  font: 600 .75rem/1.25 var(--font-text);
+  white-space: nowrap;
+}
+
+.button--nav[aria-current="page"] + .app-nav-caption {
+  color: var(--forest);
+  font-weight: 800;
 }
 
 .section-panel {
@@ -271,5 +312,4 @@ a { color: var(--forest); }
   .app-area { text-align: right; font-size: .75rem; }
   .app-main { padding-inline: max(var(--space-3), env(safe-area-inset-left, 0px)); }
   .app-main--body { padding: 0; }
-  .app-navigation-inner { gap: var(--space-1); }
 }

@@ -72,6 +72,8 @@ Los módulos pueden leer los datos de otros módulos e intercambiar identificado
 
 ## Chatbot
 
-Luis mantiene `src/features/chatbot/`. Su archivo `routes.ts` registra `#chatbot` con `tab: 'chatbot'`. La pantalla muestra «En construcción» mediante `ContentState` y funciona sin conexión.
+Luis mantiene `src/features/chatbot/` y `functions/api/chat.ts`. La pestaña Chat abre `#chatbot`. El navegador envía el historial reciente por `POST /api/chat`. La función de Cloudflare Pages añade el prompt de sistema, llama a OpenRouter y devuelve eventos `delta`, `error` y `done`. El servidor local de Vite usa la misma función en `dev` y `preview`.
 
-Un chatbot funcional necesitará un servidor, por ejemplo Cloudflare Pages Functions. Guarda la clave del servicio como secreto en Cloudflare y léela únicamente desde el servidor. La clave debe quedar fuera del código fuente y del navegador.
+El navegador guarda hasta 30 mensajes en `localStorage`. La función envía hasta 12 a OpenRouter y limita cada mensaje del estudiante a 1 000 caracteres, el cuerpo a 16 KiB y la salida a 700 tokens. Corta la solicitud a los 60 segundos y propaga la cancelación. Cada instancia aplica un límite en memoria de 20 solicitudes por IP cada 10 minutos.
+
+La función acepta orígenes de LumAR en Pages y de `localhost` o `127.0.0.1`. OpenRouter recibe `provider.data_collection: "deny"` para excluir proveedores que entrenan con los mensajes. La app y la función omiten el contenido de los mensajes en sus registros. El service worker excluye `/api/` de su caché. La clave se lee desde un secreto de Cloudflare o `.dev.vars` en pruebas locales. [Configuración del chatbot](HOSTING.md#activar-el-chatbot-carla)

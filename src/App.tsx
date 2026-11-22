@@ -11,11 +11,11 @@ import { Button } from './shared/ui/Button';
 import { ContentState } from './shared/ui/ContentState';
 
 const tabs = [
-  { id: 'cuerpo', label: 'Cuerpo', icon: ScanLine },
-  { id: 'explorar', label: 'Explorar 3D', icon: Box },
-  { id: 'practicar', label: 'Practicar', icon: BookOpen },
-  { id: 'progreso', label: 'Mi progreso', icon: Activity },
-  { id: 'chatbot', label: 'Chatbot', icon: MessageCircle },
+  { id: 'cuerpo', label: 'Cuerpo', name: 'Cuerpo', icon: ScanLine },
+  { id: 'explorar', label: 'Explorar', name: 'Explorar 3D', icon: Box },
+  { id: 'practicar', label: 'Practicar', name: 'Practicar', icon: BookOpen },
+  { id: 'progreso', label: 'Progreso', name: 'Mi progreso', icon: Activity },
+  { id: 'chatbot', label: 'Chat', name: 'Chatbot', icon: MessageCircle },
 ] as const;
 
 const features = import.meta.glob<RouteDefinition[]>('./features/*/routes.ts', { eager: true, import: 'routes' });
@@ -95,12 +95,14 @@ export default function App() {
 
       <nav className="app-navigation" aria-label="Navegación principal">
         <div className="app-navigation-inner">
-          {tabs.map(({ id, label, icon: Icon }) => (
-            <Button key={id} variant="nav" aria-current={tab === id ? 'page' : undefined}
-              onClick={() => { window.location.hash = id; }}>
-              <Icon size={19} aria-hidden="true"/>
-              {label}
-            </Button>
+          {tabs.map(({ id, label, name, icon: Icon }) => (
+            <label className="app-nav-tab" key={id}>
+              <Button variant="nav" aria-label={name} aria-current={tab === id ? 'page' : undefined}
+                onClick={() => { window.location.hash = id; }}>
+                <Icon size={24} aria-hidden="true"/>
+              </Button>
+              <span className="app-nav-caption" aria-hidden="true">{label}</span>
+            </label>
           ))}
         </div>
       </nav>

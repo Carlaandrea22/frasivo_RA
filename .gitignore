@@ -19,3 +19,6 @@ docs/mobile-qr.png
 
 # Descargas originales de anatomía
 assets/_fuentes/
+
+# Secretos locales de Cloudflare Pages
+.dev.vars
