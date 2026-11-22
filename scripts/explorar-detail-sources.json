@@ -6837,6 +6837,1121 @@
         }
       ],
       "reason4": null
+    },
+    {
+      "id": "pectoralis_major",
+      "root": "pectoralis_major",
+      "name": "Pectoral mayor",
+      "category": "musculos",
+      "system": "muscular",
+      "sources": [
+        {
+          "id": "FMA34691",
+          "filename": "FMA34691.obj",
+          "path": "assets/_fuentes/explorar-fase2/d/obj95/FMA34691.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "porcion_clavicular",
+          "conceptId": "FMA34691",
+          "anatomicalName": "clavicular part of left pectoralis major",
+          "sha256": "9a7cea314c6324acac67d0bda210b9f07a7d51c01ebcd6512873b9f59aaf7b33",
+          "crc32": "cc73ea9d",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA34691.obj",
+          "bytes": 654658,
+          "sourceTriangles": 9212,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA79980",
+          "filename": "FMA79980.obj",
+          "path": "assets/_fuentes/explorar-fase2/d/obj95/FMA79980.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "porcion_esternocostal",
+          "conceptId": "FMA79980",
+          "anatomicalName": "sternocostal part of left pectoralis major",
+          "sha256": "8c921e26f0fd22d9bb3bcef948f2ab10c0dcfe6adbdbbc8c916b5183bd5cf7cf",
+          "crc32": "7a1d0db9",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA79980.obj",
+          "bytes": 2570479,
+          "sourceTriangles": 35798,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA45875",
+          "filename": "FMA45875.obj",
+          "path": "assets/_fuentes/explorar-fase2/d/obj95/FMA45875.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "porcion_abdominal",
+          "conceptId": "FMA45875",
+          "anatomicalName": "abdominal part of left pectoralis major",
+          "sha256": "2ba5fc4d3e70a4384b6bafa75fda86a1e96cf4ef977ee6c02c9ab66f2d487cf9",
+          "crc32": "4bdacf86",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA45875.obj",
+          "bytes": 494764,
+          "sourceTriangles": 7468,
+          "license": "CC-BY-4.0"
+        }
+      ],
+      "guides": [],
+      "parts": [
+        {
+          "id": "porcion_clavicular",
+          "sourceIds": [
+            "FMA34691"
+          ],
+          "method": "mesh"
+        },
+        {
+          "id": "porcion_esternocostal",
+          "sourceIds": [
+            "FMA79980"
+          ],
+          "method": "mesh"
+        },
+        {
+          "id": "porcion_abdominal",
+          "sourceIds": [
+            "FMA45875"
+          ],
+          "method": "mesh"
+        }
+      ],
+      "reason4": null,
+      "thumbnailOnDemand": true
+    },
+    {
+      "id": "trapezius",
+      "root": "trapezius",
+      "name": "Trapecio",
+      "category": "musculos",
+      "system": "muscular",
+      "sources": [
+        {
+          "id": "FMA33587",
+          "filename": "FMA33587.obj",
+          "path": "assets/_fuentes/explorar-fase2/d/obj95/FMA33587.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "porcion_descendente",
+          "conceptId": "FMA33587",
+          "anatomicalName": "descending part of left trapezius",
+          "sha256": "b11cb5e071d8247123fc1524dd8d36bb8bfff0b3844474b7981b641a41ca8bcc",
+          "crc32": "69ef211e",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA33587.obj",
+          "bytes": 3213502,
+          "sourceTriangles": 44902,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA33585",
+          "filename": "FMA33585.obj",
+          "path": "assets/_fuentes/explorar-fase2/d/obj95/FMA33585.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "porcion_transversa",
+          "conceptId": "FMA33585",
+          "anatomicalName": "transverse part of left trapezius",
+          "sha256": "d2b694d2a95f5b6a6074086d462ebd28a3769da1efbb4751fb0c9180c8f8b975",
+          "crc32": "a1b19b51",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA33585.obj",
+          "bytes": 2205553,
+          "sourceTriangles": 30294,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA33583",
+          "filename": "FMA33583.obj",
+          "path": "assets/_fuentes/explorar-fase2/d/obj95/FMA33583.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "porcion_ascendente",
+          "conceptId": "FMA33583",
+          "anatomicalName": "ascending part of left trapezius",
+          "sha256": "2430ca6517258c55aef597c540c53e9b45e6a098144c4c5f70a60151ce59c810",
+          "crc32": "2889c757",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA33583.obj",
+          "bytes": 4995729,
+          "sourceTriangles": 68048,
+          "license": "CC-BY-4.0"
+        }
+      ],
+      "guides": [],
+      "parts": [
+        {
+          "id": "porcion_descendente",
+          "sourceIds": [
+            "FMA33587"
+          ],
+          "method": "mesh"
+        },
+        {
+          "id": "porcion_transversa",
+          "sourceIds": [
+            "FMA33585"
+          ],
+          "method": "mesh"
+        },
+        {
+          "id": "porcion_ascendente",
+          "sourceIds": [
+            "FMA33583"
+          ],
+          "method": "mesh"
+        }
+      ],
+      "reason4": null,
+      "thumbnailOnDemand": true
+    },
+    {
+      "id": "rectus_abdominis",
+      "root": "rectus_abdominis",
+      "name": "Recto del abdomen",
+      "category": "musculos",
+      "system": "muscular",
+      "sources": [
+        {
+          "id": "FMA13378",
+          "filename": "FMA13378.obj",
+          "path": "assets/_fuentes/explorar-fase2/d/obj95/FMA13378.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "recto_izquierdo",
+          "conceptId": "FMA13378",
+          "anatomicalName": "left rectus abdominis",
+          "sha256": "ee02ae0475afd42613e7a5bb0c1619db792f78d6dae306a6aeafb0bcb5ae3814",
+          "crc32": "e87ca26b",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA13378.obj",
+          "bytes": 12927111,
+          "sourceTriangles": 188862,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA13377",
+          "filename": "FMA13377.obj",
+          "path": "assets/_fuentes/explorar-fase2/d/obj95/FMA13377.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "recto_derecho",
+          "conceptId": "FMA13377",
+          "anatomicalName": "right rectus abdominis",
+          "sha256": "0cf6d5088ca9a394d46352db6a3035826ab4d1ffb3c6cf9565331463fad547fd",
+          "crc32": "31988e0b",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA13377.obj",
+          "bytes": 13584676,
+          "sourceTriangles": 191206,
+          "license": "CC-BY-4.0"
+        }
+      ],
+      "guides": [],
+      "parts": [
+        {
+          "id": "recto_izquierdo",
+          "sourceIds": [
+            "FMA13378"
+          ],
+          "method": "mesh"
+        },
+        {
+          "id": "recto_derecho",
+          "sourceIds": [
+            "FMA13377"
+          ],
+          "method": "mesh"
+        }
+      ],
+      "reason4": null,
+      "geometryHints": {
+        "marco": "Coordenadas XYZ originales BodyParts3D 3.0 en milímetros",
+        "fuentes": [
+          "FMA13378",
+          "FMA13377"
+        ],
+        "evidencia": [
+          "FMA13378-vistas.png",
+          "FMA13377-vistas.png"
+        ],
+        "descripcion": "Las superficies muestran cambios de relieve y de espesor. La geometría continua no delimita bandas transversales de colágeno con suficiente claridad para ofrecer una selección de las intersecciones tendinosas. Se conservan los dos rectos de origen."
+      },
+      "thumbnailOnDemand": true
+    },
+    {
+      "id": "external_oblique",
+      "root": "external_oblique",
+      "name": "Oblicuo externo",
+      "category": "musculos",
+      "system": "muscular",
+      "sources": [
+        {
+          "id": "FMA13337",
+          "filename": "FMA13337.obj",
+          "path": "assets/_fuentes/explorar-fase2/d/obj95/FMA13337.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": null,
+          "conceptId": "FMA13337",
+          "anatomicalName": "left external oblique",
+          "sha256": "09c540c6fadd6fb3fb531acd73ad3c707e5fa1954e418b3da639e1890c94016c",
+          "crc32": "e9275903",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA13337.obj",
+          "bytes": 39929668,
+          "sourceTriangles": 546370,
+          "license": "CC-BY-4.0",
+          "masks": [
+            {
+              "partId": "superior_izquierdo",
+              "min": [
+                -10000,
+                -10000,
+                1025
+              ],
+              "max": [
+                10000,
+                10000,
+                1240
+              ]
+            },
+            {
+              "partId": "inferior_izquierdo"
+            }
+          ]
+        },
+        {
+          "id": "FMA13336",
+          "filename": "FMA13336.obj",
+          "path": "assets/_fuentes/explorar-fase2/d/obj95/FMA13336.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": null,
+          "conceptId": "FMA13336",
+          "anatomicalName": "right external oblique",
+          "sha256": "a27ef48b968be7f51e332c45b97b376f06455b3ec813fe1791026a5209ea63f9",
+          "crc32": "1063f2ba",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA13336.obj",
+          "bytes": 41345867,
+          "sourceTriangles": 549294,
+          "license": "CC-BY-4.0",
+          "masks": [
+            {
+              "partId": "superior_derecho",
+              "min": [
+                -10000,
+                -10000,
+                1025
+              ],
+              "max": [
+                10000,
+                10000,
+                1240
+              ]
+            },
+            {
+              "partId": "inferior_derecho"
+            }
+          ]
+        }
+      ],
+      "guides": [],
+      "parts": [
+        {
+          "id": "superior_izquierdo",
+          "sourceIds": [
+            "FMA13337"
+          ],
+          "method": "estimate"
+        },
+        {
+          "id": "inferior_izquierdo",
+          "sourceIds": [
+            "FMA13337"
+          ],
+          "method": "estimate"
+        },
+        {
+          "id": "superior_derecho",
+          "sourceIds": [
+            "FMA13336"
+          ],
+          "method": "estimate"
+        },
+        {
+          "id": "inferior_derecho",
+          "sourceIds": [
+            "FMA13336"
+          ],
+          "method": "estimate"
+        }
+      ],
+      "reason4": null,
+      "geometryHints": {
+        "marco": "Coordenadas XYZ originales BodyParts3D 3.0 en milímetros",
+        "fuentes": [
+          "FMA13337",
+          "FMA13336"
+        ],
+        "evidencia": [
+          "FMA13337-vistas.png",
+          "FMA13336-vistas.png"
+        ],
+        "limiteZOrientativo": 1025,
+        "descripcion": "Las superficies izquierda y derecha abarcan aproximadamente Z 810 a 1229. El límite superior/inferior orienta en la altura del músculo."
+      },
+      "thumbnailOnDemand": true
+    },
+    {
+      "id": "latissimus_dorsi",
+      "root": "latissimus_dorsi",
+      "name": "Dorsal ancho",
+      "category": "musculos",
+      "system": "muscular",
+      "sources": [
+        {
+          "id": "FMA13359",
+          "filename": "FMA13359.obj",
+          "path": "assets/_fuentes/explorar-fase2/d/obj95/FMA13359.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": null,
+          "conceptId": "FMA13359",
+          "anatomicalName": "left latissimus dorsi",
+          "sha256": "57d038c1b5cf9309f8c924e4dec2b8031289822ca124ab76cdff29d336867831",
+          "crc32": "28aa6ea2",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA13359.obj",
+          "bytes": 16720634,
+          "sourceTriangles": 227390,
+          "license": "CC-BY-4.0",
+          "masks": [
+            {
+              "partId": "extremo_humeral_izquierdo",
+              "min": [
+                153,
+                -90,
+                1240
+              ],
+              "max": [
+                190,
+                -48,
+                1300
+              ]
+            },
+            {
+              "partId": "dorsal_izquierdo"
+            }
+          ]
+        },
+        {
+          "id": "FMA13358",
+          "filename": "FMA13358.obj",
+          "path": "assets/_fuentes/explorar-fase2/d/obj95/FMA13358.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": null,
+          "conceptId": "FMA13358",
+          "anatomicalName": "right latissimus dorsi",
+          "sha256": "891cf551240b556c2e795ba52548792817711f1ff0b8aae08fe9a20830728382",
+          "crc32": "572275e6",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA13358.obj",
+          "bytes": 16946227,
+          "sourceTriangles": 227978,
+          "license": "CC-BY-4.0",
+          "masks": [
+            {
+              "partId": "extremo_humeral_derecho",
+              "min": [
+                -190,
+                -90,
+                1240
+              ],
+              "max": [
+                -153,
+                -48,
+                1300
+              ]
+            },
+            {
+              "partId": "dorsal_derecho"
+            }
+          ]
+        }
+      ],
+      "guides": [],
+      "parts": [
+        {
+          "id": "dorsal_izquierdo",
+          "sourceIds": [
+            "FMA13359"
+          ],
+          "method": "mesh"
+        },
+        {
+          "id": "dorsal_derecho",
+          "sourceIds": [
+            "FMA13358"
+          ],
+          "method": "mesh"
+        },
+        {
+          "id": "extremo_humeral_izquierdo",
+          "sourceIds": [
+            "FMA13359"
+          ],
+          "method": "estimate"
+        },
+        {
+          "id": "extremo_humeral_derecho",
+          "sourceIds": [
+            "FMA13358"
+          ],
+          "method": "estimate"
+        }
+      ],
+      "reason4": null,
+      "note": "Cada dorsal procede de un OBJ lateral propio. Los extremos humerales se estiman sobre la punta superolateral de cada superficie.",
+      "geometryHints": {
+        "marco": "Coordenadas XYZ originales BodyParts3D 3.0 en milímetros",
+        "fuentes": [
+          "FMA13359",
+          "FMA13358"
+        ],
+        "evidencia": [
+          "proyeccion-FMA13359.png",
+          "FMA13358-vistas.png",
+          "landmarks.json"
+        ],
+        "guiasDeComparacion": [
+          "FMA23131",
+          "FMA23130"
+        ],
+        "extremoHumeralIzquierdo": {
+          "minX": 153,
+          "maxY": -48,
+          "minZ": 1240,
+          "puntoCercanoAlHumeroXYZ": [
+            167.848,
+            -78.3,
+            1281
+          ],
+          "distanciaMinimaEntreVerticesMm": 0.123
+        },
+        "extremoHumeralDerecho": {
+          "maxX": -153,
+          "maxY": -48,
+          "minZ": 1240,
+          "puntoCercanoAlHumeroXYZ": [
+            -175.8,
+            -78.9,
+            1262.03
+          ],
+          "distanciaMinimaEntreVerticesMm": 0.133
+        },
+        "descripcion": "Cada superficie se estrecha hacia su extremo superolateral, adyacente al húmero del mismo marco. La máscara aproxima esa zona distal."
+      },
+      "thumbnailOnDemand": true
+    },
+    {
+      "id": "gluteus_maximus",
+      "root": "gluteus_maximus",
+      "name": "Glúteo mayor",
+      "category": "musculos",
+      "system": "muscular",
+      "sources": [
+        {
+          "id": "FMA22329",
+          "filename": "FMA22329.obj",
+          "path": "assets/_fuentes/explorar-fase2/d/obj95/FMA22329.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": null,
+          "conceptId": "FMA22329",
+          "anatomicalName": "left gluteus maximus",
+          "sha256": "ad348746e8e240222dbad2a1edf599b73ccc4452ca8ce1367f67fde1883ea71a",
+          "crc32": "eca4a3cc",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA22329.obj",
+          "bytes": 2320170,
+          "sourceTriangles": 33008,
+          "license": "CC-BY-4.0",
+          "masks": [
+            {
+              "partId": "superior_izquierdo",
+              "min": [
+                -10000,
+                -10000,
+                805
+              ],
+              "max": [
+                10000,
+                10000,
+                945
+              ]
+            },
+            {
+              "partId": "inferior_izquierdo"
+            }
+          ]
+        },
+        {
+          "id": "FMA22328",
+          "filename": "FMA22328.obj",
+          "path": "assets/_fuentes/explorar-fase2/d/obj95/FMA22328.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": null,
+          "conceptId": "FMA22328",
+          "anatomicalName": "right gluteus maximus",
+          "sha256": "0e76e014a67cbe61fc64345b12acfdf3fd3fc42b6fdf35948efed920c0b2adae",
+          "crc32": "9e07148e",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA22328.obj",
+          "bytes": 2546893,
+          "sourceTriangles": 34226,
+          "license": "CC-BY-4.0",
+          "masks": [
+            {
+              "partId": "superior_derecho",
+              "min": [
+                -10000,
+                -10000,
+                805
+              ],
+              "max": [
+                10000,
+                10000,
+                945
+              ]
+            },
+            {
+              "partId": "inferior_derecho"
+            }
+          ]
+        }
+      ],
+      "guides": [],
+      "parts": [
+        {
+          "id": "superior_izquierdo",
+          "sourceIds": [
+            "FMA22329"
+          ],
+          "method": "estimate"
+        },
+        {
+          "id": "inferior_izquierdo",
+          "sourceIds": [
+            "FMA22329"
+          ],
+          "method": "estimate"
+        },
+        {
+          "id": "superior_derecho",
+          "sourceIds": [
+            "FMA22328"
+          ],
+          "method": "estimate"
+        },
+        {
+          "id": "inferior_derecho",
+          "sourceIds": [
+            "FMA22328"
+          ],
+          "method": "estimate"
+        }
+      ],
+      "reason4": null,
+      "geometryHints": {
+        "marco": "Coordenadas XYZ originales BodyParts3D 3.0 en milímetros",
+        "fuentes": [
+          "FMA22329",
+          "FMA22328"
+        ],
+        "evidencia": [
+          "FMA22329-vistas.png",
+          "FMA22328-vistas.png"
+        ],
+        "limiteZOrientativo": 805,
+        "descripcion": "Las superficies izquierda y derecha abarcan aproximadamente Z 674 a 935. El límite superior/inferior orienta en la altura del músculo."
+      },
+      "thumbnailOnDemand": true
+    },
+    {
+      "id": "hamstrings",
+      "root": "hamstrings",
+      "name": "Isquiotibiales",
+      "category": "musculos",
+      "system": "muscular",
+      "sources": [
+        {
+          "id": "FMA22359",
+          "filename": "FMA22359.obj",
+          "path": "assets/_fuentes/explorar-fase2/d/obj95/FMA22359.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "semitendinoso",
+          "conceptId": "FMA22359",
+          "anatomicalName": "left semitendinosus",
+          "sha256": "8a365f19a6963e0876688271251b06144184f9e34c9c054cffab509f2c182891",
+          "crc32": "519c0471",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA22359.obj",
+          "bytes": 3058838,
+          "sourceTriangles": 42538,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA22449",
+          "filename": "FMA22449.obj",
+          "path": "assets/_fuentes/explorar-fase2/d/obj95/FMA22449.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "semimembranoso",
+          "conceptId": "FMA22449",
+          "anatomicalName": "left semimembranosus",
+          "sha256": "44e7e056affa424290bedbc96e7f4d77615468b6772becd6e509538c613c6cd1",
+          "crc32": "e42fb1db",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA22449.obj",
+          "bytes": 5199296,
+          "sourceTriangles": 72126,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA45889",
+          "filename": "FMA45889.obj",
+          "path": "assets/_fuentes/explorar-fase2/d/obj95/FMA45889.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "biceps_femoral_cabeza_larga",
+          "conceptId": "FMA45889",
+          "anatomicalName": "long head of left biceps femoris",
+          "sha256": "7634c2bd69e31ffb8586449ae8ec677d2fc0baa64e488a77110ce3724b1fe299",
+          "crc32": "4f6dfc1b",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA45889.obj",
+          "bytes": 5396509,
+          "sourceTriangles": 74180,
+          "license": "CC-BY-4.0"
+        },
+        {
+          "id": "FMA45892",
+          "filename": "FMA45892.obj",
+          "path": "assets/_fuentes/explorar-fase2/d/obj95/FMA45892.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": "base",
+          "conceptId": "FMA45892",
+          "anatomicalName": "short head of left biceps femoris",
+          "sha256": "851498c9828988c8a5872276fe010bd9152d2180cba4c33775df985bc65dacfb",
+          "crc32": "21f64fe3",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA45892.obj",
+          "bytes": 1715439,
+          "sourceTriangles": 24698,
+          "license": "CC-BY-4.0"
+        }
+      ],
+      "guides": [],
+      "parts": [
+        {
+          "id": "semitendinoso",
+          "sourceIds": [
+            "FMA22359"
+          ],
+          "method": "mesh"
+        },
+        {
+          "id": "semimembranoso",
+          "sourceIds": [
+            "FMA22449"
+          ],
+          "method": "mesh"
+        },
+        {
+          "id": "biceps_femoral_cabeza_larga",
+          "sourceIds": [
+            "FMA45889"
+          ],
+          "method": "mesh"
+        }
+      ],
+      "reason4": null,
+      "note": "La cabeza corta izquierda del bíceps femoral (FMA45892) aparece como superficie de contexto, sin selección ni anotación.",
+      "geometryHints": {
+        "marco": "Coordenadas XYZ originales BodyParts3D 3.0 en milímetros",
+        "fuentes": [
+          "FMA22359",
+          "FMA22449",
+          "FMA45889",
+          "FMA45892"
+        ],
+        "evidencia": [
+          "FMA45889-vistas.png",
+          "FMA45892-vistas.png",
+          "landmarks.json"
+        ],
+        "cabezaCorta": {
+          "distanciaMinimaEntreVerticesMm": 0.026,
+          "distanciaMedianaDistalALaCabezaLargaMm": 0.692,
+          "puntoDistalXYZ": [
+            118.669,
+            -54.472,
+            385.263
+          ]
+        },
+        "descripcion": "La cabeza corta proviene de un OBJ izquierdo independiente y está registrada en el marco de la cabeza larga. Su nodo base aporta contexto y queda fuera de las partes seleccionables."
+      },
+      "thumbnailOnDemand": true
+    },
+    {
+      "id": "tibialis_anterior",
+      "root": "tibialis_anterior",
+      "name": "Tibial anterior",
+      "category": "musculos",
+      "system": "muscular",
+      "sources": [
+        {
+          "id": "FMA22545",
+          "filename": "FMA22545.obj",
+          "path": "assets/_fuentes/explorar-fase2/d/obj95/FMA22545.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": null,
+          "conceptId": "FMA22545",
+          "anatomicalName": "left tibialis anterior",
+          "sha256": "1211dfeddf875e7fa6a002e76759d5a35b8e8f1763f860b505e7d28507ea6bff",
+          "crc32": "0d117ff8",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA22545.obj",
+          "bytes": 2580470,
+          "sourceTriangles": 34522,
+          "license": "CC-BY-4.0",
+          "masks": [
+            {
+              "partId": "extremo_distal_izquierdo",
+              "min": [
+                -10000,
+                -10000,
+                20
+              ],
+              "max": [
+                10000,
+                10000,
+                115
+              ]
+            },
+            {
+              "partId": "vientre_izquierdo"
+            }
+          ]
+        },
+        {
+          "id": "FMA22544",
+          "filename": "FMA22544.obj",
+          "path": "assets/_fuentes/explorar-fase2/d/obj95/FMA22544.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": null,
+          "conceptId": "FMA22544",
+          "anatomicalName": "right tibialis anterior",
+          "sha256": "64c232e8493e7517b145e729d04ee8e303f77fddcf63ea180aed0f8df42c13a7",
+          "crc32": "026822af",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA22544.obj",
+          "bytes": 3038897,
+          "sourceTriangles": 35914,
+          "license": "CC-BY-4.0",
+          "masks": [
+            {
+              "partId": "extremo_distal_derecho",
+              "min": [
+                -10000,
+                -10000,
+                20
+              ],
+              "max": [
+                10000,
+                10000,
+                115
+              ]
+            },
+            {
+              "partId": "vientre_derecho"
+            }
+          ]
+        }
+      ],
+      "guides": [],
+      "parts": [
+        {
+          "id": "vientre_izquierdo",
+          "sourceIds": [
+            "FMA22545"
+          ],
+          "method": "estimate"
+        },
+        {
+          "id": "extremo_distal_izquierdo",
+          "sourceIds": [
+            "FMA22545"
+          ],
+          "method": "estimate"
+        },
+        {
+          "id": "vientre_derecho",
+          "sourceIds": [
+            "FMA22544"
+          ],
+          "method": "estimate"
+        },
+        {
+          "id": "extremo_distal_derecho",
+          "sourceIds": [
+            "FMA22544"
+          ],
+          "method": "estimate"
+        }
+      ],
+      "reason4": null,
+      "geometryHints": {
+        "marco": "Coordenadas XYZ originales BodyParts3D 3.0 en milímetros",
+        "fuentes": [
+          "FMA22545",
+          "FMA22544"
+        ],
+        "evidencia": [
+          "proyeccion-FMA22545.png",
+          "FMA22544-vistas.png",
+          "landmarks.json"
+        ],
+        "limiteZOrientativo": 115,
+        "descripcion": "En el izquierdo la sección XY desciende de 13,0 × 15,5 mm a Z150 a 7,5 × 7,3 mm a Z115. El estrechamiento distal también es visible en el derecho. El límite es aproximado."
+      },
+      "thumbnailOnDemand": true
+    },
+    {
+      "id": "sternocleidomastoid",
+      "root": "sternocleidomastoid",
+      "name": "Esternocleidomastoideo",
+      "category": "musculos",
+      "system": "muscular",
+      "sources": [
+        {
+          "id": "FMA13409",
+          "filename": "FMA13409.obj",
+          "path": "assets/_fuentes/explorar-fase2/d/obj95/FMA13409.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": null,
+          "conceptId": "FMA13409",
+          "anatomicalName": "left sternocleidomastoid",
+          "sha256": "c4ae364a99b4c0b5f64c1e9e4fed21e04e1719509309e4d9016b3dd210f5b1d1",
+          "crc32": "b4b67835",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA13409.obj",
+          "bytes": 3665428,
+          "sourceTriangles": 50290,
+          "license": "CC-BY-4.0",
+          "masks": [
+            {
+              "partId": "cabeza_esternal",
+              "min": [
+                0,
+                -164,
+                1320
+              ],
+              "max": [
+                23,
+                -124,
+                1368
+              ]
+            },
+            {
+              "partId": "cabeza_clavicular",
+              "min": [
+                23,
+                -145,
+                1349
+              ],
+              "max": [
+                57,
+                -106,
+                1368
+              ]
+            },
+            {
+              "partId": "base"
+            }
+          ]
+        }
+      ],
+      "guides": [],
+      "parts": [
+        {
+          "id": "cabeza_esternal",
+          "sourceIds": [
+            "FMA13409"
+          ],
+          "method": "estimate"
+        },
+        {
+          "id": "cabeza_clavicular",
+          "sourceIds": [
+            "FMA13409"
+          ],
+          "method": "estimate"
+        }
+      ],
+      "reason4": null,
+      "geometryHints": {
+        "marco": "Coordenadas XYZ originales BodyParts3D 3.0 en milímetros",
+        "fuentes": [
+          "FMA13409"
+        ],
+        "evidencia": [
+          "proyeccion-FMA13409.png",
+          "landmarks.json"
+        ],
+        "seccionZ1360": {
+          "esternalX": [
+            9.37,
+            20.72
+          ],
+          "clavicularX": [
+            25.28,
+            50.42
+          ]
+        },
+        "guiaDeMascara": {
+          "maxZParaRamasLibres": 1367,
+          "umbralXEntreRamas": 23
+        },
+        "descripcion": "Las ramas están separadas a Z1360 y ya forman una sección común a Z1370. La rama esternal ocupa la zona medial y anterior. La clavicular ocupa la lateral y posterior. El tronco común puede quedar como base."
+      },
+      "thumbnailOnDemand": true
+    },
+    {
+      "id": "diaphragm",
+      "root": "diaphragm",
+      "name": "Diafragma",
+      "category": "musculos",
+      "system": "muscular",
+      "sources": [
+        {
+          "id": "FMA13295",
+          "filename": "FMA13295.obj",
+          "path": "assets/_fuentes/explorar-fase2/d/obj95/FMA13295.obj",
+          "version": "3.0",
+          "pack": "bp3d-3.0-obj95",
+          "partId": null,
+          "conceptId": "FMA13295",
+          "anatomicalName": "diaphragm",
+          "sha256": "8a0372e1d749aca1ccdf4cc7b8f8c47baf6066b554d6679def83cc13d381af4a",
+          "crc32": "f12bba6b",
+          "archiveMember": "BodyParts3D_3.0_obj_95\\FMA13295.obj",
+          "bytes": 14572772,
+          "sourceTriangles": 210666,
+          "license": "CC-BY-4.0",
+          "masks": [
+            {
+              "partId": "centro_tendinoso",
+              "min": [
+                -55,
+                -189,
+                1155
+              ],
+              "max": [
+                55,
+                -100,
+                1217
+              ],
+              "ellipse": [
+                [
+                  0,
+                  -149,
+                  1190
+                ],
+                [
+                  45,
+                  37,
+                  32
+                ]
+              ]
+            },
+            {
+              "partId": "cupula_derecha",
+              "min": [
+                -130,
+                -10000,
+                -10000
+              ],
+              "max": [
+                -0.8,
+                10000,
+                10000
+              ]
+            },
+            {
+              "partId": "cupula_izquierda"
+            }
+          ]
+        }
+      ],
+      "guides": [],
+      "parts": [
+        {
+          "id": "cupula_derecha",
+          "sourceIds": [
+            "FMA13295"
+          ],
+          "method": "estimate"
+        },
+        {
+          "id": "cupula_izquierda",
+          "sourceIds": [
+            "FMA13295"
+          ],
+          "method": "estimate"
+        },
+        {
+          "id": "centro_tendinoso",
+          "sourceIds": [
+            "FMA13295"
+          ],
+          "method": "estimate"
+        }
+      ],
+      "reason4": null,
+      "geometryHints": {
+        "marco": "Coordenadas XYZ originales BodyParts3D 3.0 en milímetros",
+        "fuentes": [
+          "FMA13295"
+        ],
+        "evidencia": [
+          "proyeccion-FMA13295.png",
+          "landmarks.json"
+        ],
+        "cupulaDerecha": {
+          "apiceOrientativoXYZ": [
+            -60,
+            -135,
+            1209.2
+          ]
+        },
+        "cupulaIzquierda": {
+          "apiceOrientativoXYZ": [
+            55,
+            -105,
+            1190.7
+          ]
+        },
+        "centroTendinoso": {
+          "elipsoideOrientativo": [
+            [
+              0,
+              -149,
+              1190
+            ],
+            [
+              45,
+              37,
+              32
+            ]
+          ]
+        },
+        "descripcion": "La proyección distingue las dos cúpulas y permite ubicar aproximadamente la región superior anterocentral. La malla es continua y no ofrece un borde tisular del centro tendinoso. El selector puede seguir esa proyección, separada de los pilares posteriores inferiores."
+      },
+      "thumbnailOnDemand": true
     }
   ]
 }

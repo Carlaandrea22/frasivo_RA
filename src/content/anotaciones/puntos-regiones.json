@@ -833,5 +833,165 @@
     -0.0006581,
     1.4370701,
     0.1350203
+  ],
+  "pectoralis_major__porcion_clavicular": [
+    0.1092099,
+    1.308911,
+    0.1384471
+  ],
+  "pectoralis_major__porcion_abdominal": [
+    0.1077495,
+    1.1931663,
+    0.1906874
+  ],
+  "pectoralis_major__porcion_esternocostal": [
+    0.0864809,
+    1.2441522,
+    0.2075749
+  ],
+  "trapezius__porcion_ascendente": [
+    0.0651508,
+    1.2081626,
+    -0.0177773
+  ],
+  "trapezius__porcion_transversa": [
+    0.1001894,
+    1.3662701,
+    0.0388357
+  ],
+  "trapezius__porcion_descendente": [
+    0.0414809,
+    1.4204982,
+    0.0676986
+  ],
+  "rectus_abdominis__recto_derecho": [
+    -0.0396755,
+    1.0115818,
+    0.1989581
+  ],
+  "rectus_abdominis__recto_izquierdo": [
+    0.0392148,
+    1.0105265,
+    0.1987475
+  ],
+  "external_oblique__superior_derecho": [
+    -0.0681665,
+    1.1133373,
+    0.2130401
+  ],
+  "external_oblique__inferior_derecho": [
+    -0.0559611,
+    0.9320268,
+    0.1889421
+  ],
+  "external_oblique__superior_izquierdo": [
+    0.0693319,
+    1.1236636,
+    0.2117625
+  ],
+  "external_oblique__inferior_izquierdo": [
+    0.0536856,
+    0.9289924,
+    0.188731
+  ],
+  "latissimus_dorsi__extremo_humeral_derecho": [
+    -0.1662588,
+    1.2593077,
+    0.0770324
+  ],
+  "latissimus_dorsi__dorsal_derecho": [
+    -0.1047227,
+    1.0674678,
+    0.0523765
+  ],
+  "latissimus_dorsi__extremo_humeral_izquierdo": [
+    0.1652066,
+    1.2619739,
+    0.0773858
+  ],
+  "latissimus_dorsi__dorsal_izquierdo": [
+    0.1023088,
+    1.0659648,
+    0.0524373
+  ],
+  "gluteus_maximus__superior_derecho": [
+    -0.0901566,
+    0.8778089,
+    0.0258093
+  ],
+  "gluteus_maximus__inferior_derecho": [
+    -0.0910675,
+    0.7419641,
+    0.0532025
+  ],
+  "gluteus_maximus__superior_izquierdo": [
+    0.0912119,
+    0.8762426,
+    0.0266422
+  ],
+  "gluteus_maximus__inferior_izquierdo": [
+    0.0892198,
+    0.7442651,
+    0.052995
+  ],
+  "hamstrings__semitendinoso": [
+    0.0451494,
+    0.5509767,
+    0.0409718
+  ],
+  "hamstrings__semimembranoso": [
+    0.0426254,
+    0.5624281,
+    0.0749448
+  ],
+  "hamstrings__biceps_femoral_cabeza_larga": [
+    0.0856355,
+    0.5756827,
+    0.0679658
+  ],
+  "tibialis_anterior__extremo_distal_derecho": [
+    -0.0612809,
+    0.0450217,
+    0.1190843
+  ],
+  "tibialis_anterior__vientre_derecho": [
+    -0.0952464,
+    0.2493364,
+    0.0964601
+  ],
+  "tibialis_anterior__extremo_distal_izquierdo": [
+    0.0602249,
+    0.0452462,
+    0.1185141
+  ],
+  "tibialis_anterior__vientre_izquierdo": [
+    0.0942994,
+    0.2493895,
+    0.0963844
+  ],
+  "sternocleidomastoid__cabeza_esternal": [
+    0.0113489,
+    1.3448367,
+    0.1525557
+  ],
+  "sternocleidomastoid__cabeza_clavicular": [
+    0.0333112,
+    1.3590034,
+    0.137229
+  ],
+  "diaphragm__centro_tendinoso": [
+    -0.0008874,
+    1.1883935,
+    0.185128
+  ],
+  "diaphragm__cupula_derecha": [
+    -0.0580035,
+    1.1017458,
+    0.1896793
+  ],
+  "diaphragm__cupula_izquierda": [
+    0.0574124,
+    1.1061488,
+    0.1914443
   ]
 }
