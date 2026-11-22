@@ -80,3 +80,28 @@ profesional. El catálogo muestra las miniaturas y los nombres.
 
 Los 55 términos de Explorar incluyen [audio sintetizado con voz femenina en
 inglés estadounidense](../../src/content/anatomy/pronunciacion/README.md).
+
+## Retos de anatomía · etapa 2
+
+El catálogo de retos incluye cuatro actividades sobre huesos, corazón y
+músculos. Entrenamiento ofrece pistas y reintentos. Evaluación guarda la
+corrección para el resultado. Los resultados conservan los errores de los
+reintentos para repasar, aunque el puntaje usa la respuesta final.
+
+Mi progreso recibe aciertos, errores, pistas, modo y evaluación a través del
+registro compartido. Para enlazar al detalle desde Mis prácticas durante la
+integración con Nicolás, usa la ruta
+`#practicar/retos/:activityId/resultado/:eventId` con el ID del evento
+`practice`. El detalle se guarda en el dispositivo que completó el intento.
+El catálogo de retos ya enlaza al último resultado de cada actividad.
+
+Los retos incluyen fuentes y conservan el estado provisional hasta la
+revisión profesional. Las actividades de selección usan los modelos 3D ya
+disponibles en Explorar.
+
+La compilación, 53 pruebas unitarias y 27 pruebas de navegador pasaron.
+Las cuatro pruebas de Retos también pasaron tras ajustar el enlace de
+consulta para conservar el intento abierto durante Entrenamiento.
+
+- Catálogo a [375 px](../capturas/carla/retos-catalogo-375.png) y en [escritorio](../capturas/carla/retos-catalogo-1440.png).
+- Colocar etiquetas a [375 px](../capturas/carla/retos-ubica-375.png) y en [escritorio](../capturas/carla/retos-ubica-1440.png).

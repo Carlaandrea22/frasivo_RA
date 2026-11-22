@@ -64,7 +64,8 @@ function Ficha({ item }: { item: Estructura }) {
   const labels = distribuirEtiquetas(screenPoints, size.width, size.height, selectedAnnotation?.id);
   const model = item.modelo && modelos[item.modelo.assetId];
   const related = estructuras.filter(i => item.relacionadas.includes(i.id));
-  const practice = retos.find(r => r.estructurasRelacionadas.includes(item.id));
+  const practices = retos.filter(r => r.estructurasRelacionadas.includes(item.id));
+  const practiceLink = practices.length === 1 ? `#practicar/retos/${practices[0].id}` : `#practicar/retos/estructura/${item.id}`;
 
   useEffect(() => {
     if (recorded.current) return;
@@ -151,8 +152,8 @@ function Ficha({ item }: { item: Estructura }) {
         <details className="explorar-sources"><summary>Fuentes y revisión</summary><Provisional item={item}/><ul>{item.revision.fuentes.map(f => <li key={f.url}><a href={f.url} target="_blank" rel="noreferrer">{f.titulo}</a></li>)}</ul>
           <p>Recursos del atlas: BodyParts3D, © The Database Center for Life Science, CC BY 4.0. Corazón en corte: modelo esquemático del proyecto.</p>
         </details>
-        <a className="button button--primary lumar-link explorar-practice" href={practice ? `#practicar/retos/${practice.id}` : '#practicar/retos'}>Practicar esta estructura</a>
-        {!practice && <p className="explorar-help">Los retos de esta estructura estarán disponibles en la siguiente etapa.</p>}
+        <a className="button button--primary lumar-link explorar-practice" href={practiceLink}>Practicar esta estructura</a>
+        {practices.length === 0 && <p className="explorar-help">Aún no hay un reto para esta estructura.</p>}
       </Card>
     </div>
   </section>;
