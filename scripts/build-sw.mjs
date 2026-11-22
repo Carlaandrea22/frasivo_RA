@@ -69,7 +69,7 @@ const geometryLayers = {
   bones: new Set(['bones', 'hand', 'head', 'foot']),
   muscles: new Set(['muscles', 'hand-muscles', 'head-muscles']),
   organs: new Set(['organs', 'head-organs', 'heart-cutaway']),
-  explore: new Set((await readdir('src/content/anatomy/modelos'))
+  explore: new Set((await readdir('src/content/anatomy/modelos/fichas'))
     .filter(name => name.endsWith('.glb')).map(name => name.slice(0, -4))),
 };
 const layers = { muscles: [], organs: [], explore: [] };
@@ -82,6 +82,7 @@ for (const url of urls) {
   if (format === 'glb' && !layer) throw new Error(`No se asignó una capa a ${url}.`);
   if (layer === 'muscles' || layer === 'organs' || layer === 'explore') layers[layer].push(url);
 }
+if (layers.explore.length !== geometryLayers.explore.size) throw new Error('Faltan modelos de Explorar en la compilación.');
 
 const optional = new Set([simd, ...nosimd, ...Object.values(tracking).map(([url]) => url), ...Object.values(layers).flat()]);
 const shell = ['/', ...urls.filter(url => !optional.has(url))];

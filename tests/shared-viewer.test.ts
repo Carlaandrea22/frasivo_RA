@@ -86,4 +86,29 @@ describe('escena del visor 3D compartido', () => {
     model.visible.delete(blocker);
     expect(projected().visible).toBe(true);
   });
+
+  it('mueve las coordenadas durante el giro y actualiza la visibilidad con la siguiente comprobación', () => {
+    const root = new Group();
+    root.add(new Mesh(new BoxGeometry(), new MeshBasicMaterial()));
+    const model = createModelScene(root)!;
+    const camera = new PerspectiveCamera(60, 1, .01, 100);
+    camera.position.z = 5;
+    camera.updateMatrixWorld();
+    const anchors = [{ id: 'surface', point: [.2, 0, .5] }] as const;
+    const blocked: boolean[] = [];
+
+    const [front] = projectAnchors(model, camera, anchors, 100, 100, { blocked, sample: true });
+    expect(front.x).toBeGreaterThan(50);
+    expect(front.visible).toBe(true);
+
+    camera.position.z = -5;
+    camera.lookAt(0, 0, 0);
+    camera.updateMatrixWorld();
+    const [during] = projectAnchors(model, camera, anchors, 100, 100, { blocked, sample: false });
+    expect(during.x).toBeLessThan(50);
+    expect(during.visible).toBe(true);
+    const [settled] = projectAnchors(model, camera, anchors, 100, 100, { blocked, sample: true });
+    expect(settled.x).toBe(during.x);
+    expect(settled.visible).toBe(false);
+  });
 });

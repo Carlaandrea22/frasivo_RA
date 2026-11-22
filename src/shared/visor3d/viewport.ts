@@ -1,13 +1,17 @@
 import {
-  Color, DirectionalLight, HemisphereLight, Matrix4, MeshStandardMaterial, PerspectiveCamera,
-  Raycaster, Scene, Sphere, Vector2, Vector3, WebGLRenderer, type Material, type Object3D,
+  ACESFilmicToneMapping, Color, DirectionalLight, HemisphereLight, Matrix4, MeshStandardMaterial, PerspectiveCamera,
+  PMREMGenerator, Raycaster, Scene, Sphere, SRGBColorSpace, Vector2, Vector3, WebGLRenderer,
+  type Material, type Object3D, type WebGLRenderTarget,
 } from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import {
   belongsTo, createModelScene, disposeModels, projectAnchors,
   type ModelScene, type Viewer3DAnchor, type Viewer3DProjectedAnchor,
 } from './modelScene';
+import { createOcclusionScheduler } from './occlusionScheduler';
 
 export type ViewerStatus = 'loading' | 'ready' | 'error' | 'webgl';
 
@@ -71,13 +75,45 @@ export function mountViewport(
   const controls = new OrbitControls(camera, canvas);
   controls.enablePan = false;
 
-  const key = new DirectionalLight(0xfff3e3, 2.15);
-  key.position.set(1, 3, 4);
-  const fill = new DirectionalLight(0xe3efff, .65);
-  fill.position.set(-2, 1, -3);
-  scene.add(new HemisphereLight(0xfff5e6, 0xbacdc7, 1.7), key, fill);
+  const style = getComputedStyle(element);
+  const studio = style.getPropertyValue('--viewer3d-lighting').trim() === 'studio';
+  const key = new DirectionalLight(studio ? 0xfff5ea : 0xfff3e3, studio ? 1.9 : 2.15);
+  key.position.set(studio ? -2.5 : 1, 3, 4);
+  const fill = new DirectionalLight(studio ? 0xe5efff : 0xe3efff, studio ? .28 : .65);
+  fill.position.set(studio ? 3 : -2, 1, studio ? -2 : -3);
+  scene.add(new HemisphereLight(studio ? 0xffffff : 0xfff5e6, 0xbacdc7, studio ? .46 : 1.7), key, fill);
 
-  const accent = getComputedStyle(element).getPropertyValue('--anatomy-highlight').trim() || '#fff3b0';
+  let environment: WebGLRenderTarget | undefined;
+  function releaseEnvironment() {
+    scene.environment = null;
+    environment?.dispose();
+    environment = undefined;
+  }
+
+  function setupEnvironment() {
+    if (!studio) return;
+    const room = new RoomEnvironment();
+    const generator = new PMREMGenerator(renderer);
+    try {
+      environment = generator.fromScene(room, .04, .1, 100, { size: 256 });
+      scene.environment = environment.texture;
+    } catch {
+      // Direct lights keep the viewer usable if the environment cannot be generated.
+    } finally {
+      room.dispose();
+      generator.dispose();
+    }
+  }
+
+  if (studio) {
+    renderer.outputColorSpace = SRGBColorSpace;
+    renderer.toneMapping = ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1;
+    scene.environmentIntensity = .4;
+    setupEnvironment();
+  }
+
+  const accent = style.getPropertyValue('--anatomy-highlight').trim() || '#fff3b0';
   const selectionColor = new Color(accent);
   const materials = new Map<ModelScene['objects'][number], Material | Material[]>();
   const ray = new Raycaster();
@@ -101,24 +137,35 @@ export function mountViewport(
   let lastInputs: { model?: ModelScene; anchors?: readonly Viewer3DAnchor[]; width: number; height: number; layers: number } | undefined;
   const lastCamera = new Matrix4();
   const lastLens = new Matrix4();
+  const blockedAnchors: boolean[] = [];
+  const occlusion = createOcclusionScheduler(() => reportProjection(true));
 
-  function reportProjection() {
+  function reportProjection(refreshOcclusion = false) {
     const { anchors, onProject } = options();
     if (!onProject) {
+      occlusion.cancel();
       lastProjection = undefined;
       lastInputs = undefined;
       return;
     }
     const projectedModel = contextLost ? undefined : model;
     const layers = camera.layers.mask;
-    if (lastInputs && lastInputs.model === projectedModel && sameAnchors(lastInputs.anchors, anchors)
-      && lastInputs.width === width && lastInputs.height === height && lastInputs.layers === layers
-      && lastCamera.equals(camera.matrixWorld) && lastLens.equals(camera.projectionMatrix)) return;
+    const anchorsChanged = !lastInputs || lastInputs.model !== projectedModel || !sameAnchors(lastInputs.anchors, anchors);
+    const projectionChanged = !lastInputs || lastInputs.width !== width || lastInputs.height !== height
+      || lastInputs.layers !== layers || !lastLens.equals(camera.projectionMatrix) || !lastCamera.equals(camera.matrixWorld);
+    if (!refreshOcclusion && !anchorsChanged && !projectionChanged) return;
+    if (anchorsChanged) blockedAnchors.length = 0;
     lastInputs = { model: projectedModel, anchors, width, height, layers };
     lastCamera.copy(camera.matrixWorld);
     lastLens.copy(camera.projectionMatrix);
-    const points = anchors?.length && projectedModel && width && height
-      ? projectAnchors(projectedModel, camera, anchors, width, height) : [];
+    let points: Viewer3DProjectedAnchor[] = [];
+    if (anchors?.length && projectedModel && width && height) {
+      points = projectAnchors(projectedModel, camera, anchors, width, height, {
+        blocked: blockedAnchors, sample: refreshOcclusion || occlusion.sample(anchorsChanged),
+      });
+    } else {
+      occlusion.cancel();
+    }
     if (lastProjection?.length === points.length && points.every((point, index) => {
       const previous = lastProjection![index];
       return previous.id === point.id && previous.x === point.x && previous.y === point.y && previous.visible === point.visible;
@@ -248,6 +295,8 @@ export function mountViewport(
   function lost(event: Event) {
     event.preventDefault();
     contextLost = true;
+    occlusion.cancel();
+    releaseEnvironment();
     controls.enabled = false;
     canvas.tabIndex = -1;
     onStatus('webgl');
@@ -256,6 +305,7 @@ export function mountViewport(
 
   function restored() {
     contextLost = false;
+    setupEnvironment();
     controls.enabled = Boolean(model);
     canvas.tabIndex = model ? 0 : -1;
     onStatus(model ? 'ready' : loadFailed ? 'error' : 'loading');
@@ -276,7 +326,7 @@ export function mountViewport(
   observer.observe(element);
   resize();
 
-  void new GLTFLoader().loadAsync(src).then(gltf => {
+  void new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).loadAsync(src).then(gltf => {
     if (disposed) {
       disposeModels(gltf.scenes);
       return;
@@ -301,6 +351,7 @@ export function mountViewport(
     sync, reset, zoomIn, zoomOut,
     dispose() {
       disposed = true;
+      occlusion.cancel();
       observer.disconnect();
       controls.removeEventListener('change', draw);
       controls.dispose();
@@ -312,7 +363,9 @@ export function mountViewport(
       canvas.removeEventListener('webglcontextlost', lost);
       canvas.removeEventListener('webglcontextrestored', restored);
       clearHighlight();
+      model?.occlusion.dispose();
       disposeModels(loadedScenes);
+      releaseEnvironment();
       renderer.dispose();
       renderer.forceContextLoss();
       canvas.remove();

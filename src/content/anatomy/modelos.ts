@@ -1,19 +1,7 @@
-import huesos from '../../../assets/anatomy/body/bones.glb?url';
-import musculos from '../../../assets/anatomy/body/muscles.glb?url';
-import organos from '../../../assets/anatomy/body/organs.glb?url';
-import corazon from '../../../assets/anatomy/cardiovascular/heart-cutaway.glb?url';
-import regiones from './modelos/huesos-regiones.glb?url';
-import regionesMusculos from './modelos/musculos-regiones.glb?url';
-import regionesPulmones from './modelos/pulmones-regiones.glb?url';
-import regionesOrganos from './modelos/organos-regiones.glb?url';
+const fichas = import.meta.glob<string>('./modelos/fichas/explorar-*.glb', {
+  eager: true, query: '?url&no-inline', import: 'default',
+});
 
-export const modelos: Readonly<Record<string, string>> = {
-  'body-bones': huesos,
-  'body-muscles': musculos,
-  'body-organs': organos,
-  'heart-cutaway': corazon,
-  'body-bones-regions': regiones,
-  'muscle-regions': regionesMusculos,
-  'lung-regions': regionesPulmones,
-  'organ-regions': regionesOrganos,
-};
+export const modelos: Readonly<Record<string, string>> = Object.fromEntries(
+  Object.entries(fichas).map(([path, url]) => [path.slice('./modelos/fichas/explorar-'.length, -'.glb'.length), url]),
+);

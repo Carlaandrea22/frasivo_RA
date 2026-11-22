@@ -55,7 +55,7 @@ export const estructuras: readonly Estructura[] = [{
   definicion: 'Hueso largo del muslo.',
   ubicacion: 'Ocupa el muslo, entre la cadera y la rodilla.',
   funcion: 'Soporta el peso y transmite fuerzas entre la cadera y la rodilla.',
-  modelo: { assetId: 'body-bones-regions', nodeId: 'femur_left' },
+  modelo: { assetId: 'femur', nodeId: 'femur_left' },
   miniatura: thumbnail('femur_left'),
   partes: [
     { id: 'cabeza', nombreEs: 'Cabeza del fémur', terminoEn: 'Femoral head', ubicacion: 'Extremo proximal del fémur, en la cadera.', funcion: 'Se articula con el acetábulo de la pelvis.' },
@@ -72,7 +72,7 @@ export const estructuras: readonly Estructura[] = [{
   ['patella', 'Rótula', 'Patella', 'patella_left', 'Hueso sesamoideo de la rodilla.', 'En el tendón del cuádriceps, delante de la rodilla.', 'Mejora la palanca del cuádriceps al extender la rodilla.', ['femur', 'tibia']],
 ] as const).map(([id, nombreEs, terminoEn, nodeId, definicion, ubicacion, funcion, relacionadas]): Estructura => ({
   id, categoria: 'huesos', nombreEs, terminoEn, definicion, ubicacion, funcion, relacionadas,
-  modelo: { assetId: 'body-bones-regions', nodeId }, miniatura: thumbnail(nodeId),
+  modelo: { assetId: id, nodeId }, miniatura: thumbnail(nodeId),
   partes: partesHuesos[id],
   revision: { estado: 'provisional', fuentes: [{ titulo: 'OpenStax · The Appendicular Skeleton', url: `https://openstax.org/books/anatomy-and-physiology-2e/pages/${fuentesHuesos[id] ?? '8-4-bones-of-the-lower-limb'}` }] },
 })), {
@@ -80,19 +80,19 @@ export const estructuras: readonly Estructura[] = [{
   definicion: 'Órgano muscular que impulsa la sangre. Este modelo en corte es esquemático y simplifica la anatomía.',
   ubicacion: 'En el mediastino, entre los pulmones, detrás del esternón y sobre el diafragma.',
   funcion: 'Mantiene la circulación pulmonar y sistémica mediante sus contracciones.',
-  modelo: { assetId: 'heart-cutaway', nodeId: 'Heart_|_15_selectable_structures' },
+  modelo: { assetId: 'heart', nodeId: 'Heart_|_15_selectable_structures' },
   miniatura: thumbnail('heart-cutaway'), partes: partesCorazon, relacionadas: ['lungs'], revision: revisionCorazon,
 }, {
   id: 'lungs', categoria: 'organos', nombreEs: 'Pulmones', terminoEn: 'Lungs',
   definicion: 'Órganos respiratorios pares.', ubicacion: 'En el tórax, a ambos lados del mediastino.',
   funcion: 'Permiten intercambiar oxígeno y dióxido de carbono entre el aire y la sangre.',
-  modelo: { assetId: 'lung-regions', nodeId: 'lungs' }, miniatura: thumbnail('lungs'), partes: partesAtlas.lungs, relacionadas: ['heart'],
+  modelo: { assetId: 'lungs', nodeId: 'lungs' }, miniatura: thumbnail('lungs'), partes: partesAtlas.lungs, relacionadas: ['heart'],
   revision: { estado: 'provisional', fuentes: [{ titulo: 'OpenStax · The Lungs', url: 'https://openstax.org/books/anatomy-and-physiology-2e/pages/22-2-the-lungs' }] },
 }, ...([
   ['biceps_brachii', 'Bíceps braquial', 'Biceps brachii', 'biceps_brachii_left', 'Músculo anterior del brazo con dos cabezas.', 'En la cara anterior del brazo.', 'Flexiona el codo y supina el antebrazo.', ['humerus', 'radius', 'triceps_brachii']],
   ['quadriceps_femoris', 'Cuádriceps femoral', 'Quadriceps femoris', 'quadriceps_femoris_left', 'Grupo muscular anterior del muslo.', 'En la cara anterior del muslo.', 'Extiende la rodilla; el recto femoral también flexiona la cadera.', ['femur', 'patella']],
 ] as const).map(([id, nombreEs, terminoEn, nodeId, definicion, ubicacion, funcion, relacionadas]): Estructura => ({
   id, categoria: 'musculos', nombreEs, terminoEn, definicion, ubicacion, funcion, relacionadas,
-  modelo: { assetId: 'muscle-regions', nodeId }, miniatura: thumbnail(nodeId), partes: partesAtlas[id],
+  modelo: { assetId: id, nodeId }, miniatura: thumbnail(nodeId), partes: partesAtlas[id],
   revision: { estado: 'provisional', fuentes: [{ titulo: 'OpenStax · Appendicular muscles', url: `https://openstax.org/books/anatomy-and-physiology-2e/pages/${id === 'biceps_brachii' ? '11-5-muscles-of-the-pectoral-girdle-and-upper-limbs' : '11-6-appendicular-muscles-of-the-pelvic-girdle-and-lower-limbs'}` }] },
 })), ...[...ampliacionAtlas, ...estructurasAxialesDigestivas].map(item => ({ ...item, miniatura: thumbnail(item.modelo.nodeId) }))];

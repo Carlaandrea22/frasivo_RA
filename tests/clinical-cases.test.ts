@@ -97,24 +97,15 @@ describe('sesión de casos clínicos', () => {
   });
 
   it('vincula cada investigación a una parte del modelo y conserva la mandíbula del cráneo', () => {
-    const assets = {
-      'body-bones-regions': 'huesos-regiones.glb',
-      'lung-regions': 'pulmones-regiones.glb',
-      'organ-regions': 'organos-regiones.glb',
-    };
-    const modelNodes = new Map(Object.entries(assets).map(([id, filename]) => {
-      const bytes = readFileSync(new URL(`../src/content/anatomy/modelos/${filename}`, import.meta.url));
-      const { nodes } = JSON.parse(bytes.toString('utf8', 20, 20 + bytes.readUInt32LE(12))) as {
-        nodes: { name: string; children?: number[]; mesh?: number }[];
-      };
-      return [id, nodes];
-    }));
     for (const item of clinicalCases) {
       if (item.kind !== 'investigation') continue;
       for (const region of item.anatomy) {
         const anatomy = resolveCaseAnatomy(region);
         if (!anatomy) throw new Error(`Anatomía sin resolver: ${region.structureId}/${region.partId}`);
-        const nodes = modelNodes.get(anatomy.model.assetId) ?? [];
+        const bytes = readFileSync(new URL(`../src/content/anatomy/modelos/fichas/explorar-${anatomy.model.assetId}.glb`, import.meta.url));
+        const { nodes } = JSON.parse(bytes.toString('utf8', 20, 20 + bytes.readUInt32LE(12))) as {
+          nodes: { name: string; children?: number[]; mesh?: number }[];
+        };
         const root = nodes.find(node => node.name === anatomy.model.nodeId);
         const children = root?.children?.map(index => nodes[index]) ?? [];
         expect(root).toBeDefined();

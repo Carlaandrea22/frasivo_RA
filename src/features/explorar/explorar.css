@@ -15,7 +15,7 @@
 .explorar-heading h1 { font-size: clamp(1.5rem, 5vw, 2.5rem); }
 .explorar-back { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; border: 1px solid var(--line); border-radius: 16px; background: var(--white); }
 .explorar-detail { display: grid; gap: 20px; min-width: 0; }
-.explorar-view { position: relative; min-width: 0; --viewer3d-height: clamp(380px, 55dvh, 520px); }
+.explorar-view { position: relative; min-width: 0; --viewer3d-height: clamp(380px, 55dvh, 520px); --viewer3d-lighting: studio; }
 .explorar-view .viewer3d__stage { background: linear-gradient(145deg, var(--mint), #f4faf5); }
 .explorar-view .viewer3d__controls { position: absolute; right: 8px; top: 8px; z-index: 1; padding: 0; border: 0; gap: 6px; max-width: 190px; justify-content: flex-end; }
 .explorar-view .viewer3d__controls button { font-size: .7rem; padding: 7px; }

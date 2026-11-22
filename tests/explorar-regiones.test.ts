@@ -1,8 +1,13 @@
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
+import { Mesh, Vector3 } from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { describe, expect, it } from 'vitest';
 import { estructuras } from '../src/content/anatomy/catalogo';
+import { modelos } from '../src/content/anatomy/modelos';
 import { anotaciones } from '../src/content/anotaciones/anatomia';
+import { createModelScene } from '../src/shared/visor3d/modelScene';
 import baseline from './fixtures/explorar-atlas-source.json';
 
 const digest = (text: string) => createHash('sha256').update(text).digest('hex');
@@ -27,6 +32,26 @@ const atlases = [
   { source: 'organs', output: 'organos', ids: ['stomach', 'kidneys', 'brain', 'liver', 'small_intestine', 'large_intestine'] },
 ];
 
+const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
+
+async function modelScene(bytes: Buffer, nodeId: string) {
+  const { scene } = await loader.parseAsync(Uint8Array.from(bytes).buffer, '');
+  const model = createModelScene(scene, nodeId);
+  if (!model) throw new Error(`No se pudo aislar ${nodeId}.`);
+  return model;
+}
+
+function indicesByPart(scene: Awaited<ReturnType<typeof modelScene>>) {
+  const counts = new Map<string | null, number>();
+  for (const object of scene.objects) {
+    if (!(object instanceof Mesh)) throw new Error('Se esperaba una malla.');
+    const id = scene.selectionId(object);
+    const count = object.geometry.index?.count ?? object.geometry.attributes.position.count;
+    counts.set(id, (counts.get(id) ?? 0) + count);
+  }
+  return counts;
+}
+
 describe('regiones seleccionables del atlas', () => {
   it('registra las cuatro piezas óseas agregadas con un anclaje cada una', () => {
     for (const [estructuraId, parteId] of [['skull', 'mandibula'], ['spine', 'atlas'], ['spine', 'axis'], ['spine', 'coccix']]) {
@@ -37,10 +62,46 @@ describe('regiones seleccionables del atlas', () => {
   it('cada parte apunta a su propia malla y mantiene el ID de la estructura', () => {
     for (const id of ['femur','tibia','humerus','radius']) {
       const item = estructuras.find(i => i.id === id)!;
-      expect(item.modelo?.assetId).toBe('body-bones-regions');
       const notes = anotaciones.filter(a => a.estructuraId === id);
       expect(new Set(notes.map(a => a.nodeId)).size).toBe(3);
       expect(notes.every(a => a.nodeId.startsWith(`${item.modelo?.nodeId}__`))).toBe(true);
+    }
+  });
+  it('sirve un GLB Meshopt cuantizado distinto para cada una de las 24 fichas', () => {
+    expect(estructuras).toHaveLength(24);
+    const urls = new Set<string>();
+    for (const { id, modelo } of estructuras) {
+      expect(modelo, id).toBeDefined();
+      const url = modelos[modelo!.assetId];
+      expect(new URL(url, 'http://localhost').pathname, id).toMatch(new RegExp(`/explorar-${id}\\.glb$`));
+      urls.add(url);
+      const bytes = readFileSync(`src/content/anatomy/modelos/fichas/explorar-${id}.glb`);
+      expect(bytes.length, id).toBeLessThanOrEqual(800_000);
+      const data = JSON.parse(bytes.toString('utf8', 20, 20 + bytes.readUInt32LE(12)));
+      expect(data.extensionsRequired, id).toEqual(expect.arrayContaining(['EXT_meshopt_compression', 'KHR_mesh_quantization']));
+    }
+    expect(urls.size).toBe(24);
+  });
+  it.each(estructuras)('conserva los triángulos por parte y los anclajes de $id', async ({ id, modelo }) => {
+    const atlas = atlases.find(({ ids }) => ids.includes(id));
+    const source = atlas ? `src/content/anatomy/modelos/${atlas.output}-regiones.glb` : 'assets/anatomy/cardiovascular/heart-cutaway.glb';
+    const [original, compressed] = await Promise.all([
+      modelScene(readFileSync(source), modelo!.nodeId),
+      modelScene(readFileSync(`src/content/anatomy/modelos/fichas/explorar-${id}.glb`), modelo!.nodeId),
+    ]);
+    compressed.root.traverse(node => {
+      if (node instanceof Mesh) expect(compressed.visible.has(node), node.name).toBe(true);
+    });
+    expect(indicesByPart(compressed)).toEqual(indicesByPart(original));
+    expect(compressed.bounds.min.distanceTo(original.bounds.min)).toBeLessThan(0.0001);
+    expect(compressed.bounds.max.distanceTo(original.bounds.max)).toBeLessThan(0.0001);
+    for (const note of anotaciones.filter(note => note.estructuraId === id)) {
+      const oldNode = original.nodes.get(note.nodeId);
+      const newNode = compressed.nodes.get(note.nodeId);
+      if (!oldNode || !newNode) throw new Error(`Falta el nodo ${note.nodeId}.`);
+      expect(compressed.visible.has(newNode)).toBe(true);
+      const point = new Vector3(...note.punto);
+      expect(newNode.localToWorld(point.clone()).distanceTo(oldNode.localToWorld(point))).toBeLessThan(0.000001);
     }
   });
   it.each(atlases)('separa triángulos de $output sin duplicarlos ni perder superficie', ({ source, output, ids }) => {

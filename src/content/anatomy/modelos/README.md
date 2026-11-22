@@ -5,7 +5,19 @@ Los GLB de este directorio derivan de las mallas existentes de BodyParts3D:
 Attribution 4.0 International.** Fuentes y licencia:
 [FUENTES.md](../../../../assets/anatomy/FUENTES.md).
 
-Regenerar desde la raíz del repositorio:
+Los GLB de `fichas/` se cargan al abrir un modelo en el visor. Para regenerarlos
+desde la raíz del repositorio, usa los GLB regionales de este directorio y el
+[modelo del corazón](../../../../assets/anatomy/cardiovascular/README.md).
+
+```sh
+npm exec --yes --package=gltfpack@1.3.0 -- node scripts/generate-explorar-fichas.mjs
+```
+
+El generador comprime cada ficha con Meshopt. Cuantiza las posiciones en coma
+flotante y las normales mediante `KHR_mesh_quantization`. Cada parte conserva
+la transformación local que usan sus anclajes.
+
+Para regenerar los GLB regionales de origen, ejecuta:
 
 ```sh
 node scripts/generate-explorar-regions.mjs

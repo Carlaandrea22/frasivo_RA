@@ -1,7 +1,8 @@
 import {
   Box3, InstancedMesh, Line, Mesh, Points, Raycaster, SkinnedMesh, Texture, Vector2, Vector3,
-  type BufferGeometry, type Camera, type Intersection, type Material, type Object3D,
+  type BufferGeometry, type Camera, type Material, type Object3D,
 } from 'three';
+import { createModelOcclusion } from './modelOcclusion';
 
 export interface Viewer3DAnchor {
   id: string;
@@ -26,6 +27,7 @@ export interface ModelScene {
   visible: Set<Object3D>;
   objects: Renderable[];
   bounds: Box3;
+  occlusion: ReturnType<typeof createModelOcclusion>;
   selectionId: (object: Object3D) => string | null;
 }
 
@@ -90,41 +92,38 @@ export function createModelScene(root: Object3D, nodeId?: string): ModelScene | 
     return fallback;
   }
 
-  return { root, nodes, visible, objects, bounds, selectionId };
+  return { root, nodes, visible, objects, bounds, occlusion: createModelOcclusion(objects), selectionId };
 }
 
 export function projectAnchors(
   model: ModelScene, camera: Camera, anchors: readonly Viewer3DAnchor[], width: number, height: number,
+  occlusion?: { blocked: boolean[]; sample: boolean },
 ): Viewer3DProjectedAnchor[] {
+  const sample = occlusion?.sample ?? true;
   const visible = new Set<Object3D>();
   const occluders: Mesh[] = [];
   model.root.traverseVisible(node => {
     if (!model.visible.has(node)) return;
     visible.add(node);
-    if (node instanceof Mesh && node.layers.test(camera.layers)) occluders.push(node);
+    if (sample && node instanceof Mesh) occluders.push(node);
   });
   const world = new Vector3(), point = new Vector3(), ndc = new Vector2();
-  const tolerance = model.bounds.getSize(point).length() * .005; // 1% of the bounding sphere radius.
-  const ray = new Raycaster();
-  ray.layers.mask = camera.layers.mask;
-  const intersections: Intersection<Mesh>[] = [];
-  return anchors.map(({ id, nodeId, point: local }) => {
+  const tolerance = sample ? model.bounds.getSize(point).length() * .005 : 0; // 1% of the bounding sphere radius.
+  const ray = sample ? new Raycaster() : undefined;
+  if (ray) ray.layers.mask = camera.layers.mask;
+  return anchors.map(({ id, nodeId, point: local }, index) => {
     const node = nodeId === undefined ? model.root : model.nodes.get(nodeId);
     if (!node || !visible.size || (nodeId !== undefined && !visible.has(node))) return { id, x: 0, y: 0, visible: false };
     world.set(...local).applyMatrix4(node.matrixWorld);
     point.copy(world).project(camera);
     if (![point.x, point.y, point.z].every(Number.isFinite)) return { id, x: 0, y: 0, visible: false };
     const inFrame = Math.abs(point.x) <= 1 && Math.abs(point.y) <= 1 && Math.abs(point.z) <= 1;
-    let blocked = false;
-    if (inFrame) {
+    let blocked = occlusion?.blocked[index] ?? false;
+    if (inFrame && ray) {
       ray.setFromCamera(ndc.set(point.x, point.y), camera);
       ray.far = world.distanceTo(ray.ray.origin) - tolerance;
-      intersections.length = 0;
-      ray.intersectObjects(occluders, false, intersections);
-      blocked = intersections.some(({ object, face }) => {
-        const material = Array.isArray(object.material) ? object.material[face?.materialIndex ?? 0] : object.material;
-        return material?.visible;
-      });
+      blocked = model.occlusion.blocks(ray, occluders);
+      if (occlusion) occlusion.blocked[index] = blocked;
     }
     return {
       id,
