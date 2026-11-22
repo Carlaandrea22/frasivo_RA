@@ -1,9 +1,18 @@
 # LumAR · Anatomía humana
 
-LumAR combina la exploración de anatomía con la práctica inicial de entrevistas y razonamiento clínico. La interfaz está en español y las estructuras incluyen su término en inglés y pronunciación con la voz del dispositivo.
+LumAR es una PWA educativa de anatomía humana en español. La pronunciación de los términos anatómicos en inglés usa clips de audio generados con Piper.
 
-- **Cuerpo** muestra huesos, músculos y órganos sobre la cámara con MediaPipe Pose Lite. «Fijar esqueleto» conserva una pose para abrirla en el visor 3D o en AR Quick Look en iPhone compatible. El procesamiento ocurre en el dispositivo.
-- **Explorar 3D**, **Retos de anatomía**, **Casos clínicos** y **Mi progreso** tienen pantallas base. Incluyen ejemplos provisionales para que el equipo complete cada módulo en paralelo.
+- **Cuerpo** permite consultar el atlas o ver capas de huesos, músculos y órganos sobre la cámara con MediaPipe Pose Lite. Puedes fijar una pose y abrirla en el visor 3D o en AR Quick Look en un iPhone compatible. El procesamiento de la cámara ocurre en el dispositivo.
+- **Explorar 3D** ofrece un catálogo de estructuras con modelos interactivos, anotaciones y fichas de anatomía.
+- **Retos** propone ejercicios de identificación, ubicación y relación de estructuras, con retroalimentación.
+- **Casos clínicos** permite practicar entrevistas simuladas, relacionar síntomas con posibles causas y revisar el razonamiento clínico.
+- **Mi progreso** reúne las estructuras consultadas y los resultados de retos y casos para volver a estudiar o practicar.
+
+Retos y Casos clínicos se abren desde **Practicar**.
+
+## Alojamiento
+
+Cloudflare Pages publica LumAR desde `main`. El equipo integra y prueba los cambios en `Luis` antes de adelantar `main`. La URL pública está **pendiente**. [Configuración de Cloudflare Pages](docs/HOSTING.md)
 
 ## Desarrollo
 

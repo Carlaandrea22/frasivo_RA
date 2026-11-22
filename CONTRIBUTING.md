@@ -1,6 +1,8 @@
 # Contribuir a LumAR
 
-`Luis` es la rama de integración de LumAR. `main` conserva la app anterior hasta que el equipo decida integrar LumAR. La persona A mantiene la base, Cuerpo, AR y los puntos compartidos. B implementa [Explorar 3D y Retos de anatomía](docs/tareas/persona-b-explorar-retos.md). C implementa [Casos clínicos y Mi progreso](docs/tareas/persona-c-casos-progreso.md). Los contratos y las rutas están en la [arquitectura](docs/ARQUITECTURA.md).
+`Luis` es la rama de integración de LumAR y el destino de los pull requests. `main` contiene la versión publicada en Cloudflare Pages. Cuando `Luis` pasa GitHub Actions y se comprueba en su vista previa, `main` se actualiza únicamente adelantándola hasta `Luis` con `git merge --ff-only origin/Luis` y un push sin `--force`. [Configuración de Cloudflare Pages](docs/HOSTING.md)
+
+La persona A mantiene la base, Cuerpo, AR y los puntos compartidos. B se encarga de Explorar 3D y Retos de anatomía. C se encarga de Casos clínicos y Mi progreso. [Tarea de B](docs/tareas/persona-b-explorar-retos.md) · [Tarea de C](docs/tareas/persona-c-casos-progreso.md) · [Arquitectura](docs/ARQUITECTURA.md)
 
 ## Trabajar en paralelo
 
@@ -20,7 +22,7 @@ npm run dev
 
 Antes de pedir la revisión, ejecuta las pruebas y la compilación. Usa las pruebas de navegador para verificar recorridos de interfaz y los enlaces entre rutas. La suite requiere Chrome.
 
-GitHub Actions ejecuta **Build y pruebas en Chrome** en cada PR dirigido a `Luis` y cada push a esa rama. El pull request debe pasar esta revisión antes de unirse. Si Playwright falla, los artefactos de la ejecución incluyen el reporte y las capturas disponibles.
+GitHub Actions ejecuta **Build y pruebas en Chrome** en cada PR dirigido a `Luis` y en cada push a `Luis` o `main`. El pull request debe pasar esta revisión antes de unirse. Si Playwright falla, los artefactos de la ejecución incluyen el reporte y las capturas disponibles.
 
 ```sh
 npm test

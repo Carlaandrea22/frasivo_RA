@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [Luis]
   push:
-    branches: [Luis]
+    branches: [Luis, main]
 
 permissions:
   contents: read
