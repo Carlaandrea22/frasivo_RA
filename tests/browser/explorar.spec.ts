@@ -9,7 +9,7 @@ for (const width of [375, 1440]) test(`Explorar: catálogo y corazón a ${width}
   await search.fill('no-existe');
   await expect(page.getByRole('button', { name: 'Limpiar búsqueda' })).toBeVisible();
   await page.getByRole('button', { name: 'Limpiar búsqueda' }).click();
-  await expect(page.locator('.explorar-grid > article')).toHaveCount(4);
+  await expect(page.locator('.explorar-grid > article')).toHaveCount(8);
   await expect(page.locator('.explorar-grid').getByText('Provisional', { exact: true })).toHaveCount(0);
   await page.screenshot({ path: `docs/capturas/carla/catalogo-organos-${width}.png`, fullPage: true });
   await page.getByRole('link', { name: /Ver corazón/i }).click();
@@ -74,6 +74,9 @@ test('las fichas nuevas se encuentran en el catálogo y se conectan al selector 
     ['huesos', 'cubito', 'Cúbito', 3], ['huesos', 'fibula', 'Peroné', 3], ['huesos', 'sternum', 'Esternón', 3],
     ['musculos', 'deltoid', 'Deltoides', 3], ['musculos', 'triceps', 'Tríceps braquial', 3], ['musculos', 'gastrocnemius', 'Gastrocnemio', 2],
     ['organos', 'stomach', 'Estómago', 4], ['organos', 'kidneys', 'Riñones', 2],
+    ['huesos', 'skull', 'Cráneo', 6], ['huesos', 'columna', 'Columna vertebral', 4],
+    ['organos', 'brain', 'Cerebro', 4], ['organos', 'higado', 'Hígado', 3],
+    ['organos', 'small intestine', 'Intestino delgado', 3], ['organos', 'intestino grueso', 'Intestino grueso', 6],
   ] as const;
   for (const [categoria, termino, nombre, partes] of fichas) {
     await page.goto(`/#explorar/${categoria}`);

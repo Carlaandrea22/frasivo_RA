@@ -1,6 +1,8 @@
 import type { ParteAnatomica } from '../types';
+import { partesAxialesDigestivas } from './atlasAxialDigestivo';
 
 export const partesAtlas = {
+  ...partesAxialesDigestivas,
   pelvis: [
     { id: 'ilion', nombreEs: 'Ilion', terminoEn: 'Ilium', ubicacion: 'Porción superior y ancha del hueso coxal.', funcion: 'Transmite cargas desde el sacro y ofrece inserción a músculos de la cadera.' },
     { id: 'isquion', nombreEs: 'Isquion', terminoEn: 'Ischium', ubicacion: 'Porción inferior y posterior del hueso coxal.', funcion: 'La tuberosidad isquiática soporta parte del peso al sentarse.' },

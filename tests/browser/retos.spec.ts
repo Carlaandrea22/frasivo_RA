@@ -41,7 +41,12 @@ test('Señala la estructura abre huesos, músculos y órganos, y puede elegir al
   await abrir.click();
   const selector = page.getByRole('combobox', { name: 'Modelo o recorrido' });
   await expect(selector.locator('optgroup').filter({ has: page.locator('option[value="tibia"]') })).toHaveAttribute('label', 'Huesos');
-  for (const [id, nombre] of [['tibia', 'Tibia'], ['biceps_brachii', 'Bíceps braquial'], ['lungs', 'Pulmones']]) {
+  const modelos = [
+    ['tibia', 'Tibia'], ['biceps_brachii', 'Bíceps braquial'], ['lungs', 'Pulmones'],
+    ['skull', 'Cráneo'], ['spine', 'Columna vertebral'], ['brain', 'Cerebro'],
+    ['liver', 'Hígado'], ['small_intestine', 'Intestino delgado'], ['large_intestine', 'Intestino grueso'],
+  ];
+  for (const [id, nombre] of modelos) {
     await selector.selectOption(id);
     await page.getByRole('button', { name: 'Empezar reto' }).click();
     await expect(page.getByRole('region', { name: `Modelo 3D de ${nombre}`, exact: true })).toHaveAttribute('data-viewer-state', 'ready');
@@ -121,6 +126,8 @@ test('Repaso breve permite elegir huesos, músculos u órganos y empezar al azar
     ['repaso-huesos-ampliacion', ['Olécranon', 'Maléolo lateral', 'Manubrio']],
     ['repaso-musculos-ampliacion', ['Porción acromial', 'Cúbito', 'Levantar el talón']],
     ['repaso-organos-ampliacion', ['Región pilórica', 'Por la posición del hígado.']],
+    ['repaso-craneo-columna', ['Frontal', 'Región torácica']],
+    ['repaso-cerebro-digestion', ['Cerebelo', 'Bilis', 'Duodeno', 'Colon transverso']],
   ] as const;
   for (const [id, respuestas] of repasos) {
     await expect(tema.locator(`option[value="${id}"]`)).toHaveCount(1);
@@ -141,7 +148,7 @@ test('Repaso breve permite elegir huesos, músculos u órganos y empezar al azar
   await expect(tema).toHaveCount(0);
   await page.evaluate(() => { Math.random = () => .999; });
   await page.getByRole('button', { name: 'Empezar reto' }).click();
-  await expect(page.getByRole('heading', { name: 'Estómago y riñones', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Cerebro, hígado e intestinos', exact: true })).toBeVisible();
   await expect(page.getByRole('group', { name: 'Respuestas' })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(375);
 });
@@ -217,6 +224,8 @@ test('Relaciona permite escoger temas de las tres categorías o empezar al azar'
     ['funcion-huesos-ampliacion', [['Cúbito', /bisagra del codo/], ['Peroné', /Estabiliza el tobillo/], ['Esternón', /uniones anteriores de las costillas/]]],
     ['funcion-musculos-ampliacion', [['Deltoides', /Eleva el brazo hacia el lado/], ['Tríceps braquial', /Extiende el codo/], ['Gastrocnemio', /levantar el talón/]]],
     ['funcion-organos-ampliacion', [['Estómago', /Almacena el alimento/], ['Riñones', /Filtran la sangre/]]],
+    ['funcion-craneo-columna', [['Cráneo', /Protege el encéfalo/], ['Columna vertebral', /protege la médula espinal/]]],
+    ['funcion-cerebro-digestion', [['Cerebro', /Integra la información sensorial/], ['Hígado', /produce bilis/], ['Intestino delgado', /absorbe la mayoría de los nutrientes/], ['Intestino grueso', /agua y las sales restantes/]]],
   ] as const;
   for (const [id, parejas] of ejemplos) {
     await expect(tema.locator(`option[value="${id}"]`)).toHaveCount(1);
@@ -239,7 +248,7 @@ test('Relaciona permite escoger temas de las tres categorías o empezar al azar'
   await expect(tema).toHaveCount(0);
   await page.evaluate(() => { Math.random = () => .999; });
   await page.getByRole('button', { name: 'Empezar reto' }).click();
-  await expect(page.getByRole('heading', { name: 'Estómago y riñones', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Cerebro, hígado e intestinos', exact: true })).toBeVisible();
   await expect(page.getByRole('group', { name: 'Funciones' })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(375);
 });
@@ -296,6 +305,16 @@ test.describe('Ubica las partes con varios modelos', () => {
     { id: 'partes-organos', modelos: [
       ['Corazón', 'Aurícula derecha', 'Ventrículo derecho', 'Aurícula izquierda', 'Ventrículo izquierdo'],
       ['Pulmones', 'Lóbulo superior derecho', 'Lóbulo medio derecho', 'Lóbulo inferior derecho', 'Lóbulo superior izquierdo', 'Lóbulo inferior izquierdo'],
+    ] },
+    { id: 'partes-craneo-columna', modelos: [
+      ['Cráneo', 'Frontal', 'Parietales', 'Temporales', 'Occipital', 'Cigomáticos', 'Maxilares'],
+      ['Columna vertebral', 'Región cervical', 'Región torácica', 'Región lumbar', 'Sacro'],
+    ] },
+    { id: 'partes-cerebro-digestion', modelos: [
+      ['Cerebro', 'Hemisferio derecho', 'Hemisferio izquierdo', 'Cerebelo', 'Tronco encefálico'],
+      ['Hígado', 'Porción hepática derecha', 'Porción hepática izquierda', 'Lóbulo caudado'],
+      ['Intestino delgado', 'Duodeno', 'Yeyuno', 'Íleon'],
+      ['Intestino grueso', 'Ciego', 'Colon ascendente', 'Colon transverso', 'Colon descendente', 'Colon sigmoide', 'Recto'],
     ] },
   ];
 

@@ -119,6 +119,8 @@ const recorridosAmpliacion = [
   { id: 'huesos-ampliacion', titulo: 'Cúbito, peroné y esternón', modelos: ['ulna', 'fibula', 'sternum'] },
   { id: 'musculos-ampliacion', titulo: 'Deltoides, tríceps y gastrocnemio', modelos: ['deltoid', 'triceps_brachii', 'gastrocnemius'] },
   { id: 'organos-ampliacion', titulo: 'Estómago y riñones', modelos: ['stomach', 'kidneys'] },
+  { id: 'craneo-columna', titulo: 'Cráneo y columna vertebral', modelos: ['skull', 'spine'] },
+  { id: 'cerebro-digestion', titulo: 'Cerebro, hígado e intestinos', modelos: ['brain', 'liver', 'small_intestine', 'large_intestine'] },
 ] as const;
 
 export const retos: readonly Reto[] = [

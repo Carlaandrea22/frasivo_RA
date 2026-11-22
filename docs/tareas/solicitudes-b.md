@@ -180,3 +180,18 @@ Cada ficha aporta una pareja en Relaciona y una pregunta de opción múltiple
 en Repaso. Los temas aparecen en su categoría y «Aleatorio» también puede
 elegirlos. Al entrar desde una ficha nueva, el selector preselecciona el tema
 que incluye esa estructura.
+
+### Cráneo, columna, cerebro, hígado e intestinos
+
+Explorar reúne 24 fichas. Las seis últimas incorporan 26 partes y regiones
+seleccionables con etiquetas bilingües, audio y fuentes. El cráneo se muestra
+sin mandíbula y la columna va de C3 al sacro. El hígado incluye dos porciones
+funcionales y el lóbulo caudado. El cambio de tramo en el ciego y el colon
+sigmoide es orientativo.
+
+Los seis modelos se pueden elegir en «Ubica las partes» y «Señala la
+estructura». En «Relaciona estructura y función» y «Repaso breve» aparecen
+los temas «Cráneo y columna vertebral» y «Cerebro, hígado e intestinos». Los
+selectores también pueden elegirlos al azar.
+
+- [Cerebro a 375 px](../capturas/carla/atlas-cerebro-375.png) y [colon sigmoide resaltado en escritorio](../capturas/carla/atlas-intestino-grueso-1440.png).

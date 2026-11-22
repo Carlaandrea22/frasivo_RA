@@ -17,10 +17,10 @@ function glb(path: string) {
 }
 
 const atlases = [
-  { source: 'bones', output: 'huesos', ids: ['femur', 'tibia', 'humerus', 'radius', 'pelvis', 'patella', 'ulna', 'fibula', 'sternum'] },
+  { source: 'bones', output: 'huesos', ids: ['femur', 'tibia', 'humerus', 'radius', 'pelvis', 'patella', 'ulna', 'fibula', 'sternum', 'skull', 'spine'] },
   { source: 'muscles', output: 'musculos', ids: ['biceps_brachii', 'quadriceps_femoris', 'deltoid', 'triceps_brachii', 'gastrocnemius'] },
   { source: 'organs', output: 'pulmones', ids: ['lungs'] },
-  { source: 'organs', output: 'organos', ids: ['stomach', 'kidneys'] },
+  { source: 'organs', output: 'organos', ids: ['stomach', 'kidneys', 'brain', 'liver', 'small_intestine', 'large_intestine'] },
 ];
 
 describe('regiones seleccionables del atlas', () => {

@@ -16,7 +16,7 @@ Descargas y OBJ originales extraídos el 21 de noviembre de 2026 bajo `assets/_f
 
 ## Modificaciones
 
-Los [GLB con regiones seleccionables de Explorar](../../src/content/anatomy/modelos/README.md) conservan los triángulos, posiciones, normales y materiales originales. El [generador](../../scripts/generate-explorar-regions.mjs) agrupa superficies y estima los límites cuando las partes comparten una malla. Incluye los seis huesos del catálogo, bíceps, cuádriceps y pulmones. Los derivados de BodyParts3D conservan la atribución y licencia CC BY 4.0. Las regiones y anclajes siguen pendientes de revisión anatómica.
+Los [GLB con regiones seleccionables de Explorar](../../src/content/anatomy/modelos/README.md) conservan los triángulos, posiciones, normales y materiales originales. El [generador](../../scripts/generate-explorar-regions.mjs) agrupa superficies y estima los límites cuando las partes comparten una malla. Para el cráneo, la columna, el cerebro, el hígado y los intestinos, [el mapa de regiones](../../scripts/map-explorar-atlas-regions.py) reutiliza los elementos de la tabla PART-OF de BodyParts3D 4.0. Los derivados conservan la atribución y licencia CC BY 4.0. Las regiones y anclajes siguen pendientes de revisión anatómica.
 
 Explorar incluye [clips de pronunciación en inglés estadounidense](../../src/content/anatomy/pronunciacion/README.md) generados con Piper y el modelo femenino LJ Speech, entrenado con grabaciones de dominio público.
 

@@ -163,7 +163,7 @@ function Ficha({ item }: { item: Estructura }) {
           </div>
           {selected && <section className="explorar-part-detail" aria-label="Parte seleccionada" aria-live="polite">
             <h3>{selected.nombreEs}</h3><EnglishTerm term={selected.terminoEn}/><p>{selected.ubicacion}</p><p>{selected.funcion}</p>
-            {(item.categoria === 'huesos' || item.id === 'stomach') && <p className="explorar-help">Resaltado orientativo: límites de la región pendientes de revisión anatómica.</p>}
+            {(item.categoria === 'huesos' || item.id === 'stomach' || item.id === 'large_intestine') && <p className="explorar-help">Resaltado orientativo: límites de la región pendientes de revisión anatómica.</p>}
             <Button variant="text" onClick={() => setSelectedPart(undefined)}>Ver estructura completa</Button>
           </section>}
           <BottomSheet trigger="Ver partes" title="Partes anatómicas">

@@ -4,6 +4,9 @@
  * Máscaras geométricas orientativas, pendientes de revisión anatómica.
  */
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+
+const atlasRegions = JSON.parse(await readFile(new URL('./explorar-atlas-triangle-regions.json', import.meta.url), 'utf8'));
 
 const boneMasks = {
   femur_left: { cabeza: ([x,y]) => x < .105 && y > .798, condilos: ([,y]) => y < .421, cuerpo: ([,y]) => y > .445 && y < .765 },
@@ -71,7 +74,7 @@ await mkdir(output,{ recursive:true });
 await generate('bones', 'huesos-regiones.glb', {
   ...Object.fromEntries(Object.entries(boneMasks).map(([id,masks]) => [id, () => center => Object.entries(masks).find(([,mask]) => mask(center))?.[0] ?? 'base'])),
   sternum: (points,triangles) => byComponent(points,triangles,['cuerpo','manubrio','xifoides']),
-});
+}, atlasRegions.bones);
 await generate('muscles', 'musculos-regiones.glb', {
   biceps_brachii_left: (points,triangles) => byComponent(points,triangles,['cabeza_corta','cabeza_larga']),
   quadriceps_femoris_left: (points,triangles) => byComponent(points,triangles,['vasto_lateral','recto_femoral','vasto_medial','vasto_intermedio']),
@@ -91,11 +94,23 @@ await generate('organs', 'organos-regiones.glb', {
     if (y > 1.135) return 'fondo';
     return 'cuerpo';
   },
-});
+}, atlasRegions.organs);
 await writeFile(new URL('../src/content/anotaciones/puntos-regiones.json',import.meta.url),JSON.stringify(generatedPoints,null,2)+'\n');
 
-async function generate(sourceName, fileName, definitions) {
+async function generate(sourceName, fileName, definitions, atlasMapping) {
   const source = await readFile(new URL(`../assets/anatomy/body/${sourceName}.glb`, import.meta.url));
+  if (atlasMapping) {
+    if (createHash('sha256').update(source).digest('hex') !== atlasMapping.sha256) {
+      throw Error(`La malla ${sourceName} cambió. Regenera su mapa con map-explorar-atlas-regions.py.`);
+    }
+    for (const [nodeId, ranges] of Object.entries(atlasMapping.regions)) {
+      definitions[nodeId] = (_, triangles) => {
+        const names = ranges.flatMap(([region, count]) => Array(count).fill(region));
+        if (names.length !== triangles.length) throw Error(`Mapa incompleto para ${nodeId}`);
+        return (_center, _triangle, index) => names[index];
+      };
+    }
+  }
   const jsonLength = source.readUInt32LE(12);
   const original = JSON.parse(source.subarray(20,20+jsonLength).toString());
   const binary = source.subarray(28+jsonLength);
@@ -148,9 +163,9 @@ async function generate(sourceName, fileName, definitions) {
     const positions = Array.from({ length: original.accessors[positionId].count }, (_,i) => [0,1,2].map(k => readAccessor(positionId,i,k)));
     const triangles = Array.from({ length: count/3 }, (_,i) => [0,1,2].map(k => readAccessor(primitive.indices,i*3+k)));
     const classify = classifier(positions,triangles);
-    for (const triangle of triangles) {
+    for (const [index, triangle] of triangles.entries()) {
       const center = [0,1,2].map(axis => triangle.reduce((sum,vertex) => sum+positions[vertex][axis],0)/3);
-      const region = classify(center,triangle);
+      const region = classify(center,triangle,index);
       if (!regions.has(region)) regions.set(region,{ indices: [], centers: [] });
       regions.get(region).indices.push(...triangle);
       regions.get(region).centers.push(center);
@@ -164,7 +179,7 @@ async function generate(sourceName, fileName, definitions) {
       const name = `${nodeId}__${part}`;
       if (part !== 'base') {
         const middle = [0,1,2].map(axis => centers.reduce((sum,p) => sum+p[axis],0)/centers.length);
-        const back = part === 'cara_articular';
+        const back = ['cara_articular', 'occipital', 'cerebelo', 'caudado'].includes(part);
         const front = centers.reduce((z,p) => back ? Math.min(z,p[2]) : Math.max(z,p[2]),middle[2]);
         const distance = ([x,y,z]) => (x-middle[0])**2+(y-middle[1])**2+(z-front)**2;
         const point = centers.reduce((best,p) => distance(p) < distance(best) ? p : best,centers[0]);
